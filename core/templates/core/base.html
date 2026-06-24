@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ERP Helvi{% endblock %}</title>
+
+    <style>
+        :root{
+            --gold:#C9A646;
+            --black:#111111;
+            --bg:#F7F3EC;
+            --white:#FFFFFF;
+            --gray:#666;
+        }
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:Segoe UI, sans-serif;
+        }
+
+        body{
+            background:var(--bg);
+            color:var(--black);
+        }
+
+        .layout{
+            display:flex;
+            min-height:100vh;
+        }
+
+        .sidebar{
+            width:260px;
+            background:var(--black);
+            color:white;
+            padding:25px 20px;
+        }
+
+        .brand{
+            color:var(--gold);
+            font-size:26px;
+            font-weight:bold;
+            margin-bottom:5px;
+        }
+
+        .subtitle{
+            font-size:13px;
+            color:#ccc;
+            margin-bottom:35px;
+        }
+
+        .menu a{
+            display:block;
+            color:white;
+            text-decoration:none;
+            padding:13px 15px;
+            border-radius:10px;
+            margin-bottom:8px;
+            transition:.2s;
+        }
+
+        .menu a:hover{
+            background:var(--gold);
+            color:var(--black);
+        }
+
+        .content{
+            flex:1;
+        }
+
+        .topbar{
+            height:70px;
+            background:white;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            padding:0 30px;
+            box-shadow:0 2px 8px rgba(0,0,0,.06);
+        }
+
+        .page{
+            padding:30px;
+        }
+
+        .page-title{
+            font-size:30px;
+            margin-bottom:5px;
+        }
+
+        .page-subtitle{
+            color:var(--gray);
+            margin-bottom:25px;
+        }
+
+        .cards{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+            gap:20px;
+        }
+
+        .card{
+            background:white;
+            border-radius:16px;
+            padding:25px;
+            box-shadow:0 4px 14px rgba(0,0,0,.08);
+            transition:.2s;
+        }
+
+        .card:hover{
+            transform:translateY(-4px);
+        }
+
+        .card h3{
+            margin-bottom:10px;
+        }
+
+        .card p{
+            color:var(--gray);
+            font-size:14px;
+        }
+
+        .btn-gold{
+            background:var(--gold);
+            color:var(--black);
+            padding:12px 18px;
+            border-radius:10px;
+            text-decoration:none;
+            font-weight:bold;
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+<div class="layout">
+
+    <aside class="sidebar">
+        <div class="brand">HELVI</div>
+        <div class="subtitle">Distribuidora de Armações</div>
+
+        <nav class="menu">
+            <a href="{% url 'dashboard' %}">🏠 Dashboard</a>
+            <a href="#">➕ Nova Venda</a>
+            <a href="#">🏢 Clientes / Óticas</a>
+            <a href="#">👓 Produtos</a>
+            <a href="#">📦 Estoque</a>
+            <a href="#">💰 Financeiro</a>
+            <a href="#">📊 Relatórios</a>
+            <a href="#">⚙️ Configurações</a>
+        </nav>
+    </aside>
+
+    <main class="content">
+
+        <header class="topbar">
+            <div>
+                <strong>ERP Helvi</strong>
+            </div>
+
+            <div>
+                Olá, {{ request.user.username }}
+                |
+                <a href="{% url 'logout' %}" style="color:#111;text-decoration:none;">
+                    Sair
+                </a>
+            </div>
+        </header>
+
+        <section class="page">
+            {% block content %}
+            {% endblock %}
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+</html>

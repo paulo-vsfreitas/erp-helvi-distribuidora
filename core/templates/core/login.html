@@ -1,0 +1,63 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Login | ERP Helvi{% endblock %}
+
+{% block content %}
+
+<div style="height:100vh;display:flex;justify-content:center;align-items:center;">
+
+    <div style="
+        width:420px;
+        background:white;
+        padding:40px;
+        border-radius:20px;
+        box-shadow:0 5px 20px rgba(0,0,0,.1);
+    ">
+
+        <h1 style="text-align:center;color:#111;">
+            Helvi
+        </h1>
+
+        <p style="
+            text-align:center;
+            color:#C9A646;
+            margin-top:10px;
+            margin-bottom:30px;
+        ">
+            Distribuidora de Armações
+        </p>
+
+        <form method="post">
+
+            {% csrf_token %}
+
+            <div style="margin-bottom:15px;">
+                <label>Usuário</label><br>
+                {{ form.username }}
+            </div>
+
+            <div style="margin-bottom:20px;">
+                <label>Senha</label><br>
+                {{ form.password }}
+            </div>
+
+            <button type="submit"
+                    style="
+                    width:100%;
+                    padding:12px;
+                    border:none;
+                    border-radius:10px;
+                    background:#C9A646;
+                    color:white;
+                    font-weight:bold;
+                    cursor:pointer;">
+                Entrar
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

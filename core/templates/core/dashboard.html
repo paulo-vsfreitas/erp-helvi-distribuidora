@@ -1,0 +1,60 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Dashboard | ERP Helvi{% endblock %}
+
+{% block content %}
+
+<div class="navbar">
+    <div class="logo">HELVI ERP</div>
+
+    <div>
+        Olá, {{ request.user.username }}
+        |
+        <a href="{% url 'logout' %}" style="color:white;text-decoration:none;">
+            Sair
+        </a>
+    </div>
+</div>
+
+<div class="container">
+
+    <h1 style="margin-bottom:5px;">Painel Principal</h1>
+    <p style="color:#666;">Gestão da Helvi Distribuidora de Armações</p>
+
+    <div class="cards">
+
+        <div class="card">
+            <h3>➕ Nova Venda</h3>
+            <p>Venda rápida em poucos cliques</p>
+        </div>
+
+        <div class="card">
+            <h3>🏢 Clientes / Óticas</h3>
+            <p>Cadastro e histórico das óticas</p>
+        </div>
+
+        <div class="card">
+            <h3>👓 Produtos</h3>
+            <p>Modelos, cores e coleções</p>
+        </div>
+
+        <div class="card">
+            <h3>📦 Estoque</h3>
+            <p>Entradas, saídas e saldo atual</p>
+        </div>
+
+        <div class="card">
+            <h3>💰 Financeiro</h3>
+            <p>Recebimentos e contas a pagar</p>
+        </div>
+
+        <div class="card">
+            <h3>📊 Relatórios</h3>
+            <p>Vendas, lucro e desempenho</p>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
