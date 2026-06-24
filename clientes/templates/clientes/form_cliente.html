@@ -1,0 +1,30 @@
+{% extends 'core/base.html' %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block content %}
+
+<h1 class="page-title">{{ titulo }}</h1>
+<p class="page-subtitle">Cadastro de cliente / ótica</p>
+
+<div class="card" style="max-width:900px;">
+
+    <form method="POST">
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <div style="margin-top:20px;">
+            <button type="submit" class="btn-gold">
+                Salvar
+            </button>
+
+            <a href="{% url 'lista_clientes' %}" style="margin-left:15px;color:#111;">
+                Cancelar
+            </a>
+        </div>
+    </form>
+
+</div>
+
+{% endblock %}

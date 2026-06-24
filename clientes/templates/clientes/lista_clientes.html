@@ -1,0 +1,73 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Clientes{% endblock %}
+
+{% block content %}
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+
+    <div>
+        <h1 class="page-title">Clientes / Óticas</h1>
+        <p class="page-subtitle">
+            Gestão das óticas cadastradas
+        </p>
+    </div>
+
+    <a href="{% url 'novo_cliente' %}" class="btn-gold">
+    + Nova Ótica
+    </a>
+
+</div>
+
+<form method="GET" style="margin-bottom:20px;">
+    <input
+        type="text"
+        name="busca"
+        value="{{ busca }}"
+        placeholder="Pesquisar ótica..."
+        style="
+            padding:12px;
+            width:350px;
+            border:1px solid #ddd;
+            border-radius:10px;
+        "
+    >
+
+    <button class="btn-gold">
+        Pesquisar
+    </button>
+</form>
+
+<div class="cards">
+
+    {% for cliente in clientes %}
+
+        <div class="card">
+
+            <h3>{{ cliente.nome_fantasia }}</h3>
+
+            <p>
+                {{ cliente.cidade }} / {{ cliente.estado }}
+            </p>
+
+            <p>
+                {{ cliente.responsavel }}
+            </p>
+
+            <p>
+                {{ cliente.whatsapp }}
+            </p>
+
+        </div>
+
+    {% empty %}
+
+        <div class="card">
+            Nenhuma ótica cadastrada.
+        </div>
+
+    {% endfor %}
+
+</div>
+
+{% endblock %}
