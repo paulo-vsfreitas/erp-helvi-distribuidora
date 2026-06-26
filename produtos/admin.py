@@ -1,5 +1,3 @@
-# Register your models here.
-
 from django.contrib import admin
 from .models import Produto
 
@@ -9,8 +7,9 @@ class ProdutoAdmin(admin.ModelAdmin):
     list_display = (
         'codigo',
         'modelo',
-        'cor',
+        'marca',
         'genero',
+        'tipo_armacao',
         'preco_custo',
         'preco_venda',
         'estoque_atual',
@@ -20,12 +19,13 @@ class ProdutoAdmin(admin.ModelAdmin):
     search_fields = (
         'codigo',
         'modelo',
-        'marca',
-        'cor',
+        'marca__nome',
+        'tipo_armacao__nome',
     )
 
     list_filter = (
         'ativo',
-        'genero',
         'marca',
+        'genero',
+        'tipo_armacao',
     )

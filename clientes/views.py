@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Cliente
 from .forms import ClienteForm
@@ -33,4 +33,23 @@ def novo_cliente(request):
     return render(request, 'clientes/form_cliente.html', {
         'form': form,
         'titulo': 'Nova Ótica',
+    })
+
+
+@login_required
+def editar_cliente(request, cliente_id):
+    cliente = get_object_or_404(Cliente, id=cliente_id)
+
+    if request.method == 'POST':
+        form = ClienteForm(request.POST, instance=cliente)
+
+        if form.is_valid():
+            form.save()
+            return redirect('lista_clientes')
+    else:
+        form = ClienteForm(instance=cliente)
+
+    return render(request, 'clientes/form_cliente.html', {
+        'form': form,
+        'titulo': 'Editar Ótica',
     })

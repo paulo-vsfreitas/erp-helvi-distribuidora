@@ -40,23 +40,30 @@
 
 <div class="cards">
 
+    <div class="cards">
+
     {% for cliente in clientes %}
 
         <div class="card">
 
-            <h3>{{ cliente.nome_fantasia }}</h3>
+            <h3>🏢 {{ cliente.nome_fantasia }}</h3>
+
+            <p>📍 {{ cliente.cidade }} / {{ cliente.estado }}</p>
+            <p>👤 {{ cliente.responsavel }}</p>
+            <p>📞 {{ cliente.whatsapp }}</p>
 
             <p>
-                {{ cliente.cidade }} / {{ cliente.estado }}
+                💳 Limite:
+                <strong>R$ {{ cliente.limite_credito }}</strong>
             </p>
 
-            <p>
-                {{ cliente.responsavel }}
-            </p>
+            <p>📅 {{ cliente.condicao_pagamento }}</p>
 
-            <p>
-                {{ cliente.whatsapp }}
-            </p>
+            <br>
+
+            <a href="{% url 'editar_cliente' cliente.id %}" class="btn-gold">
+                ✏️ Editar
+            </a>
 
         </div>
 

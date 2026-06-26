@@ -1,0 +1,53 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Marcas{% endblock %}
+
+{% block content %}
+
+<h1>Marcas</h1>
+
+<p>Cadastro de marcas do ERP Helvi.</p>
+
+<a href="{% url 'nova_marca' %}" class="btn-gold">
+    + Nova Marca
+</a>
+
+<hr>
+
+{% for marca in marcas %}
+
+<div class="card">
+
+    <h3>{{ marca.nome }}</h3>
+
+    <p>{{ marca.descricao }}</p>
+
+    <p>
+        {% if marca.ativo %}
+            🟢 Ativa
+        {% else %}
+            🔴 Inativa
+        {% endif %}
+    </p>
+
+    <a href="{% url 'editar_marca' marca.id %}">
+        Editar
+    </a>
+
+    |
+
+    <a href="{% url 'excluir_marca' marca.id %}">
+        Excluir
+    </a>
+
+</div>
+
+{% empty %}
+
+<div class="card">
+    Nenhuma marca cadastrada.
+</div>
+
+{% endfor %}
+
+{% endblock %}
