@@ -85,9 +85,14 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'erp_helvi',
+        'USER': 'helvi_user',
+        'PASSWORD': 'Helvi@2026',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
+
 }
 
 
