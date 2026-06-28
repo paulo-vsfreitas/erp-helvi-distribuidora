@@ -14,6 +14,13 @@ botao_texto="Nova Marca"
 botao_icon="bi bi-plus-circle" %}
 
 <form method="get" class="card search-form">
+    <div class="list-summary">
+         {% if busca %}
+             {{ marcas|length }} resultado(s) encontrado(s) para "{{ busca }}"
+         {% else %}
+            {{ marcas|length }} marca(s) cadastrada(s)
+         {% endif %}
+</div>
     <label for="busca"><strong>Pesquisar marca</strong></label>
 
     <div class="search-row">
@@ -89,12 +96,16 @@ botao_icon="bi bi-plus-circle" %}
                     </td>
                 </tr>
             {% empty %}
-                <tr>
-                    <td colspan="5" style="padding:20px; text-align:center; color:#777;">
-                        Nenhuma marca cadastrada.
-                    </td>
-                </tr>
-            {% endfor %}
+    <tr>
+        <td colspan="5" class="empty-state">
+            {% if busca %}
+                Nenhuma marca encontrada para "{{ busca }}".
+            {% else %}
+                Nenhuma marca cadastrada até o momento.
+            {% endif %}
+        </td>
+    </tr>
+{% endfor %}
         </tbody>
     </table>
 
