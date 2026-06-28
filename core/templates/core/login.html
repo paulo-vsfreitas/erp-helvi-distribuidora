@@ -27,6 +27,19 @@
             Distribuidora de Armações
         </p>
 
+        {% if form.errors %}
+            <div style="
+                background:#fdecea;
+                color:#b42318;
+                padding:12px;
+                border-radius:10px;
+                margin-bottom:20px;
+                font-size:14px;
+            ">
+                Usuário ou senha inválidos.
+            </div>
+        {% endif %}
+
         <form method="post">
 
             {% csrf_token %}
@@ -36,9 +49,15 @@
                 {{ form.username }}
             </div>
 
-            <div style="margin-bottom:20px;">
+            <div style="margin-bottom:10px;">
                 <label>Senha</label><br>
                 {{ form.password }}
+            </div>
+
+            <div style="text-align:right;margin-bottom:20px;">
+                <a href="{% url 'password_reset' %}" style="font-size:14px;color:#C9A646;text-decoration:none;">
+                    Esqueci minha senha
+                </a>
             </div>
 
             <button type="submit"

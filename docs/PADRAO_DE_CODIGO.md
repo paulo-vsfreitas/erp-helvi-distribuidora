@@ -187,3 +187,15 @@ O sistema deve priorizar:
 - reutilização de código
 
 Toda implementação deve seguir estes princípios.
+
+REGRA Nº 1 DO ERP HELVI
+
+Nunca desenvolver pensando apenas na necessidade de hoje. Sempre desenvolver pensando na necessidade dos próximos anos.
+
+📌 Missão do ERP Helvi
+
+Quero deixar registrado o que será a essência do projeto.
+
+Desenvolver um ERP moderno, modular, intuitivo, escalável e preparado para acompanhar o crescimento da Helvi Distribuidora, tornando-se o principal ativo tecnológico da empresa.
+
+Essa será nossa referência para todas as decisões.
