@@ -1,0 +1,31 @@
+{% extends "core/base.html" %}
+
+{% block title %}Reativar Gênero{% endblock %}
+
+{% block content %}
+
+{% include "components/page_header.html" with titulo="Reativar Gênero" subtitulo="Confirme a reativação do gênero." %}
+
+<div class="form-card">
+    <p>
+        Deseja realmente reativar o gênero
+        <strong>{{ genero.nome }}</strong>?
+    </p>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-actions">
+            <a href="{% url 'catalogo:lista_generos' %}" class="btn btn-secondary">
+                Cancelar
+            </a>
+
+            <button type="submit" class="btn btn-success">
+                <i class="bi bi-check-circle"></i>
+                Reativar
+            </button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

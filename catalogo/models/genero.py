@@ -3,21 +3,29 @@ from django.db import models
 
 class Genero(models.Model):
     nome = models.CharField(
+        "Nome",
         max_length=50,
-        unique=True
+        unique=True,
     )
 
     descricao = models.TextField(
+        "Descrição",
         blank=True,
-        null=True
     )
 
     ativo = models.BooleanField(
-        default=True
+        "Ativo",
+        default=True,
     )
 
     data_cadastro = models.DateTimeField(
-        auto_now_add=True
+        "Data de Cadastro",
+        auto_now_add=True,
+    )
+
+    data_atualizacao = models.DateTimeField(
+        "Data de Atualização",
+        auto_now=True,
     )
 
     class Meta:

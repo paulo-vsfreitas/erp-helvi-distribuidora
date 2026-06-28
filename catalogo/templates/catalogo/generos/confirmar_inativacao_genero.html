@@ -1,0 +1,31 @@
+{% extends "core/base.html" %}
+
+{% block title %}Inativar Gênero{% endblock %}
+
+{% block content %}
+
+{% include "components/page_header.html" with titulo="Inativar Gênero" subtitulo="Confirme a inativação do gênero." %}
+
+<div class="form-card">
+    <p>
+        Deseja realmente inativar o gênero
+        <strong>{{ genero.nome }}</strong>?
+    </p>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-actions">
+            <a href="{% url 'catalogo:lista_generos' %}" class="btn btn-secondary">
+                Cancelar
+            </a>
+
+            <button type="submit" class="btn btn-danger">
+                <i class="bi bi-slash-circle"></i>
+                Inativar
+            </button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

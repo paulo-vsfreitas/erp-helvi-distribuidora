@@ -1,4 +1,10 @@
-from .marca import Marca
-from .colecao import Colecao
-from .genero import Genero
-from .tipo_armacao import TipoArmacao
+from .marca import *
+from .colecao import *
+from .genero import *
+
+# from .material import *
+# from .formato import *
+# from .cor import *
+# from .modelo import *
+
+from .tipo_armacao import *
