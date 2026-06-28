@@ -73,3 +73,23 @@ def inativar_marca(request, pk):
     return render(request, "catalogo/marcas/confirmar_inativacao_marca.html", {
         "marca": marca,
     })
+
+@login_required
+def reativar_marca(request, pk):
+    marca = get_object_or_404(Marca, pk=pk)
+
+    if request.method == "POST":
+        marca.ativo = True
+        marca.save()
+
+        messages.success(request, "Marca reativada com sucesso.")
+
+        return redirect("catalogo:lista_marcas")
+
+    return render(
+        request,
+        "catalogo/marcas/confirmar_reativacao_marca.html",
+        {
+            "marca": marca,
+        },
+    )

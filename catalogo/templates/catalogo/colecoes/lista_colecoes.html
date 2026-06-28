@@ -1,16 +1,16 @@
 {% extends 'core/base.html' %}
 
-{% block title %}Marcas | ERP Helvi{% endblock %}
+{% block title %}Coleções | ERP Helvi{% endblock %}
 
 {% block content %}
 
-{% url 'catalogo:nova_marca' as nova_marca_url %}
+{% url 'catalogo:nova_colecao' as nova_colecao_url %}
 
-{% include "components/page_header.html" with titulo="Marcas" subtitulo="Gerencie as marcas das armações cadastradas no ERP Helvi." botao_url=nova_marca_url botao_texto="Nova Marca" botao_icon="bi bi-plus-circle" %}
+{% include "components/page_header.html" with titulo="Coleções" subtitulo="Gerencie as coleções das armações cadastradas no ERP Helvi." botao_url=nova_colecao_url botao_texto="Nova Coleção" botao_icon="bi bi-plus-circle" %}
 
 <form method="get" class="card search-form">
     <label for="busca">
-        <strong>Pesquisar marca</strong>
+        <strong>Pesquisar coleção</strong>
     </label>
 
     <div class="search-row">
@@ -19,7 +19,7 @@
             id="busca"
             name="busca"
             value="{{ busca }}"
-            placeholder="Digite o nome da marca"
+            placeholder="Digite o nome da coleção"
             class="form-control"
         >
 
@@ -32,9 +32,9 @@
 
 <div class="list-summary">
     {% if busca %}
-        {{ marcas|length }} resultado(s) encontrado(s) para "{{ busca }}"
+        {{ colecoes|length }} resultado(s) encontrado(s) para "{{ busca }}"
     {% else %}
-        {{ marcas|length }} marca(s) cadastrada(s)
+        {{ colecoes|length }} coleção(ões) cadastrada(s)
     {% endif %}
 </div>
 
@@ -51,18 +51,18 @@
         </thead>
 
         <tbody>
-            {% for marca in marcas %}
+            {% for colecao in colecoes %}
                 <tr>
                     <td>
-                        <strong>{{ marca.nome }}</strong>
+                        <strong>{{ colecao.nome }}</strong>
                     </td>
 
                     <td>
-                        {{ marca.descricao|default:"-" }}
+                        {{ colecao.descricao|default:"-" }}
                     </td>
 
                     <td>
-                        {% if marca.ativo %}
+                        {% if colecao.ativo %}
                             <span class="badge badge-success">
                                 <i class="bi bi-check-circle"></i>
                                 Ativa
@@ -76,37 +76,25 @@
                     </td>
 
                     <td>
-                        {{ marca.data_cadastro|date:"d/m/Y" }}
+                        {{ colecao.data_cadastro|date:"d/m/Y" }}
                     </td>
 
                     <td class="table-actions">
-                        <a href="{% url 'catalogo:editar_marca' marca.id %}" class="action-link action-edit">
+                        <a href="{% url 'catalogo:editar_colecao' colecao.id %}" class="action-link action-edit">
                             <i class="bi bi-pencil-square"></i>
                             Editar
                         </a>
 
-                        {% if marca.ativo %}
-
-                            <a href="{% url 'catalogo:inativar_marca' marca.id %}"
-                              class="action-link action-danger">
-
-                             <i class="bi bi-slash-circle"></i>
-
-                                 Inativar
-
+                        {% if colecao.ativo %}
+                            <a href="{% url 'catalogo:inativar_colecao' colecao.id %}" class="action-link action-danger">
+                                <i class="bi bi-slash-circle"></i>
+                                Inativar
                             </a>
-
                         {% else %}
-
-                            <a href="{% url 'catalogo:reativar_marca' marca.id %}"
-                                 class="action-link action-edit">
-
+                            <a href="{% url 'catalogo:reativar_colecao' colecao.id %}" class="action-link action-edit">
                                 <i class="bi bi-check-circle"></i>
-
-                                 Reativar
-
-                             </a>
-
+                                Reativar
+                            </a>
                         {% endif %}
                     </td>
                 </tr>
@@ -114,9 +102,9 @@
                 <tr>
                     <td colspan="5" class="empty-state">
                         {% if busca %}
-                            Nenhuma marca encontrada para "{{ busca }}".
+                            Nenhuma coleção encontrada para "{{ busca }}".
                         {% else %}
-                            Nenhuma marca cadastrada até o momento.
+                            Nenhuma coleção cadastrada até o momento.
                         {% endif %}
                     </td>
                 </tr>

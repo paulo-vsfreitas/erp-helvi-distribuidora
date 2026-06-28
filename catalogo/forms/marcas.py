@@ -1,7 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 
-from .models import Marca
+from catalogo.models import Marca
 
 
 class MarcaForm(forms.ModelForm):

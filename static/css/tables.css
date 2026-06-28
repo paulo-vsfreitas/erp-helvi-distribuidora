@@ -29,7 +29,8 @@
 }
 
 .table tbody tr:hover{
-    background:#fcfbf8;
+    background:#fffaf0;
+    transition:.2s;
 }
 
 .table-card{
