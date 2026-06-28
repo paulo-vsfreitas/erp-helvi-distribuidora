@@ -15,11 +15,18 @@ class Marca(models.Model):
     )
 
     ativo = models.BooleanField(
-        default=True
+        default=True,
+        verbose_name="Ativo"
     )
 
     data_cadastro = models.DateTimeField(
-        auto_now_add=True
+        auto_now_add=True,
+        verbose_name="Data de Cadastro"
+    )
+
+    data_atualizacao = models.DateTimeField(
+        auto_now=True,
+        verbose_name="Última Atualização"
     )
 
     class Meta:

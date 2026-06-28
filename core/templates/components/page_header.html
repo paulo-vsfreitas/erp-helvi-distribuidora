@@ -1,0 +1,24 @@
+<div class="page-header">
+
+    <div>
+        <h1 class="page-title">
+            {{ titulo }}
+        </h1>
+
+        {% if subtitulo %}
+            <p class="page-subtitle">
+                {{ subtitulo }}
+            </p>
+        {% endif %}
+    </div>
+
+    {% if botao_url %}
+        <a href="{{ botao_url }}" class="btn btn-primary">
+            {% if botao_icon %}
+                <i class="{{ botao_icon }}"></i>
+            {% endif %}
+            {{ botao_texto }}
+        </a>
+    {% endif %}
+
+</div>

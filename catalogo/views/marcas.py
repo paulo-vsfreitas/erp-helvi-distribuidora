@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
 from catalogo.models import Marca
@@ -27,7 +28,8 @@ def nova_marca(request):
 
         if form.is_valid():
             form.save()
-            return redirect("lista_marcas")
+            messages.success(request, "Marca cadastrada com sucesso.")
+            return redirect("catalogo:lista_marcas")
     else:
         form = MarcaForm()
 
@@ -46,24 +48,28 @@ def editar_marca(request, pk):
 
         if form.is_valid():
             form.save()
-            return redirect("lista_marcas")
+            messages.success(request, "Marca atualizada com sucesso.")
+            return redirect("catalogo:lista_marcas")
     else:
         form = MarcaForm(instance=marca)
 
     return render(request, "catalogo/marcas/form_marca.html", {
         "form": form,
         "titulo": "Editar Marca",
+        "marca": marca,
     })
 
 
 @login_required
-def excluir_marca(request, pk):
+def inativar_marca(request, pk):
     marca = get_object_or_404(Marca, pk=pk)
 
     if request.method == "POST":
-        marca.delete()
-        return redirect("lista_marcas")
+        marca.ativo = False
+        marca.save()
+        messages.success(request, "Marca inativada com sucesso.")
+        return redirect("catalogo:lista_marcas")
 
-    return render(request, "catalogo/marcas/confirmar_exclusao_marca.html", {
+    return render(request, "catalogo/marcas/confirmar_inativacao_marca.html", {
         "marca": marca,
     })

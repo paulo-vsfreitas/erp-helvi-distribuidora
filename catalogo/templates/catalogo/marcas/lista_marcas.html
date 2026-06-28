@@ -1,53 +1,103 @@
 {% extends 'core/base.html' %}
 
-{% block title %}Marcas{% endblock %}
+{% block title %}Marcas | ERP Helvi{% endblock %}
 
 {% block content %}
 
-<h1>Marcas</h1>
+{% url 'catalogo:nova_marca' as nova_marca_url %}
 
-<p>Cadastro de marcas do ERP Helvi.</p>
+{% include "components/page_header.html"
+with 
+titulo="Marcas" subtitulo="Gerencie as marcas das armações cadastradas no ERP Helvi."
+botao_url=nova_marca_url
+botao_texto="Nova Marca" 
+botao_icon="bi bi-plus-circle" %}
 
-<a href="{% url 'nova_marca' %}" class="btn-gold">
-    + Nova Marca
-</a>
+<form method="get" class="card search-form">
+    <label for="busca"><strong>Pesquisar marca</strong></label>
 
-<hr>
+    <div class="search-row">
+        <input
+            type="text"
+            id="busca"
+            name="busca"
+            value="{{ busca }}"
+            placeholder="Digite o nome da marca"
+            sclass="form-control"
+        >
 
-{% for marca in marcas %}
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-search"></i>
+                Pesquisar
+            </button>
+    </div>
+</form>
 
-<div class="card">
+<div class="table-card">
+    <table class="table">
+        <thead>
+            <tr>
+                <th >Nome</th>
+                <th >Descrição</th>
+                <th >Situação</th>
+                <th >Cadastro</th>
+                <th class="table-actions">Ações</th>
+            </tr>
+        </thead>
 
-    <h3>{{ marca.nome }}</h3>
+        <tbody>
+            {% for marca in marcas %}
+                <tr style="border-bottom:1px solid #f1f1f1;">
+                    <td style="padding:12px;">
+                        <strong>{{ marca.nome }}</strong>
+                    </td>
 
-    <p>{{ marca.descricao }}</p>
+                    <td style="padding:12px;">
+                        {{ marca.descricao|default:"-" }}
+                    </td>
 
-    <p>
-        {% if marca.ativo %}
-            🟢 Ativa
-        {% else %}
-            🔴 Inativa
-        {% endif %}
-    </p>
+                    <td style="padding:12px;">
+                        {% if marca.ativo %}
+                        <span class="badge badge-success">
+                         <i class="bi bi-check-circle"></i>
+                             Ativa
+                        </span>
+                            {% else %}
+                                <span class="badge badge-danger">
+                                    <i class="bi bi-x-circle"></i>
+                                    Inativa
+                                </span>
+                            {% endif %}
+                    </td>
 
-    <a href="{% url 'editar_marca' marca.id %}">
-        Editar
-    </a>
+                    <td style="padding:12px;">
+                        {{ marca.data_cadastro|date:"d/m/Y" }}
+                    </td>
 
-    |
+                    <td style="padding:12px; text-align:right;">
+                        <a href="{% url 'catalogo:editar_marca' marca.id %}" class="action-link action-edit">
+                            <i class="bi bi-pencil-square"></i>
+                                 Editar
+                        </a>
 
-    <a href="{% url 'excluir_marca' marca.id %}">
-        Excluir
-    </a>
+                            {% if marca.ativo %}
+                        <a href="{% url 'catalogo:inativar_marca' marca.id %}" class="action-link action-danger">
+                            <i class="bi bi-slash-circle"></i>
+                                Inativar
+                        </a>
+                            {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="5" style="padding:20px; text-align:center; color:#777;">
+                        Nenhuma marca cadastrada.
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
 </div>
-
-{% empty %}
-
-<div class="card">
-    Nenhuma marca cadastrada.
-</div>
-
-{% endfor %}
 
 {% endblock %}

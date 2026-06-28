@@ -1,0 +1,38 @@
+:root{
+
+    /* Cores */
+
+    --gold:#C8A23A;
+    --gold-dark:#B89025;
+
+    --black:#111111;
+
+    --background:#F6F2EA;
+
+    --white:#FFFFFF;
+
+    --border:#E5DED1;
+
+    --text:#222222;
+
+    --text-light:#777777;
+
+    /* Estados */
+
+    --success:#198754;
+    --danger:#DC3545;
+    --warning:#FFC107;
+    --info:#0DCAF0;
+
+    /* Layout */
+
+    --sidebar-width:260px;
+    --topbar-height:70px;
+
+    --radius:16px;
+
+    --transition:.25s;
+
+    --shadow:0 6px 20px rgba(0,0,0,.08);
+
+}
