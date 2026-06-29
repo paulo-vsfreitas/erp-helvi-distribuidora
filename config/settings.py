@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
- 'core',
+    'core',
     'catalogo',
     'usuarios',
     'clientes',
@@ -94,6 +94,7 @@ DATABASES = {
         'PORT': '5432',
     }
 
+
 }
 
 
@@ -140,3 +141,5 @@ STATICFILES_DIRS = [
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'login'
+
+AUTH_USER_MODEL = "usuarios.Usuario"

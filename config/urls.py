@@ -29,4 +29,10 @@ urlpatterns = [
     path('', include('core.urls')),
     path('clientes/', include('clientes.urls')),
     path("catalogo/", include("catalogo.urls")),
+    path("usuarios/", include("usuarios.urls")),
+
+    path('fornecedores/', include('fornecedores.urls')),
+    path('produtos/', include('produtos.urls')),
+    path('estoque/', include('estoque.urls')),
+    
 ]
