@@ -31,20 +31,46 @@
             </div>
         </div>
 
-        <div class="form-group">
-    <label for="{{ form.senha.id_for_label }}">
-        Senha
-    </label>
-    {{ form.senha }}
-    {{ form.senha.errors }}
-</div>
+        <div class="form-section">
+    {% if "Editar" in titulo %}
+        <h3>Alteração de senha</h3>
+        <p class="form-text text-muted">
+            Preencha os campos abaixo apenas se quiser alterar a senha atual.
+        </p>
+    {% endif %}
 
-<div class="form-group">
-    <label for="{{ form.confirmar_senha.id_for_label }}">
-        Confirmar senha
-    </label>
-    {{ form.confirmar_senha }}
-    {{ form.confirmar_senha.errors }}
+    <div class="form-grid">
+        <div class="form-group">
+            <label for="{{ form.senha.id_for_label }}">
+                {% if "Editar" in titulo %}
+                    Nova senha
+                {% else %}
+                    Senha
+                {% endif %}
+            </label>
+            {{ form.senha }}
+            {{ form.senha.errors }}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.confirmar_senha.id_for_label }}">
+                {% if "Editar" in titulo %}
+                    Confirmar nova senha
+                {% else %}
+                    Confirmar senha
+                {% endif %}
+            </label>
+            {{ form.confirmar_senha }}
+            {{ form.confirmar_senha.errors }}
+        </div>
+    </div>
+
+    {% if "Editar" in titulo %}
+        <p class="form-text text-muted mt-2">
+            <i class="bi bi-info-circle"></i>
+            Deixe os campos de senha em branco para manter a senha atual.
+        </p>
+    {% endif %}
 </div>
 
         <div class="form-section">

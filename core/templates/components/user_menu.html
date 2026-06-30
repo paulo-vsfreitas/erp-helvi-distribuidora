@@ -1,0 +1,49 @@
+{% if request.user.is_authenticated %}
+<div class="user-menu">
+    <button class="user-menu__button" type="button">
+        {% if request.user.foto %}
+            <img
+                src="{{ request.user.foto.url }}"
+                alt="{{ request.user.username }}"
+                class="user-menu__avatar"
+            >
+        {% else %}
+            <div class="user-menu__avatar user-menu__avatar--empty">
+                <i class="bi bi-person-fill"></i>
+            </div>
+        {% endif %}
+
+        <div class="user-menu__text">
+            <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
+            <span>
+                {% if request.user.is_staff %}
+                    Administrador
+                {% else %}
+                    Usuário
+                {% endif %}
+            </span>
+        </div>
+
+        <i class="bi bi-chevron-down user-menu__chevron"></i>
+    </button>
+
+    <div class="user-menu__dropdown">
+        <a href="{% url 'usuarios:editar_usuario' request.user.id %}">
+            <i class="bi bi-person-circle"></i>
+            Meu Perfil
+        </a>
+
+        <a href="{% url 'usuarios:editar_usuario' request.user.id %}">
+            <i class="bi bi-key"></i>
+            Alterar Senha
+        </a>
+
+        <hr>
+
+        <a href="{% url 'logout' %}">
+            <i class="bi bi-box-arrow-right"></i>
+            Sair
+        </a>
+    </div>
+</div>
+{% endif %}

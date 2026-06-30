@@ -100,3 +100,14 @@ def inativar_usuario(request, pk):
 
     messages.success(request, "Usuário inativado com sucesso.")
     return redirect("usuarios:lista_usuarios")
+
+@login_required
+def reativar_usuario(request, pk):
+    Usuario = get_user_model()
+    usuario = get_object_or_404(Usuario, pk=pk)
+
+    usuario.is_active = True
+    usuario.save()
+
+    messages.success(request, "Usuário reativado com sucesso.")
+    return redirect("usuarios:lista_usuarios")

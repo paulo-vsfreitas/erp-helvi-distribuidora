@@ -1,10 +1,12 @@
 from django.urls import path
 
+
 from .views import (
     editar_usuario,
     inativar_usuario,
     lista_usuarios,
     novo_usuario,
+    reativar_usuario,
 )
 
 app_name = "usuarios"
@@ -30,4 +32,9 @@ urlpatterns = [
         inativar_usuario,
         name="inativar_usuario",
     ),
+    path(
+    "<int:pk>/reativar/",
+    reativar_usuario,
+    name="reativar_usuario",
+),
 ]

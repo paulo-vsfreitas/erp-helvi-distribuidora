@@ -14,13 +14,41 @@
 ## Sprint 2 — Catálogo
 
 - [x] Marcas
-- [ ] Coleções
-- [ ] Gêneros
+- [x] Coleções
+- [x] Gêneros
 - [ ] Tipos de Armação
+- [ ] Materiais
+- [ ] Cores
+- [ ] Formatos
+- [ ] Modelos
 
 ---
 
-## Sprint 3 — Produtos
+## Sprint 2.5 — Infraestrutura Compartilhada
+
+- [x] Criar `core/base`
+- [x] Criar `CadastroBase`
+- [x] Criar `BaseModelForm`
+- [ ] Criar mixins reutilizáveis
+- [ ] Definir padrão de permissões
+- [ ] Criar templates reutilizáveis
+
+---
+
+## Sprint 3 — Usuários e Permissões
+
+- [ ] Login personalizado
+- [ ] Recuperação de senha
+- [ ] Cadastro de usuários
+- [ ] Perfis de acesso
+- [ ] Permissões por módulo
+- [ ] Reset de senha pelo administrador
+- [ ] Primeiro acesso
+- [ ] Logs de acesso
+
+---
+
+## Sprint 4 — Produtos
 
 - [ ] Cadastro
 - [ ] Fotos
@@ -33,7 +61,7 @@
 
 ---
 
-## Sprint 4 — Clientes
+## Sprint 5 — Clientes
 
 - [ ] Cadastro
 - [ ] Contatos
@@ -43,7 +71,7 @@
 
 ---
 
-## Sprint 5 — Estoque
+## Sprint 6 — Estoque
 
 - [ ] Movimentações
 - [ ] Inventário
@@ -51,7 +79,7 @@
 
 ---
 
-## Sprint 6 — Financeiro
+## Sprint 7 — Financeiro
 
 - [ ] Contas
 - [ ] Receber
@@ -60,7 +88,7 @@
 
 ---
 
-## Sprint 7 — Relatórios
+## Sprint 8 — Relatórios
 
 - [ ] Vendas
 - [ ] Estoque
@@ -69,9 +97,8 @@
 
 ---
 
-## Sprint 8 — Configurações
+## Sprint 9 — Configurações
 
-- [ ] Usuários
-- [ ] Permissões
 - [ ] Backup
 - [ ] Logs
+- [ ] Dados da empresa
