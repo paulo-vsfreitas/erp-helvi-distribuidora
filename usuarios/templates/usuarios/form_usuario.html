@@ -1,0 +1,126 @@
+{% extends "core/base.html" %}
+
+{% block title %}
+    {{ titulo }} | ERP Helvi
+{% endblock %}
+
+{% block content %}
+
+    {% url "usuarios:lista_usuarios" as voltar_url %}
+
+    {% include "components/page_header.html" with titulo=titulo subtitulo="Preencha os dados do usuário do ERP Helvi." botao_url=voltar_url botao_texto="Voltar" botao_icon="bi bi-arrow-left" %}
+
+    <form
+        method="post"
+        enctype="multipart/form-data"
+        class="card form-card"
+    >
+        {% csrf_token %}
+
+        <div class="form-section">
+            <h3>Dados de acesso</h3>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="{{ form.username.id_for_label }}">
+                        Usuário
+                    </label>
+                    {{ form.username }}
+                    {{ form.username.errors }}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+    <label for="{{ form.senha.id_for_label }}">
+        Senha
+    </label>
+    {{ form.senha }}
+    {{ form.senha.errors }}
+</div>
+
+<div class="form-group">
+    <label for="{{ form.confirmar_senha.id_for_label }}">
+        Confirmar senha
+    </label>
+    {{ form.confirmar_senha }}
+    {{ form.confirmar_senha.errors }}
+</div>
+
+        <div class="form-section">
+            <h3>Dados pessoais</h3>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="{{ form.first_name.id_for_label }}">
+                        Nome
+                    </label>
+                    {{ form.first_name }}
+                    {{ form.first_name.errors }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.last_name.id_for_label }}">
+                        Sobrenome
+                    </label>
+                    {{ form.last_name }}
+                    {{ form.last_name.errors }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.email.id_for_label }}">
+                        E-mail
+                    </label>
+                    {{ form.email }}
+                    {{ form.email.errors }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.telefone.id_for_label }}">
+                        Telefone
+                    </label>
+                    {{ form.telefone }}
+                    {{ form.telefone.errors }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.foto.id_for_label }}">
+                        Foto
+                    </label>
+                    {{ form.foto }}
+                    {{ form.foto.errors }}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3>Permissões</h3>
+
+            <div class="form-check-group">
+                <label>
+                    {{ form.is_active }}
+                    Usuário ativo
+                </label>
+
+                <label>
+                    {{ form.is_staff }}
+                    Administrador
+                </label>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a
+                href="{% url 'usuarios:lista_usuarios' %}"
+                class="btn btn-secondary"
+            >
+                Cancelar
+            </a>
+
+            <button type="submit" class="btn btn-primary">
+                Salvar
+            </button>
+        </div>
+    </form>
+
+{% endblock %}

@@ -16,3 +16,11 @@
 ### Em desenvolvimento
 
 - Módulo de Gêneros.
+
+## 2026-06-29
+
+### Autenticação
+- Implementado modelo personalizado `usuarios.Usuario`
+- Configurado `AUTH_USER_MODEL`
+- Criada estrutura inicial do módulo de usuários
+- Login adaptado para o novo modelo

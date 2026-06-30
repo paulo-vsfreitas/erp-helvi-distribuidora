@@ -18,6 +18,13 @@ class Usuario(AbstractUser):
         default=True,
     )
 
+    foto = models.ImageField(
+        "Foto",
+        upload_to="usuarios/",
+        blank=True,
+        null=True,
+    )
+
     groups = models.ManyToManyField(
         Group,
         verbose_name="grupos",
