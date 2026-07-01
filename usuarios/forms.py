@@ -26,9 +26,9 @@ class UsuarioForm(forms.ModelForm):
             "last_name",
             "email",
             "telefone",
+            "perfil",
             "foto",
             "is_active",
-            "is_staff",
         ]
 
     def clean(self):
@@ -47,7 +47,16 @@ class UsuarioForm(forms.ModelForm):
 
     def save(self, commit=True):
         usuario = super().save(commit=False)
+
         usuario.set_password(self.cleaned_data["senha"])
+
+        if usuario.perfil in (
+            Usuario.Perfil.ADMINISTRADOR,
+            Usuario.Perfil.GERENTE,
+        ):
+            usuario.is_staff = True
+        else:
+            usuario.is_staff = False
 
         if commit:
             usuario.save()
@@ -77,9 +86,9 @@ class UsuarioUpdateForm(forms.ModelForm):
             "last_name",
             "email",
             "telefone",
+            "perfil",
             "foto",
             "is_active",
-            "is_staff",
         ]
 
     def clean(self):
@@ -103,6 +112,14 @@ class UsuarioUpdateForm(forms.ModelForm):
         senha = self.cleaned_data.get("senha")
         if senha:
             usuario.set_password(senha)
+
+        if usuario.perfil in (
+            Usuario.Perfil.ADMINISTRADOR,
+            Usuario.Perfil.GERENTE,
+        ):
+            usuario.is_staff = True
+        else:
+            usuario.is_staff = False
 
         if commit:
             usuario.save()

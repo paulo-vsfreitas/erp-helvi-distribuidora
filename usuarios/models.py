@@ -3,14 +3,24 @@ from django.db import models
 
 
 class Usuario(AbstractUser):
-    """
-    Modelo de usuário do ERP Helvi.
-    """
+
+    class Perfil(models.TextChoices):
+        ADMINISTRADOR = "ADM", "Administrador"
+        GERENTE = "GER", "Gerente"
+        VENDEDOR = "VEN", "Vendedor"
+        FINANCEIRO = "FIN", "Financeiro"
 
     telefone = models.CharField(
         "Telefone",
         max_length=20,
         blank=True,
+    )
+
+    perfil = models.CharField(
+        "Perfil",
+        max_length=3,
+        choices=Perfil.choices,
+        default=Perfil.VENDEDOR,
     )
 
     primeiro_acesso = models.BooleanField(

@@ -40,7 +40,7 @@ INSTALLED_APPS = [
 
     'core',
     'catalogo',
-    'usuarios',
+    'usuarios.apps.UsuariosConfig',
     'clientes',
     'fornecedores',
     'produtos',
