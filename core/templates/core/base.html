@@ -1,4 +1,3 @@
-{% load static %}
 
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -36,42 +35,72 @@
 
             <a href="{% url 'dashboard' %}">🏠 Dashboard</a>
 
-            <div class="menu-section">COMERCIAL</div>
-            <a href="#">➕ Nova Venda</a>
+            {% if permissoes.vendas %}
+                <div class="menu-section">COMERCIAL</div>
+                <a href="#">➕ Nova Venda</a>
+            {% endif %}
 
-            <div class="menu-section">CADASTROS</div>
+            {% if pode_clientes or pode_produtos or pode_catalogo %}
+                <div class="menu-section">CADASTROS</div>
 
-            <a href="{% url 'lista_clientes' %}">
-                🏢 Clientes / Óticas
-            </a>
+                {% if pode_clientes %}
+                    <a href="{% url 'lista_clientes' %}">
+                        🏢 Clientes / Óticas
+                    </a>
+                {% endif %}
 
-            <a href="#">
-                👓 Produtos
-            </a>
+                {% if pode_produtos %}
+                    <a href="#">
+                        👓 Produtos
+                    </a>
+                {% endif %}
 
-            <a href="{% url 'catalogo:lista_marcas' %}">
-                🏷️ Marcas
-            </a>
+                {% if pode_catalogo %}
+                    <a href="{% url 'catalogo:lista_marcas' %}">
+                        🏷️ Marcas
+                    </a>
 
-            <a href="#">
-                📚 Coleções
-            </a>
+                    <a href="#">
+                        📚 Coleções
+                    </a>
 
-            <a href="{% url 'catalogo:lista_generos' %}">
-                🎁 Gêneros
-            </a>
+                    <a href="{% url 'catalogo:lista_generos' %}">
+                        🎁 Gêneros
+                    </a>
 
-            <a href="#">
-                🛠️ Tipos de Armação
-            </a>
+                    <a href="#">
+                        🛠️ Tipos de Armação
+                    </a>
+                {% endif %}
+            {% endif %}
 
-            <div class="menu-section">OPERAÇÃO</div>
-            <a href="#">📦 Estoque</a>
-            <a href="#">💰 Financeiro</a>
-            <a href="#">📊 Relatórios</a>
+            {% if pode_estoque or pode_financeiro or pode_relatorios %}
+                <div class="menu-section">OPERAÇÃO</div>
 
-            <div class="menu-section">SISTEMA</div>
-            <a href="#">⚙️ Configurações</a>
+                {% if pode_estoque %}
+                    <a href="#">📦 Estoque</a>
+                {% endif %}
+
+                {% if pode_financeiro %}
+                    <a href="#">💰 Financeiro</a>
+                {% endif %}
+
+                {% if pode_relatorios %}
+                    <a href="#">📊 Relatórios</a>
+                {% endif %}
+            {% endif %}
+
+            {% if pode_configuracoes or pode_usuarios %}
+                <div class="menu-section">SISTEMA</div>
+
+                {% if pode_configuracoes %}
+                    <a href="#">⚙️ Configurações</a>
+                {% endif %}
+
+                {% if pode_usuarios %}
+                    <a href="{% url 'usuarios:lista_usuarios' %}">👥 Usuários</a>
+                {% endif %}
+            {% endif %}
 
         </nav>
     </aside>

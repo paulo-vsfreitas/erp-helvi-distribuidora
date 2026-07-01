@@ -71,13 +71,7 @@
                     </td>
 
                     <td>
-                        {% if usuario.is_staff %}
-                            <span class="badge badge-success">
-                                Administrador
-                            </span>
-                        {% else %}
-                            Usuário
-                        {% endif %}
+                        {{ usuario.get_perfil_display }}
                     </td>
 
                     <td>

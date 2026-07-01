@@ -1,13 +1,13 @@
 from django.contrib import messages
 from django.contrib.auth import get_user_model
-from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 
-from usuarios.decorators import perfil_requerido
+from usuarios.decorators import permissao_requerida
 from usuarios.forms import UsuarioForm, UsuarioUpdateForm
+from usuarios.permissoes import Modulo
 
 
-@login_required
+@permissao_requerida(Modulo.USUARIOS)
 def lista_usuarios(request):
     busca = request.GET.get("busca", "").strip()
 
@@ -37,7 +37,7 @@ def lista_usuarios(request):
     )
 
 
-@login_required
+@permissao_requerida(Modulo.USUARIOS)
 def novo_usuario(request):
     if request.method == "POST":
         form = UsuarioForm(
@@ -62,7 +62,7 @@ def novo_usuario(request):
     )
 
 
-@login_required
+@permissao_requerida(Modulo.USUARIOS)
 def editar_usuario(request, pk):
     Usuario = get_user_model()
     usuario = get_object_or_404(Usuario, pk=pk)
@@ -91,7 +91,7 @@ def editar_usuario(request, pk):
     )
 
 
-@login_required
+@permissao_requerida(Modulo.USUARIOS)
 def inativar_usuario(request, pk):
     Usuario = get_user_model()
     usuario = get_object_or_404(Usuario, pk=pk)
@@ -102,7 +102,8 @@ def inativar_usuario(request, pk):
     messages.success(request, "Usuário inativado com sucesso.")
     return redirect("usuarios:lista_usuarios")
 
-@login_required
+
+@permissao_requerida(Modulo.USUARIOS)
 def reativar_usuario(request, pk):
     Usuario = get_user_model()
     usuario = get_object_or_404(Usuario, pk=pk)

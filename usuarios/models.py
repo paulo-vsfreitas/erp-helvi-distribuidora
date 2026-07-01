@@ -55,5 +55,20 @@ class Usuario(AbstractUser):
         verbose_name = "Usuário"
         verbose_name_plural = "Usuários"
 
+    @property
+    def eh_administrador(self):
+        return self.perfil == self.Perfil.ADMINISTRADOR
+
+    @property
+    def eh_gerente(self):
+        return self.perfil == self.Perfil.GERENTE
+
+    @property
+    def eh_vendedor(self):
+        return self.perfil == self.Perfil.VENDEDOR
+
+    @property
+    def eh_financeiro(self):
+        return self.perfil == self.Perfil.FINANCEIRO
     def __str__(self):
         return self.get_full_name() or self.username

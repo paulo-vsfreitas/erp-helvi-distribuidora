@@ -1,17 +1,78 @@
-from django.contrib.auth.models import Group
+class Modulo:
+    DASHBOARD = "dashboard"
+    VENDAS = "vendas"
+    CLIENTES = "clientes"
+    PRODUTOS = "produtos"
+    CATALOGO = "catalogo"
+    ESTOQUE = "estoque"
+    FINANCEIRO = "financeiro"
+    RELATORIOS = "relatorios"
+    CONFIGURACOES = "configuracoes"
+    USUARIOS = "usuarios"
 
 
-PERFIS_PADRAO = [
-    "Administrador",
-    "Gerente",
-    "Vendedor",
-    "Financeiro",
-]
+PERFIS = {
+    "ADM": {
+        "nome": "Administrador",
+        "permissoes": {
+            Modulo.DASHBOARD,
+            Modulo.VENDAS,
+            Modulo.CLIENTES,
+            Modulo.PRODUTOS,
+            Modulo.CATALOGO,
+            Modulo.ESTOQUE,
+            Modulo.FINANCEIRO,
+            Modulo.RELATORIOS,
+            Modulo.CONFIGURACOES,
+            Modulo.USUARIOS,
+        },
+    },
+    "GER": {
+        "nome": "Gerente",
+        "permissoes": {
+            Modulo.DASHBOARD,
+            Modulo.VENDAS,
+            Modulo.CLIENTES,
+            Modulo.PRODUTOS,
+            Modulo.CATALOGO,
+            Modulo.ESTOQUE,
+            Modulo.FINANCEIRO,
+            Modulo.RELATORIOS,
+        },
+    },
+    "VEN": {
+        "nome": "Vendedor",
+        "permissoes": {
+            Modulo.DASHBOARD,
+            Modulo.VENDAS,
+            Modulo.CLIENTES,
+            Modulo.PRODUTOS,
+            Modulo.CATALOGO,
+            Modulo.ESTOQUE,
+        },
+    },
+    "FIN": {
+        "nome": "Financeiro",
+        "permissoes": {
+            Modulo.DASHBOARD,
+            Modulo.CLIENTES,
+            Modulo.FINANCEIRO,
+            Modulo.RELATORIOS,
+        },
+    },
+}
 
 
-def criar_perfis_padrao():
-    """
-    Cria os grupos/perfis padrão do ERP Helvi.
-    """
-    for perfil in PERFIS_PADRAO:
-        Group.objects.get_or_create(name=perfil)
+def usuario_tem_permissao(usuario, modulo):
+    if not usuario or not usuario.is_authenticated:
+        return False
+
+    if usuario.is_superuser:
+        return True
+
+    perfil = PERFIS.get(usuario.perfil)
+
+    if not perfil:
+        return False
+
+    return modulo in perfil["permissoes"]
