@@ -1,10 +1,30 @@
+# Ambiente virtual
 venv/
+
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+
+# Banco local (caso exista SQLite)
 db.sqlite3
 
+# IDEs
 .vscode/
 .idea/
 
+# Variáveis de ambiente
 .env
+
+# Logs
 *.log
+
+# Uploads dos usuários
+media/
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+
+# Cache do Django
+*.sqlite3-journal
