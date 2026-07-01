@@ -1,0 +1,106 @@
+<div class="card form-card">
+
+    <h3>Dados Gerais</h3>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="{{ form.codigo.id_for_label }}">Código</label>
+                {{ form.codigo }}
+                {{ form.codigo.errors }}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.modelo.id_for_label }}">Modelo</label>
+                {{ form.modelo }}
+                {{ form.modelo.errors }}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.marca.id_for_label }}">Marca</label>
+                {{ form.marca }}
+                {{ form.marca.errors }}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.colecao.id_for_label }}">Coleção</label>
+                {{ form.colecao }}
+                {{ form.colecao.errors }}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.genero.id_for_label }}">Gênero</label>
+                {{ form.genero }}
+                {{ form.genero.errors }}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.tipo_armacao.id_for_label }}">Tipo de Armação</label>
+                {{ form.tipo_armacao }}
+                {{ form.tipo_armacao.errors }}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.cores_disponiveis.id_for_label }}">Cores Disponíveis</label>
+                {{ form.cores_disponiveis }}
+                {{ form.cores_disponiveis.errors }}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.preco_custo.id_for_label }}">Preço de Custo</label>
+                {{ form.preco_custo }}
+                {{ form.preco_custo.errors }}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.preco_venda.id_for_label }}">Preço de Venda</label>
+                {{ form.preco_venda }}
+                {{ form.preco_venda.errors }}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.estoque_atual.id_for_label }}">Estoque Atual</label>
+                {{ form.estoque_atual }}
+                {{ form.estoque_atual.errors }}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.estoque_minimo.id_for_label }}">Estoque Mínimo</label>
+                {{ form.estoque_minimo }}
+                {{ form.estoque_minimo.errors }}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.foto.id_for_label }}">Foto Principal</label>
+                {{ form.foto }}
+                {{ form.foto.errors }}
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.observacoes.id_for_label }}">Observações</label>
+            {{ form.observacoes }}
+            {{ form.observacoes.errors }}
+        </div>
+
+        <div class="form-check">
+            {{ form.ativo }}
+            <label for="{{ form.ativo.id_for_label }}">Produto ativo</label>
+            {{ form.ativo.errors }}
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-circle"></i>
+                Salvar Dados
+            </button>
+
+            <a href="{% url 'produtos:lista_produtos' %}" class="btn btn-secondary">
+                Cancelar
+            </a>
+        </div>
+    </form>
+
+</div>

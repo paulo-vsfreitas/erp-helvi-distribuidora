@@ -1,0 +1,213 @@
+{% extends 'core/base.html' %}
+
+{% block title %}{{ produto.codigo }} - {{ produto.modelo }} | ERP Helvi{% endblock %}
+
+{% block content %}
+
+{% url 'produtos:lista_produtos' as lista_produtos_url %}
+
+{% include "components/page_header.html" with titulo="Ficha do Produto" subtitulo=produto botao_url=lista_produtos_url botao_texto="Voltar" botao_icon="bi bi-arrow-left" %}
+
+<div class="card form-card">
+
+    <div style="display: flex; justify-content: space-between; gap: 20px; align-items: flex-start;">
+        <div>
+            <h2>👓 {{ produto.codigo }} • {{ produto.modelo }}</h2>
+
+            {% if produto.ativo %}
+                <span class="badge badge-success">
+                    <i class="bi bi-check-circle"></i>
+                    Ativo
+                </span>
+            {% else %}
+                <span class="badge badge-danger">
+                    <i class="bi bi-x-circle"></i>
+                    Inativo
+                </span>
+            {% endif %}
+        </div>
+
+        <div class="form-actions">
+            <a href="{% url 'produtos:editar_produto' produto.id %}" class="btn btn-primary">
+                <i class="bi bi-pencil-square"></i>
+                Editar Dados
+            </a>
+
+            <a href="{% url 'produtos:galeria_produto' produto.id %}" class="btn btn-secondary">
+                <i class="bi bi-images"></i>
+                Gerenciar Imagens
+            </a>
+        </div>
+    </div>
+
+</div>
+
+<div class="card form-card">
+
+    <div style="display: grid; grid-template-columns: 280px 1fr; gap: 30px; align-items: start;">
+
+        <div>
+            {% if produto.foto %}
+                <a href="{{ produto.foto.url }}" target="_blank">
+                    <img
+                        src="{{ produto.foto.url }}"
+                        alt="{{ produto.modelo }}"
+                        style="width: 100%; max-height: 260px; object-fit: cover; border-radius: 14px; border: 1px solid #ddd;"
+                    >
+                </a>
+            {% else %}
+                <div style="height: 240px; border-radius: 14px; border: 1px dashed #ccc; display: flex; align-items: center; justify-content: center;">
+                    Sem foto principal
+                </div>
+            {% endif %}
+        </div>
+
+        <div>
+            <h3>📌 Informações Gerais</h3>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Código</label>
+                    <strong>{{ produto.codigo }}</strong>
+                </div>
+
+                <div class="form-group">
+                    <label>Modelo</label>
+                    <strong>{{ produto.modelo }}</strong>
+                </div>
+
+                <div class="form-group">
+                    <label>Marca</label>
+                    <strong>{{ produto.marca|default:"-" }}</strong>
+                </div>
+
+                <div class="form-group">
+                    <label>Coleção</label>
+                    <strong>{{ produto.colecao|default:"-" }}</strong>
+                </div>
+
+                <div class="form-group">
+                    <label>Gênero</label>
+                    <strong>{{ produto.genero|default:"-" }}</strong>
+                </div>
+
+                <div class="form-group">
+                    <label>Tipo de Armação</label>
+                    <strong>{{ produto.tipo_armacao|default:"-" }}</strong>
+                </div>
+
+                <div class="form-group">
+                    <label>Cores</label>
+                    <strong>{{ produto.cores_disponiveis|default:"-" }}</strong>
+                </div>
+            </div>
+
+            {% if produto.observacoes %}
+                <div class="form-group">
+                    <label>Observações</label>
+                    <p>{{ produto.observacoes }}</p>
+                </div>
+            {% endif %}
+        </div>
+
+    </div>
+
+</div>
+
+<div class="card form-card">
+    <h3>💰 Financeiro</h3>
+
+    <div class="form-grid">
+        <div class="form-group">
+            <label>Preço de Custo</label>
+            <strong>R$ {{ produto.preco_custo }}</strong>
+        </div>
+
+        <div class="form-group">
+            <label>Preço de Venda</label>
+            <strong>R$ {{ produto.preco_venda }}</strong>
+        </div>
+
+        <div class="form-group">
+            <label>Lucro Unitário</label>
+            <strong>R$ {{ produto.lucro_unitario }}</strong>
+        </div>
+
+        <div class="form-group">
+            <label>Margem de Lucro</label>
+            <strong>{{ produto.margem_lucro|floatformat:2 }}%</strong>
+        </div>
+
+        <div class="form-group">
+            <label>Valor em Estoque / Custo</label>
+            <strong>R$ {{ produto.preco_custo|floatformat:2 }}</strong>
+        </div>
+
+        <div class="form-group">
+            <label>Valor em Estoque / Venda</label>
+            <strong>R$ {{ produto.preco_venda|floatformat:2 }}</strong>
+        </div>
+    </div>
+</div>
+
+<div class="card form-card">
+    <h3>📦 Estoque</h3>
+
+    <div class="form-grid">
+        <div class="form-group">
+            <label>Estoque Atual</label>
+            <strong>{{ produto.estoque_atual }}</strong>
+        </div>
+
+        <div class="form-group">
+            <label>Estoque Mínimo</label>
+            <strong>{{ produto.estoque_minimo }}</strong>
+        </div>
+
+        <div class="form-group">
+            <label>Situação</label>
+
+            {% if produto.estoque_atual == 0 %}
+                <span class="badge badge-danger">Esgotado</span>
+            {% elif produto.estoque_atual <= produto.estoque_minimo %}
+                <span class="badge badge-warning">Estoque baixo</span>
+            {% else %}
+                <span class="badge badge-success">Estoque ok</span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="card form-card">
+    <h3>🖼️ Imagens</h3>
+
+    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+        {% for imagem in imagens %}
+            <a href="{{ imagem.imagem.url }}" target="_blank">
+                <img
+                    src="{{ imagem.imagem.url }}"
+                    alt="{{ imagem.descricao|default:produto.modelo }}"
+                    style="width: 100px; height: 100px; object-fit: cover; border-radius: 10px; border: 1px solid #ddd;"
+                >
+            </a>
+        {% empty %}
+            <p class="empty-state">Nenhuma imagem adicional cadastrada.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="card form-card">
+    <h3>📑 Abas futuras</h3>
+
+    <div class="tabs-menu" style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <span class="btn btn-secondary">Dados Gerais</span>
+        <span class="btn btn-secondary">Imagens</span>
+        <span class="btn btn-secondary">Estoque</span>
+        <span class="btn btn-secondary">Compras</span>
+        <span class="btn btn-secondary">Vendas</span>
+        <span class="btn btn-secondary">Financeiro</span>
+        <span class="btn btn-secondary">Histórico</span>
+    </div>
+</div>
+
+{% endblock %}

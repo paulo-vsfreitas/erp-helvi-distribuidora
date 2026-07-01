@@ -1,0 +1,147 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Produtos | ERP Helvi{% endblock %}
+
+{% block content %}
+
+{% url 'produtos:novo_produto' as novo_produto_url %}
+
+{% include "components/page_header.html" with titulo="Produtos" subtitulo="Gerencie as armações cadastradas no ERP Helvi." botao_url=novo_produto_url botao_texto="Novo Produto" botao_icon="bi bi-plus-circle" %}
+
+<form method="get" class="card search-form">
+    <label for="busca">
+        <strong>Pesquisar produto</strong>
+    </label>
+
+    <div class="search-row">
+        <input
+            type="text"
+            id="busca"
+            name="busca"
+            value="{{ busca }}"
+            placeholder="Digite código, modelo ou marca"
+            class="form-control"
+        >
+
+        <select name="status" class="form-control">
+            <option value="ativos" {% if status == "ativos" %}selected{% endif %}>Ativos</option>
+            <option value="inativos" {% if status == "inativos" %}selected{% endif %}>Inativos</option>
+            <option value="todos" {% if status == "todos" %}selected{% endif %}>Todos</option>
+        </select>
+
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-search"></i>
+            Pesquisar
+        </button>
+    </div>
+</form>
+
+<div class="list-summary">
+    {{ produtos|length }} produto(s) encontrado(s)
+</div>
+
+<div class="table-card">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Foto</th>
+                <th>Código</th>
+                <th>Modelo</th>
+                <th>Marca</th>
+                <th>Estoque</th>
+                <th>Preço Venda</th>
+                <th>Situação</th>
+                <th class="table-actions">Ações</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for produto in produtos %}
+                <tr>
+                    <td>
+                        {% if produto.foto %}
+                            <a href="{% url 'produtos:ficha_produto' produto.id %}">
+                                <img
+                                    src="{{ produto.foto.url }}"
+                                    alt="{{ produto.modelo }}"
+                                    style="width:60px; height:60px; object-fit:cover; border-radius:10px; border:1px solid #ddd; cursor:pointer;"
+                                >
+                            </a>
+                        {% else %}
+                            <span class="badge badge-secondary">
+                                Sem foto
+                            </span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        <a href="{% url 'produtos:ficha_produto' produto.id %}" class="action-link action-edit">
+                            <strong>{{ produto.codigo }}</strong>
+                        </a>
+                    </td>
+
+                    <td>{{ produto.modelo }}</td>
+                    <td>{{ produto.marca|default:"-" }}</td>
+
+                    <td>
+                        {% if produto.estoque_atual == 0 %}
+                            <span class="badge badge-danger">Esgotado</span>
+                        {% elif produto.estoque_atual <= produto.estoque_minimo %}
+                            <span class="badge badge-warning">{{ produto.estoque_atual }}</span>
+                        {% else %}
+                            <span class="badge badge-success">{{ produto.estoque_atual }}</span>
+                        {% endif %}
+                    </td>
+
+                    <td>R$ {{ produto.preco_venda }}</td>
+
+                    <td>
+                        {% if produto.ativo %}
+                            <span class="badge badge-success">
+                                <i class="bi bi-check-circle"></i>
+                                Ativo
+                            </span>
+                        {% else %}
+                            <span class="badge badge-danger">
+                                <i class="bi bi-x-circle"></i>
+                                Inativo
+                            </span>
+                        {% endif %}
+                    </td>
+
+                    <td class="table-actions">
+                        <a href="{% url 'produtos:ficha_produto' produto.id %}" class="action-link action-edit">
+                            <i class="bi bi-eye"></i>
+                            Ficha
+                        </a>
+
+                        <a href="{% url 'produtos:editar_produto' produto.id %}" class="action-link action-edit">
+                            <i class="bi bi-pencil-square"></i>
+                            Editar
+                        </a>
+
+                        {% if produto.ativo %}
+                            <a href="{% url 'produtos:inativar_produto' produto.id %}" class="action-link action-danger">
+                                <i class="bi bi-slash-circle"></i>
+                                Inativar
+                            </a>
+                        {% else %}
+                            <a href="{% url 'produtos:reativar_produto' produto.id %}" class="action-link action-edit">
+                                <i class="bi bi-check-circle"></i>
+                                Reativar
+                            </a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="8" class="empty-state">
+                        Nenhum produto encontrado.
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

@@ -1,12 +1,15 @@
+{% load static %}
 
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}ERP Helvi{% endblock %}</title>
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <link rel="stylesheet" href="{% static 'css/variables.css' %}">
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
@@ -29,38 +32,50 @@
 <div class="layout">
 
     <aside class="sidebar">
+
         {% include "components/logo.html" %}
 
         <nav class="menu">
 
-            <a href="{% url 'dashboard' %}">🏠 Dashboard</a>
+            <a href="{% url 'dashboard' %}">
+                🏠 Dashboard
+            </a>
 
             {% if permissoes.vendas %}
-                <div class="menu-section">COMERCIAL</div>
-                <a href="#">➕ Nova Venda</a>
+                <div class="menu-section">
+                    COMERCIAL
+                </div>
+
+                <a href="#">
+                    ➕ Nova Venda
+                </a>
             {% endif %}
 
-            {% if pode_clientes or pode_produtos or pode_catalogo %}
-                <div class="menu-section">CADASTROS</div>
+            {% if permissoes.clientes or permissoes.produtos or permissoes.catalogo %}
 
-                {% if pode_clientes %}
+                <div class="menu-section">
+                    CADASTROS
+                </div>
+
+                {% if permissoes.clientes %}
                     <a href="{% url 'lista_clientes' %}">
                         🏢 Clientes / Óticas
                     </a>
                 {% endif %}
 
-                {% if pode_produtos %}
-                    <a href="#">
+                {% if permissoes.produtos %}
+                    <a href="{% url 'produtos:lista_produtos' %}">
                         👓 Produtos
                     </a>
                 {% endif %}
 
-                {% if pode_catalogo %}
+                {% if permissoes.catalogo %}
+
                     <a href="{% url 'catalogo:lista_marcas' %}">
                         🏷️ Marcas
                     </a>
 
-                    <a href="#">
+                    <a href="{% url 'catalogo:lista_colecoes' %}">
                         📚 Coleções
                     </a>
 
@@ -68,66 +83,93 @@
                         🎁 Gêneros
                     </a>
 
-                    <a href="#">
+                    <a href="{% url 'catalogo:lista_tipo_armacao' %}">
                         🛠️ Tipos de Armação
                     </a>
+
                 {% endif %}
+
             {% endif %}
 
-            {% if pode_estoque or pode_financeiro or pode_relatorios %}
-                <div class="menu-section">OPERAÇÃO</div>
+                {% if permissoes.estoque or permissoes.financeiro or permissoes.relatorios %}
+    <div class="menu-section">
+        OPERAÇÃO
+    </div>
 
-                {% if pode_estoque %}
-                    <a href="#">📦 Estoque</a>
-                {% endif %}
-
-                {% if pode_financeiro %}
-                    <a href="#">💰 Financeiro</a>
-                {% endif %}
-
-                {% if pode_relatorios %}
-                    <a href="#">📊 Relatórios</a>
-                {% endif %}
+            {% if permissoes.estoque %}
+                <a href="#">
+                    📦 Estoque
+                </a>
             {% endif %}
 
-            {% if pode_configuracoes or pode_usuarios %}
-                <div class="menu-section">SISTEMA</div>
+            {% if permissoes.financeiro %}
+                <a href="#">
+                    💰 Financeiro
+                </a>
+            {% endif %}
 
-                {% if pode_configuracoes %}
-                    <a href="#">⚙️ Configurações</a>
+            {% if permissoes.relatorios %}
+                <a href="#">
+                    📊 Relatórios
+                </a>
+            {% endif %}
+        {% endif %}
+
+            {% if permissoes.configuracoes or permissoes.usuarios %}
+
+                <div class="menu-section">
+                    SISTEMA
+                </div>
+
+                {% if permissoes.configuracoes %}
+                    <a href="#">
+                        ⚙️ Configurações
+                    </a>
                 {% endif %}
 
-                {% if pode_usuarios %}
-                    <a href="{% url 'usuarios:lista_usuarios' %}">👥 Usuários</a>
+                {% if permissoes.usuarios %}
+                    <a href="{% url 'usuarios:lista_usuarios' %}">
+                        👥 Usuários
+                    </a>
                 {% endif %}
+
             {% endif %}
 
         </nav>
+
     </aside>
 
     <main class="content">
 
         <header class="topbar">
+
             <div>
                 <strong>ERP Helvi</strong>
             </div>
 
             {% include "components/user_menu.html" %}
+
         </header>
 
         <section class="page">
+
             {% if messages %}
+
                 <div class="messages">
+
                     {% for message in messages %}
                         <div class="alert alert-{{ message.tags }}">
                             {{ message }}
                         </div>
                     {% endfor %}
+
                 </div>
+
             {% endif %}
 
             {% block content %}
             {% endblock %}
+
         </section>
 
     </main>

@@ -1,0 +1,49 @@
+{% extends 'core/base.html' %}
+
+{% block title %}{{ titulo }} | ERP Helvi{% endblock %}
+
+{% block content %}
+
+{% url 'produtos:lista_produtos' as lista_produtos_url %}
+
+{% include "components/page_header.html" with titulo=titulo subtitulo="Cadastro completo da armação/produto." botao_url=lista_produtos_url botao_texto="Voltar" botao_icon="bi bi-arrow-left" %}
+
+<div class="card form-card">
+
+    {% if produto %}
+        <h3>{{ produto.codigo }} - {{ produto.modelo }}</h3>
+    {% else %}
+        <h3>Novo Produto</h3>
+    {% endif %}
+
+    <div class="tabs-menu" style="display: flex; gap: 10px; margin: 20px 0;">
+        <a href="#dados" class="btn btn-secondary">Dados Gerais</a>
+
+        {% if produto %}
+            <a href="#imagens" class="btn btn-secondary">Imagens</a>
+            <a href="#estoque" class="btn btn-secondary">Estoque</a>
+            <a href="#historico" class="btn btn-secondary">Histórico</a>
+        {% endif %}
+    </div>
+
+</div>
+
+<section id="dados">
+    {% include "produtos/tabs/dados.html" %}
+</section>
+
+{% if produto %}
+    <section id="imagens">
+        {% include "produtos/tabs/imagens.html" %}
+    </section>
+
+    <section id="estoque">
+        {% include "produtos/tabs/estoque.html" %}
+    </section>
+
+    <section id="historico">
+        {% include "produtos/tabs/historico.html" %}
+    </section>
+{% endif %}
+
+{% endblock %}

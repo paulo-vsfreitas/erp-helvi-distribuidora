@@ -1,0 +1,106 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Galeria do Produto | ERP Helvi{% endblock %}
+
+{% block content %}
+
+{% url 'produtos:lista_produtos' as lista_produtos_url %}
+
+{% include "components/page_header.html" with titulo="Galeria de Imagens" subtitulo=produto botao_url=lista_produtos_url botao_texto="Voltar" botao_icon="bi bi-arrow-left" %}
+
+<div class="card form-card">
+    <h3>{{ produto.codigo }} - {{ produto.modelo }}</h3>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="{{ form.imagem.id_for_label }}">Imagem</label>
+                {{ form.imagem }}
+                {{ form.imagem.errors }}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.descricao.id_for_label }}">Descrição</label>
+                {{ form.descricao }}
+                {{ form.descricao.errors }}
+            </div>
+        </div>
+
+        <div class="form-check">
+            {{ form.principal }}
+            <label for="{{ form.principal.id_for_label }}">Definir como imagem principal</label>
+            {{ form.principal.errors }}
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i>
+                Adicionar Imagem
+            </button>
+        </div>
+    </form>
+</div>
+
+<div class="table-card">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Imagem</th>
+                <th>Descrição</th>
+                <th>Principal</th>
+                <th>Cadastro</th>
+                <th class="table-actions">Ações</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for imagem in imagens %}
+                <tr>
+                    <td>
+                        <a href="{{ imagem.imagem.url }}" target="_blank">
+                            <img
+                                src="{{ imagem.imagem.url }}"
+                                alt="{{ imagem.descricao|default:produto.modelo }}"
+                                style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;"
+                            >
+                        </a>
+                    </td>
+
+                    <td>{{ imagem.descricao|default:"-" }}</td>
+
+                    <td>
+                        {% if imagem.principal %}
+                            <span class="badge badge-success">
+                                <i class="bi bi-star-fill"></i>
+                                Principal
+                            </span>
+                        {% else %}
+                            <span class="badge badge-secondary">
+                                Secundária
+                            </span>
+                        {% endif %}
+                    </td>
+
+                    <td>{{ imagem.data_cadastro|date:"d/m/Y" }}</td>
+
+                    <td class="table-actions">
+                        <a href="{% url 'produtos:excluir_imagem_produto' imagem.id %}" class="action-link action-danger">
+                            <i class="bi bi-trash"></i>
+                            Excluir
+                        </a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="5" class="empty-state">
+                        Nenhuma imagem cadastrada para este produto.
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

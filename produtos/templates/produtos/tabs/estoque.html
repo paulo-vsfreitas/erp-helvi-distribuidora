@@ -1,0 +1,31 @@
+<div class="card form-card">
+    <h3>Estoque</h3>
+
+    <div class="form-grid">
+        <div class="form-group">
+            <label>Estoque Atual</label>
+            <strong>{{ produto.estoque_atual }}</strong>
+        </div>
+
+        <div class="form-group">
+            <label>Estoque Mínimo</label>
+            <strong>{{ produto.estoque_minimo }}</strong>
+        </div>
+
+        <div class="form-group">
+            <label>Situação</label>
+
+            {% if produto.estoque_atual == 0 %}
+                <span class="badge badge-danger">Esgotado</span>
+            {% elif produto.estoque_atual <= produto.estoque_minimo %}
+                <span class="badge badge-warning">Estoque baixo</span>
+            {% else %}
+                <span class="badge badge-success">Estoque ok</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <p class="empty-state">
+        As movimentações de entrada, saída, ajuste e inventário serão implementadas na Sprint 3.5 — Estoque.
+    </p>
+</div>

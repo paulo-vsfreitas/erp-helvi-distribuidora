@@ -24,6 +24,14 @@ from .views.generos import (
     reativar_genero,
 )
 
+from .views.tipos_armacao import (
+    lista_tipo_armacao,
+    novo_tipo_armacao,
+    editar_tipo_armacao,
+    inativar_tipo_armacao,
+    reativar_tipo_armacao,
+)
+
 app_name = "catalogo"
 
 urlpatterns = [
@@ -44,5 +52,11 @@ urlpatterns = [
     path("generos/<int:pk>/editar/", editar_genero, name="editar_genero"),
     path("generos/<int:pk>/inativar/", inativar_genero, name="inativar_genero"),
     path("generos/<int:pk>/reativar/", reativar_genero, name="reativar_genero"),
-    
+
+    path("tipos-armacao/", lista_tipo_armacao, name="lista_tipo_armacao"),
+path("tipos-armacao/novo/", novo_tipo_armacao, name="novo_tipo_armacao"),
+path("tipos-armacao/<int:pk>/editar/", editar_tipo_armacao, name="editar_tipo_armacao"),
+path("tipos-armacao/<int:pk>/inativar/", inativar_tipo_armacao, name="inativar_tipo_armacao"),
+path("tipos-armacao/<int:pk>/reativar/", reativar_tipo_armacao, name="reativar_tipo_armacao"),
+
 ]

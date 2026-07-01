@@ -1,0 +1,105 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Tipos de Armação | ERP Helvi{% endblock %}
+
+{% block content %}
+
+{% url 'catalogo:novo_tipo_armacao' as novo_tipo_armacao_url %}
+
+{% include "components/page_header.html" with titulo="Tipos de Armação" subtitulo="Gerencie os tipos de armação cadastrados no ERP Helvi." botao_url=novo_tipo_armacao_url botao_texto="Novo Tipo" botao_icon="bi bi-plus-circle" %}
+
+<form method="get" class="card search-form">
+    <label for="busca">
+        <strong>Pesquisar tipo de armação</strong>
+    </label>
+
+    <div class="search-row">
+        <input
+            type="text"
+            id="busca"
+            name="busca"
+            value="{{ busca }}"
+            placeholder="Digite o nome ou descrição"
+            class="form-control"
+        >
+
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-search"></i>
+            Pesquisar
+        </button>
+    </div>
+</form>
+
+<div class="list-summary">
+    {% if busca %}
+        {{ tipos_armacao|length }} resultado(s) encontrado(s) para "{{ busca }}"
+    {% else %}
+        {{ tipos_armacao|length }} tipo(s) de armação cadastrado(s)
+    {% endif %}
+</div>
+
+<div class="table-card">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Descrição</th>
+                <th>Situação</th>
+                <th>Cadastro</th>
+                <th class="table-actions">Ações</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for tipo in tipos_armacao %}
+                <tr>
+                    <td><strong>{{ tipo.nome }}</strong></td>
+                    <td>{{ tipo.descricao|default:"-" }}</td>
+
+                    <td>
+                        {% if tipo.ativo %}
+                            <span class="badge badge-success">
+                                <i class="bi bi-check-circle"></i>
+                                Ativo
+                            </span>
+                        {% else %}
+                            <span class="badge badge-danger">
+                                <i class="bi bi-x-circle"></i>
+                                Inativo
+                            </span>
+                        {% endif %}
+                    </td>
+
+                    <td>{{ tipo.data_cadastro|date:"d/m/Y" }}</td>
+
+                    <td class="table-actions">
+                        <a href="{% url 'catalogo:editar_tipo_armacao' tipo.id %}" class="action-link action-edit">
+                            <i class="bi bi-pencil-square"></i>
+                            Editar
+                        </a>
+
+                        {% if tipo.ativo %}
+                            <a href="{% url 'catalogo:inativar_tipo_armacao' tipo.id %}" class="action-link action-danger">
+                                <i class="bi bi-slash-circle"></i>
+                                Inativar
+                            </a>
+                        {% else %}
+                            <a href="{% url 'catalogo:reativar_tipo_armacao' tipo.id %}" class="action-link action-edit">
+                                <i class="bi bi-check-circle"></i>
+                                Reativar
+                            </a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="5" class="empty-state">
+                        Nenhum tipo de armação encontrado.
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
