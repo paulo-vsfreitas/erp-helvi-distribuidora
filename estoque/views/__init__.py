@@ -1,2 +1,3 @@
 from .entradas import nova_entrada
+from .saidas import nova_saida
 from .movimentacoes import lista_movimentacoes

@@ -1,0 +1,69 @@
+{% extends "core/base.html" %}
+
+{% block title %}Nova Saída de Estoque | ERP Helvi{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    {% include "components/layout/page_header.html" with titulo="Nova Entrada" subtitulo="Registrar entrada manual de produtos no estoque." %}
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {% for erro in form.non_field_errors %}
+                        <div>{{ erro }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        {{ form.produto.label_tag }}
+                        {{ form.produto }}
+                    </div>
+
+                    <div class="col-md-3">
+                        {{ form.quantidade.label_tag }}
+                        {{ form.quantidade }}
+                    </div>
+
+                    <div class="col-md-3">
+                        {{ form.local.label_tag }}
+                        {{ form.local }}
+                    </div>
+
+                    <div class="col-md-6">
+                        {{ form.origem.label_tag }}
+                        {{ form.origem }}
+                    </div>
+
+                    <div class="col-md-12">
+                        {{ form.observacao.label_tag }}
+                        {{ form.observacao }}
+                    </div>
+
+                </div>
+
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-danger">
+                        Registrar Saída
+                    </button>
+
+                    <a href="{% url 'estoque:lista_movimentacoes' %}" class="btn btn-outline-secondary">
+                        Cancelar
+                    </a>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
