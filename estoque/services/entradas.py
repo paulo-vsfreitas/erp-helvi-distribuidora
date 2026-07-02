@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import transaction
 
 from estoque.models import MovimentacaoEstoque
@@ -12,6 +13,9 @@ def registrar_entrada_estoque(
     local="Estoque Principal",
     observacao=None,
 ):
+    if quantidade <= 0:
+        raise ValidationError("A quantidade da entrada deve ser maior que zero.")
+
     saldo_anterior = produto.estoque_atual
     saldo_atual = saldo_anterior + quantidade
 
