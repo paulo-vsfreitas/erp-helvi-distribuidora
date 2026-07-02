@@ -6,7 +6,7 @@
 
 {% url 'catalogo:novo_genero' as novo_genero_url %}
 
-{% include "components/page_header.html" with titulo="Gêneros" subtitulo="Gerencie os gêneros das armações cadastradas no ERP Helvi." botao_url=novo_genero_url botao_texto="Novo Gênero" botao_icon="bi bi-plus-circle" %}
+{% include "components/layout/page_header.html" with titulo="Gêneros" subtitulo="Gerencie os gêneros das armações cadastradas no ERP Helvi." botao_url=novo_genero_url botao_texto="Novo Gênero" botao_icon="bi bi-plus-circle" %}
 
 <form method="get" class="card search-form">
     <label for="busca">

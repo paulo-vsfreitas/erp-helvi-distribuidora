@@ -1,0 +1,18 @@
+<div class="d-flex flex-wrap gap-2 mb-4">
+
+    {% for action in actions %}
+
+        <a href="{{ action.url }}"
+           class="btn btn-{{ action.cor|default:'primary' }}">
+
+            {% if action.icone %}
+                <i class="bi {{ action.icone }}"></i>
+            {% endif %}
+
+            {{ action.titulo }}
+
+        </a>
+
+    {% endfor %}
+
+</div>

@@ -8,7 +8,7 @@
 
     {% url "usuarios:novo_usuario" as novo_usuario_url %}
 
-    {% include "components/page_header.html" with titulo="Usuários" subtitulo="Gerencie os usuários do ERP Helvi." botao_url=novo_usuario_url botao_texto="Novo Usuário" botao_icon="bi bi-plus-circle" %}
+    {% include "components/layout/page_header.html" with titulo="Usuários" subtitulo="Gerencie os usuários do ERP Helvi." botao_url=novo_usuario_url botao_texto="Novo Usuário" botao_icon="bi bi-plus-circle" %}
 
     <form method="get" class="card search-form">
 

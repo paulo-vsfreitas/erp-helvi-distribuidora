@@ -8,7 +8,7 @@
 
     {% url "usuarios:lista_usuarios" as voltar_url %}
 
-    {% include "components/page_header.html" with titulo=titulo subtitulo="Preencha os dados do usuário do ERP Helvi." botao_url=voltar_url botao_texto="Voltar" botao_icon="bi bi-arrow-left" %}
+    {% include "components/layout/page_header.html" with titulo=titulo subtitulo="Preencha os dados do usuário do ERP Helvi." botao_url=voltar_url botao_texto="Voltar" botao_icon="bi bi-arrow-left" %}
 
     <form
         method="post"

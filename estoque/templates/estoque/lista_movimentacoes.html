@@ -1,0 +1,130 @@
+{% extends "core/base.html" %}
+
+{% block title %}Estoque | ERP Helvi{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    {% include "components/layout/page_header.html" with titulo="Estoque" subtitulo="Painel central para consulta, gestão e auditoria das movimentações de estoque." %}
+
+    {% include "components/cards/dashboard_cards.html" with cards=cards %}
+
+    {% include "components/actions/action_bar.html" with actions=acoes %}
+
+    <div class="card shadow-sm border-0 mb-4">
+
+        <div class="card-body">
+
+            <form method="get" class="row g-3 align-items-end">
+
+                <div class="col-md-4">
+                    <label class="form-label">Pesquisar produto</label>
+                    <input 
+                        type="text" 
+                        name="busca" 
+                        value="{{ busca }}" 
+                        class="form-control" 
+                        placeholder="Código ou modelo"
+                    >
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Tipo</label>
+                    <select name="tipo" class="form-select">
+                        <option value="">Todos</option>
+
+                        {% for valor, nome in tipos_movimentacao %}
+                            <option value="{{ valor }}" {% if tipo_selecionado == valor %}selected{% endif %}>
+                                {{ nome }}
+                            </option>
+                        {% endfor %}
+
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        Filtrar
+                    </button>
+                </div>
+
+                <div class="col-md-2">
+                    <a href="{% url 'estoque:lista_movimentacoes' %}" class="btn btn-outline-secondary w-100">
+                        Limpar
+                    </a>
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <div class="card shadow-sm border-0">
+
+        <div class="card-header bg-white">
+            <strong>Últimas movimentações</strong>
+        </div>
+
+        <div class="card-body p-0">
+
+            <table class="table table-hover align-middle mb-0">
+
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Produto</th>
+                        <th>Tipo</th>
+                        <th>Quantidade</th>
+                        <th>Saldo</th>
+                        <th>Usuário</th>
+                        <th>Local</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for mov in movimentacoes %}
+
+                        <tr>
+                            <td>{{ mov.data_movimentacao|date:"d/m/Y H:i" }}</td>
+
+                            <td>
+                                {{ mov.produto.codigo }} - {{ mov.produto.modelo }}
+                            </td>
+
+                            <td>
+                                {% include "components/badges/badge.html" with texto=mov.get_tipo_display cor="secondary" %}
+                            </td>
+
+                            <td>{{ mov.quantidade }}</td>
+
+                            <td>{{ mov.saldo_atual }}</td>
+
+                            <td>{{ mov.usuario|default:"-" }}</td>
+
+                            <td>{{ mov.local }}</td>
+                        </tr>
+
+                    {% empty %}
+
+                        <tr>
+                            <td colspan="7">
+                                {% include "components/states/empty_state.html" with icone="bi-inbox" mensagem="Nenhuma movimentação encontrada." %}
+                            </td>
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

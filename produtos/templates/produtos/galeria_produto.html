@@ -6,7 +6,7 @@
 
 {% url 'produtos:lista_produtos' as lista_produtos_url %}
 
-{% include "components/page_header.html" with titulo="Galeria de Imagens" subtitulo=produto botao_url=lista_produtos_url botao_texto="Voltar" botao_icon="bi bi-arrow-left" %}
+{% include "components/layout/page_header.html" with titulo="Galeria de Imagens" subtitulo=produto botao_url=lista_produtos_url botao_texto="Voltar" botao_icon="bi bi-arrow-left" %}
 
 <div class="card form-card">
     <h3>{{ produto.codigo }} - {{ produto.modelo }}</h3>

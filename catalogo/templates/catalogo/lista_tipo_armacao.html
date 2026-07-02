@@ -6,7 +6,7 @@
 
 {% url 'catalogo:novo_tipo_armacao' as novo_tipo_armacao_url %}
 
-{% include "components/page_header.html" with titulo="Tipos de Armação" subtitulo="Gerencie os tipos de armação cadastrados no ERP Helvi." botao_url=novo_tipo_armacao_url botao_texto="Novo Tipo" botao_icon="bi bi-plus-circle" %}
+{% include "components/layout/page_header.html" with titulo="Tipos de Armação" subtitulo="Gerencie os tipos de armação cadastrados no ERP Helvi." botao_url=novo_tipo_armacao_url botao_texto="Novo Tipo" botao_icon="bi bi-plus-circle" %}
 
 <form method="get" class="card search-form">
     <label for="busca">

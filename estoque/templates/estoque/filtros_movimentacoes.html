@@ -1,0 +1,39 @@
+<form method="get" class="row g-3 align-items-end">
+
+    <div class="col-md-4">
+        <label class="form-label">Pesquisar produto</label>
+        <input 
+            type="text" 
+            name="busca" 
+            value="{{ busca }}" 
+            class="form-control" 
+            placeholder="Código ou modelo"
+        >
+    </div>
+
+    <div class="col-md-3">
+        <label class="form-label">Tipo</label>
+        <select name="tipo" class="form-select">
+            <option value="">Todos</option>
+
+            {% for valor, nome in tipos_movimentacao %}
+                <option value="{{ valor }}" {% if tipo_selecionado == valor %}selected{% endif %}>
+                    {{ nome }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">
+            Filtrar
+        </button>
+    </div>
+
+    <div class="col-md-2">
+        <a href="{% url 'estoque:lista_movimentacoes' %}" class="btn btn-outline-secondary w-100">
+            Limpar
+        </a>
+    </div>
+
+</form>

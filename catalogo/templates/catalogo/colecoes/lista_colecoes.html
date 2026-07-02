@@ -6,7 +6,7 @@
 
 {% url 'catalogo:nova_colecao' as nova_colecao_url %}
 
-{% include "components/page_header.html" with titulo="Coleções" subtitulo="Gerencie as coleções das armações cadastradas no ERP Helvi." botao_url=nova_colecao_url botao_texto="Nova Coleção" botao_icon="bi bi-plus-circle" %}
+{% include "components/layout/page_header.html" with titulo="Coleções" subtitulo="Gerencie as coleções das armações cadastradas no ERP Helvi." botao_url=nova_colecao_url botao_texto="Nova Coleção" botao_icon="bi bi-plus-circle" %}
 
 <form method="get" class="card search-form">
     <label for="busca">

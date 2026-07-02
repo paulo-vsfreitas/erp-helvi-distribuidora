@@ -6,7 +6,7 @@
 
 {% url 'catalogo:lista_tipo_armacao' as lista_tipo_armacao_url %}
 
-{% include "components/page_header.html" with titulo=titulo subtitulo="Preencha os dados do tipo de armação." botao_url=lista_tipo_armacao_url botao_texto="Voltar" botao_icon="bi bi-arrow-left" %}
+{% include "components/layout/page_header.html" with titulo=titulo subtitulo="Preencha os dados do tipo de armação." botao_url=lista_tipo_armacao_url botao_texto="Voltar" botao_icon="bi bi-arrow-left" %}
 
 <form method="post" class="card form-card">
     {% csrf_token %}

@@ -6,7 +6,7 @@
 
 {% url 'produtos:novo_produto' as novo_produto_url %}
 
-{% include "components/page_header.html" with titulo="Produtos" subtitulo="Gerencie as armações cadastradas no ERP Helvi." botao_url=novo_produto_url botao_texto="Novo Produto" botao_icon="bi bi-plus-circle" %}
+{% include "components/layout/page_header.html" with titulo="Produtos" subtitulo="Gerencie as armações cadastradas no ERP Helvi." botao_url=novo_produto_url botao_texto="Novo Produto" botao_icon="bi bi-plus-circle" %}
 
 <form method="get" class="card search-form">
     <label for="busca">
