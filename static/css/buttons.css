@@ -51,3 +51,16 @@
 .action-danger{
     color:var(--danger);
 }
+
+/* ==========================================================
+   ACTION BAR
+========================================================== */
+
+.action-bar{
+    margin-bottom:1.5rem;
+}
+
+.action-bar .btn{
+    min-width:170px;
+}
+

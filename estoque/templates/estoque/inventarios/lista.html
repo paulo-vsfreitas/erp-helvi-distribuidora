@@ -6,25 +6,34 @@
 <div class="container-fluid">
 
     <div class="d-flex justify-content-between align-items-center mb-4">
+
         <div>
             <h2 class="mb-1">Inventários</h2>
             <p class="text-muted mb-0">Histórico de conferências de estoque.</p>
         </div>
 
-        <a href="{% url 'estoque:novo_inventario' %}" class="btn btn-primary">
-            <i class="bi bi-plus-circle"></i>
-            Novo Inventário
-        </a>
+        <div class="d-flex gap-2">
+
+            <a href="{% url 'estoque:novo_inventario' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i>
+                Novo Inventário
+            </a>
+
             <a href="{% url 'estoque:dashboard_estoque' %}" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left"></i>
-             Voltar ao Estoque
-        </a>
+                <i class="bi bi-arrow-left"></i>
+                Voltar ao Estoque
+            </a>
+
+        </div>
 
     </div>
 
     <div class="card shadow-sm border-0">
+
         <div class="card-body">
+
             <table class="table table-hover align-middle">
+
                 <thead>
                     <tr>
                         <th>Código</th>
@@ -35,44 +44,62 @@
                         <th class="text-end">Ações</th>
                     </tr>
                 </thead>
+
                 <tbody>
+
                     {% for inventario in inventarios %}
-                    <tr>
-                        <td>{{ inventario.codigo }}</td>
-                        <td>
-                            {% if inventario.status == "finalizado" %}
-                                <span class="badge bg-success">Finalizado</span>
-                            {% elif inventario.status == "cancelado" %}
-                                <span class="badge bg-danger">Cancelado</span>
-                            {% else %}
-                                <span class="badge bg-warning text-dark">Em andamento</span>
-                            {% endif %}
-                        </td>
-                        <td>{{ inventario.usuario.get_full_name|default:inventario.usuario.username }}</td>
-                        <td>{{ inventario.data_criacao|date:"d/m/Y H:i" }}</td>
-                        <td>
-                            {% if inventario.data_finalizacao %}
-                                {{ inventario.data_finalizacao|date:"d/m/Y H:i" }}
-                            {% else %}
-                                -
-                            {% endif %}
-                        </td>
-                        <td class="text-end">
-                            <a href="{% url 'estoque:conferir_inventario' inventario.pk %}" class="btn btn-sm btn-outline-primary">
-                                Abrir
-                            </a>
-                        </td>
-                    </tr>
+
+                        <tr>
+
+                            <td>{{ inventario.codigo }}</td>
+
+                            <td>
+                                {% if inventario.status == "finalizado" %}
+                                    <span class="badge bg-success">Finalizado</span>
+                                {% elif inventario.status == "cancelado" %}
+                                    <span class="badge bg-danger">Cancelado</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">Em andamento</span>
+                                {% endif %}
+                            </td>
+
+                            <td>{{ inventario.usuario.get_full_name|default:inventario.usuario.username }}</td>
+
+                            <td>{{ inventario.data_criacao|date:"d/m/Y H:i" }}</td>
+
+                            <td>
+                                {% if inventario.data_finalizacao %}
+                                    {{ inventario.data_finalizacao|date:"d/m/Y H:i" }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+
+                            <td class="text-end">
+                                <a href="{% url 'estoque:conferir_inventario' inventario.pk %}"
+                                   class="btn btn-sm btn-outline-primary">
+                                    Abrir
+                                </a>
+                            </td>
+
+                        </tr>
+
                     {% empty %}
-                    <tr>
-                        <td colspan="6" class="text-center text-muted">
-                            Nenhum inventário encontrado.
-                        </td>
-                    </tr>
+
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">
+                                Nenhum inventário encontrado.
+                            </td>
+                        </tr>
+
                     {% endfor %}
+
                 </tbody>
+
             </table>
+
         </div>
+
     </div>
 
 </div>

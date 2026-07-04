@@ -1,0 +1,26 @@
+<div class="page-header">
+
+    <div class="page-header__content">
+
+        <div class="page-header__text">
+            <h1>{{ title }}</h1>
+
+            {% if subtitle %}
+                <p>{{ subtitle }}</p>
+            {% endif %}
+        </div>
+
+        {% if button_url %}
+            <div class="page-header__actions">
+                <a href="{{ button_url }}" class="btn btn-primary">
+                    {% if button_icon %}
+                        <i class="bi bi-{{ button_icon }}"></i>
+                    {% endif %}
+                    {{ button_text }}
+                </a>
+            </div>
+        {% endif %}
+
+    </div>
+
+</div>

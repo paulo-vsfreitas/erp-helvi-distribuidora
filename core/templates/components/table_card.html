@@ -1,0 +1,18 @@
+<div class="table-card">
+
+    {% if title %}
+        <div class="table-card__header">
+            <h2>{{ title }}</h2>
+
+            {% if subtitle %}
+                <p>{{ subtitle }}</p>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <div class="table-card__body">
+        {% block table_content %}
+        {% endblock %}
+    </div>
+
+</div>

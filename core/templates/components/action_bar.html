@@ -1,0 +1,37 @@
+<div class="action-bar mb-4">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+
+        <div class="action-bar__left">
+
+            {% if left_content %}
+                {{ left_content|safe }}
+            {% endif %}
+
+        </div>
+
+        <div class="action-bar__right d-flex flex-wrap gap-2">
+
+            {% if button1_url %}
+                <a href="{{ button1_url }}" class="btn btn-primary">
+                    {% if button1_icon %}
+                        <i class="bi bi-{{ button1_icon }}"></i>
+                    {% endif %}
+                    {{ button1_text }}
+                </a>
+            {% endif %}
+
+            {% if button2_url %}
+                <a href="{{ button2_url }}" class="btn btn-outline-secondary">
+                    {% if button2_icon %}
+                        <i class="bi bi-{{ button2_icon }}"></i>
+                    {% endif %}
+                    {{ button2_text }}
+                </a>
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
