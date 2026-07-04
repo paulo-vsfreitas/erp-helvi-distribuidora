@@ -2,6 +2,8 @@ from django.db.models import F, Q, Sum
 
 from estoque.models import MovimentacaoEstoque
 from produtos.models import Produto
+from django.core.exceptions import ValidationError
+from django.db import transaction
 
 
 def listar_movimentacoes_estoque(busca="", tipo=""):
@@ -80,58 +82,52 @@ def obter_acoes_dashboard():
             "titulo": "Nova Saída",
             "icone": "bi-dash-circle",
             "cor": "danger",
-            "url": "#",
+            "url": "/estoque/saidas/nova/",
         },
         {
             "titulo": "Ajuste",
             "icone": "bi-sliders",
             "cor": "warning",
-            "url": "#",
+            "url": "/estoque/ajuste/",
         },
         {
             "titulo": "Inventário",
             "icone": "bi-clipboard-check",
-            "cor": "secondary",
+            "cor": "outline-secondary",
             "url": "#",
         },
         {
             "titulo": "Transferência",
             "icone": "bi-arrow-left-right",
-            "cor": "secondary",
+            "cor": "outline-secondary",
             "url": "#",
-        },
+            },
     ]
 
-def obter_acoes_dashboard():
-    return [
-        {
-            "titulo": "Nova Entrada",
-            "icone": "bi-plus-circle",
-            "cor": "success",
-            "url": "#",
-        },
-        {
-            "titulo": "Nova Saída",
-            "icone": "bi-dash-circle",
-            "cor": "danger",
-            "url": "#",
-        },
-        {
-            "titulo": "Ajuste",
-            "icone": "bi-sliders",
-            "cor": "warning",
-            "url": "#",
-        },
-        {
-            "titulo": "Inventário",
-            "icone": "bi-clipboard-check",
-            "cor": "outline-secondary",
-            "url": "#",
-        },
-        {
-            "titulo": "Transferência",
-            "icone": "bi-arrow-left-right",
-            "cor": "outline-secondary",
-            "url": "#",
-        },
-    ]
+
+@transaction.atomic
+def ajustar_estoque(produto, quantidade_correta, usuario, motivo="", observacao=""):
+    estoque_atual = produto.estoque_atual or 0
+    diferenca = quantidade_correta - estoque_atual
+
+    if diferenca == 0:
+        raise ValidationError("A quantidade informada é igual ao estoque atual.")
+
+    if diferenca > 0:
+        tipo = MovimentacaoEstoque.TipoMovimentacao.ENTRADA
+        quantidade = diferenca
+    else:
+        tipo = MovimentacaoEstoque.TipoMovimentacao.SAIDA
+        quantidade = abs(diferenca)
+
+    MovimentacaoEstoque.objects.create(
+        produto=produto,
+        tipo=tipo,
+        quantidade=quantidade,
+        usuario=usuario,
+        motivo=motivo,
+        observacao=observacao,
+    )
+
+    produto.estoque_atual = quantidade_correta
+    produto.save(update_fields=["estoque_atual"])

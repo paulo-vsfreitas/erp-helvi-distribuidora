@@ -1,3 +1,4 @@
-from .ajuste import AjusteEstoqueForm
-from .entradas import EntradaEstoqueForm
-from .saidas import SaidaEstoqueForm
+from .ajustes import *
+from .entradas import *
+from .movimentacoes import *
+from .saidas import *

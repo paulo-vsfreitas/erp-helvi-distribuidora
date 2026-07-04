@@ -1,0 +1,85 @@
+{% extends "core/base.html" %}
+
+{% block title %}Conferir Inventário | ERP Helvi{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-3">Conferir Inventário {{ inventario.codigo }}</h1>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <p>Total de itens: {{ inventario.itens.count }}</p>
+
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Produto</th>
+                            <th>Estoque Sistema</th>
+                            <th>Quantidade Física</th>
+                            <th>Diferença</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in inventario.itens.all %}
+                        <tr>
+                            <td>{{ item.produto }}</td>
+                            <td>{{ item.estoque_sistema }}</td>
+                            <td>
+                                <input
+                                    type="number"
+                                    name="quantidade_fisica_{{ item.id }}"
+                                    class="form-control"
+                                    min="0"
+                                    value="{{ item.quantidade_fisica|default:'' }}"
+                                >
+                            </td>
+                            <td>{{ item.diferenca }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">
+                                Nenhum item encontrado neste inventário.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <div class="d-flex gap-2 mt-3">
+
+                    <button
+                       type="submit"
+                        class="btn btn-primary">
+                        <i class="bi bi-floppy"></i>
+                        Salvar Conferência
+                    </button>
+
+                    <button
+                        type="submit"
+                        formaction="{% url 'estoque:finalizar_inventario' inventario.pk %}"
+                        formmethod="post"
+                        class="btn btn-success"
+                        onclick="return confirm('Deseja realmente finalizar este inventário?');">
+                        <i class="bi bi-check-circle"></i>
+                        Finalizar Inventário
+                    </button>
+
+                    <a
+                        href="{% url 'estoque:lista_movimentacoes' %}"
+                        class="btn btn-outline-secondary">
+                        Cancelar
+                    </a>
+
+                    </div>
+                    <a href="{% url 'estoque:novo_inventario' %}" class="btn btn-outline-secondary">
+                        Novo inventário
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

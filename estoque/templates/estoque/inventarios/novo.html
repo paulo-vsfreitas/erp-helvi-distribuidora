@@ -1,0 +1,39 @@
+{% extends "core/base.html" %}
+
+{% block title %}Novo Inventário | ERP Helvi{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <div class="mb-4">
+        <h1 class="h3 mb-1">Novo Inventário</h1>
+        <p class="text-muted mb-0">
+            Crie uma nova conferência de estoque.
+        </p>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    {{ form.observacao.label_tag }}
+                    {{ form.observacao }}
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        Criar inventário
+                    </button>
+
+                    <a href="{% url 'estoque:lista_movimentacoes' %}" class="btn btn-outline-secondary">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
