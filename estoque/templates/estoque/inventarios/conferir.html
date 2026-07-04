@@ -4,7 +4,76 @@
 
 {% block content %}
 <div class="container-fluid">
-    <h1 class="h3 mb-3">Conferir Inventário {{ inventario.codigo }}</h1>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+        <h2 class="mb-1">
+            Inventário {{ inventario.codigo }}
+        </h2>
+        <div class="row mb-4">
+
+            <div class="col-md-3">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted">Produtos</h6>
+                        <h3>{{ resumo.total }}</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted">Conferidos</h6>
+                        <h3 class="text-success">{{ resumo.conferidos }}</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted">Pendentes</h6>
+                        <h3 class="text-warning">{{ resumo.pendentes }}</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted">Divergências</h6>
+                        <h3 class="text-danger">{{ resumo.divergencias }}</h3>
+                    </div>
+                </div>
+            </div>
+
+    </div>
+        <p class="text-muted mb-0">
+            Responsável:
+            <strong>{{ inventario.usuario.get_full_name|default:inventario.usuario.username }}</strong>
+        </p>
+    </div>
+
+    <div class="text-end">
+
+        {% if inventario.status == "finalizado" %}
+            <span class="badge bg-success fs-6">
+                Finalizado
+            </span>
+        {% else %}
+            <span class="badge bg-warning text-dark fs-6">
+                Em andamento
+            </span>
+        {% endif %}
+
+        <div class="small text-muted mt-2">
+            Criado em {{ inventario.data_criacao|date:"d/m/Y H:i" }}
+        </div>
+
+    </div>
+
+</div>
 
     <form method="post">
         {% csrf_token %}
@@ -34,6 +103,7 @@
                                     class="form-control"
                                     min="0"
                                     value="{{ item.quantidade_fisica|default:'' }}"
+                                    {% if inventario.status == "finalizado" %}disabled{% endif %}
                                 >
                             </td>
                             <td>{{ item.diferenca }}</td>
@@ -50,6 +120,8 @@
 
                 <div class="d-flex gap-2 mt-3">
 
+                    {% if inventario.status != "finalizado" %}
+
                     <button
                        type="submit"
                         class="btn btn-primary">
@@ -57,15 +129,18 @@
                         Salvar Conferência
                     </button>
 
+                    
                     <button
                         type="submit"
                         formaction="{% url 'estoque:finalizar_inventario' inventario.pk %}"
                         formmethod="post"
                         class="btn btn-success"
                         onclick="return confirm('Deseja realmente finalizar este inventário?');">
+
                         <i class="bi bi-check-circle"></i>
                         Finalizar Inventário
                     </button>
+                    {% endif %}
 
                     <a
                         href="{% url 'estoque:lista_movimentacoes' %}"
@@ -73,7 +148,7 @@
                         Cancelar
                     </a>
 
-                    </div>
+                
                     <a href="{% url 'estoque:novo_inventario' %}" class="btn btn-outline-secondary">
                         Novo inventário
                     </a>

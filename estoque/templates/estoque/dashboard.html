@@ -1,0 +1,83 @@
+{% extends "core/base.html" %}
+
+{% block title %}Estoque | ERP Helvi{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <div class="mb-4">
+        <h2 class="mb-1">Estoque</h2>
+        <p class="text-muted mb-0">Painel operacional do módulo de estoque.</p>
+    </div>
+
+    <div class="row mb-4">
+        {% for card in cards %}
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <div class="text-muted small">{{ card.titulo }}</div>
+                    <h3 class="mb-0">{{ card.valor }}</h3>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+            <h5 class="mb-3">Ações rápidas</h5>
+
+            <div class="d-flex flex-wrap gap-2">
+                {% for acao in acoes %}
+                    <a href="{{ acao.url }}" class="btn btn-outline-primary">
+                        <i class="bi {{ acao.icone }}"></i>
+                        {{ acao.titulo }}
+                    </a>
+                {% endfor %}
+
+                <a href="{% url 'estoque:lista_movimentacoes' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-list-ul"></i>
+                    Movimentações
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <h5 class="mb-3">Últimas movimentações</h5>
+
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Produto</th>
+                        <th>Tipo</th>
+                        <th>Qtd.</th>
+                        <th>Saldo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mov in ultimas_movimentacoes %}
+                    <tr>
+                        <td>{{ mov.data_movimentacao|date:"d/m/Y H:i" }}</td>
+                        <td>{{ mov.produto }}</td>
+                        <td>{{ mov.get_tipo_display }}</td>
+                        <td>{{ mov.quantidade }}</td>
+                        <td>{{ mov.saldo_atual }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">
+                            Nenhuma movimentação encontrada.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}

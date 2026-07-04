@@ -8,8 +8,20 @@ from estoque.services.inventarios import (
     criar_inventario,
     salvar_conferencia_inventario,
     finalizar_inventario,
+    obter_resumo_inventario,
 )
 
+@login_required
+def lista_inventarios(request):
+    inventarios = Inventario.objects.select_related("usuario").all()
+
+    return render(
+        request,
+        "estoque/inventarios/lista.html",
+        {
+            "inventarios": inventarios,
+        },
+    )
 
 @login_required
 def novo_inventario(request):
@@ -51,12 +63,15 @@ def conferir_inventario(request, pk):
 
         messages.success(request, "Conferência salva com sucesso.")
         return redirect("estoque:conferir_inventario", pk=inventario.pk)
+    
+    resumo = obter_resumo_inventario(inventario)
 
     return render(
         request,
         "estoque/inventarios/conferir.html",
         {
             "inventario": inventario,
+            "resumo":resumo,
         },
     )
 

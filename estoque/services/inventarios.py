@@ -85,3 +85,20 @@ def finalizar_inventario(inventario, usuario):
     inventario.save(update_fields=["status", "data_finalizacao"])
 
     return inventario
+
+def obter_resumo_inventario(inventario):
+    itens = inventario.itens.all()
+
+    total = itens.count()
+    conferidos = itens.filter(quantidade_fisica__isnull=False).count()
+    pendentes = total - conferidos
+    divergencias = itens.exclude(diferenca=0).filter(
+        quantidade_fisica__isnull=False
+    ).count()
+
+    return {
+        "total": total,
+        "conferidos": conferidos,
+        "pendentes": pendentes,
+        "divergencias": divergencias,
+    }

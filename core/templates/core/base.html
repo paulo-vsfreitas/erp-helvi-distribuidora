@@ -97,7 +97,7 @@
     </div>
 
             {% if permissoes.estoque %}
-                <a href="#">
+                <a href="{% url 'estoque:dashboard_estoque' %}">
                     📦 Estoque
                 </a>
             {% endif %}

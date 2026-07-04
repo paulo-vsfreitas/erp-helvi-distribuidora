@@ -1,4 +1,5 @@
 from django.db.models import F, Q, Sum
+from django.urls import reverse
 
 from estoque.models import MovimentacaoEstoque
 from produtos.models import Produto
@@ -88,20 +89,19 @@ def obter_acoes_dashboard():
             "titulo": "Ajuste",
             "icone": "bi-sliders",
             "cor": "warning",
-            "url": "/estoque/ajuste/",
+            "url": "/estoque/ajustes/novo/",
         },
         {
             "titulo": "Inventário",
             "icone": "bi-clipboard-check",
             "cor": "outline-secondary",
-            "url": "#",
+            "url": "/estoque/inventarios/",
         },
         {
-            "titulo": "Transferência",
+            "titulo": "Transferência (Em breve)",
             "icone": "bi-arrow-left-right",
-            "cor": "outline-secondary",
             "url": "#",
-            },
+        },
     ]
 
 
