@@ -40,3 +40,9 @@
     letter-spacing:1px;
     font-weight:bold;
 }
+
+.menu-disabled {
+    opacity: .65;
+    cursor: not-allowed;
+    pointer-events: none;
+}

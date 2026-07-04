@@ -115,17 +115,14 @@
             {% endif %}
         {% endif %}
 
-            {% if permissoes.configuracoes or permissoes.usuarios %}
-
-                <div class="menu-section">
-                    SISTEMA
-                </div>
-
-                {% if permissoes.configuracoes %}
-                    <a href="#">
-                        ⚙️ Configurações
-                    </a>
-                {% endif %}
+            {% if permissoes.configuracoes %}
+                <a href="javascript:void(0);"
+                    class="menu-disabled"
+                     title="Módulo em desenvolvimento">
+                     ⚙️ Configurações
+                    <small class="text-muted">(Em breve)</small>
+                </a>
+            {% endif %}
 
                 {% if permissoes.usuarios %}
                     <a href="{% url 'usuarios:lista_usuarios' %}">
@@ -133,7 +130,7 @@
                     </a>
                 {% endif %}
 
-            {% endif %}
+            
 
         </nav>
 
