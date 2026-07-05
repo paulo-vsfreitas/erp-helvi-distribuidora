@@ -1,0 +1,15 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ERP Helvi{% endblock %}</title>
+
+    <link rel="stylesheet" href="{% static 'css/public.css' %}">
+</head>
+<body>
+    {% block content %}{% endblock %}
+</body>
+</html>

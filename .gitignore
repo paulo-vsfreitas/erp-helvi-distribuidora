@@ -28,3 +28,10 @@ Thumbs.db
 
 # Cache do Django
 *.sqlite3-journal
+
+# Backups do PostgreSQL
+backups/
+
+# Arquivos de ambiente alternativos
+.env.*
+!.env.example

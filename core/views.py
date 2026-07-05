@@ -2,6 +2,10 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 
 
+
 @login_required
 def dashboard(request):
     return render(request, 'core/dashboard.html')
+
+def recuperacao_acesso(request):
+    return render(request, "core/recuperacao_acesso.html")

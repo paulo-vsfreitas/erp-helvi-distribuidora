@@ -1,82 +1,60 @@
-{% extends 'core/base.html' %}
+{% extends 'public/base_public.html' %}
+{% load static %}
 
 {% block title %}Login | ERP Helvi{% endblock %}
 
 {% block content %}
+<div class="public-auth-page">
 
-<div style="height:100vh;display:flex;justify-content:center;align-items:center;">
+    <div class="auth-card">
 
-    <div style="
-        width:420px;
-        background:white;
-        padding:40px;
-        border-radius:20px;
-        box-shadow:0 5px 20px rgba(0,0,0,.1);
-    ">
+        <div class="auth-brand">
+            <img src="{% static 'img/logo.png' %}" alt="Helvi" class="auth-logo">
 
-        <h1 style="text-align:center;color:#111;">
-            Helvi
-        </h1>
-
-        <p style="
-            text-align:center;
-            color:#C9A646;
-            margin-top:10px;
-            margin-bottom:30px;
-        ">
-            Distribuidora de Armações
-        </p>
+            <h1>ERP Helvi</h1>
+            <p>Gestão inteligente para a Helvi Distribuidora</p>
+        </div>
 
         {% if form.errors %}
-            <div style="
-                background:#fdecea;
-                color:#b42318;
-                padding:12px;
-                border-radius:10px;
-                margin-bottom:20px;
-                font-size:14px;
-            ">
-                Usuário ou senha inválidos.
+            <div class="auth-alert">
+                Usuário ou senha inválidos. Verifique os dados e tente novamente.
             </div>
         {% endif %}
 
-        <form method="post">
-
+        <form method="post" class="auth-form">
             {% csrf_token %}
 
-            <div style="margin-bottom:15px;">
-                <label>Usuário</label><br>
-                {{ form.username }}
+            <div class="auth-field">
+                <label for="{{ form.username.id_for_label }}">Usuário</label>
+                <div class="auth-input-wrapper">
+                    <i class="bi bi-person"></i>
+                    {{ form.username }}
+                </div>
             </div>
 
-            <div style="margin-bottom:10px;">
-                <label>Senha</label><br>
-                {{ form.password }}
+            <div class="auth-field">
+                <label for="{{ form.password.id_for_label }}">Senha</label>
+                <div class="auth-input-wrapper">
+                    <i class="bi bi-lock"></i>
+                    {{ form.password }}
+                </div>
             </div>
 
-            <div style="text-align:right;margin-bottom:20px;">
-                <a href="{% url 'password_reset' %}" style="font-size:14px;color:#C9A646;text-decoration:none;">
-                    Esqueci minha senha
-                </a>
-            </div>
-
-            <button type="submit"
-                    style="
-                    width:100%;
-                    padding:12px;
-                    border:none;
-                    border-radius:10px;
-                    background:#C9A646;
-                    color:white;
-                    font-weight:bold;
-                    cursor:pointer;">
-                Entrar
+            <button type="submit" class="auth-button">
+                Entrar no sistema
             </button>
 
+            <a href="{% url 'recuperacao_acesso' %}" class="auth-forgot">
+                Esqueci minha senha
+            </a>
         </form>
+
+        <footer class="auth-footer">
+            <span>Versão 3.6</span>
+            <span>© Helvi Distribuidora</span>
+        </footer>
 
     </div>
 
 </div>
-
 {% endblock %}

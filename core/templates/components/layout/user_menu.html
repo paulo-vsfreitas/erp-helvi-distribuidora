@@ -40,10 +40,13 @@
 
         <hr>
 
-        <a href="{% url 'logout' %}">
-            <i class="bi bi-box-arrow-right"></i>
-            Sair
-        </a>
+        <form method="post" action="{% url 'logout' %}">
+                 {% csrf_token %}
+                <button type="submit" class="user-menu__logout">
+                      <i class="bi bi-box-arrow-right"></i>
+                      Sair
+                </button>
+        </form>
     </div>
 </div>
 {% endif %}

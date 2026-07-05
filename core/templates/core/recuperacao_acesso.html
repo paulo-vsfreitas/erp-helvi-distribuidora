@@ -1,0 +1,30 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Recuperar acesso | ERP Helvi{% endblock %}
+
+{% block content %}
+
+<div class="login-page">
+    <div class="login-card">
+
+        <div class="login-brand">
+            <img src="{% static 'img/logo-helvi.png' %}" alt="Helvi" class="login-logo">
+
+            <h1>Recuperar acesso</h1>
+            <p>Solicite a redefinição da sua senha ao administrador do ERP.</p>
+        </div>
+
+        <div class="login-alert login-alert-info">
+            Por segurança, a recuperação automática de senha ainda não está habilitada.
+            Entre em contato com o administrador do sistema para redefinir seu acesso.
+        </div>
+
+        <a href="{% url 'login' %}" class="login-button login-button-link">
+            Voltar para o login
+        </a>
+
+    </div>
+</div>
+
+{% endblock %}
