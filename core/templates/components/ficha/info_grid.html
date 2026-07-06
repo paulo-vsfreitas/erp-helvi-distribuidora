@@ -1,0 +1,8 @@
+<div class="ficha-grid">
+    {% for item in itens %}
+        <div class="ficha-info-item">
+            <span>{{ item.label }}</span>
+            <strong>{{ item.valor }}</strong>
+        </div>
+    {% endfor %}
+</div>

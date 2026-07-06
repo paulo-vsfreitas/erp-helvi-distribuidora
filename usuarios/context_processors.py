@@ -16,5 +16,6 @@ def permissoes_usuario(request):
             "relatorios": usuario_tem_permissao(usuario, Modulo.RELATORIOS),
             "configuracoes": usuario_tem_permissao(usuario, Modulo.CONFIGURACOES),
             "usuarios": usuario_tem_permissao(usuario, Modulo.USUARIOS),
+            "compras": usuario_tem_permissao(request.user, Modulo.COMPRAS),
         }
     }

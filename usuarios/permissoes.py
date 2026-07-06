@@ -9,6 +9,7 @@ class Modulo:
     RELATORIOS = "relatorios"
     CONFIGURACOES = "configuracoes"
     USUARIOS = "usuarios"
+    COMPRAS = "compras"
 
 
 PERFIS = {
@@ -25,6 +26,7 @@ PERFIS = {
             Modulo.RELATORIOS,
             Modulo.CONFIGURACOES,
             Modulo.USUARIOS,
+            Modulo.COMPRAS,
         },
     },
     "GER": {
@@ -38,6 +40,7 @@ PERFIS = {
             Modulo.ESTOQUE,
             Modulo.FINANCEIRO,
             Modulo.RELATORIOS,
+            Modulo.COMPRAS,
         },
     },
     "VEN": {

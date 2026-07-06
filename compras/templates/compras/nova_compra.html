@@ -1,0 +1,34 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Nova Compra | ERP Helvi{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/compras.css' %}">
+{% endblock %}
+
+{% block content %}
+
+{% include "compras/components/barra_acoes.html" %}
+
+<form id="form-compra" method="post">
+    {% csrf_token %}
+
+    <div class="row">
+        <div class="col-lg-8">
+            {% include "compras/components/dados_compra.html" %}
+            {% include "compras/components/tabela_itens.html" %}
+        </div>
+
+        <div class="col-lg-4">
+            {% include "compras/components/resumo_compra.html" %}
+        </div>
+    </div>
+</form>
+
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/compras/tabela_itens.js' %}?v=11"></script>
+{% endblock %}

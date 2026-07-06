@@ -1,0 +1,134 @@
+{% extends "core/base.html" %}
+
+{% block title %}{{ ficha_titulo }} | ERP Helvi{% endblock %}
+
+{% block content %}
+
+<div class="ficha-header">
+    <div class="ficha-header-top">
+        <div class="ficha-title">
+            <h1>{{ ficha_titulo }}</h1>
+            <p>{{ ficha_subtitulo }}</p>
+        </div>
+
+        <div class="ficha-actions">
+            <a href="{% url 'compras:lista' %}" class="btn btn-outline-secondary">
+                Voltar
+            </a>
+
+            {% if not compra.entrada_estoque_realizada and compra.status != "cancelada" %}
+                <a href="#" class="btn btn-primary">
+                    Receber Compra
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="ficha-status-row">
+        {% for item in ficha_resumo %}
+            <div class="ficha-status-card">
+                <span>{{ item.label }}</span>
+                <strong>{{ item.valor }}</strong>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="ficha-section-title">
+            <h3>Dados gerais</h3>
+            <p>Informações principais da compra e do fornecedor.</p>
+        </div>
+
+        <div class="ficha-grid">
+            {% for item in dados_gerais %}
+                <div class="ficha-info-item">
+                    <span>{{ item.label }}</span>
+                    <strong>{{ item.valor }}</strong>
+                </div>
+            {% endfor %}
+        </div>
+
+        {% if compra.observacoes %}
+            <hr>
+            <div class="ficha-info-item">
+                <span>Observações</span>
+                <strong>{{ compra.observacoes }}</strong>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="ficha-section-title">
+            <h3>Produtos da compra</h3>
+            <p>Itens lançados nesta compra.</p>
+        </div>
+
+        {% if itens %}
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Produto</th>
+                            <th class="text-center">Qtd.</th>
+                            <th class="text-end">Custo unitário</th>
+                            <th class="text-end">Desconto</th>
+                            <th class="text-end">Total</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for item in itens %}
+                        <tr>
+                            <td>
+                                <strong>{{ item.produto }}</strong>
+                            </td>
+
+                            <td class="text-center">
+                                {{ item.quantidade }}
+                            </td>
+
+                            <td class="text-end">
+                                R$ {{ item.custo_unitario|floatformat:2 }}
+                            </td>
+
+                            <td class="text-end">
+                                R$ {{ item.desconto|floatformat:2 }}
+                            </td>
+
+                            <td class="text-end">
+                                <strong>R$ {{ item.total|floatformat:2 }}</strong>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-muted">Nenhum produto lançado nesta compra.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="ficha-section-title">
+            <h3>Resumo financeiro</h3>
+            <p>Valores consolidados da compra.</p>
+        </div>
+
+        <div class="ficha-grid">
+            {% for item in resumo_financeiro %}
+                <div class="ficha-info-item">
+                    <span>{{ item.label }}</span>
+                    <strong>{{ item.valor }}</strong>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

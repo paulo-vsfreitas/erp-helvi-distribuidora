@@ -1,0 +1,69 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Compras | ERP Helvi{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <div class="page-header mb-4">
+        <div>
+            <h1 class="page-title">Compras</h1>
+            <p class="page-subtitle">
+                Gestão de compras, entradas de mercadorias, fornecedores e integração com estoque e financeiro.
+            </p>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <span class="text-muted small">Compras em aberto</span>
+                    <h3 class="mb-0">0</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <span class="text-muted small">Aguardando entrada</span>
+                    <h3 class="mb-0">0</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <span class="text-muted small">Valor em compras</span>
+                    <h3 class="mb-0">R$ 0,00</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <span class="text-muted small">Fornecedores ativos</span>
+                    <h3 class="mb-0">0</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body text-center py-5">
+            <h5 class="mb-2">Gestão de Compras</h5>
+                <p class="text-muted mb-4">
+                       Acesse a listagem de compras para cadastrar, acompanhar e consultar compras realizadas.
+                 </p>
+
+                <a href="{% url 'compras:lista' %}" class="btn btn-primary">
+                      <i class="bi bi-list-ul"></i>
+                            Abrir Compras
+                 </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

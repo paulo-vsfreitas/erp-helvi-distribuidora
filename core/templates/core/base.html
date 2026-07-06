@@ -23,6 +23,7 @@
     <link rel="stylesheet" href="{% static 'css/alerts.css' %}">
     <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
     <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
+    <link rel="stylesheet" href="{% static 'css/ficha.css' %}">
 
     {% block extra_css %}{% endblock %}
 </head>
@@ -130,6 +131,12 @@
                     </a>
                 {% endif %}
 
+                {% if permissoes.compras %}
+                    <a href="{% url 'compras:lista' %}">
+                        🛒 Compras
+                    </a>
+                {% endif %}
+
             
 
         </nav>
@@ -171,7 +178,9 @@
 
     </main>
 
-</div>
+<</div>
+
+{% block extra_js %}{% endblock %}
 
 </body>
 </html>

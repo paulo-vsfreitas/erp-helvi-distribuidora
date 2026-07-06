@@ -1,0 +1,219 @@
+{% extends "core/base.html" %}
+
+{% block title %}Compras | ERP Helvi{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Compras</h1>
+        <p>Gerencie compras, pagamentos e entradas de mercadorias.</p>
+    </div>
+
+    <a href="{% url 'compras:nova' %}" class="btn btn-primary">
+        + Nova Compra
+    </a>
+</div>
+
+<div class="dashboard-cards">
+    <div class="dashboard-card">
+        <span>Total de compras</span>
+        <strong>{{ total_compras }}</strong>
+    </div>
+
+    <div class="dashboard-card">
+        <span>Valor total</span>
+        <strong>R$ {{ valor_total|floatformat:2 }}</strong>
+    </div>
+
+    <div class="dashboard-card">
+        <span>Recebidas</span>
+        <strong>{{ recebidas }}</strong>
+    </div>
+
+    <div class="dashboard-card">
+        <span>Pendentes</span>
+        <strong>{{ pendentes }}</strong>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label">Pesquisar</label>
+                <input
+                    type="text"
+                    name="busca"
+                    class="form-control"
+                    placeholder="Número, fornecedor ou documento"
+                    value="{{ busca }}"
+                >
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-select">
+                    <option value="">Todos</option>
+                    {% for valor, nome in status_choices %}
+                        <option value="{{ valor }}" {% if status == valor %}selected{% endif %}>
+                            {{ nome }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Pagamento</label>
+                <select name="pagamento" class="form-select">
+                    <option value="">Todos</option>
+                    {% for valor, nome in status_pagamento_choices %}
+                        <option value="{{ valor }}" {% if pagamento == valor %}selected{% endif %}>
+                            {{ nome }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    Filtrar
+                </button>
+
+                <a href="{% url 'compras:lista' %}" class="btn btn-outline-secondary">
+                    Limpar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+
+        {% if compras %}
+
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Nº</th>
+                        <th>Fornecedor</th>
+                        <th>Data</th>
+                        <th>Status</th>
+                        <th>Pagamento</th>
+                        <th>Estoque</th>
+                        <th class="text-end">Total</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for compra in compras %}
+                    <tr>
+                        <td>
+                            <strong>#{{ compra.numero }}</strong>
+                        </td>
+
+                        <td>
+                            <strong>{{ compra.fornecedor_nome }}</strong>
+                            {% if compra.fornecedor_documento %}
+                                <br>
+                                <small class="text-muted">{{ compra.fornecedor_documento }}</small>
+                            {% endif %}
+                        </td>
+
+                        <td>{{ compra.data_compra|date:"d/m/Y" }}</td>
+
+                        <td>
+                            {% if compra.status == "recebida" %}
+                                <span class="badge bg-success">Recebida</span>
+                            {% elif compra.status == "cancelada" %}
+                                <span class="badge bg-danger">Cancelada</span>
+                            {% elif compra.status == "aguardando_entrega" %}
+                                <span class="badge bg-warning text-dark">Aguardando entrega</span>
+                            {% elif compra.status == "em_aberto" %}
+                                <span class="badge bg-primary">Em aberto</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Rascunho</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if compra.status_pagamento == "pago" %}
+                                <span class="badge bg-success">Pago</span>
+                            {% elif compra.status_pagamento == "parcial" %}
+                                <span class="badge bg-warning text-dark">Parcial</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Pendente</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if compra.entrada_estoque_realizada %}
+                                <span class="badge bg-success">Realizada</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">Pendente</span>
+                            {% endif %}
+                        </td>
+
+                        <td class="text-end">
+                            <strong>R$ {{ compra.total|floatformat:2 }}</strong>
+                        </td>
+
+                        <td class="text-end">
+                            <a href="{% url 'compras:ficha' compra.pk %}" class="btn btn-sm btn-outline-primary">
+                                Visualizar
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if page_obj.has_other_pages %}
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <span class="text-muted">
+                Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+            </span>
+
+            <div class="btn-group">
+                {% if page_obj.has_previous %}
+                    <a
+                        class="btn btn-outline-secondary btn-sm"
+                        href="?page={{ page_obj.previous_page_number }}&busca={{ busca }}&status={{ status }}&pagamento={{ pagamento }}"
+                    >
+                        Anterior
+                    </a>
+                {% endif %}
+
+                {% if page_obj.has_next %}
+                    <a
+                        class="btn btn-outline-secondary btn-sm"
+                        href="?page={{ page_obj.next_page_number }}&busca={{ busca }}&status={{ status }}&pagamento={{ pagamento }}"
+                    >
+                        Próxima
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% else %}
+
+        <div class="text-center py-5">
+            <h5>Nenhuma compra encontrada.</h5>
+            <p class="text-muted">Crie uma nova compra ou ajuste os filtros de pesquisa.</p>
+
+            <a href="{% url 'compras:nova' %}" class="btn btn-primary">
+                + Nova Compra
+            </a>
+        </div>
+
+        {% endif %}
+
+    </div>
+</div>
+
+{% endblock %}

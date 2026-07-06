@@ -1,0 +1,13 @@
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="ficha-section-title">
+            <h3>{{ secao_titulo }}</h3>
+
+            {% if secao_descricao %}
+                <p>{{ secao_descricao }}</p>
+            {% endif %}
+        </div>
+
+        {% block secao_conteudo %}{% endblock %}
+    </div>
+</div>

@@ -1,0 +1,46 @@
+<div class="card shadow-sm border-0 mt-4">
+
+    <div class="card-header">
+        <h5 class="mb-0">Produtos</h5>
+    </div>
+
+    <div class="card-body">
+
+        <div class="mb-3 position-relative">
+            <label class="form-label">Pesquisar produto</label>
+
+            <input
+                type="text"
+                id="busca-produto-inline"
+                class="form-control"
+                placeholder="Digite código, modelo, marca ou coleção...">
+
+            <div id="resultado-produtos-inline" class="resultado-produtos-inline"></div>
+        </div>
+
+        <div id="itens-vazio" class="text-center py-5 text-muted">
+            Nenhum produto adicionado.
+        </div>
+
+        <div id="tabela-itens-wrapper" class="table-responsive d-none">
+
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Produto</th>
+                        <th>Qtde</th>
+                        <th>Custo</th>
+                        <th>Desc.</th>
+                        <th>Total</th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody id="tabela-itens-body"></tbody>
+            </table>
+
+        </div>
+
+    </div>
+
+</div>

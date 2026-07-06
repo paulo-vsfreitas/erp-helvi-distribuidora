@@ -1,0 +1,26 @@
+<div class="ficha-header">
+    <div class="ficha-header-top">
+        <div class="ficha-title">
+            <h1>{{ ficha_titulo }}</h1>
+
+            {% if ficha_subtitulo %}
+                <p>{{ ficha_subtitulo }}</p>
+            {% endif %}
+        </div>
+
+        <div class="ficha-actions">
+            {% block ficha_actions %}{% endblock %}
+        </div>
+    </div>
+
+    {% if ficha_resumo %}
+        <div class="ficha-status-row">
+            {% for item in ficha_resumo %}
+                <div class="ficha-status-card">
+                    <span>{{ item.label }}</span>
+                    <strong>{{ item.valor }}</strong>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
