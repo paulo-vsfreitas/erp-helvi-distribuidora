@@ -1,57 +1,48 @@
 <div class="card shadow-sm border-0">
-
     <div class="card-header">
-        <h5 class="mb-0">
-            Dados da Compra
-        </h5>
+        <h5 class="mb-0">Dados da Compra</h5>
     </div>
 
     <div class="card-body">
+        <div class="row g-3">
 
+            <div class="col-md-6">
+                {{ form.fornecedor_nome.label_tag }}
+                {{ form.fornecedor_nome }}
+            </div>
 
-            {% csrf_token %}
+            <div class="col-md-3">
+                {{ form.fornecedor_documento.label_tag }}
+                {{ form.fornecedor_documento }}
+            </div>
 
-            <div class="row g-3">
+            <div class="col-md-3">
+                {{ form.fornecedor_telefone.label_tag }}
+                {{ form.fornecedor_telefone }}
+            </div>
 
-                <div class="col-md-6">
-                    {{ form.fornecedor_nome.label_tag }}
-                    {{ form.fornecedor_nome }}
-                </div>
-
-                <div class="col-md-3">
-                    {{ form.fornecedor_documento.label_tag }}
-                    {{ form.fornecedor_documento }}
-                </div>
-
-                <div class="col-md-3">
-                    {{ form.fornecedor_telefone.label_tag }}
-                    {{ form.fornecedor_telefone }}
-                </div>
-
-                <div class="col-md-3">
+            <div class="col-12 d-flex gap-3 flex-wrap">
+                <div style="width: 220px;">
                     {{ form.data_compra.label_tag }}
                     {{ form.data_compra }}
                 </div>
 
-                <div class="col-md-3">
+                <div style="width: 220px;">
                     {{ form.previsao_entrega.label_tag }}
                     {{ form.previsao_entrega }}
                 </div>
 
-                <div class="col-md-6">
+                <div style="width: 180px;">
                     {{ form.frete.label_tag }}
                     {{ form.frete }}
                 </div>
-
-                <div class="col-12">
-                    {{ form.observacoes.label_tag }}
-                    {{ form.observacoes }}
-                </div>
-
             </div>
 
-        </form>
+            <div class="col-12">
+                {{ form.observacoes.label_tag }}
+                {{ form.observacoes }}
+            </div>
 
+        </div>
     </div>
-
 </div>

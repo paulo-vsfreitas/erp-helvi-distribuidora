@@ -10,19 +10,22 @@ from compras.services.compra_service import criar_compra_com_itens
 def nova_compra(request):
     form = CompraForm(request.POST or None)
 
-    if request.method == "POST" and form.is_valid():
-        try:
-            compra = criar_compra_com_itens(
-                form=form,
-                usuario=request.user,
-                post=request.POST,
-            )
+    if request.method == "POST":
+        if form.is_valid():
+            try:
+                compra = criar_compra_com_itens(
+                    form=form,
+                    usuario=request.user,
+                    post=request.POST,
+                )
 
-            messages.success(request, f"Compra #{compra.numero} cadastrada com sucesso.")
-            return redirect("compras:lista")
+                messages.success(request, f"Compra #{compra.numero} cadastrada com sucesso.")
+                return redirect("compras:ficha", pk=compra.pk)
 
-        except ValueError as erro:
-            messages.error(request, erro)
+            except ValueError as erro:
+                messages.error(request, str(erro))
+        else:
+            messages.error(request, "Não foi possível salvar. Verifique os dados da compra.")
 
     return render(
         request,

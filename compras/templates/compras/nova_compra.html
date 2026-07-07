@@ -9,9 +9,18 @@
 
 {% block content %}
 
-{% include "compras/components/barra_acoes.html" %}
+<div class="page-header">
+    <div>
+        <h1>Nova Compra</h1>
+        <p>Cadastre os dados da compra, produtos e valores.</p>
+    </div>
 
-<form id="form-compra" method="post">
+    <a href="{% url 'compras:lista' %}" class="btn btn-outline-secondary">
+        Voltar
+    </a>
+</div>
+
+<form id="form-compra" method="post" action="{% url 'compras:nova' %}" novalidate>
     {% csrf_token %}
 
     <div class="row">
@@ -24,11 +33,27 @@
             {% include "compras/components/resumo_compra.html" %}
         </div>
     </div>
-</form>
 
+      <div class="card mt-3">
+    <div style="margin-top: 20px; padding: 20px; background: #fff; border-radius: 12px;">
+        <a href="{% url 'compras:lista' %}" class="btn btn-outline-secondary">
+            Cancelar
+        </a>
+
+        <button
+            type="button"
+            class="btn btn-primary"
+            onclick="document.getElementById('form-compra').submit();"
+        >
+            Salvar Compra
+        </button>
+    </div>
+</div>
+</form>
 
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/compras/tabela_itens.js' %}?v=11"></script>
+<script src="{% static 'js/compras/form_compra.js' %}?v=2"></script>
+<script src="{% static 'js/compras/tabela_itens.js' %}?v=14"></script>
 {% endblock %}

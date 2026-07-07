@@ -126,17 +126,17 @@
                         <td>{{ compra.data_compra|date:"d/m/Y" }}</td>
 
                         <td>
-                            {% if compra.status == "recebida" %}
-                                <span class="badge bg-success">Recebida</span>
-                            {% elif compra.status == "cancelada" %}
-                                <span class="badge bg-danger">Cancelada</span>
-                            {% elif compra.status == "aguardando_entrega" %}
-                                <span class="badge bg-warning text-dark">Aguardando entrega</span>
-                            {% elif compra.status == "em_aberto" %}
-                                <span class="badge bg-primary">Em aberto</span>
-                            {% else %}
-                                <span class="badge bg-secondary">Rascunho</span>
-                            {% endif %}
+                                {% if compra.status == "recebida" %}
+                                    <span class="badge bg-success">Recebida</span>
+                                {% elif compra.status == "cancelada" %}
+                                    <span class="badge bg-danger">Cancelada</span>
+                                {% elif compra.status == "aguardando_entrega" %}
+                                    <span class="badge bg-warning text-dark">Aguardando entrega</span>
+                                {% elif compra.status == "em_aberto" %}
+                                    <span class="badge bg-primary">Em aberto</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ compra.get_status_display }}</span>
+                                {% endif %}
                         </td>
 
                         <td>
@@ -161,13 +161,16 @@
                             <strong>R$ {{ compra.total|floatformat:2 }}</strong>
                         </td>
 
-                        <td class="text-end">
-                            <a href="{% url 'compras:ficha' compra.pk %}" class="btn btn-sm btn-outline-primary">
-                                Visualizar
-                            </a>
-                        </td>
-                    </tr>
-                    {% endfor %}
+                           <td class="text-end">
+                                <a href="{% url 'compras:ficha' compra.pk %}">Visualizar</a>
+
+                                {% if not compra.entrada_estoque_realizada %}
+                                    |
+                                    <a href="{% url 'compras:editar' compra.pk %}">Editar</a>
+                                {% endif %}
+                          </td>
+                        </tr>
+                 {% endfor %}
                 </tbody>
             </table>
         </div>

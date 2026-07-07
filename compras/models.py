@@ -6,14 +6,12 @@ from django.core.validators import MinValueValidator
 
 
 class Compra(models.Model):
-    STATUS_RASCUNHO = "rascunho"
     STATUS_EM_ABERTO = "em_aberto"
     STATUS_AGUARDANDO_ENTREGA = "aguardando_entrega"
     STATUS_RECEBIDA = "recebida"
     STATUS_CANCELADA = "cancelada"
 
     STATUS_CHOICES = [
-        (STATUS_RASCUNHO, "Rascunho"),
         (STATUS_EM_ABERTO, "Em aberto"),
         (STATUS_AGUARDANDO_ENTREGA, "Aguardando entrega"),
         (STATUS_RECEBIDA, "Recebida"),
@@ -29,11 +27,41 @@ class Compra(models.Model):
         (STATUS_PAGAMENTO_PARCIAL, "Parcial"),
         (STATUS_PAGAMENTO_PAGO, "Pago"),
     ]
+
+    status = models.CharField(
+    max_length=30,
+    choices=STATUS_CHOICES,
+    default=STATUS_AGUARDANDO_ENTREGA,
+    )
+
     status_pagamento = models.CharField(
-    max_length=20,
-    choices=STATUS_PAGAMENTO_CHOICES,
-    default=STATUS_PAGAMENTO_PENDENTE,
-    verbose_name="Status do pagamento",
+        max_length=20,
+        choices=STATUS_PAGAMENTO_CHOICES,
+        default=STATUS_PAGAMENTO_PENDENTE,
+        verbose_name="Status do pagamento",
+    )
+
+    valor_pago = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=Decimal("0.00"),
+        validators=[MinValueValidator(Decimal("0.00"))],
+        verbose_name="Valor pago",
+    )
+
+    recebida_em = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name="Recebida em",
+    )
+
+    recebida_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="compras_recebidas",
+        verbose_name="Recebida por",
     )
 
     numero = models.PositiveIntegerField(
@@ -67,13 +95,6 @@ class Compra(models.Model):
         null=True,
         blank=True,
         verbose_name="Previsão de entrega",
-    )
-
-    status = models.CharField(
-        max_length=30,
-        choices=STATUS_CHOICES,
-        default=STATUS_RASCUNHO,
-        verbose_name="Status",
     )
 
     subtotal = models.DecimalField(
@@ -154,8 +175,25 @@ class Compra(models.Model):
             self.numero = (ultima_compra.numero + 1) if ultima_compra else 1
 
         self.total = (self.subtotal - self.desconto) + self.frete
+        self.atualizar_status_pagamento()
 
         super().save(*args, **kwargs)
+
+    @property
+    def foi_recebida(self):
+        return self.status == self.STATUS_RECEBIDA and self.recebida_em is not None
+
+    @property
+    def saldo_a_pagar(self):
+        return max(self.total - self.valor_pago, Decimal("0.00"))
+
+    def atualizar_status_pagamento(self):
+        if self.valor_pago <= 0:
+            self.status_pagamento = self.STATUS_PAGAMENTO_PENDENTE
+        elif self.valor_pago < self.total:
+            self.status_pagamento = self.STATUS_PAGAMENTO_PARCIAL
+        else:
+            self.status_pagamento = self.STATUS_PAGAMENTO_PAGO
 
 
 class ItemCompra(models.Model):

@@ -1,0 +1,38 @@
+{% extends "core/base.html" %}
+
+{% block title %}Editar Compra #{{ compra.numero }} | ERP Helvi{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Editar Compra #{{ compra.numero }}</h1>
+        <p>Atualize os dados gerais, pagamento e observações da compra.</p>
+    </div>
+
+    <div class="page-actions">
+        <a href="{% url 'compras:ficha' compra.pk %}" class="btn btn-secondary">
+            Voltar
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-grid">
+            {{ form.as_p }}
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                Salvar alterações
+            </button>
+
+            <a href="{% url 'compras:ficha' compra.pk %}" class="btn btn-secondary">
+                Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}
