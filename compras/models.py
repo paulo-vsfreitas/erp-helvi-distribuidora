@@ -29,9 +29,9 @@ class Compra(models.Model):
     ]
 
     status = models.CharField(
-    max_length=30,
-    choices=STATUS_CHOICES,
-    default=STATUS_AGUARDANDO_ENTREGA,
+        max_length=30,
+        choices=STATUS_CHOICES,
+        default=STATUS_AGUARDANDO_ENTREGA,
     )
 
     status_pagamento = models.CharField(
@@ -253,3 +253,67 @@ class ItemCompra(models.Model):
     def save(self, *args, **kwargs):
         self.total = (self.quantidade * self.custo_unitario) - self.desconto
         super().save(*args, **kwargs)
+
+
+class PagamentoCompra(models.Model):
+    FORMA_PIX = "pix"
+    FORMA_DINHEIRO = "dinheiro"
+    FORMA_CARTAO = "cartao"
+    FORMA_BOLETO = "boleto"
+    FORMA_TRANSFERENCIA = "transferencia"
+    FORMA_OUTRA = "outra"
+
+    FORMA_CHOICES = [
+        (FORMA_PIX, "Pix"),
+        (FORMA_DINHEIRO, "Dinheiro"),
+        (FORMA_CARTAO, "Cartão"),
+        (FORMA_BOLETO, "Boleto"),
+        (FORMA_TRANSFERENCIA, "Transferência"),
+        (FORMA_OUTRA, "Outra"),
+    ]
+
+    compra = models.ForeignKey(
+        Compra,
+        on_delete=models.CASCADE,
+        related_name="pagamentos",
+        verbose_name="Compra",
+    )
+
+    valor = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.01"))],
+        verbose_name="Valor pago",
+    )
+
+    forma_pagamento = models.CharField(
+        max_length=30,
+        choices=FORMA_CHOICES,
+        default=FORMA_PIX,
+        verbose_name="Forma de pagamento",
+    )
+
+    observacao = models.TextField(
+        blank=True,
+        verbose_name="Observação",
+    )
+
+    registrado_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="pagamentos_compras_registrados",
+        verbose_name="Registrado por",
+    )
+
+    registrado_em = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Registrado em",
+    )
+
+    class Meta:
+        verbose_name = "Pagamento da compra"
+        verbose_name_plural = "Pagamentos da compra"
+        ordering = ["-registrado_em"]
+
+    def __str__(self):
+        return f"Pagamento Compra #{self.compra.numero} - R$ {self.valor}"

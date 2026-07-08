@@ -157,5 +157,93 @@
         </div>
     </div>
 </div>
+<div class="card mt-3">
+    <div class="card-body">
+        <div class="ficha-section-title">
+            <h3>Registrar pagamento</h3>
+            <p>Informe pagamentos parciais ou totais desta compra.</p>
+        </div>
 
+        {% if compra.saldo_a_pagar > 0 %}
+            <form method="post" action="{% url 'compras:registrar_pagamento' compra.pk %}">
+                {% csrf_token %}
+
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        {{ pagamento_form.valor.label_tag }}
+                        {{ pagamento_form.valor }}
+                    </div>
+
+                    <div class="col-md-3">
+                        {{ pagamento_form.forma_pagamento.label_tag }}
+                        {{ pagamento_form.forma_pagamento }}
+                    </div>
+
+                    <div class="col-md-6">
+                        {{ pagamento_form.observacao.label_tag }}
+                        {{ pagamento_form.observacao }}
+                    </div>
+                </div>
+
+                <div class="mt-3 text-end">
+                    <button type="submit" class="btn btn-primary">
+                        Registrar Pagamento
+                    </button>
+                </div>
+            </form>
+        {% else %}
+            <span class="badge bg-success">Compra totalmente paga</span>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card mt-3">
+    <div class="card-body">
+        <div class="ficha-section-title">
+            <h3>Histórico de pagamentos</h3>
+            <p>Pagamentos registrados nesta compra.</p>
+        </div>
+
+        {% if pagamentos %}
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Forma</th>
+                            <th>Registrado por</th>
+                            <th>Observação</th>
+                            <th class="text-end">Valor</th>
+                            <th class="text-end">Ações</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for pagamento in pagamentos %}
+                        <tr>
+                            <td>{{ pagamento.registrado_em|date:"d/m/Y H:i" }}</td>
+                            <td>{{ pagamento.get_forma_pagamento_display }}</td>
+                            <td>{{ pagamento.registrado_por }}</td>
+                            <td>{{ pagamento.observacao|default:"-" }}</td>
+                            <td class="text-end">
+                                <strong>R$ {{ pagamento.valor|floatformat:2 }}</strong>
+                            </td>
+                            <td class="text-end">
+                                <form method="post" action="{% url 'compras:cancelar_pagamento' pagamento.pk %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        Cancelar
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-muted mb-0">Nenhum pagamento registrado.</p>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}

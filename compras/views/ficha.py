@@ -1,7 +1,12 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render
+from compras.forms import PagamentoCompraForm, compra
 
 from compras.models import Compra
+
+
+def moeda(valor):
+    return f"R$ {valor:.2f}".replace(".", ",")
 
 
 @login_required
@@ -21,7 +26,7 @@ def ficha_compra(request, pk):
         {"label": "Pagamento", "valor": compra.get_status_pagamento_display()},
         {"label": "Itens", "valor": quantidade_itens},
         {"label": "Peças", "valor": quantidade_pecas},
-        {"label": "Total", "valor": f"R$ {compra.total:.2f}"},
+        {"label": "Total", "valor": moeda(compra.total)},
     ]
 
     dados_gerais = [
@@ -42,15 +47,16 @@ def ficha_compra(request, pk):
     ]
 
     resumo_financeiro = [
-        {"label": "Subtotal", "valor": f"R$ {compra.subtotal:.2f}"},
-        {"label": "Desconto", "valor": f"R$ {compra.desconto:.2f}"},
-        {"label": "Frete", "valor": f"R$ {compra.frete:.2f}"},
-        {"label": "Total", "valor": f"R$ {compra.total:.2f}"},
-        {
-            "label": "Financeiro gerado",
-            "valor": "Sim" if compra.financeiro_gerado else "Não",
-        },
+        {"label": "Subtotal", "valor": moeda(compra.subtotal)},
+        {"label": "Desconto", "valor": moeda(compra.desconto)},
+        {"label": "Frete", "valor": moeda(compra.frete)},
+        {"label": "Total", "valor": moeda(compra.total)},
+        {"label": "Valor pago", "valor": moeda(compra.valor_pago)},
+        {"label": "Saldo a pagar", "valor": moeda(compra.saldo_a_pagar)},
+        {"label": "Status do pagamento", "valor": compra.get_status_pagamento_display()},
     ]
+    pagamentos = compra.pagamentos.select_related("registrado_por").all()
+    pagamento_form = PagamentoCompraForm(compra=compra)
 
     context = {
         "compra": compra,
@@ -62,6 +68,8 @@ def ficha_compra(request, pk):
         "ficha_resumo": ficha_resumo,
         "dados_gerais": dados_gerais,
         "resumo_financeiro": resumo_financeiro,
+        "pagamentos": pagamentos,
+        "pagamento_form": pagamento_form,
     }
 
     return render(request, "compras/ficha_compra.html", context)

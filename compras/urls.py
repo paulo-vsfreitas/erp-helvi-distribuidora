@@ -7,6 +7,8 @@ from compras.views.edicao import editar_compra
 from compras.views.estoque import receber_compra_view
 from compras.views.ficha import ficha_compra
 from compras.views.api.produtos import api_buscar_produtos
+from compras.views.pagamento import registrar_pagamento
+from compras.views.cancelamento_pagamento import cancelar_pagamento
 
 
 app_name = "compras"
@@ -19,4 +21,6 @@ urlpatterns = [
     path("<int:pk>/editar/", editar_compra, name="editar"),
     path("<int:pk>/receber/", receber_compra_view, name="receber"),
     path("api/produtos/", api_buscar_produtos, name="api_buscar_produtos"),
+    path("<int:pk>/pagamento/", registrar_pagamento, name="registrar_pagamento"),
+    path("pagamentos/<int:pk>/cancelar/", cancelar_pagamento, name="cancelar_pagamento"),
 ]
