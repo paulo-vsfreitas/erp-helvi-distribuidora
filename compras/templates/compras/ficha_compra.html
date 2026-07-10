@@ -13,17 +13,7 @@
 
                 <div class="ficha-actions">
 
-                    <a href="{% url 'compras:lista' %}" class="btn btn-outline-secondary">
-                        Voltar
-                    </a>
-
-                    {% if compra.status == "rascunho" %}
-
-                        <a href="{% url 'compras:editar' compra.pk %}" class="btn btn-secondary">
-                            Editar
-                        </a>
-
-                    {% elif compra.status == "aguardando_entrega" or compra.status == "em_aberto" %}
+                    {% if compra.status == "aguardando_entrega" or compra.status == "em_aberto" %}
 
                         <a href="{% url 'compras:editar' compra.pk %}" class="btn btn-secondary">
                             Editar
@@ -32,7 +22,6 @@
                         <form method="post"
                             action="{% url 'compras:receber' compra.pk %}"
                             style="display:inline;">
-
                             {% csrf_token %}
 
                             <button type="submit" class="btn btn-primary">

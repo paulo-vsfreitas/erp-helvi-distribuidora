@@ -10,7 +10,14 @@ def buscar_produtos_para_compra(termo):
         return Produto.objects.none()
 
     return (
-        Produto.objects.filter(ativo=True)
+        Produto.objects
+        .filter(ativo=True)
+        .select_related(
+            "marca",
+            "genero",
+            "colecao",
+            "tipo_armacao",
+        )
         .filter(
             Q(codigo__icontains=termo)
             | Q(modelo__icontains=termo)

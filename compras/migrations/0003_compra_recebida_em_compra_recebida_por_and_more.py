@@ -33,6 +33,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='compra',
             name='status',
-            field=models.CharField(choices=[('rascunho', 'Rascunho'), ('em_aberto', 'Em aberto'), ('aguardando_entrega', 'Aguardando entrega'), ('recebida', 'Recebida'), ('cancelada', 'Cancelada')], default='rascunho', max_length=30),
+            field=models.CharField(choices=[('em_aberto', 'Em aberto'), ('aguardando_entrega', 'Aguardando entrega'), ('recebida', 'Recebida'), ('cancelada', 'Cancelada')], default='Em aberto', max_length=30),
         ),
     ]

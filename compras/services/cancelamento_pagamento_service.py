@@ -1,20 +1,38 @@
-from django.db import transaction
+from decimal import Decimal
 
-from compras.models import PagamentoCompra
+from django.db import transaction
+from django.db.models import Sum
+
+from compras.models import Compra, PagamentoCompra
 
 
 @transaction.atomic
 def cancelar_pagamento_compra(pagamento):
-    compra = pagamento.compra
+    """
+    Cancela um pagamento e recalcula o resumo financeiro da compra
+    com base nos pagamentos que permanecerem registrados.
+    """
 
-    compra.valor_pago -= pagamento.valor
+    pagamento = (
+        PagamentoCompra.objects
+        .select_for_update()
+        .select_related("compra")
+        .get(pk=pagamento.pk)
+    )
 
-    if compra.valor_pago < 0:
-        compra.valor_pago = 0
-
-    compra.atualizar_status_pagamento()
-    compra.save()
+    compra = Compra.objects.select_for_update().get(
+        pk=pagamento.compra_id
+    )
 
     pagamento.delete()
+
+    total_pago = (
+        compra.pagamentos.aggregate(total=Sum("valor"))["total"]
+        or Decimal("0.00")
+    )
+
+    compra.valor_pago = total_pago
+    compra.atualizar_status_pagamento()
+    compra.save()
 
     return compra

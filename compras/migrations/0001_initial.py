@@ -27,7 +27,7 @@ class Migration(migrations.Migration):
                 ('fornecedor_telefone', models.CharField(blank=True, max_length=20, verbose_name='Telefone')),
                 ('data_compra', models.DateField(verbose_name='Data da compra')),
                 ('previsao_entrega', models.DateField(blank=True, null=True, verbose_name='Previsão de entrega')),
-                ('status', models.CharField(choices=[('rascunho', 'Rascunho'), ('em_aberto', 'Em aberto'), ('aguardando_entrega', 'Aguardando entrega'), ('recebida', 'Recebida'), ('cancelada', 'Cancelada')], default='rascunho', max_length=30, verbose_name='Status')),
+                ('status', models.CharField(choices=[('em_aberto', 'Em aberto'), ('aguardando_entrega', 'Aguardando entrega'), ('recebida', 'Recebida'), ('cancelada', 'Cancelada')], max_length=30, verbose_name='Status')),
                 ('subtotal', models.DecimalField(decimal_places=2, default=Decimal('0.00'), max_digits=12, validators=[django.core.validators.MinValueValidator(Decimal('0.00'))], verbose_name='Subtotal')),
                 ('desconto', models.DecimalField(decimal_places=2, default=Decimal('0.00'), max_digits=12, validators=[django.core.validators.MinValueValidator(Decimal('0.00'))], verbose_name='Desconto')),
                 ('frete', models.DecimalField(decimal_places=2, default=Decimal('0.00'), max_digits=12, validators=[django.core.validators.MinValueValidator(Decimal('0.00'))], verbose_name='Frete')),
