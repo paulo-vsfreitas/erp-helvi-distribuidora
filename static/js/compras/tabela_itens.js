@@ -11,6 +11,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const resumoTotal = document.getElementById("resumo-total");
     const campoFrete = document.getElementById("id_frete");
 
+    if (
+    !campoBusca ||
+    !resultados ||
+    !estadoVazio ||
+    !wrapperTabela ||
+    !corpoTabela ||
+    !resumoSubtotal ||
+    !resumoDesconto ||
+    !resumoFrete ||
+    !resumoTotal
+) {
+    return;
+}
+
     function numero(valor) {
         return Number(String(valor || "0").replace(",", ".")) || 0;
     }

@@ -7,22 +7,38 @@
     <div class="card-body">
 
         <div class="mb-3 position-relative">
-            <label class="form-label">Pesquisar produto</label>
+            <label
+                for="busca-produto-inline"
+                class="form-label"
+            >
+                Pesquisar produto
+            </label>
 
             <input
                 type="text"
                 id="busca-produto-inline"
                 class="form-control"
-                placeholder="Digite código, modelo, marca ou coleção...">
+                placeholder="Digite código, modelo, marca ou coleção..."
+                autocomplete="off"
+            >
 
-            <div id="resultado-produtos-inline" class="resultado-produtos-inline"></div>
+            <div
+                id="resultado-produtos-inline"
+                class="resultado-produtos-inline"
+            ></div>
         </div>
 
-        <div id="itens-vazio" class="text-center py-5 text-muted">
+        <div
+            id="itens-vazio"
+            class="text-center py-5 text-muted {% if itens_edicao %}d-none{% endif %}"
+        >
             Nenhum produto adicionado.
         </div>
 
-        <div id="tabela-itens-wrapper" class="table-responsive d-none">
+        <div
+            id="tabela-itens-wrapper"
+            class="table-responsive {% if not itens_edicao %}d-none{% endif %}"
+        >
 
             <table class="table align-middle">
                 <thead>
@@ -36,7 +52,77 @@
                     </tr>
                 </thead>
 
-                <tbody id="tabela-itens-body"></tbody>
+                <tbody id="tabela-itens-body">
+
+                    {% for item in itens_edicao %}
+                        <tr>
+                            <td>
+                                <input
+                                    type="hidden"
+                                    name="produto_id[]"
+                                    value="{{ item.produto.pk }}"
+                                >
+
+                                <strong>
+                                    {{ item.produto.codigo }}
+                                </strong>
+
+                                <br>
+
+                                <span class="text-muted">
+                                    {{ item.produto.modelo }}
+                                </span>
+                            </td>
+
+                            <td>
+                                <input
+                                    type="number"
+                                    name="quantidade[]"
+                                    class="form-control quantidade"
+                                    value="{{ item.quantidade }}"
+                                    min="1"
+                                >
+                            </td>
+
+                            <td>
+                                <input
+                                    type="number"
+                                    name="custo_unitario[]"
+                                    class="form-control custo"
+                                    value="{{ item.custo_unitario|stringformat:'s' }}"
+                                    step="0.01"
+                                    min="0.01"
+                                >
+                            </td>
+
+                            <td>
+                                <input
+                                    type="number"
+                                    name="desconto_item[]"
+                                    class="form-control desconto"
+                                    value="{{ item.desconto|stringformat:'s' }}"
+                                    step="0.01"
+                                    min="0"
+                                >
+                            </td>
+
+                            <td class="fw-bold total-item">
+                                R$ {{ item.total|floatformat:2 }}
+                            </td>
+
+                            <td class="text-center">
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-outline-danger remover-item"
+                                    title="Remover produto"
+                                >
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+
+                </tbody>
             </table>
 
         </div>

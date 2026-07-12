@@ -188,10 +188,15 @@ class Compra(models.Model):
         return max(self.total - self.valor_pago, Decimal("0.00"))
 
     def atualizar_status_pagamento(self):
-        if self.valor_pago <= 0:
+        if self.total <= 0:
+            self.status_pagamento = self.STATUS_PAGAMENTO_PAGO
+
+        elif self.valor_pago <= 0:
             self.status_pagamento = self.STATUS_PAGAMENTO_PENDENTE
+
         elif self.valor_pago < self.total:
             self.status_pagamento = self.STATUS_PAGAMENTO_PARCIAL
+
         else:
             self.status_pagamento = self.STATUS_PAGAMENTO_PAGO
 

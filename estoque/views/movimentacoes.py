@@ -14,17 +14,19 @@ from estoque.services import (
 def lista_movimentacoes(request):
     busca = request.GET.get("busca", "").strip()
     tipo = request.GET.get("tipo", "").strip()
+    origem = request.GET.get("origem", "").strip()
 
     contexto = {
         "movimentacoes": listar_movimentacoes_estoque(
             busca=busca,
             tipo=tipo,
+            origem=origem,
         ),
         "busca": busca,
         "tipo_selecionado": tipo,
+        "origem_selecionada": origem,
         "tipos_movimentacao": MovimentacaoEstoque.TIPO_CHOICES,
 
-        # Dashboard
         "cards": obter_cards_dashboard(),
         "acoes": obter_acoes_dashboard(),
 

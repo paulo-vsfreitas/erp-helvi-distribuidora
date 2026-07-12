@@ -7,7 +7,11 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 
 
-def listar_movimentacoes_estoque(busca="", tipo=""):
+def listar_movimentacoes_estoque(
+    busca="",
+    tipo="",
+    origem="",
+):
     movimentacoes = MovimentacaoEstoque.objects.select_related(
         "produto",
         "usuario",
@@ -15,12 +19,14 @@ def listar_movimentacoes_estoque(busca="", tipo=""):
 
     if busca:
         movimentacoes = movimentacoes.filter(
-            Q(produto__codigo__icontains=busca)
-            | Q(produto__modelo__icontains=busca)
+            produto__modelo__icontains=busca
         )
 
     if tipo:
         movimentacoes = movimentacoes.filter(tipo=tipo)
+
+    if origem:
+        movimentacoes = movimentacoes.filter(origem=origem)
 
     return movimentacoes
 

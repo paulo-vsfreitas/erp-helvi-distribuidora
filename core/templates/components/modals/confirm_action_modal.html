@@ -1,0 +1,114 @@
+<div
+    class="modal"
+    id="{{ modal_id }}"
+    tabindex="-1"
+    aria-labelledby="{{ modal_id }}Label"
+    aria-hidden="true"
+    data-bs-backdrop="static"
+    data-bs-keyboard="false"
+>
+
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="{{ modal_id }}Label">
+                    <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>
+                    {{ titulo }}
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Fechar"
+                ></button>
+            </div>
+
+            <div class="modal-body">
+                <p class="mb-3">
+                    {{ mensagem }}
+                </p>
+
+                {% if detalhe_label_1 and detalhe_valor_1 %}
+                    <div class="border rounded p-3 bg-light">
+                        <div class="row g-3">
+
+                            <div class="col-6">
+                                <small class="text-muted d-block">
+                                    {{ detalhe_label_1 }}
+                                </small>
+                                <strong>{{ detalhe_valor_1 }}</strong>
+                            </div>
+
+                            {% if detalhe_label_2 and detalhe_valor_2 %}
+                                <div class="col-6">
+                                    <small class="text-muted d-block">
+                                        {{ detalhe_label_2 }}
+                                    </small>
+                                    <strong>{{ detalhe_valor_2 }}</strong>
+                                </div>
+                            {% endif %}
+
+                            {% if detalhe_label_3 and detalhe_valor_3 %}
+                                <div class="col-6">
+                                    <small class="text-muted d-block">
+                                        {{ detalhe_label_3 }}
+                                    </small>
+                                    <strong>{{ detalhe_valor_3 }}</strong>
+                                </div>
+                            {% endif %}
+
+                            {% if detalhe_label_4 and detalhe_valor_4 %}
+                                <div class="col-6">
+                                    <small class="text-muted d-block">
+                                        {{ detalhe_label_4 }}
+                                    </small>
+                                    <strong>{{ detalhe_valor_4 }}</strong>
+                                </div>
+                            {% endif %}
+
+                        </div>
+                    </div>
+                {% endif %}
+
+                {% if aviso %}
+                    <div class="alert alert-warning mt-3 mb-0">
+                        <i class="bi bi-exclamation-circle me-1"></i>
+                        {{ aviso }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="modal-footer">
+                <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    data-bs-dismiss="modal"
+                >
+                    {{ botao_voltar|default:"Voltar" }}
+                </button>
+
+                <form
+                    method="post"
+                    action="{{ form_action }}"
+                    class="d-inline"
+                >
+                    {% csrf_token %}
+
+                    <button
+                        type="submit"
+                        class="btn {{ botao_class|default:'btn-danger' }}"
+                    >
+                        {% if botao_icone %}
+                            <i class="{{ botao_icone }} me-1"></i>
+                        {% endif %}
+
+                        {{ botao_confirmar|default:"Confirmar" }}
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>

@@ -19,13 +19,25 @@ def nova_compra(request):
                     post=request.POST,
                 )
 
-                messages.success(request, f"Compra #{compra.numero} cadastrada com sucesso.")
-                return redirect("compras:ficha", pk=compra.pk)
+                messages.success(
+                    request,
+                    f"Compra #{compra.numero} cadastrada com sucesso.",
+                )
+
+                return redirect(
+                    "compras:ficha",
+                    pk=compra.pk,
+                )
 
             except ValueError as erro:
                 messages.error(request, str(erro))
+
         else:
-            messages.error(request, "Não foi possível salvar. Verifique os dados da compra.")
+            messages.error(
+                request,
+                "Não foi possível salvar. "
+                "Verifique os dados da compra.",
+            )
 
     return render(
         request,

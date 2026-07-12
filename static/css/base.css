@@ -234,3 +234,15 @@ body{
     font-size: 13px;
     color: #777777;
 }
+
+/* Evita o efeito de piscar na abertura dos modais */
+.modal,
+.modal-dialog,
+.modal-backdrop {
+    transition: none !important;
+    animation: none !important;
+}
+
+.modal-dialog {
+    transform: none !important;
+}

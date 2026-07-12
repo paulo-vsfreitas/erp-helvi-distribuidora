@@ -1,38 +1,110 @@
 {% extends "core/base.html" %}
+{% load static %}
 
-{% block title %}Editar Compra #{{ compra.numero }} | ERP Helvi{% endblock %}
+{% block title %}
+    Editar Compra #{{ compra.numero }} | ERP Helvi
+{% endblock %}
+
+{% block extra_css %}
+    <link
+        rel="stylesheet"
+        href="{% static 'css/compras.css' %}"
+    >
+{% endblock %}
 
 {% block content %}
+
 <div class="page-header">
     <div>
         <h1>Editar Compra #{{ compra.numero }}</h1>
-        <p>Atualize os dados gerais, pagamento e observações da compra.</p>
+
+        <p>
+            Atualize os dados, produtos e valores da compra.
+        </p>
     </div>
 
-    <div class="page-actions">
-        <a href="{% url 'compras:ficha' compra.pk %}" class="btn btn-secondary">
-            Voltar
-        </a>
-    </div>
+    <a
+        href="{% url 'compras:ficha' compra.pk %}"
+        class="btn btn-outline-secondary"
+    >
+        Voltar para a ficha
+    </a>
 </div>
 
-<div class="card">
-    <form method="post">
-        {% csrf_token %}
+<form
+    id="form-compra"
+    method="post"
+    action="{% url 'compras:editar' compra.pk %}"
+    novalidate
+>
+    {% csrf_token %}
 
-        <div class="form-grid">
-            {{ form.as_p }}
+    {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+            {% for erro in form.non_field_errors %}
+                <div>{{ erro }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-lg-8">
+
+            {% include "compras/components/dados_compra.html" %}
+
+            {% include "compras/components/tabela_itens.html" %}
+
         </div>
 
-        <div class="form-actions">
-            <button type="submit" class="btn btn-primary">
+        <div class="col-lg-4">
+
+            {% include "compras/components/resumo_compra.html" %}
+
+            {% if compra.valor_pago > 0 %}
+                <div class="alert alert-info mt-3 mb-0">
+                    <strong>Valor já pago:</strong>
+
+                    R$ {{ compra.valor_pago|floatformat:2 }}
+
+                    <div class="small mt-1">
+                        O novo total da compra não poderá ficar
+                        abaixo desse valor.
+                    </div>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+    <div class="card mt-3">
+        <div class="card-body d-flex justify-content-end gap-2">
+
+            <a
+                href="{% url 'compras:ficha' compra.pk %}"
+                class="btn btn-outline-secondary"
+            >
+                Cancelar
+            </a>
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+            >
                 Salvar alterações
             </button>
 
-            <a href="{% url 'compras:ficha' compra.pk %}" class="btn btn-secondary">
-                Cancelar
-            </a>
         </div>
-    </form>
-</div>
+    </div>
+</form>
+
+{% endblock %}
+
+{% block extra_js %}
+    <script
+        src="{% static 'js/compras/form_compra.js' %}?v=3"
+    ></script>
+
+    <script
+        src="{% static 'js/compras/tabela_itens.js' %}?v=15"
+    ></script>
 {% endblock %}

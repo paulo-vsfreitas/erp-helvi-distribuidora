@@ -11,33 +11,40 @@
             <p>{{ ficha_subtitulo }}</p>
         </div>
 
-                <div class="ficha-actions">
+        <div class="ficha-actions">
+            {% if compra.status == "aguardando_entrega" or compra.status == "em_aberto" %}
 
-                    {% if compra.status == "aguardando_entrega" or compra.status == "em_aberto" %}
+                <a
+                    href="{% url 'compras:editar' compra.pk %}"
+                    class="btn btn-secondary"
+                >
+                    Editar
+                </a>
 
-                        <a href="{% url 'compras:editar' compra.pk %}" class="btn btn-secondary">
-                            Editar
-                        </a>
+                <form
+                    method="post"
+                    action="{% url 'compras:receber' compra.pk %}"
+                    class="d-inline"
+                >
+                    {% csrf_token %}
 
-                        <form method="post"
-                            action="{% url 'compras:receber' compra.pk %}"
-                            style="display:inline;">
-                            {% csrf_token %}
+                    <button type="submit" class="btn btn-primary">
+                        Receber compra
+                    </button>
+                </form>
 
-                            <button type="submit" class="btn btn-primary">
-                                Receber Compra
-                            </button>
-                        </form>
+            {% elif compra.status == "recebida" %}
 
-                    {% elif compra.status == "recebida" %}
+                <a
+                    href="{% url 'estoque:lista_movimentacoes' %}?tipo=compra&origem=Compra%20%23{{ compra.numero }}"
+                    class="btn btn-outline-primary"
+                >
+                    <i class="bi bi-clock-history me-1"></i>
+                    Histórico de entrada
+                </a>
 
-                        <a href="#" class="btn btn-outline-primary">
-                            Histórico de Entrada
-                        </a>
-
-                    {% endif %}
-
-                </div>
+            {% endif %}
+        </div>
     </div>
 
     <div class="ficha-status-row">
@@ -49,6 +56,7 @@
         {% endfor %}
     </div>
 </div>
+
 
 <div class="card mb-3">
     <div class="card-body">
@@ -68,6 +76,7 @@
 
         {% if compra.observacoes %}
             <hr>
+
             <div class="ficha-info-item">
                 <span>Observações</span>
                 <strong>{{ compra.observacoes }}</strong>
@@ -75,6 +84,7 @@
         {% endif %}
     </div>
 </div>
+
 
 <div class="card mb-3">
     <div class="card-body">
@@ -98,38 +108,43 @@
 
                     <tbody>
                         {% for item in itens %}
-                        <tr>
-                            <td>
-                                <strong>{{ item.produto }}</strong>
-                            </td>
+                            <tr>
+                                <td>
+                                    <strong>{{ item.produto }}</strong>
+                                </td>
 
-                            <td class="text-center">
-                                {{ item.quantidade }}
-                            </td>
+                                <td class="text-center">
+                                    {{ item.quantidade }}
+                                </td>
 
-                            <td class="text-end">
-                                R$ {{ item.custo_unitario|floatformat:2 }}
-                            </td>
+                                <td class="text-end">
+                                    R$ {{ item.custo_unitario|floatformat:2 }}
+                                </td>
 
-                            <td class="text-end">
-                                R$ {{ item.desconto|floatformat:2 }}
-                            </td>
+                                <td class="text-end">
+                                    R$ {{ item.desconto|floatformat:2 }}
+                                </td>
 
-                            <td class="text-end">
-                                <strong>R$ {{ item.total|floatformat:2 }}</strong>
-                            </td>
-                        </tr>
+                                <td class="text-end">
+                                    <strong>
+                                        R$ {{ item.total|floatformat:2 }}
+                                    </strong>
+                                </td>
+                            </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
         {% else %}
-            <p class="text-muted">Nenhum produto lançado nesta compra.</p>
+            <p class="text-muted mb-0">
+                Nenhum produto lançado nesta compra.
+            </p>
         {% endif %}
     </div>
 </div>
 
-<div class="card">
+
+<div class="card mb-3">
     <div class="card-body">
         <div class="ficha-section-title">
             <h3>Resumo financeiro</h3>
@@ -146,7 +161,9 @@
         </div>
     </div>
 </div>
-<div class="card mt-3">
+
+
+<div class="card mb-3">
     <div class="card-body">
         <div class="ficha-section-title">
             <h3>Registrar pagamento</h3>
@@ -154,39 +171,71 @@
         </div>
 
         {% if compra.saldo_a_pagar > 0 %}
-            <form method="post" action="{% url 'compras:registrar_pagamento' compra.pk %}">
+            <form
+                method="post"
+                action="{% url 'compras:registrar_pagamento' compra.pk %}"
+            >
                 {% csrf_token %}
+
+                {% if pagamento_form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {% for erro in pagamento_form.non_field_errors %}
+                            <div>{{ erro }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
 
                 <div class="row g-3">
                     <div class="col-md-3">
                         {{ pagamento_form.valor.label_tag }}
                         {{ pagamento_form.valor }}
+
+                        {% for erro in pagamento_form.valor.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ erro }}
+                            </div>
+                        {% endfor %}
                     </div>
 
                     <div class="col-md-3">
                         {{ pagamento_form.forma_pagamento.label_tag }}
                         {{ pagamento_form.forma_pagamento }}
+
+                        {% for erro in pagamento_form.forma_pagamento.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ erro }}
+                            </div>
+                        {% endfor %}
                     </div>
 
                     <div class="col-md-6">
                         {{ pagamento_form.observacao.label_tag }}
                         {{ pagamento_form.observacao }}
+
+                        {% for erro in pagamento_form.observacao.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ erro }}
+                            </div>
+                        {% endfor %}
                     </div>
                 </div>
 
                 <div class="mt-3 text-end">
                     <button type="submit" class="btn btn-primary">
-                        Registrar Pagamento
+                        Registrar pagamento
                     </button>
                 </div>
             </form>
         {% else %}
-            <span class="badge bg-success">Compra totalmente paga</span>
+            <span class="badge bg-success">
+                Compra totalmente paga
+            </span>
         {% endif %}
     </div>
 </div>
 
-<div class="card mt-3">
+
+<div class="card">
     <div class="card-body">
         <div class="ficha-section-title">
             <h3>Histórico de pagamentos</h3>
@@ -209,30 +258,68 @@
 
                     <tbody>
                         {% for pagamento in pagamentos %}
-                        <tr>
-                            <td>{{ pagamento.registrado_em|date:"d/m/Y H:i" }}</td>
-                            <td>{{ pagamento.get_forma_pagamento_display }}</td>
-                            <td>{{ pagamento.registrado_por }}</td>
-                            <td>{{ pagamento.observacao|default:"-" }}</td>
-                            <td class="text-end">
-                                <strong>R$ {{ pagamento.valor|floatformat:2 }}</strong>
-                            </td>
-                            <td class="text-end">
-                                <form method="post" action="{% url 'compras:cancelar_pagamento' pagamento.pk %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                            <tr>
+                                <td>
+                                    {{ pagamento.registrado_em|date:"d/m/Y H:i" }}
+                                </td>
+
+                                <td>
+                                    {{ pagamento.get_forma_pagamento_display }}
+                                </td>
+
+                                <td>
+                                    {{ pagamento.registrado_por }}
+                                </td>
+
+                                <td>
+                                    {{ pagamento.observacao|default:"-" }}
+                                </td>
+
+                                <td class="text-end">
+                                    <strong>
+                                        R$ {{ pagamento.valor|floatformat:2 }}
+                                    </strong>
+                                </td>
+
+                                <td class="text-end">
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm btn-outline-danger"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#cancelarPagamento{{ pagamento.pk }}"
+                                    >
+                                        <i class="bi bi-x-circle me-1"></i>
                                         Cancelar
                                     </button>
-                                </form>
-                            </td>
-                        </tr>
+                                </td>
+                            </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
         {% else %}
-            <p class="text-muted mb-0">Nenhum pagamento registrado.</p>
+            <p class="text-muted mb-0">
+                Nenhum pagamento registrado.
+            </p>
         {% endif %}
     </div>
 </div>
+
+{% endblock %}
+
+
+{% block modals %}
+
+    {% for pagamento in pagamentos %}
+        {% url "compras:cancelar_pagamento" pagamento.pk as cancelar_pagamento_url %}
+
+        {% with pagamento.pk|stringformat:"s" as pagamento_id %}
+            {% with "cancelarPagamento"|add:pagamento_id as modal_pagamento_id %}
+
+                {% include "components/modals/confirm_action_modal.html" with modal_id=modal_pagamento_id titulo="Cancelar pagamento" mensagem="Tem certeza de que deseja cancelar este pagamento?" detalhe_label_1="Valor" detalhe_valor_1=pagamento.valor detalhe_label_2="Forma" detalhe_valor_2=pagamento.get_forma_pagamento_display detalhe_label_3="Data" detalhe_valor_3=pagamento.registrado_em detalhe_label_4="Registrado por" detalhe_valor_4=pagamento.registrado_por aviso="O pagamento será removido e o saldo da compra será recalculado." form_action=cancelar_pagamento_url botao_voltar="Manter pagamento" botao_confirmar="Cancelar pagamento" botao_class="btn-danger" botao_icone="bi bi-x-circle" %}
+
+            {% endwith %}
+        {% endwith %}
+    {% endfor %}
+
 {% endblock %}
