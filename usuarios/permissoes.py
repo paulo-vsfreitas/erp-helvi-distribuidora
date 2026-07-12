@@ -2,6 +2,7 @@ class Modulo:
     DASHBOARD = "dashboard"
     VENDAS = "vendas"
     CLIENTES = "clientes"
+    FORNECEDORES = "fornecedores"
     PRODUTOS = "produtos"
     CATALOGO = "catalogo"
     ESTOQUE = "estoque"
@@ -19,6 +20,7 @@ PERFIS = {
             Modulo.DASHBOARD,
             Modulo.VENDAS,
             Modulo.CLIENTES,
+            Modulo.FORNECEDORES,
             Modulo.PRODUTOS,
             Modulo.CATALOGO,
             Modulo.ESTOQUE,
@@ -35,6 +37,7 @@ PERFIS = {
             Modulo.DASHBOARD,
             Modulo.VENDAS,
             Modulo.CLIENTES,
+            Modulo.FORNECEDORES,
             Modulo.PRODUTOS,
             Modulo.CATALOGO,
             Modulo.ESTOQUE,
@@ -64,6 +67,21 @@ PERFIS = {
         },
     },
 }
+
+
+def usuario_tem_permissao(usuario, modulo):
+    if not usuario or not usuario.is_authenticated:
+        return False
+
+    if usuario.is_superuser:
+        return True
+
+    perfil = PERFIS.get(usuario.perfil)
+
+    if not perfil:
+        return False
+
+    return modulo in perfil["permissoes"]
 
 
 def usuario_tem_permissao(usuario, modulo):

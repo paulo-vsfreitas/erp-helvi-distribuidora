@@ -1,0 +1,22 @@
+<div class="table-card">
+    <div class="table-card__header">
+        <div>
+            <h2>{{ titulo }}</h2>
+
+            {% if subtitulo %}
+                <p>{{ subtitulo }}</p>
+            {% endif %}
+        </div>
+
+        {% if acao_url and acao_texto %}
+            <a href="{{ acao_url }}" class="btn btn-secondary">
+                {{ acao_texto }}
+            </a>
+        {% endif %}
+    </div>
+
+    <div class="table-card__body">
+        {% block section_content %}
+        {% endblock %}
+    </div>
+</div>

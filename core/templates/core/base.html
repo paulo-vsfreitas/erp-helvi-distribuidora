@@ -60,7 +60,7 @@
                 </a>
             {% endif %}
 
-            {% if permissoes.clientes or permissoes.produtos or permissoes.catalogo %}
+            {% if permissoes.clientes or permissoes.fornecedores or permissoes.produtos or permissoes.catalogo %}
 
                 <div class="menu-section">
                     CADASTROS
@@ -69,6 +69,12 @@
                 {% if permissoes.clientes %}
                     <a href="{% url 'lista_clientes' %}">
                         🏢 Clientes / Óticas
+                    </a>
+                {% endif %}
+
+                {% if permissoes.fornecedores %}
+                    <a href="{% url 'fornecedores:dashboard' %}">
+                        🏭 Fornecedores
                     </a>
                 {% endif %}
 

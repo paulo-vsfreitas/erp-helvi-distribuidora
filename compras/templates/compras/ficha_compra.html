@@ -69,7 +69,20 @@
             {% for item in dados_gerais %}
                 <div class="ficha-info-item">
                     <span>{{ item.label }}</span>
-                    <strong>{{ item.valor }}</strong>
+
+                    {% if item.label == "Fornecedor" and compra.fornecedor %}
+                        <strong>
+                            <a
+                                href="{% url 'fornecedores:ficha' compra.fornecedor.pk %}"
+                                class="text-decoration-none"
+                            >
+                                {{ item.valor }}
+                                <i class="bi bi-box-arrow-up-right ms-1"></i>
+                            </a>
+                        </strong>
+                    {% else %}
+                        <strong>{{ item.valor }}</strong>
+                    {% endif %}
                 </div>
             {% endfor %}
         </div>

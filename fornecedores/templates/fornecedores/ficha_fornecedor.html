@@ -1,0 +1,214 @@
+{% extends "core/base.html" %}
+
+{% block title %}{{ ficha_titulo }} | ERP Helvi{% endblock %}
+
+{% block content %}
+
+{% include "components/ficha/header.html" with ficha_titulo=ficha_titulo ficha_subtitulo=ficha_subtitulo ficha_resumo=ficha_resumo ficha_acoes=ficha_acoes %}
+
+
+<div class="card mb-3">
+    <div class="card-body">
+
+        <div class="ficha-section-title">
+            <h3>Dados cadastrais</h3>
+            <p>Identificação fiscal e cadastral do fornecedor.</p>
+        </div>
+
+        {% include "components/ficha/info_grid.html" with itens=dados_cadastrais %}
+
+        {% if fornecedor.observacoes %}
+            <hr>
+
+            <div class="ficha-info-item">
+                <span>Observações</span>
+                <strong>{{ fornecedor.observacoes }}</strong>
+            </div>
+        {% endif %}
+
+    </div>
+</div>
+
+
+<div class="card mb-3">
+    <div class="card-body">
+
+        <div class="ficha-section-title">
+            <h3>Contatos</h3>
+            <p>Canais de comunicação e responsável principal.</p>
+        </div>
+
+        {% include "components/ficha/info_grid.html" with itens=contatos %}
+
+    </div>
+</div>
+
+
+<div class="card mb-3">
+    <div class="card-body">
+
+        <div class="ficha-section-title">
+            <h3>Endereço</h3>
+            <p>Localização principal cadastrada para o fornecedor.</p>
+        </div>
+
+        {% include "components/ficha/info_grid.html" with itens=endereco %}
+
+    </div>
+</div>
+
+
+<div class="card mb-3">
+    <div class="card-body">
+
+        <div class="ficha-section-title">
+            <h3>Condições comerciais</h3>
+            <p>Parâmetros utilizados como referência nas compras.</p>
+        </div>
+
+        {% include "components/ficha/info_grid.html" with itens=condicoes_comerciais %}
+
+    </div>
+</div>
+
+
+<div class="card mb-3">
+    <div class="card-body">
+
+        <div class="ficha-section-title">
+            <h3>Resumo de compras</h3>
+            <p>
+                Indicadores financeiros das compras realizadas com este
+                fornecedor.
+            </p>
+        </div>
+
+        {% include "components/ficha/info_grid.html" with itens=resumo_compras %}
+
+    </div>
+</div>
+
+
+<div class="card">
+    <div class="card-body">
+
+        <div class="ficha-section-title">
+            <h3>Histórico de compras</h3>
+            <p>Últimas compras vinculadas a este fornecedor.</p>
+        </div>
+
+        {% if historico_compras %}
+
+            <div class="table-responsive">
+                <table class="table align-middle">
+
+                    <thead>
+                        <tr>
+                            <th>Compra</th>
+                            <th>Data</th>
+                            <th>Status</th>
+                            <th>Pagamento</th>
+                            <th class="text-end">Total</th>
+                            <th class="text-end">Ações</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for compra in historico_compras %}
+
+                            <tr>
+
+                                <td>
+                                    <strong>
+                                        Compra #{{ compra.numero }}
+                                    </strong>
+
+                                    {% if compra.previsao_entrega %}
+                                        <small class="text-muted d-block">
+                                            Previsão:
+                                            {{ compra.previsao_entrega|date:"d/m/Y" }}
+                                        </small>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {{ compra.data_compra|date:"d/m/Y" }}
+                                </td>
+
+                                <td>
+                                    {% if compra.status == "recebida" %}
+                                        <span class="badge bg-success">
+                                            {{ compra.get_status_display }}
+                                        </span>
+
+                                    {% elif compra.status == "cancelada" %}
+                                        <span class="badge bg-danger">
+                                            {{ compra.get_status_display }}
+                                        </span>
+
+                                    {% elif compra.status == "aguardando_entrega" %}
+                                        <span class="badge bg-warning text-dark">
+                                            {{ compra.get_status_display }}
+                                        </span>
+
+                                    {% else %}
+                                        <span class="badge bg-secondary">
+                                            {{ compra.get_status_display }}
+                                        </span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if compra.status_pagamento == "pago" %}
+                                        <span class="badge bg-success">
+                                            {{ compra.get_status_pagamento_display }}
+                                        </span>
+
+                                    {% elif compra.status_pagamento == "parcial" %}
+                                        <span class="badge bg-warning text-dark">
+                                            {{ compra.get_status_pagamento_display }}
+                                        </span>
+
+                                    {% else %}
+                                        <span class="badge bg-secondary">
+                                            {{ compra.get_status_pagamento_display }}
+                                        </span>
+                                    {% endif %}
+                                </td>
+
+                                <td class="text-end">
+                                    <strong>
+                                        R$ {{ compra.total|floatformat:2 }}
+                                    </strong>
+                                </td>
+
+                                <td class="text-end">
+                                    <a
+                                        href="{% url 'compras:ficha' compra.pk %}"
+                                        class="btn btn-sm btn-secondary"
+                                    >
+                                        <i class="bi bi-eye me-1"></i>
+                                        Ver compra
+                                    </a>
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+            </div>
+
+        {% else %}
+
+            {% include "components/ui/empty_state.html" with icone="bi-cart" titulo="Nenhuma compra vinculada" descricao="As compras cadastradas com este fornecedor aparecerão automaticamente neste histórico." %}
+
+        {% endif %}
+
+    </div>
+</div>
+
+{% endblock %}

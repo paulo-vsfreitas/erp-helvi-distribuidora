@@ -1,5 +1,6 @@
 <div class="ficha-header">
     <div class="ficha-header-top">
+
         <div class="ficha-title">
             <h1>{{ ficha_titulo }}</h1>
 
@@ -8,19 +9,37 @@
             {% endif %}
         </div>
 
-        <div class="ficha-actions">
-            {% block ficha_actions %}{% endblock %}
-        </div>
+        {% if ficha_acoes %}
+            <div class="ficha-actions">
+
+                {% for acao in ficha_acoes %}
+                    <a
+                        href="{{ acao.url }}"
+                        class="btn {{ acao.classe|default:'btn-secondary' }}"
+                    >
+                        {% if acao.icone %}
+                            <i class="bi {{ acao.icone }} me-1"></i>
+                        {% endif %}
+
+                        {{ acao.texto }}
+                    </a>
+                {% endfor %}
+
+            </div>
+        {% endif %}
+
     </div>
 
     {% if ficha_resumo %}
         <div class="ficha-status-row">
+
             {% for item in ficha_resumo %}
                 <div class="ficha-status-card">
                     <span>{{ item.label }}</span>
                     <strong>{{ item.valor }}</strong>
                 </div>
             {% endfor %}
+
         </div>
     {% endif %}
 </div>

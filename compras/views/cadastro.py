@@ -4,11 +4,33 @@ from django.shortcuts import redirect, render
 
 from compras.forms import CompraForm
 from compras.services.compra_service import criar_compra_com_itens
+from fornecedores.models import Fornecedor
 
 
 @login_required
 def nova_compra(request):
-    form = CompraForm(request.POST or None)
+    fornecedor_inicial = None
+
+    fornecedor_id = request.GET.get("fornecedor")
+
+    if fornecedor_id:
+        fornecedor_inicial = (
+            Fornecedor.objects
+            .filter(
+                pk=fornecedor_id,
+                ativo=True,
+            )
+            .first()
+        )
+
+    if request.method == "POST":
+        form = CompraForm(request.POST)
+    else:
+        form = CompraForm(
+            initial={
+                "fornecedor": fornecedor_inicial,
+            }
+        )
 
     if request.method == "POST":
         if form.is_valid():
@@ -30,7 +52,10 @@ def nova_compra(request):
                 )
 
             except ValueError as erro:
-                messages.error(request, str(erro))
+                messages.error(
+                    request,
+                    str(erro),
+                )
 
         else:
             messages.error(
@@ -44,5 +69,6 @@ def nova_compra(request):
         "compras/nova_compra.html",
         {
             "form": form,
+            "fornecedor_inicial": fornecedor_inicial,
         },
     )

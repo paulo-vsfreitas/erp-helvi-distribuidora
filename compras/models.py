@@ -70,6 +70,15 @@ class Compra(models.Model):
         verbose_name="Número da compra",
     )
 
+    fornecedor = models.ForeignKey(
+    "fornecedores.Fornecedor",
+    on_delete=models.PROTECT,
+    null=True,
+    blank=True,
+    related_name="compras",
+    verbose_name="Fornecedor cadastrado",
+    )
+    
     fornecedor_nome = models.CharField(
         max_length=150,
         verbose_name="Fornecedor",

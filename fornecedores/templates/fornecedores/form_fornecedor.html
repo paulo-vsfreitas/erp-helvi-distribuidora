@@ -1,0 +1,290 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}{{ titulo }} | ERP Helvi{% endblock %}
+
+{% block content %}
+
+
+{% include "components/ui/page_header.html" with titulo=titulo subtitulo=subtitulo %}
+
+<form method="post" novalidate>
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+            {% for erro in form.non_field_errors %}
+                <div>{{ erro }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="table-card mb-4">
+        <div class="table-card__header">
+            <div>
+                <h2>Identificação</h2>
+                <p>Dados fiscais e cadastrais do fornecedor.</p>
+            </div>
+        </div>
+
+        <div class="table-card__body">
+            <div class="row g-3">
+
+                <div class="col-md-3">
+                    {{ form.tipo_pessoa.label_tag }}
+                    {{ form.tipo_pessoa }}
+                    {% for erro in form.tipo_pessoa.errors %}
+                        <div class="text-danger small mt-1">{{ erro }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-6">
+                    {{ form.razao_social.label_tag }}
+                    {{ form.razao_social }}
+                    {% for erro in form.razao_social.errors %}
+                        <div class="text-danger small mt-1">{{ erro }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form.cpf_cnpj.label_tag }}
+                    {{ form.cpf_cnpj }}
+                    {% for erro in form.cpf_cnpj.errors %}
+                        <div class="text-danger small mt-1">{{ erro }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-6">
+                    {{ form.nome_fantasia.label_tag }}
+                    {{ form.nome_fantasia }}
+                    {% for erro in form.nome_fantasia.errors %}
+                        <div class="text-danger small mt-1">{{ erro }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form.inscricao_estadual.label_tag }}
+                    {{ form.inscricao_estadual }}
+                    {% for erro in form.inscricao_estadual.errors %}
+                        <div class="text-danger small mt-1">{{ erro }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form.inscricao_municipal.label_tag }}
+                    {{ form.inscricao_municipal }}
+                    {% for erro in form.inscricao_municipal.errors %}
+                        <div class="text-danger small mt-1">{{ erro }}</div>
+                    {% endfor %}
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="table-card mb-4">
+        <div class="table-card__header">
+            <div>
+                <h2>Contato</h2>
+                <p>Canais de comunicação e responsável principal.</p>
+            </div>
+        </div>
+
+        <div class="table-card__body">
+            <div class="row g-3">
+
+                <div class="col-md-4">
+                    {{ form.contato_principal.label_tag }}
+                    {{ form.contato_principal }}
+                    {% for erro in form.contato_principal.errors %}
+                        <div class="text-danger small mt-1">{{ erro }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-4">
+                    {{ form.telefone.label_tag }}
+                    {{ form.telefone }}
+                    {% for erro in form.telefone.errors %}
+                        <div class="text-danger small mt-1">{{ erro }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-4">
+                    {{ form.whatsapp.label_tag }}
+                    {{ form.whatsapp }}
+                    {% for erro in form.whatsapp.errors %}
+                        <div class="text-danger small mt-1">{{ erro }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-6">
+                    {{ form.email.label_tag }}
+                    {{ form.email }}
+                    {% for erro in form.email.errors %}
+                        <div class="text-danger small mt-1">{{ erro }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-6">
+                    {{ form.site.label_tag }}
+                    {{ form.site }}
+                    {% for erro in form.site.errors %}
+                        <div class="text-danger small mt-1">{{ erro }}</div>
+                    {% endfor %}
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="table-card mb-4">
+        <div class="table-card__header">
+            <div>
+                <h2>Endereço</h2>
+                <p>Localização principal do fornecedor.</p>
+            </div>
+        </div>
+
+        <div class="table-card__body">
+            <div class="row g-3">
+
+                <div class="col-md-3">
+                    {{ form.cep.label_tag }}
+                    {{ form.cep }}
+                    {% for erro in form.cep.errors %}
+                        <div class="text-danger small mt-1">{{ erro }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-7">
+                    {{ form.logradouro.label_tag }}
+                    {{ form.logradouro }}
+                    {% for erro in form.logradouro.errors %}
+                        <div class="text-danger small mt-1">{{ erro }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-2">
+                    {{ form.numero.label_tag }}
+                    {{ form.numero }}
+                    {% for erro in form.numero.errors %}
+                        <div class="text-danger small mt-1">{{ erro }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-4">
+                    {{ form.complemento.label_tag }}
+                    {{ form.complemento }}
+                    {% for erro in form.complemento.errors %}
+                        <div class="text-danger small mt-1">{{ erro }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form.bairro.label_tag }}
+                    {{ form.bairro }}
+                    {% for erro in form.bairro.errors %}
+                        <div class="text-danger small mt-1">{{ erro }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form.cidade.label_tag }}
+                    {{ form.cidade }}
+                    {% for erro in form.cidade.errors %}
+                        <div class="text-danger small mt-1">{{ erro }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-2">
+                    {{ form.estado.label_tag }}
+                    {{ form.estado }}
+                    {% for erro in form.estado.errors %}
+                        <div class="text-danger small mt-1">{{ erro }}</div>
+                    {% endfor %}
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="table-card mb-4">
+        <div class="table-card__header">
+            <div>
+                <h2>Condições comerciais</h2>
+                <p>Parâmetros usados como referência nas futuras compras.</p>
+            </div>
+        </div>
+
+        <div class="table-card__body">
+            <div class="row g-3">
+
+                <div class="col-md-4">
+                    {{ form.prazo_medio_entrega.label_tag }}
+                    {{ form.prazo_medio_entrega }}
+                    {% for erro in form.prazo_medio_entrega.errors %}
+                        <div class="text-danger small mt-1">{{ erro }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-8">
+                    {{ form.condicao_pagamento_padrao.label_tag }}
+                    {{ form.condicao_pagamento_padrao }}
+                    {% for erro in form.condicao_pagamento_padrao.errors %}
+                        <div class="text-danger small mt-1">{{ erro }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-12">
+                    {{ form.observacoes.label_tag }}
+                    {{ form.observacoes }}
+                    {% for erro in form.observacoes.errors %}
+                        <div class="text-danger small mt-1">{{ erro }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-12">
+                    <div class="form-check">
+                        {{ form.ativo }}
+                        <label
+                            class="form-check-label"
+                            for="{{ form.ativo.id_for_label }}"
+                        >
+                            Fornecedor ativo
+                        </label>
+                    </div>
+
+                    {% for erro in form.ativo.errors %}
+                        <div class="text-danger small mt-1">{{ erro }}</div>
+                    {% endfor %}
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2">
+        <a href="{{ cancelar_url }}" class="btn btn-secondary">
+            Cancelar
+        </a>
+
+    '    <button type="submit" class="btn btn-primary">
+            <i class="bi bi-check-lg"></i>
+
+            {% if fornecedor %}
+                Salvar alterações
+            {% else %}
+                Salvar fornecedor
+            {% endif %}
+        </button>'
+    </div>
+
+</form>
+
+{% endblock %}
+
+{% load static %}
+
+{% block extra_js %}
+    <script src="{% static 'js/core/cep.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,221 @@
+{% extends "core/base.html" %}
+
+{% block title %}Lista de fornecedores | ERP Helvi{% endblock %}
+
+{% block content %}
+
+{% url "fornecedores:cadastrar" as cadastrar_url %}
+{% url "fornecedores:lista" as lista_url %}
+
+{% include "components/ui/page_header.html" with titulo="Lista de fornecedores" subtitulo="Consulte, pesquise e acompanhe os fornecedores cadastrados no ERP." acao_url=cadastrar_url acao_texto="Novo fornecedor" acao_icone="bi-plus-lg" %}
+
+{% include "components/tables/list_toolbar.html" with busca=busca placeholder="Código, fornecedor, documento, contato ou cidade" limpar_url=lista_url status_atual=status_atual %}
+
+<div class="d-flex flex-wrap gap-2 mb-3">
+
+    <a
+        href="{{ lista_url }}"
+        class="btn {% if not status_atual %}btn-primary{% else %}btn-secondary{% endif %}"
+    >
+        Todos
+    </a>
+
+    <a
+        href="?status=ativos{% if busca %}&busca={{ busca|urlencode }}{% endif %}"
+        class="btn {% if status_atual == 'ativos' %}btn-primary{% else %}btn-secondary{% endif %}"
+    >
+        Ativos
+    </a>
+
+    <a
+        href="?status=inativos{% if busca %}&busca={{ busca|urlencode }}{% endif %}"
+        class="btn {% if status_atual == 'inativos' %}btn-primary{% else %}btn-secondary{% endif %}"
+    >
+        Inativos
+    </a>
+
+</div>
+
+<div class="table-card">
+
+    <div class="table-card__header">
+        <div>
+            <h2>Fornecedores cadastrados</h2>
+
+            <p>
+                {{ page_obj.paginator.count }}
+                registro{{ page_obj.paginator.count|pluralize }}
+                encontrado{{ page_obj.paginator.count|pluralize }}.
+            </p>
+        </div>
+    </div>
+
+    <div class="table-card__body">
+
+        {% if page_obj.object_list %}
+
+            <div class="table-responsive">
+
+                <table class="table align-middle">
+
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Fornecedor</th>
+                            <th>Documento</th>
+                            <th>Contato</th>
+                            <th>Cidade/UF</th>
+                            <th>Status</th>
+                            <th class="text-end">Ações</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for fornecedor in page_obj %}
+
+                            <tr>
+
+                                <td>
+                                    <strong>{{ fornecedor.codigo }}</strong>
+                                </td>
+
+                                <td>
+                                    <strong>
+                                        {{ fornecedor.nome_fantasia|default:fornecedor.razao_social }}
+                                    </strong>
+
+                                    {% if fornecedor.nome_fantasia %}
+                                        <small class="text-muted d-block">
+                                            {{ fornecedor.razao_social }}
+                                        </small>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {{ fornecedor.cpf_cnpj }}
+                                </td>
+
+                                <td>
+                                    {% if fornecedor.contato_principal %}
+                                        <strong>
+                                            {{ fornecedor.contato_principal }}
+                                        </strong>
+                                    {% endif %}
+
+                                    {% if fornecedor.whatsapp %}
+                                        <small class="text-muted d-block">
+                                            {{ fornecedor.whatsapp }}
+                                        </small>
+                                    {% elif fornecedor.telefone %}
+                                        <small class="text-muted d-block">
+                                            {{ fornecedor.telefone }}
+                                        </small>
+                                    {% elif not fornecedor.contato_principal %}
+                                        <span class="text-muted">
+                                            Não informado
+                                        </span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if fornecedor.cidade or fornecedor.estado %}
+                                        {{ fornecedor.cidade }}
+
+                                        {% if fornecedor.cidade and fornecedor.estado %}
+                                            /
+                                        {% endif %}
+
+                                        {{ fornecedor.estado }}
+                                    {% else %}
+                                        <span class="text-muted">
+                                            Não informado
+                                        </span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if fornecedor.ativo %}
+                                        <span class="badge bg-success">
+                                            Ativo
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">
+                                            Inativo
+                                        </span>
+                                    {% endif %}
+                                </td>
+
+                                <td class="text-end">
+                                    <a
+                                        href="{% url 'fornecedores:ficha' fornecedor.pk %}"
+                                        class="btn btn-sm btn-secondary"
+                                    >
+                                        Ver ficha
+                                    </a>
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            {% if page_obj.paginator.num_pages > 1 %}
+
+                <nav
+                    class="d-flex justify-content-center mt-4"
+                    aria-label="Paginação de fornecedores"
+                >
+                    <ul class="pagination mb-0">
+
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a
+                                    class="page-link"
+                                    href="?page={{ page_obj.previous_page_number }}&busca={{ busca|urlencode }}&status={{ status_atual }}"
+                                >
+                                    Anterior
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        <li class="page-item active">
+                            <span class="page-link">
+                                {{ page_obj.number }}
+                                de
+                                {{ page_obj.paginator.num_pages }}
+                            </span>
+                        </li>
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a
+                                    class="page-link"
+                                    href="?page={{ page_obj.next_page_number }}&busca={{ busca|urlencode }}&status={{ status_atual }}"
+                                >
+                                    Próxima
+                                </a>
+                            </li>
+                        {% endif %}
+
+                    </ul>
+                </nav>
+
+            {% endif %}
+
+        {% else %}
+
+            {% include "components/ui/empty_state.html" with icone="bi-buildings" titulo="Nenhum fornecedor encontrado" descricao="Não há fornecedores correspondentes aos critérios informados." acao_url=cadastrar_url acao_texto="Cadastrar fornecedor" acao_icone="bi-plus-lg" %}
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

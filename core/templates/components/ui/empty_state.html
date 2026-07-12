@@ -1,0 +1,29 @@
+<div class="empty-state">
+
+    <div class="empty-state__icon">
+        <i class="bi {{ icone }}"></i>
+    </div>
+
+    <h3 class="empty-state__title">
+        {{ titulo }}
+    </h3>
+
+    {% if descricao %}
+        <p class="empty-state__description">
+            {{ descricao }}
+        </p>
+    {% endif %}
+
+    {% if acao_url and acao_texto %}
+        <div class="empty-state__actions">
+            <a href="{{ acao_url }}" class="btn btn-primary">
+                {% if acao_icone %}
+                    <i class="bi {{ acao_icone }}"></i>
+                {% endif %}
+
+                {{ acao_texto }}
+            </a>
+        </div>
+    {% endif %}
+
+</div>

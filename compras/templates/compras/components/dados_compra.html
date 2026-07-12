@@ -6,41 +6,87 @@
     <div class="card-body">
         <div class="row g-3">
 
-            <div class="col-md-6">
-                {{ form.fornecedor_nome.label_tag }}
-                {{ form.fornecedor_nome }}
+            <div class="col-md-8">
+                {{ form.fornecedor.label_tag }}
+                {{ form.fornecedor }}
+
+                {% if form.fornecedor.help_text %}
+                    <div class="form-text">
+                        {{ form.fornecedor.help_text }}
+                    </div>
+                {% endif %}
+
+                {% for erro in form.fornecedor.errors %}
+                    <div class="text-danger small mt-1">
+                        {{ erro }}
+                    </div>
+                {% endfor %}
             </div>
 
-            <div class="col-md-3">
-                {{ form.fornecedor_documento.label_tag }}
-                {{ form.fornecedor_documento }}
+            <div class="col-md-4 d-flex align-items-end">
+                <a
+                    href="{% url 'fornecedores:cadastrar' %}"
+                    class="btn btn-secondary w-100"
+                    target="_blank"
+                    rel="noopener"
+                >
+                    <i class="bi bi-plus-lg me-1"></i>
+                    Cadastrar fornecedor
+                </a>
             </div>
 
-            <div class="col-md-3">
-                {{ form.fornecedor_telefone.label_tag }}
-                {{ form.fornecedor_telefone }}
+            <div class="col-12">
+                <p class="text-muted small mb-0">
+                    O nome, documento e telefone do fornecedor serão
+                    registrados automaticamente na compra para preservar
+                    o histórico da operação.
+                </p>
             </div>
 
             <div class="col-12 d-flex gap-3 flex-wrap">
                 <div style="width: 220px;">
                     {{ form.data_compra.label_tag }}
                     {{ form.data_compra }}
+
+                    {% for erro in form.data_compra.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ erro }}
+                        </div>
+                    {% endfor %}
                 </div>
 
                 <div style="width: 220px;">
                     {{ form.previsao_entrega.label_tag }}
                     {{ form.previsao_entrega }}
+
+                    {% for erro in form.previsao_entrega.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ erro }}
+                        </div>
+                    {% endfor %}
                 </div>
 
                 <div style="width: 180px;">
                     {{ form.frete.label_tag }}
                     {{ form.frete }}
+
+                    {% for erro in form.frete.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ erro }}
+                        </div>
+                    {% endfor %}
                 </div>
             </div>
 
             <div class="col-12">
                 {{ form.observacoes.label_tag }}
                 {{ form.observacoes }}
+
+                {% for erro in form.observacoes.errors %}
+                    <div class="text-danger small mt-1">
+                        {{ erro }}
+                    </div>
+                {% endfor %}
             </div>
 
         </div>

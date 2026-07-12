@@ -1,0 +1,25 @@
+<div class="page-header">
+    <div class="page-header__content">
+        <h1 class="page-header__title">
+            {{ titulo }}
+        </h1>
+
+        {% if subtitulo %}
+            <p class="page-header__subtitle">
+                {{ subtitulo }}
+            </p>
+        {% endif %}
+    </div>
+
+    {% if acao_url and acao_texto %}
+        <div class="page-header__actions">
+            <a href="{{ acao_url }}" class="btn btn-primary">
+                {% if acao_icone %}
+                    <i class="bi {{ acao_icone }}"></i>
+                {% endif %}
+
+                {{ acao_texto }}
+            </a>
+        </div>
+    {% endif %}
+</div>

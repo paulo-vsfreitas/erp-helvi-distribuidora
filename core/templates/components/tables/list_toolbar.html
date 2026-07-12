@@ -1,0 +1,58 @@
+<div class="list-toolbar">
+
+    <form method="get" class="list-toolbar__search">
+
+        <div class="input-group">
+
+            <span class="input-group-text">
+                <i class="bi bi-search"></i>
+            </span>
+
+            <input
+                type="search"
+                name="busca"
+                value="{{ busca }}"
+                class="form-control"
+                placeholder="{{ placeholder|default:'Pesquisar...' }}"
+                autocomplete="off"
+            >
+
+            {% if busca %}
+                <a href="{{ limpar_url }}" class="btn btn-secondary">
+                    Limpar
+                </a>
+            {% endif %}
+
+            <button type="submit" class="btn btn-primary">
+                Pesquisar
+            </button>
+
+        </div>
+
+        {% if status_atual %}
+            <input
+                type="hidden"
+                name="status"
+                value="{{ status_atual }}"
+            >
+        {% endif %}
+
+    </form>
+
+    {% if acao_url and acao_texto %}
+        <div class="list-toolbar__actions">
+
+            <a href="{{ acao_url }}" class="btn btn-primary">
+
+                {% if acao_icone %}
+                    <i class="bi {{ acao_icone }}"></i>
+                {% endif %}
+
+                {{ acao_texto }}
+
+            </a>
+
+        </div>
+    {% endif %}
+
+</div>

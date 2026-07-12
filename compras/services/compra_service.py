@@ -6,6 +6,32 @@ from compras.models import Compra, ItemCompra
 from produtos.models import Produto
 
 
+def aplicar_dados_fornecedor(compra, fornecedor):
+    """
+    Vincula o fornecedor cadastrado e grava na compra uma fotografia
+    dos seus dados principais.
+
+    Os campos históricos permanecem na compra mesmo que o cadastro do
+    fornecedor seja alterado futuramente.
+    """
+    if not fornecedor:
+        return
+
+    compra.fornecedor = fornecedor
+    compra.fornecedor_nome = (
+        fornecedor.nome_fantasia
+        or fornecedor.razao_social
+    )
+    compra.fornecedor_documento = (
+        fornecedor.cpf_cnpj
+        or ""
+    )
+    compra.fornecedor_telefone = (
+        fornecedor.whatsapp
+        or fornecedor.telefone
+        or ""
+    )
+
 def decimal_post(valor, campo="valor"):
     """
     Converte valores recebidos pelo formulário para Decimal.
@@ -60,6 +86,11 @@ def criar_compra_com_itens(form, usuario, post):
     compra = form.save(commit=False)
     compra.criado_por = usuario
     compra.status = Compra.STATUS_AGUARDANDO_ENTREGA
+
+    aplicar_dados_fornecedor(
+        compra,
+        form.cleaned_data.get("fornecedor"),
+    )
 
     subtotal = Decimal("0.00")
     desconto_total = Decimal("0.00")
@@ -293,20 +324,17 @@ def atualizar_compra_com_itens(
             f"já pago de R$ {valor_pago_formatado}."
         )
 
-    # Atualiza os dados gerais da compra.
-    compra.fornecedor_nome = form.cleaned_data[
-        "fornecedor_nome"
-    ]
-
-    compra.fornecedor_documento = form.cleaned_data.get(
-        "fornecedor_documento",
-        "",
+    # Atualiza o vínculo e a fotografia histórica quando um fornecedor
+    # cadastrado tiver sido selecionado.
+    fornecedor = form.cleaned_data.get(
+        "fornecedor"
     )
 
-    compra.fornecedor_telefone = form.cleaned_data.get(
-        "fornecedor_telefone",
-        "",
-    )
+    if fornecedor:
+        aplicar_dados_fornecedor(
+            compra,
+            fornecedor,
+        )
 
     compra.data_compra = form.cleaned_data[
         "data_compra"

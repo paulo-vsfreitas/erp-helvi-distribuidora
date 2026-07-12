@@ -1,8 +1,10 @@
 from decimal import Decimal, InvalidOperation
 
 from django import forms
+from django.db.models import Q
 
 from compras.models import Compra
+from fornecedores.models import Fornecedor
 
 
 class CompraForm(forms.ModelForm):
@@ -10,10 +12,9 @@ class CompraForm(forms.ModelForm):
 
     class Meta:
         model = Compra
+
         fields = [
-            "fornecedor_nome",
-            "fornecedor_documento",
-            "fornecedor_telefone",
+            "fornecedor",
             "data_compra",
             "previsao_entrega",
             "frete",
@@ -21,20 +22,9 @@ class CompraForm(forms.ModelForm):
         ]
 
         widgets = {
-            "fornecedor_documento": forms.TextInput(
+            "fornecedor": forms.Select(
                 attrs={
-                    "class": "form-control",
-                    "inputmode": "numeric",
-                    "autocomplete": "off",
-                    "placeholder": "Somente números",
-                }
-            ),
-            "fornecedor_telefone": forms.TextInput(
-                attrs={
-                    "class": "form-control",
-                    "inputmode": "numeric",
-                    "autocomplete": "off",
-                    "placeholder": "(11) 99999-9999",
+                    "class": "form-select",
                 }
             ),
             "data_compra": forms.DateInput(
@@ -69,18 +59,46 @@ class CompraForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        fornecedor_atual_id = getattr(
+            self.instance,
+            "fornecedor_id",
+            None,
+        )
+
+        filtro_fornecedores = Q(ativo=True)
+
+        # Mantém disponível um fornecedor que tenha sido inativado
+        # depois de ter sido vinculado à compra.
+        if fornecedor_atual_id:
+            filtro_fornecedores |= Q(
+                pk=fornecedor_atual_id
+            )
+
+        self.fields["fornecedor"].queryset = (
+            Fornecedor.objects
+            .filter(filtro_fornecedores)
+            .distinct()
+            .order_by(
+                "nome_fantasia",
+                "razao_social",
+            )
+        )
+
+        self.fields["fornecedor"].empty_label = (
+            "Selecione um fornecedor"
+        )
+
         self.fields["data_compra"].input_formats = [
             "%Y-%m-%d",
             "%d/%m/%Y",
         ]
+
         self.fields["previsao_entrega"].input_formats = [
             "%Y-%m-%d",
             "%d/%m/%Y",
         ]
 
         self.fields["previsao_entrega"].required = False
-        self.fields["fornecedor_documento"].required = False
-        self.fields["fornecedor_telefone"].required = False
         self.fields["observacoes"].required = False
 
         for campo in self.fields.values():
@@ -88,6 +106,21 @@ class CompraForm(forms.ModelForm):
                 "class",
                 "form-control",
             )
+
+    def clean_fornecedor(self):
+        fornecedor = self.cleaned_data.get(
+            "fornecedor"
+        )
+
+        # Uma compra nova sempre precisa usar o cadastro oficial.
+        if not self.instance.pk and not fornecedor:
+            raise forms.ValidationError(
+                "Selecione o fornecedor da compra."
+            )
+
+        # Compras antigas, criadas antes da integração, podem continuar
+        # sem vínculo até que sejam associadas manualmente.
+        return fornecedor
 
     def limpar_decimal(self, valor):
         if valor in [None, ""]:
@@ -107,14 +140,6 @@ class CompraForm(forms.ModelForm):
                 "Informe um valor válido."
             )
 
-    def somente_numeros(self, valor):
-        return "".join(
-            filter(
-                str.isdigit,
-                str(valor or ""),
-            )
-        )
-
     def clean_frete(self):
         frete = self.limpar_decimal(
             self.cleaned_data.get("frete")
@@ -126,17 +151,3 @@ class CompraForm(forms.ModelForm):
             )
 
         return frete
-
-    def clean_fornecedor_documento(self):
-        return self.somente_numeros(
-            self.cleaned_data.get(
-                "fornecedor_documento"
-            )
-        )
-
-    def clean_fornecedor_telefone(self):
-        return self.somente_numeros(
-            self.cleaned_data.get(
-                "fornecedor_telefone"
-            )
-        )
