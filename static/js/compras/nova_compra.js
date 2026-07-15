@@ -49,5 +49,5 @@
 
 {% block extra_js %}
 <script src="{% static 'js/compras/form_compra.js' %}?v=1"></script>
-<script src="{% static 'js/compras/tabela_itens.js' %}?v=14"></script>
+<script src="{% static 'js/compras/tabela_itens.js' %}?v=17"></script>
 {% endblock %}
