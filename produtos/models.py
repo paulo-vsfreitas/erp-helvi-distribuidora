@@ -1,6 +1,7 @@
 from django.db import models
 
 from catalogo.models import Colecao, Genero, Marca, TipoArmacao
+from fornecedores.models import Fornecedor
 
 
 class Produto(models.Model):
@@ -9,6 +10,14 @@ class Produto(models.Model):
         unique=True,
         verbose_name="Código",
     )
+
+    codigo_fornecedor = models.CharField(
+        max_length=80,
+        blank=True,
+        null=True,
+        verbose_name="Código do fornecedor",
+    )
+
 
     modelo = models.CharField(
         max_length=100,

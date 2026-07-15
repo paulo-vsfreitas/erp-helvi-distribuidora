@@ -9,29 +9,74 @@ from produtos.models import ImagemProduto, Produto
 
 @login_required
 def lista_produtos(request):
-    busca = request.GET.get("busca", "").strip()
-    status = request.GET.get("status", "ativos")
+    busca = request.GET.get(
+        "busca",
+        "",
+    ).strip()
 
-    produtos = Produto.objects.all().order_by("modelo")
+    status = request.GET.get(
+        "status",
+        "todos",
+    ).strip()
+
+    produtos = (
+        Produto.objects
+        .select_related(
+            "marca",
+            "colecao",
+            "genero",
+            "tipo_armacao",
+        )
+        .all()
+        .order_by(
+            "modelo",
+            "codigo",
+        )
+    )
 
     if status == "ativos":
-        produtos = produtos.filter(ativo=True)
+        produtos = produtos.filter(
+            ativo=True
+        )
+
     elif status == "inativos":
-        produtos = produtos.filter(ativo=False)
+        produtos = produtos.filter(
+            ativo=False
+        )
 
     if busca:
         produtos = produtos.filter(
             Q(codigo__icontains=busca)
+            | Q(codigo_fornecedor__icontains=busca)
             | Q(modelo__icontains=busca)
             | Q(marca__nome__icontains=busca)
+            | Q(colecao__nome__icontains=busca)
+            | Q(genero__nome__icontains=busca)
+            | Q(tipo_armacao__nome__icontains=busca)
+            | Q(cores_disponiveis__icontains=busca)
+            | Q(observacoes__icontains=busca)
         )
 
-    return render(request, "produtos/lista_produtos.html", {
-        "produtos": produtos,
-        "busca": busca,
-        "status": status,
-    })
+    total_produtos = Produto.objects.count()
+    total_ativos = Produto.objects.filter(
+        ativo=True
+    ).count()
+    total_inativos = Produto.objects.filter(
+        ativo=False
+    ).count()
 
+    return render(
+        request,
+        "produtos/lista_produtos.html",
+        {
+            "produtos": produtos,
+            "busca": busca,
+            "status": status,
+            "total_produtos": total_produtos,
+            "total_ativos": total_ativos,
+            "total_inativos": total_inativos,
+        },
+    )
 
 @login_required
 def novo_produto(request):

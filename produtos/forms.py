@@ -1,6 +1,8 @@
+from django.db.models import Q
 from django import forms
 
 from .models import ImagemProduto, Produto
+
 
 
 class ProdutoForm(forms.ModelForm):
@@ -8,6 +10,7 @@ class ProdutoForm(forms.ModelForm):
         model = Produto
         fields = [
             "codigo",
+            "codigo_fornecedor",
             "modelo",
             "marca",
             "colecao",
@@ -28,6 +31,14 @@ class ProdutoForm(forms.ModelForm):
                 "class": "form-control",
                 "placeholder": "Ex: HV0001",
             }),
+
+            "codigo_fornecedor": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Ex: ROMA-C2-54",
+                "autocomplete": "off",
+            }),
+
+
             "modelo": forms.TextInput(attrs={
                 "class": "form-control",
                 "placeholder": "Ex: Roma, Milano, Classic 01",
@@ -86,7 +97,37 @@ class ProdutoForm(forms.ModelForm):
             "observacoes": "Observações",
             "foto": "Foto Principal",
             "ativo": "Produto Ativo",
+            "codigo_fornecedor": "Código do fornecedor",
         }
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+            fornecedor_atual_id = getattr(
+                self.instance,
+                "fornecedor_id",
+                None,
+            )
+
+            filtro = Q(ativo=True)
+
+            if fornecedor_atual_id:
+                filtro |= Q(pk=fornecedor_atual_id)
+
+            self.fields["fornecedor"].queryset = (
+                self.fields["fornecedor"]
+                .queryset
+                .filter(filtro)
+                .distinct()
+                .order_by(
+                    "nome_fantasia",
+                    "razao_social",
+                )
+            )
+
+            self.fields["fornecedor"].empty_label = (
+                "Selecione o fornecedor principal"
+            )
 
     def clean_codigo(self):
         codigo = self.cleaned_data.get("codigo")
@@ -95,6 +136,20 @@ class ProdutoForm(forms.ModelForm):
             codigo = codigo.strip().upper()
 
         return codigo
+
+    def clean_codigo_fornecedor(self):
+        codigo_fornecedor = self.cleaned_data.get(
+            "codigo_fornecedor"
+        )
+
+        if codigo_fornecedor:
+            codigo_fornecedor = (
+                codigo_fornecedor
+                .strip()
+                .upper()
+            )
+
+        return codigo_fornecedor
 
     def clean_modelo(self):
         modelo = self.cleaned_data.get("modelo")

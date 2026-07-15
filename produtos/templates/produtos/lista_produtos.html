@@ -19,14 +19,31 @@
             id="busca"
             name="busca"
             value="{{ busca }}"
-            placeholder="Digite código, modelo ou marca"
+            placeholder="Código, cód. fornecedor, modelo, marca, coleção, cor ou observações"
             class="form-control"
         >
 
         <select name="status" class="form-control">
-            <option value="ativos" {% if status == "ativos" %}selected{% endif %}>Ativos</option>
-            <option value="inativos" {% if status == "inativos" %}selected{% endif %}>Inativos</option>
-            <option value="todos" {% if status == "todos" %}selected{% endif %}>Todos</option>
+            <option
+                value="todos"
+                {% if status == "todos" %}selected{% endif %}
+            >
+                Todos
+            </option>
+
+            <option
+                value="ativos"
+                {% if status == "ativos" %}selected{% endif %}
+            >
+                Ativos
+            </option>
+
+            <option
+                value="inativos"
+                {% if status == "inativos" %}selected{% endif %}
+            >
+                Inativos
+            </option>
         </select>
 
         <button type="submit" class="btn btn-primary">
@@ -37,7 +54,17 @@
 </form>
 
 <div class="list-summary">
-    {{ produtos|length }} produto(s) encontrado(s)
+    <strong>
+        {{ produtos|length }}
+        produto{{ produtos|length|pluralize }}
+        encontrado{{ produtos|length|pluralize }}
+    </strong>
+
+    <span class="text-muted">
+        Total cadastrado: {{ total_produtos }}
+        • Ativos: {{ total_ativos }}
+        • Inativos: {{ total_inativos }}
+    </span>
 </div>
 
 <div class="table-card">
@@ -45,7 +72,8 @@
         <thead>
             <tr>
                 <th>Foto</th>
-                <th>Código</th>
+                <th>Código ERP</th>
+                <th>Cód. fornecedor</th>
                 <th>Modelo</th>
                 <th>Marca</th>
                 <th>Estoque</th>
@@ -78,6 +106,30 @@
                         <a href="{% url 'produtos:ficha_produto' produto.id %}" class="action-link action-edit">
                             <strong>{{ produto.codigo }}</strong>
                         </a>
+                    </td>
+                    <td>
+                        {% if produto.codigo_fornecedor %}
+                            <strong>
+                                {{ produto.codigo_fornecedor }}
+                            </strong>
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if produto.fornecedor %}
+                            <a
+                                href="{% url 'fornecedores:ficha' produto.fornecedor.pk %}"
+                                class="action-link action-edit"
+                            >
+                                {{ produto.fornecedor.nome_fantasia|default:produto.fornecedor.razao_social }}
+                            </a>
+                        {% else %}
+                            <span class="text-muted">
+                                Não informado
+                            </span>
+                        {% endif %}
                     </td>
 
                     <td>{{ produto.modelo }}</td>
@@ -135,7 +187,7 @@
                 </tr>
             {% empty %}
                 <tr>
-                    <td colspan="8" class="empty-state">
+                    <td colspan="9" class="empty-state">
                         Nenhum produto encontrado.
                     </td>
                 </tr>
