@@ -1,0 +1,33 @@
+<div class="d-flex justify-content-between align-items-start gap-3 mb-4">
+
+    <div>
+        <h5 class="mb-1">
+            {{ titulo }}
+        </h5>
+
+        {% if subtitulo %}
+            <p class="text-muted small mb-0">
+                {{ subtitulo }}
+            </p>
+        {% endif %}
+    </div>
+
+    {% if acao_url and acao_texto %}
+        <a
+            href="{{ acao_url }}"
+            class="small text-decoration-none text-nowrap"
+        >
+            {{ acao_texto }}
+
+            {% if acao_icone %}
+                <i class="{{ acao_icone }} ms-1"></i>
+            {% endif %}
+        </a>
+
+    {% elif acao_texto %}
+        <span class="text-muted small text-nowrap">
+            {{ acao_texto }}
+        </span>
+    {% endif %}
+
+</div>

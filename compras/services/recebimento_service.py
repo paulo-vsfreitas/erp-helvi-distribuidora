@@ -2,6 +2,7 @@ from django.db import transaction
 from django.utils import timezone
 
 from compras.models import Compra
+from compras.services.financeiro_service import gerar_financeiro_compra
 from estoque.models import MovimentacaoEstoque
 from produtos.models import Produto
 
@@ -94,5 +95,10 @@ def receber_compra(compra, usuario):
     compra.recebida_em = timezone.now()
     compra.recebida_por = usuario
     compra.save()
+
+    gerar_financeiro_compra(
+        compra=compra,
+        usuario=usuario,
+    )
 
     return compra

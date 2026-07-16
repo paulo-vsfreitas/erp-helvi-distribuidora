@@ -55,7 +55,7 @@ INSTALLED_APPS = [
     'produtos',
     'estoque',
     'vendas',
-    'financeiro',
+    'financeiro.apps.FinanceiroConfig',
     'relatorios',
     'configuracoes',
     'compras',

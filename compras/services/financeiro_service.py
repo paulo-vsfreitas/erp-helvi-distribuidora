@@ -1,17 +1,17 @@
-def gerar_financeiro_compra(compra):
+from financeiro.services.conta_pagar_service import (
+    criar_conta_pagar_compra,
+)
+
+
+def gerar_financeiro_compra(compra, usuario):
     """
-    Integração futura com o módulo Financeiro.
+    Ponto público de integração entre Compras e Financeiro.
 
-    Responsabilidades previstas:
-
-    - gerar Conta a Pagar;
-    - vincular à Compra;
-    - controlar vencimentos;
-    - controlar pagamentos;
-    - permitir estornos;
-    - alimentar o fluxo de caixa.
-
-    Enquanto o módulo Financeiro não existir,
-    este service permanece como ponto de integração.
+    O módulo Compras solicita a geração financeira,
+    mas todas as regras permanecem no módulo Financeiro.
     """
-    pass
+
+    return criar_conta_pagar_compra(
+        compra=compra,
+        usuario=usuario,
+    )

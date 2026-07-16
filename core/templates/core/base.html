@@ -118,7 +118,7 @@
             {% endif %}
 
             {% if permissoes.financeiro %}
-                <a href="#">
+                <a href="{% url 'financeiro:dashboard' %}">
                     💰 Financeiro
                 </a>
             {% endif %}

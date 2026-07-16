@@ -1,0 +1,306 @@
+{% extends "core/base.html" %}
+
+{% block title %}Contas Financeiras | ERP Helvi{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+    {% url "financeiro:nova_conta_financeira" as nova_conta_url %}
+
+    {% include "components/layout/page_header.html" with titulo="Contas financeiras" subtitulo="Gerencie caixas, contas bancárias, carteiras digitais e demais saldos da empresa." botao_url=nova_conta_url botao_texto="Nova conta" botao_icon="bi bi-plus-circle" %}
+    {% include "components/cards/dashboard_cards.html" with cards=cards %}
+
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+
+            <form method="get" class="row g-3 align-items-end">
+
+                <div class="col-12 col-lg-5">
+                    <label for="busca" class="form-label">
+                        Buscar
+                    </label>
+
+                    <input
+                        type="text"
+                        name="busca"
+                        id="busca"
+                        class="form-control"
+                        value="{{ busca }}"
+                        placeholder="Nome, instituição, conta ou identificador"
+                    >
+                </div>
+
+                <div class="col-12 col-md-4 col-lg-3">
+                    <label for="tipo" class="form-label">
+                        Tipo
+                    </label>
+
+                    <select
+                        name="tipo"
+                        id="tipo"
+                        class="form-select"
+                    >
+                        <option value="">Todos os tipos</option>
+
+                        {% for valor, rotulo in tipos %}
+                            <option
+                                value="{{ valor }}"
+                                {% if tipo_selecionado == valor %}selected{% endif %}
+                            >
+                                {{ rotulo }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-4 col-lg-2">
+                    <label for="status" class="form-label">
+                        Status
+                    </label>
+
+                    <select
+                        name="status"
+                        id="status"
+                        class="form-select"
+                    >
+                        <option
+                            value="ativas"
+                            {% if status_selecionado == "ativas" %}selected{% endif %}
+                        >
+                            Ativas
+                        </option>
+
+                        <option
+                            value="inativas"
+                            {% if status_selecionado == "inativas" %}selected{% endif %}
+                        >
+                            Inativas
+                        </option>
+
+                        <option
+                            value="todas"
+                            {% if status_selecionado == "todas" %}selected{% endif %}
+                        >
+                            Todas
+                        </option>
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-4 col-lg-2">
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search me-1"></i>
+                            Filtrar
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+
+            {% if contas %}
+                <div class="table-responsive">
+
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Conta financeira</th>
+                                <th>Instituição</th>
+                                <th class="text-end">Saldo inicial</th>
+                                <th class="text-end">Saldo atual</th>
+                                <th>Situação</th>
+                                <th class="text-end">Ações</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for conta in contas %}
+                                <tr {% if not conta.ativo %}class="table-light text-muted"{% endif %}>
+
+                                    <td>
+                                        <div class="d-flex align-items-start gap-2">
+
+                                            <div class="pt-1">
+                                                {% if conta.conta_padrao %}
+                                                    <i
+                                                        class="bi bi-star-fill text-warning"
+                                                        title="Conta padrão"
+                                                    ></i>
+                                                {% else %}
+                                                    <i class="bi bi-wallet2 text-muted"></i>
+                                                {% endif %}
+                                            </div>
+
+                                            <div>
+                                                <strong class="d-block">
+                                                    {{ conta.nome }}
+                                                </strong>
+
+                                                <span class="text-muted small">
+                                                    {{ conta.get_tipo_display }}
+                                                </span>
+
+                                                {% if conta.agencia or conta.numero_conta %}
+                                                    <div class="text-muted small mt-1">
+                                                        {% if conta.agencia %}
+                                                            Ag. {{ conta.agencia }}
+                                                        {% endif %}
+
+                                                        {% if conta.agencia and conta.numero_conta %}
+                                                            ·
+                                                        {% endif %}
+
+                                                        {% if conta.numero_conta %}
+                                                            Conta {{ conta.numero_conta }}
+                                                        {% endif %}
+                                                    </div>
+                                                {% endif %}
+
+                                                {% if conta.identificador %}
+                                                    <div class="text-muted small">
+                                                        {{ conta.identificador }}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        {% if conta.instituicao %}
+                                            {{ conta.instituicao }}
+                                        {% else %}
+                                            <span class="text-muted">
+                                                Não informada
+                                            </span>
+                                        {% endif %}
+                                    </td>
+
+                                    <td class="text-end">
+                                        R$ {{ conta.saldo_inicial|floatformat:2 }}
+                                    </td>
+
+                                    <td class="text-end">
+                                        <strong>
+                                            R$ {{ conta.saldo_atual|floatformat:2 }}
+                                        </strong>
+                                    </td>
+
+                                    <td>
+                                        <div class="d-flex flex-column align-items-start gap-1">
+
+                                            {% if conta.conta_padrao %}
+                                                <span class="badge text-bg-warning">
+                                                    <i class="bi bi-star-fill me-1"></i>
+                                                    Conta padrão
+                                                </span>
+                                            {% endif %}
+
+                                            {% if conta.ativo %}
+                                                <span class="badge text-bg-success">
+                                                    Ativa
+                                                </span>
+                                            {% else %}
+                                                <span class="badge text-bg-secondary">
+                                                    Inativa
+                                                </span>
+                                            {% endif %}
+
+                                        </div>
+                                    </td>
+
+                                    <td class="text-end text-nowrap">
+
+                                        <a
+                                            href="{% url 'financeiro:ficha_conta_financeira' conta.pk %}"
+                                            class="btn btn-sm btn-outline-primary"
+                                            title="Visualizar e editar"
+                                        >
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+
+                                        <a
+                                            href="{% url 'financeiro:editar_conta_financeira' conta.pk %}"
+                                            class="btn btn-sm btn-outline-secondary"
+                                            title="Editar"
+                                        >
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+
+                                        {% if conta.ativo %}
+                                            <form
+                                                method="post"
+                                                action="{% url 'financeiro:inativar_conta_financeira' conta.pk %}"
+                                                class="d-inline"
+                                                onsubmit="return confirm('Deseja realmente inativar esta conta financeira?');"
+                                            >
+                                                {% csrf_token %}
+
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-sm btn-outline-danger"
+                                                    title="Inativar"
+                                                >
+                                                    <i class="bi bi-slash-circle"></i>
+                                                </button>
+                                            </form>
+                                        {% else %}
+                                            <form
+                                                method="post"
+                                                action="{% url 'financeiro:reativar_conta_financeira' conta.pk %}"
+                                                class="d-inline"
+                                                onsubmit="return confirm('Deseja reativar esta conta financeira?');"
+                                            >
+                                                {% csrf_token %}
+
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-sm btn-outline-success"
+                                                    title="Reativar"
+                                                >
+                                                    <i class="bi bi-arrow-clockwise"></i>
+                                                </button>
+                                            </form>
+                                        {% endif %}
+
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                </div>
+
+            {% else %}
+                <div class="text-center py-5 px-4">
+                    <i class="bi bi-bank fs-2 text-muted"></i>
+
+                    <h5 class="mt-3 mb-2">
+                        Nenhuma conta financeira encontrada
+                    </h5>
+
+                    <p class="text-muted mb-4">
+                        Cadastre uma conta ou altere os filtros utilizados.
+                    </p>
+
+                    <a
+                        href="{% url 'financeiro:nova_conta_financeira' %}"
+                        class="btn btn-primary"
+                    >
+                        <i class="bi bi-plus-circle me-1"></i>
+                        Nova conta financeira
+                    </a>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}
