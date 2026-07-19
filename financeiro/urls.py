@@ -1,5 +1,6 @@
 from django.urls import path
 
+from financeiro.views.baixas import registrar_baixa_view
 from financeiro.views.categorias import (
     editar_categoria,
     inativar_categoria,
@@ -14,10 +15,9 @@ from financeiro.views.contas_financeiras import (
     lista_contas_financeiras,
     nova_conta_financeira,
     reativar_conta_financeira,
-    ficha_conta_financeira,
 )
+from financeiro.views.contas_pagar import ficha_conta_pagar, lista_contas_pagar
 from financeiro.views.dashboard import dashboard_financeiro
-from financeiro.views.contas_pagar import ficha_conta_pagar
 
 
 app_name = "financeiro"
@@ -82,18 +82,31 @@ urlpatterns = [
         "contas/<int:pk>/reativar/",
         reativar_conta_financeira,
         name="reativar_conta_financeira",
-    ),
+    ),  
+
     path(
-    "contas/<int:pk>/",
-    ficha_conta_financeira,
-    name="ficha_conta_financeira",
-
+    "contas-pagar/",
+    lista_contas_pagar,
+    name="lista_contas_pagar",
+    ),
+    
+    path(
+        "contas/<int:pk>/",
+        ficha_conta_financeira,
+        name="ficha_conta_financeira",
     ),
 
-        # Contas a pagar
+    # Contas a pagar
     path(
         "contas-pagar/<int:pk>/",
         ficha_conta_pagar,
         name="ficha_conta_pagar",
+    ),
+
+    # Baixas financeiras
+    path(
+        "parcelas/<int:parcela_id>/registrar-baixa/",
+        registrar_baixa_view,
+        name="registrar_baixa",
     ),
 ]

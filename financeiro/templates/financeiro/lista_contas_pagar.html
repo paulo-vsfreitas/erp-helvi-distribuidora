@@ -1,0 +1,129 @@
+{% extends "core/base.html" %}
+
+{% block title %}Contas a Pagar{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <div class="d-flex justify-content-between align-items-start mb-4">
+
+                <div>
+
+                    <h1 class="mb-1">
+                        Contas a Pagar
+                    </h1>
+
+                    <p class="text-muted mb-0">
+                        Relação de todas as contas cadastradas.
+                    </p>
+
+                </div>
+
+                <a
+                    href="{% url 'financeiro:nova_conta_pagar' %}"
+                    class="btn btn-primary"
+                >
+                    <i class="bi bi-plus-lg me-1"></i>
+                    Nova Conta
+                </a>
+
+            </div>
+        </div>
+
+    </div>
+
+    <div class="card shadow-sm border-0">
+
+        <div class="table-responsive">
+
+            <table class="table align-middle mb-0">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Número</th>
+                        <th>Fornecedor</th>
+                        <th>Descrição</th>
+                        <th>Status</th>
+                        <th>Total</th>
+                        <th></th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                {% for conta in contas %}
+
+                    <tr>
+
+                        <td>#{{ conta.numero }}</td>
+
+                        <td>
+
+                            {{ conta.fornecedor }}
+
+                        </td>
+
+                        <td>
+
+                            {{ conta.descricao }}
+
+                        </td>
+
+                        <td>
+
+                            {{ conta.get_status_display }}
+
+                        </td>
+
+                        <td>
+
+                            R$ {{ conta.valor_total|floatformat:2 }}
+
+                        </td>
+
+                        <td class="text-end">
+
+                            <a
+                                href="{% url 'financeiro:ficha_conta_pagar' conta.pk %}"
+                                class="btn btn-sm btn-primary"
+                            >
+                                Abrir
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+
+                        <td colspan="6" class="text-center py-5">
+
+                            Nenhuma conta cadastrada.
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

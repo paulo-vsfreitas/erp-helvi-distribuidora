@@ -175,15 +175,20 @@
 
             <div class="d-flex justify-content-between align-items-start gap-3 mb-4">
                 <div>
-                    {% include "components/cards/section_header.html" with titulo="Últimas movimentações" subtitulo="Entradas, saídas, ajustes e estornos desta conta." acao_texto="Extrato completo em breve" %}
+                    {% include "components/cards/section_header.html" with titulo="Últimas movimentações" subtitulo="Entradas, saídas, ajustes e estornos desta conta." %}
                     <p class="text-muted small mb-0">
                         Entradas, saídas, ajustes e estornos desta conta.
                     </p>
                 </div>
 
-                <span class="text-muted small text-nowrap">
-                    Extrato completo em breve
-                </span>
+                <button
+                    class="btn btn-secondary btn-sm"
+                    disabled
+                    title="Disponível em uma próxima sprint"
+                >
+                    <i class="bi bi-clock-history me-1"></i>
+                    Extrato completo
+                </button>
             </div>
 
             {% if ultimas_movimentacoes %}
@@ -194,6 +199,7 @@
                             <tr>
                                 <th>Data</th>
                                 <th>Descrição</th>
+                                <th>Origem</th>
                                 <th>Categoria</th>
                                 <th>Tipo</th>
                                 <th class="text-end">Valor</th>
@@ -208,16 +214,86 @@
                                     </td>
 
                                     <td>
-                                        <strong>
-                                            {{ movimentacao.descricao }}
-                                        </strong>
 
-                                        {% if movimentacao.origem %}
-                                            <div class="text-muted small">
-                                                {{ movimentacao.origem }}
-                                            </div>
-                                        {% endif %}
+                                        <div class="d-flex align-items-center gap-2">
+
+                                            {% if movimentacao.tipo == "entrada" %}
+
+                                                <i class="bi bi-arrow-down-circle-fill text-success"></i>
+
+                                            {% elif movimentacao.tipo == "saida" %}
+
+                                                <i class="bi bi-arrow-up-circle-fill text-danger"></i>
+
+                                            {% elif movimentacao.tipo == "ajuste" %}
+
+                                                <i class="bi bi-arrow-repeat text-primary"></i>
+
+                                            {% elif movimentacao.tipo == "estorno_entrada" %}
+
+                                                <i class="bi bi-arrow-counterclockwise text-warning"></i>
+
+                                            {% elif movimentacao.tipo == "estorno_saida" %}
+
+                                                <i class="bi bi-arrow-clockwise text-warning"></i>
+
+                                            {% else %}
+
+                                                <i class="bi bi-circle-fill text-secondary"></i>
+
+                                            {% endif %}
+
+                                            <strong>
+                                                {{ movimentacao.descricao }}
+                                            </strong>
+
+                                        </div>
+
                                     </td>
+
+                                    <td>
+
+                                        <td>
+
+                                            {% if movimentacao.origem == "conta_pagar" %}
+
+                                                <span class="badge text-bg-secondary">
+                                                    Conta a Pagar
+                                                </span>
+
+                                            {% elif movimentacao.origem == "compra" %}
+
+                                                <span class="badge text-bg-primary">
+                                                    Compra
+                                                </span>
+
+                                            {% elif movimentacao.origem == "venda" %}
+
+                                                <span class="badge text-bg-success">
+                                                    Venda
+                                                </span>
+
+                                            {% elif movimentacao.origem == "ajuste" %}
+
+                                                <span class="badge text-bg-info">
+                                                    Ajuste
+                                                </span>
+
+                                            {% elif movimentacao.origem == "estorno" %}
+
+                                                <span class="badge text-bg-warning">
+                                                    Estorno
+                                                </span>
+
+                                            {% else %}
+
+                                                <span class="badge text-bg-dark">
+                                                    {{ movimentacao.origem|title }}
+                                                </span>
+
+                                            {% endif %}
+
+                                        </td>
 
                                     <td>
                                         {% if movimentacao.categoria %}
@@ -230,11 +306,63 @@
                                     </td>
 
                                     <td>
-                                        {{ movimentacao.get_tipo_display }}
+
+                                        {% if movimentacao.tipo == "entrada" %}
+
+                                            <span class="badge text-bg-success">
+                                                Entrada
+                                            </span>
+
+                                        {% elif movimentacao.tipo == "saida" %}
+
+                                            <span class="badge text-bg-danger">
+                                                Saída
+                                            </span>
+
+                                        {% elif movimentacao.tipo == "ajuste" %}
+
+                                            <span class="badge text-bg-primary">
+                                                Ajuste
+                                            </span>
+
+                                        {% elif movimentacao.tipo == "estorno_entrada" or movimentacao.tipo == "estorno_saida" %}
+
+                                            <span class="badge text-bg-warning">
+                                                Estorno
+                                            </span>
+
+                                        {% else %}
+
+                                            <span class="badge text-bg-secondary">
+                                                {{ movimentacao.get_tipo_display }}
+                                            </span>
+
+                                        {% endif %}
+
                                     </td>
 
                                     <td class="text-end fw-semibold">
-                                        R$ {{ movimentacao.valor|floatformat:2 }}
+
+                                        {% if movimentacao.tipo == "entrada" or movimentacao.tipo == "estorno_saida" %}
+
+                                            <span class="text-success">
+                                                + R$ {{ movimentacao.valor|floatformat:2 }}
+                                            </span>
+
+                                        {% elif movimentacao.tipo == "saida" or movimentacao.tipo == "estorno_entrada" %}
+
+                                            <span class="text-danger">
+                                                − R$ {{ movimentacao.valor|floatformat:2 }}
+                                            </span>
+
+                                        {% else %}
+
+                                            <span class="text-dark">
+                                                R$ {{ movimentacao.valor|floatformat:2 }}
+                                            </span>
+
+                                        {% endif %}
+
                                     </td>
                                 </tr>
                             {% endfor %}

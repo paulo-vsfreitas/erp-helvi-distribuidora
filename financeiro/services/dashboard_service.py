@@ -53,6 +53,16 @@ def obter_dados_dashboard_financeiro():
         Decimal("0.00"),
     )
 
+    total_desembolsado = (
+    MovimentacaoFinanceira.objects
+    .filter(
+        tipo=MovimentacaoFinanceira.TIPO_SAIDA,
+        estornada=False,
+    )
+    .aggregate(total=Sum("valor"))["total"]
+    or Decimal("0.00")
+)
+
     quantidade_contas_vencidas = (
         ContaPagar.objects
         .filter(
@@ -176,9 +186,9 @@ def obter_dados_dashboard_financeiro():
             "cor": "warning",
         },
         {
-            "titulo": "Total pago",
-            "valor": formatar_moeda(valor_pago),
-            "icone": "bi bi-check-circle",
+            "titulo": "Total desembolsado",
+            "valor": formatar_moeda(total_desembolsado),
+            "icone": "bi bi-cash-coin",
             "cor": "success",
         },
         {
@@ -199,7 +209,7 @@ def obter_dados_dashboard_financeiro():
         "cards": cards,
         "hoje": hoje,
         "total_a_pagar": total_a_pagar,
-        "total_pago": valor_pago,
+        "total_desembolsado": total_desembolsado,
         "quantidade_contas_vencidas": quantidade_contas_vencidas,
         "quantidade_contas_financeiras": quantidade_contas_financeiras,
         "quantidade_contas_pendentes": quantidade_contas_pendentes,

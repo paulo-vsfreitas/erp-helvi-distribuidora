@@ -177,20 +177,19 @@
                 <div class="card-body px-4">
                     <div class="d-grid gap-3">
 
-                        <button
-                            type="button"
-                            class="btn btn-primary text-start d-flex justify-content-between align-items-center"
-                            disabled
-                        >
-                            <span>
-                                <i class="bi bi-plus-circle me-2"></i>
-                                Nova conta a pagar
-                            </span>
+                            <a
+                                href="{% url 'financeiro:lista_contas_pagar' %}"
+                                class="btn btn-primary text-start d-flex justify-content-between align-items-center"
+                            >
 
-                            <span class="badge bg-light text-dark">
-                                Em breve
-                            </span>
-                        </button>
+                                <span>
+                                    <i class="bi bi-receipt me-2"></i>
+                                    Contas a pagar
+                                </span>
+
+                                <i class="bi bi-chevron-right"></i>
+
+                            </a>
 
                         <a
                             href="{% url 'financeiro:lista_categorias' %}"

@@ -284,14 +284,14 @@ def obter_dados_ficha_conta_pagar(conta_id):
     if conta.valor_total > 0:
         percentual_pago = min(
             (conta.valor_pago / conta.valor_total) * Decimal("100"),
-                Decimal("100.00"),
-                )
+            Decimal("100.00"),
+        )
     else:
         percentual_pago = Decimal("0.00")
 
-        hoje = timezone.localdate()
-    
-        parcelas_exibicao = []
+    hoje = timezone.localdate()
+
+    parcelas_exibicao = []
 
     for parcela in conta.parcelas.all():
         if parcela.status == ParcelaPagar.STATUS_PAGA:
@@ -400,9 +400,9 @@ def obter_dados_ficha_conta_pagar(conta_id):
             "cor": "primary",
         },
         {
-            "titulo": "Valor pago",
-            "valor": formatar_moeda(conta.valor_pago),
-            "icone": "bi bi-check-circle",
+            "titulo": "Total desembolsado",
+            "valor": formatar_moeda(valor_movimentado),
+            "icone": "bi bi-cash-coin",
             "cor": "success",
         },
         {
@@ -425,4 +425,27 @@ def obter_dados_ficha_conta_pagar(conta_id):
         "valor_movimentado": valor_movimentado,
         "percentual_pago": percentual_pago,
         
+    }
+
+def listar_contas_pagar(request):
+    contas = (
+        ContaPagar.objects
+        .select_related(
+            "fornecedor",
+            "categoria",
+        )
+        .order_by(
+            "-criado_em",
+        )
+    )
+
+    busca = request.GET.get("q")
+
+    if busca:
+        contas = contas.filter(
+            descricao__icontains=busca,
+        )
+
+    return {
+        "contas": contas,
     }

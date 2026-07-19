@@ -1,0 +1,197 @@
+<div
+    class="modal fade"
+    id="modalBaixa{{ baixa.pk }}"
+    tabindex="-1"
+    aria-labelledby="modalBaixaTitulo{{ baixa.pk }}"
+    aria-hidden="true"
+>
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+
+        <div class="modal-content border-0 shadow">
+
+            <div class="modal-header">
+
+                <div>
+                    <h5
+                        class="modal-title"
+                        id="modalBaixaTitulo{{ baixa.pk }}"
+                    >
+                        Detalhes da Baixa Financeira
+                    </h5>
+
+                    <small class="text-muted">
+                        Conta #{{ conta.numero }}
+                        • Parcela {{ baixa.parcela.numero }}
+                    </small>
+                </div>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                ></button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <div class="row g-4">
+
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">
+                            Conta financeira
+                        </small>
+
+                        <strong>
+                            {{ baixa.conta_financeira }}
+                        </strong>
+                    </div>
+
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">
+                            Data
+                        </small>
+
+                        <strong>
+                            {{ baixa.data_pagamento|date:"d/m/Y" }}
+                        </strong>
+                    </div>
+
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">
+                            Forma de pagamento
+                        </small>
+
+                        <strong>
+                            {% if baixa.forma_pagamento == "pix" %}
+                                PIX
+                            {% else %}
+                                {{ baixa.get_forma_pagamento_display }}
+                            {% endif %}
+                        </strong>
+                    </div>
+
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">
+                            Valor principal
+                        </small>
+
+                        <strong>
+                            R$ {{ baixa.valor|floatformat:2 }}
+                        </strong>
+                    </div>
+
+                    <div class="col-md-4">
+                        <small class="text-muted d-block">
+                            Juros
+                        </small>
+
+                        <strong class="text-danger">
+                            R$ {{ baixa.juros|floatformat:2 }}
+                        </strong>
+                    </div>
+
+                    <div class="col-md-4">
+                        <small class="text-muted d-block">
+                            Multa
+                        </small>
+
+                        <strong class="text-warning">
+                            R$ {{ baixa.multa|floatformat:2 }}
+                        </strong>
+                    </div>
+
+                    <div class="col-md-4">
+                        <small class="text-muted d-block">
+                            Desconto
+                        </small>
+
+                        <strong class="text-success">
+                            R$ {{ baixa.desconto|floatformat:2 }}
+                        </strong>
+                    </div>
+
+                </div>
+
+                <hr>
+
+                <div class="card bg-success-subtle border-success mt-4">
+
+                    <div class="card-body text-center">
+
+                        <div class="text-success fw-semibold text-uppercase small mb-2">
+                            Total desembolsado
+                        </div>
+
+                        <h2 class="text-success fw-bold mb-1">
+                            R$ {{ baixa.valor_movimentado|floatformat:2 }}
+                        </h2>
+
+                        <small class="text-muted">
+                            Valor principal + juros + multa − desconto
+                        </small>
+
+                    </div>
+
+                </div>
+
+                {% if baixa.observacao %}
+
+                    <hr>
+
+                    <small class="text-muted d-block mb-2">
+                        Observação
+                    </small>
+
+                    <div class="border rounded p-3 bg-light">
+                        {{ baixa.observacao|linebreaksbr }}
+                    </div>
+
+                {% endif %}
+
+            </div>
+            <hr>
+
+            <div class="row g-4">
+
+                <div class="col-md-6">
+
+                    <small class="text-muted d-block">
+                        Baixa registrada por
+                    </small>
+
+                    <strong>
+                        {{ baixa.registrado_por }}
+                    </strong>
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <small class="text-muted d-block">
+                        Registrada em
+                    </small>
+
+                    <strong>
+                        {{ baixa.registrado_em|date:"d/m/Y \\à\\s H:i" }}
+                    </strong>
+
+                </div>
+
+            </div>
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal"
+                >
+                    Fechar
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
