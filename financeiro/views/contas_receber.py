@@ -3,60 +3,60 @@ from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.shortcuts import redirect, render
 
-from financeiro.forms import ContaPagarForm
-from financeiro.models import ContaPagar
-from financeiro.services.conta_pagar_service import (
-    criar_conta_pagar_manual,
-    listar_contas_pagar,
-    obter_dados_ficha_conta_pagar,
+from financeiro.forms import ContaReceberForm
+from financeiro.models import ContaReceber
+from financeiro.services.conta_receber_service import (
+    criar_conta_receber_manual,
+    listar_contas_receber,
+    obter_dados_ficha_conta_receber,
 )
 from usuarios.decorators import perfil_requerido
 
 
 @login_required
 @perfil_requerido("ADM", "GER", "FIN")
-def lista_contas_pagar(request):
-    contexto = listar_contas_pagar(request)
+def lista_contas_receber(request):
+    contexto = listar_contas_receber(request)
 
     return render(
         request,
-        "financeiro/lista_contas_pagar.html",
+        "financeiro/lista_contas_receber.html",
         contexto,
     )
 
 
 @login_required
 @perfil_requerido("ADM", "GER", "FIN")
-def nova_conta_pagar(request):
+def nova_conta_receber(request):
     if request.method == "POST":
-        form = ContaPagarForm(request.POST)
+        form = ContaReceberForm(request.POST)
 
         if form.is_valid():
-            conta = criar_conta_pagar_manual(
+            conta = criar_conta_receber_manual(
                 dados=form.cleaned_data.copy(),
                 usuario=request.user,
             )
 
             messages.success(
                 request,
-                "Conta a Pagar cadastrada com sucesso.",
+                "Conta a Receber cadastrada com sucesso.",
             )
 
             return redirect(
-                "financeiro:ficha_conta_pagar",
+                "financeiro:ficha_conta_receber",
                 pk=conta.pk,
             )
     else:
-        form = ContaPagarForm()
+        form = ContaReceberForm()
 
     return render(
         request,
-        "financeiro/form_conta_pagar.html",
+        "financeiro/form_conta_receber.html",
         {
             "form": form,
-            "titulo": "Nova Conta a Pagar",
+            "titulo": "Nova Conta a Receber",
             "subtitulo": (
-                "Cadastre uma despesa e defina suas condições "
+                "Cadastre uma receita e defina suas condições "
                 "de vencimento."
             ),
         },
@@ -65,16 +65,16 @@ def nova_conta_pagar(request):
 
 @login_required
 @perfil_requerido("ADM", "GER", "FIN")
-def ficha_conta_pagar(request, pk):
+def ficha_conta_receber(request, pk):
     try:
-        contexto = obter_dados_ficha_conta_pagar(pk)
-    except ContaPagar.DoesNotExist as erro:
+        contexto = obter_dados_ficha_conta_receber(pk)
+    except ContaReceber.DoesNotExist as erro:
         raise Http404(
-            "Conta a Pagar não encontrada."
+            "Conta a Receber não encontrada."
         ) from erro
 
     return render(
         request,
-        "financeiro/ficha_conta_pagar.html",
+        "financeiro/ficha_conta_receber.html",
         contexto,
     )

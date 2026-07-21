@@ -1,3 +1,5 @@
+import calendar
+from datetime import date
 from decimal import Decimal
 
 from django.db import transaction
@@ -12,6 +14,7 @@ from financeiro.models import (
     BaixaPagar,
     MovimentacaoFinanceira,
 )
+
 
 
 
@@ -449,3 +452,105 @@ def listar_contas_pagar(request):
     return {
         "contas": contas,
     }
+
+def adicionar_meses(data_base, quantidade_meses):
+    """
+    Avança uma data preservando o dia sempre que possível.
+
+    Exemplo:
+    31/01 + 1 mês = último dia de fevereiro.
+    """
+    mes_total = data_base.month - 1 + quantidade_meses
+    ano = data_base.year + mes_total // 12
+    mes = mes_total % 12 + 1
+
+    ultimo_dia_mes = calendar.monthrange(ano, mes)[1]
+    dia = min(data_base.day, ultimo_dia_mes)
+
+    return date(ano, mes, dia)
+
+
+@transaction.atomic
+def criar_conta_pagar_manual(
+    *,
+    dados,
+    usuario,
+):
+    """
+    Cria uma Conta a Pagar manual e gera suas parcelas.
+
+    O valor é dividido igualmente entre as parcelas.
+    Eventual diferença de centavos é aplicada na última parcela.
+    """
+    quantidade_parcelas = dados.pop("quantidade_parcelas")
+    primeiro_vencimento = dados.pop("primeiro_vencimento")
+
+    valor_total = dados["valor_total"]
+
+    conta = ContaPagar.objects.create(
+        **dados,
+        criado_por=usuario,
+    )
+
+    valor_base = (
+        valor_total / quantidade_parcelas
+    ).quantize(Decimal("0.01"))
+
+    valor_distribuido = Decimal("0.00")
+    parcelas_criadas = []
+
+    for numero in range(1, quantidade_parcelas + 1):
+        if numero == quantidade_parcelas:
+            valor_parcela = valor_total - valor_distribuido
+        else:
+            valor_parcela = valor_base
+            valor_distribuido += valor_parcela
+
+        vencimento = adicionar_meses(
+            primeiro_vencimento,
+            numero - 1,
+        )
+
+        parcela = ParcelaPagar.objects.create(
+            conta_pagar=conta,
+            numero=numero,
+            data_vencimento=vencimento,
+            valor_original=valor_parcela,
+            observacoes=(
+                "Parcela gerada no cadastro manual "
+                "da Conta a Pagar."
+            ),
+        )
+
+        parcelas_criadas.append(parcela)
+
+    HistoricoContaPagar.objects.create(
+        conta_pagar=conta,
+        tipo_evento=HistoricoContaPagar.EVENTO_CRIACAO,
+        descricao="Conta a Pagar criada manualmente.",
+        dados={
+            "valor_total": str(conta.valor_total),
+            "quantidade_parcelas": quantidade_parcelas,
+            "primeiro_vencimento": primeiro_vencimento.isoformat(),
+        },
+        usuario=usuario,
+    )
+
+    for parcela in parcelas_criadas:
+        HistoricoContaPagar.objects.create(
+            conta_pagar=conta,
+            tipo_evento=HistoricoContaPagar.EVENTO_PARCELA_CRIADA,
+            descricao=(
+                f"Parcela {parcela.numero} criada com vencimento "
+                f"em {parcela.data_vencimento.strftime('%d/%m/%Y')}."
+            ),
+            dados={
+                "parcela_id": parcela.pk,
+                "numero": parcela.numero,
+                "vencimento": parcela.data_vencimento.isoformat(),
+                "valor": str(parcela.valor_original),
+            },
+            usuario=usuario,
+        )
+
+    return conta

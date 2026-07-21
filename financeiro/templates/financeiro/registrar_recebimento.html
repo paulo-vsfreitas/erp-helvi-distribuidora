@@ -1,0 +1,204 @@
+{% extends "core/base.html" %}
+
+{% block title %}Registrar Recebimento | ERP Helvi{% endblock %}
+
+{% block content %}
+
+<div class="ficha-header">
+    <div class="ficha-header-top">
+        <div class="ficha-title">
+            <h1>{{ ficha_titulo }}</h1>
+            <p>{{ ficha_subtitulo }}</p>
+        </div>
+
+        <div class="ficha-actions">
+            <a
+                href="{% url 'financeiro:ficha_conta_receber' conta.pk %}"
+                class="btn btn-secondary">
+                Cancelar
+            </a>
+
+            <button
+                type="submit"
+                form="form-recebimento"
+                class="btn btn-primary">
+                Registrar Recebimento
+            </button>
+        </div>
+    </div>
+</div>
+
+
+<div class="cards-grid cards-grid-4">
+
+    <div class="card indicador-card">
+        <span class="label">Conta</span>
+        <strong>#{{ conta.numero }}</strong>
+    </div>
+
+    <div class="card indicador-card">
+        <span class="label">Parcela</span>
+        <strong>{{ parcela.numero }}</strong>
+    </div>
+
+    <div class="card indicador-card">
+        <span class="label">Vencimento</span>
+        <strong>{{ parcela.data_vencimento|date:"d/m/Y" }}</strong>
+    </div>
+
+    <div class="card indicador-card">
+        <span class="label">Saldo</span>
+        <strong>
+            R$ {{ parcela.saldo|floatformat:2 }}
+        </strong>
+    </div>
+
+</div>
+
+
+<form
+    id="form-recebimento"
+    method="post">
+
+    {% csrf_token %}
+
+    <div class="table-card">
+
+        <div class="table-card-header">
+            Dados do Recebimento
+        </div>
+
+        <div class="table-card-body">
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    {{ form.conta_financeira.label_tag }}
+                    {{ form.conta_financeira }}
+                    {{ form.conta_financeira.errors }}
+                </div>
+
+                <div class="form-group">
+                    {{ form.forma_recebimento.label_tag }}
+                    {{ form.forma_recebimento }}
+                    {{ form.forma_recebimento.errors }}
+                </div>
+
+                <div class="form-group">
+                    {{ form.data_recebimento.label_tag }}
+                    {{ form.data_recebimento }}
+                    {{ form.data_recebimento.errors }}
+                </div>
+
+                <div class="form-group">
+                    {{ form.valor.label_tag }}
+                    {{ form.valor }}
+                    {{ form.valor.errors }}
+                </div>
+
+                <div class="form-group">
+                    {{ form.juros.label_tag }}
+                    {{ form.juros }}
+                    {{ form.juros.errors }}
+                </div>
+
+                <div class="form-group">
+                    {{ form.multa.label_tag }}
+                    {{ form.multa }}
+                    {{ form.multa.errors }}
+                </div>
+
+                <div class="form-group">
+                    {{ form.desconto.label_tag }}
+                    {{ form.desconto }}
+                    {{ form.desconto.errors }}
+                </div>
+
+            </div>
+                            <div class="form-group form-group-full">
+                    {{ form.observacao.label_tag }}
+                    {{ form.observacao }}
+                    {{ form.observacao.errors }}
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</form>
+
+
+<div class="table-card mt-4">
+
+    <div class="table-card-header">
+        Resumo da Parcela
+    </div>
+
+    <div class="table-card-body">
+
+        <table class="table">
+
+            <tbody>
+
+                <tr>
+                    <th style="width:220px;">
+                        Cliente
+                    </th>
+                    <td>
+                        {% if conta.cliente %}
+                            {{ conta.cliente }}
+                        {% else %}
+                            {{ conta.nome_devedor }}
+                        {% endif %}
+                    </td>
+                </tr>
+
+                <tr>
+                    <th>Número da Conta</th>
+                    <td>#{{ conta.numero }}</td>
+                </tr>
+
+                <tr>
+                    <th>Parcela</th>
+                    <td>{{ parcela.numero }}</td>
+                </tr>
+
+                <tr>
+                    <th>Vencimento</th>
+                    <td>{{ parcela.data_vencimento|date:"d/m/Y" }}</td>
+                </tr>
+
+                <tr>
+                    <th>Valor da Parcela</th>
+                    <td>
+                        R$ {{ parcela.valor|floatformat:2 }}
+                    </td>
+                </tr>
+
+                <tr>
+                    <th>Valor Recebido</th>
+                    <td>
+                        R$ {{ parcela.valor_recebido|floatformat:2 }}
+                    </td>
+                </tr>
+
+                <tr>
+                    <th>Saldo Atual</th>
+                    <td>
+                        <strong class="text-success">
+                            R$ {{ parcela.saldo|floatformat:2 }}
+                        </strong>
+                    </td>
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

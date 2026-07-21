@@ -1,0 +1,182 @@
+{% extends "core/base.html" %}
+
+{% block title %}Contas a Receber{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-start gap-3 mb-4 flex-wrap">
+
+        <div>
+
+            <h1 class="mb-1">
+                Contas a Receber
+            </h1>
+
+            <p class="text-muted mb-0">
+                Relação de todas as contas a receber cadastradas.
+            </p>
+
+        </div>
+
+        <a
+            href="{% url 'financeiro:nova_conta_receber' %}"
+            class="btn btn-primary"
+        >
+            <i class="bi bi-plus-lg me-1"></i>
+            Nova Conta
+        </a>
+
+    </div>
+
+    <div class="card shadow-sm border-0">
+
+        <div class="table-responsive">
+
+            <table class="table align-middle mb-0">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Número</th>
+                        <th>Cliente / Devedor</th>
+                        <th>Descrição</th>
+                        <th>Status</th>
+                        <th class="text-end">Total</th>
+                        <th></th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for conta in contas %}
+
+                        <tr>
+
+                            <td>
+                                <strong>
+                                    #{{ conta.numero }}
+                                </strong>
+                            </td>
+
+                            <td>
+
+                                {% if conta.cliente %}
+
+                                    {{ conta.cliente }}
+
+                                {% elif conta.nome_devedor %}
+
+                                    {{ conta.nome_devedor }}
+
+                                {% else %}
+
+                                    <span class="text-muted">
+                                        Não informado
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+                                {{ conta.descricao }}
+                            </td>
+
+                            <td>
+
+                                {% if conta.status == "recebida" %}
+
+                                    <span class="badge text-bg-success">
+                                        {{ conta.get_status_display }}
+                                    </span>
+
+                                {% elif conta.status == "parcial" %}
+
+                                    <span class="badge text-bg-warning">
+                                        {{ conta.get_status_display }}
+                                    </span>
+
+                                {% elif conta.status == "cancelada" %}
+
+                                    <span class="badge text-bg-danger">
+                                        {{ conta.get_status_display }}
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge text-bg-secondary">
+                                        {{ conta.get_status_display }}
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                            <td class="text-end">
+
+                                <strong>
+                                    R$ {{ conta.valor_total|floatformat:2 }}
+                                </strong>
+
+                            </td>
+
+                            <td class="text-end">
+
+                                <a
+                                    href="{% url 'financeiro:ficha_conta_receber' conta.pk %}"
+                                    class="btn btn-sm btn-primary"
+                                >
+                                    <i class="bi bi-eye me-1"></i>
+                                    Abrir
+                                </a>
+
+                            </td>
+
+                        </tr>
+
+                    {% empty %}
+
+                        <tr>
+
+                            <td colspan="6" class="text-center py-5">
+
+                                <i class="bi bi-receipt fs-2 text-muted"></i>
+
+                                <h5 class="mt-3 mb-2">
+                                    Nenhuma conta a receber cadastrada
+                                </h5>
+
+                                <p class="text-muted mb-3">
+                                    Cadastre a primeira conta para iniciar o controle dos recebimentos.
+                                </p>
+
+                                <a
+                                    href="{% url 'financeiro:nova_conta_receber' %}"
+                                    class="btn btn-primary"
+                                >
+                                    <i class="bi bi-plus-lg me-1"></i>
+                                    Nova Conta
+                                </a>
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

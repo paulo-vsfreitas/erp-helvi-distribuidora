@@ -52,8 +52,13 @@ def _validar_baixa(
             "Não é possível registrar uma baixa em uma parcela cancelada."
         )
 
-    if parcela.status == ParcelaPagar.STATUS_PAGA or parcela.saldo <= 0:
-        raise ValidationError("Esta parcela já está totalmente paga.")
+    if (
+        parcela.status == ParcelaPagar.STATUS_PAGA
+        or parcela.saldo <= 0
+    ):
+        raise ValidationError(
+            "Esta parcela já está totalmente paga."
+        )
 
     if not conta_financeira.ativo:
         raise ValidationError(
@@ -66,13 +71,19 @@ def _validar_baixa(
         )
 
     if juros < 0:
-        raise ValidationError("O valor dos juros não pode ser negativo.")
+        raise ValidationError(
+            "O valor dos juros não pode ser negativo."
+        )
 
     if multa < 0:
-        raise ValidationError("O valor da multa não pode ser negativo.")
+        raise ValidationError(
+            "O valor da multa não pode ser negativo."
+        )
 
     if desconto < 0:
-        raise ValidationError("O desconto não pode ser negativo.")
+        raise ValidationError(
+            "O desconto não pode ser negativo."
+        )
 
     if valor > parcela.saldo:
         raise ValidationError(
@@ -146,7 +157,6 @@ def registrar_baixa(
 
     Todos os passos são executados dentro da mesma transação.
     """
-
     parcela_id = (
         parcela.pk
         if isinstance(parcela, ParcelaPagar)
@@ -237,26 +247,48 @@ def registrar_baixa(
 
     _atualizar_valores_da_conta(conta_pagar)
 
+    if conta_pagar.status == ContaPagar.STATUS_PAGA:
+        descricao = (
+            "Conta totalmente paga. "
+            f"Parcela {parcela.numero} quitada."
+        )
+
+    elif parcela.status == ParcelaPagar.STATUS_PAGA:
+        descricao = (
+            f"Parcela {parcela.numero} quitada."
+        )
+
+    else:
+        descricao = (
+            "Pagamento parcial registrado "
+            f"na parcela {parcela.numero}."
+        )
+
     HistoricoContaPagar.objects.create(
         conta_pagar=conta_pagar,
         tipo_evento=HistoricoContaPagar.EVENTO_BAIXA,
-        descricao=(
-            f"Baixa de R$ {baixa.valor_movimentado:.2f} registrada "
-            f"na parcela {parcela.numero}."
-        ),
+        descricao=descricao,
         dados={
             "baixa_id": baixa.pk,
             "parcela_id": parcela.pk,
+            "parcela": parcela.numero,
             "numero_parcela": parcela.numero,
             "conta_financeira_id": conta_financeira.pk,
             "conta_financeira": conta_financeira.nome,
             "data_pagamento": data_pagamento.isoformat(),
+            "valor": str(valor),
             "valor_principal": str(valor),
             "juros": str(juros),
             "multa": str(multa),
             "desconto": str(desconto),
-            "valor_movimentado": str(baixa.valor_movimentado),
-            "forma_pagamento": forma_pagamento,
+            "valor_movimentado": str(
+                baixa.valor_movimentado
+            ),
+            "saldo_parcela": str(parcela.saldo),
+            "saldo_conta": str(conta_pagar.saldo),
+            "forma_pagamento": (
+                baixa.get_forma_pagamento_display()
+            ),
         },
         usuario=usuario,
     )

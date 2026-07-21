@@ -16,6 +16,14 @@ from .contas_financeiras import (
 
 from .contas_pagar import ficha_conta_pagar
 from .dashboard import dashboard_financeiro
+from .contas_receber import (
+    ficha_conta_receber,
+    lista_contas_receber,
+    nova_conta_receber,
+)
+
+from .recebimentos import registrar_recebimento_view
+from financeiro.views import registrar_recebimento_view
 
 __all__ = [
     "dashboard_financeiro",
@@ -31,5 +39,9 @@ __all__ = [
     "reativar_conta_financeira",
     "ficha_conta_financeira",
     "ficha_conta_pagar",
-    
+    "lista_contas_receber",
+    "nova_conta_receber",
+    "ficha_conta_receber",
+    "registrar_recebimento_view",
 ]
+

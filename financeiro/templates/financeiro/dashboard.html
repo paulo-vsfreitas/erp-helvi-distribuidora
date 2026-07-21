@@ -5,97 +5,345 @@
 {% block content %}
 <div class="container-fluid">
 
-{% include "components/layout/page_header.html" with titulo="Financeiro" subtitulo="Controle de contas, vencimentos, pagamentos e movimentações financeiras." %}
+    {% include "components/layout/page_header.html" with titulo="Financeiro" subtitulo="Visão consolidada das contas, recebimentos, pagamentos e movimentações financeiras." %}
 
     {% include "components/cards/dashboard_cards.html" with cards=cards %}
 
+
+    <!-- =========================================================
+         RESUMO DO PERÍODO
+    ========================================================== -->
     <div class="card shadow-sm border-0 mb-4">
-    <div class="card-body px-4 py-4">
+        <div class="card-body px-4 py-4">
 
-        <div class="d-flex justify-content-between align-items-start mb-4">
-            <div>
-                <h5 class="mb-1">Resumo financeiro</h5>
-                <p class="text-muted small mb-0">
-                    Visão consolidada da situação financeira atual.
-                </p>
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-start gap-3 mb-4">
+
+                <div>
+                    <h5 class="mb-1">
+                        Resumo financeiro do mês
+                    </h5>
+
+                    <p class="text-muted small mb-0">
+                        Entradas e saídas registradas entre
+                        {{ inicio_mes|date:"d/m/Y" }}
+                        e
+                        {{ hoje|date:"d/m/Y" }}.
+                    </p>
+                </div>
+
+                <span class="badge text-bg-light border">
+                    Atualizado em {{ hoje|date:"d/m/Y" }}
+                </span>
+
             </div>
 
-            <span class="badge text-bg-light border">
-                {{ hoje|date:"d/m/Y" }}
-            </span>
-        </div>
+            <div class="row g-4">
 
-        <div class="row g-4">
+                <div class="col-6 col-xl-3">
+                    <div class="border-end h-100 pe-3">
 
-            <div class="col-6 col-lg-3">
-                <div class="border-end h-100 pe-3">
-                    <span class="text-muted small text-uppercase d-block mb-2">
-                        Contas pendentes
-                    </span>
+                        <span class="text-muted small text-uppercase d-block mb-2">
+                            Entradas no mês
+                        </span>
 
-                    <strong class="fs-3">
-                        {{ quantidade_contas_pendentes }}
-                    </strong>
+                        <strong class="fs-4 text-success">
+                            {{ entradas_mes_formatado }}
+                        </strong>
+
+                    </div>
                 </div>
-            </div>
 
-            <div class="col-6 col-lg-3">
-                <div class="border-end h-100 px-lg-3">
-                    <span class="text-muted small text-uppercase d-block mb-2">
-                        Parcelas pendentes
-                    </span>
+                <div class="col-6 col-xl-3">
+                    <div class="border-end h-100 px-xl-3">
 
-                    <strong class="fs-3">
-                        {{ quantidade_parcelas_pendentes }}
-                    </strong>
+                        <span class="text-muted small text-uppercase d-block mb-2">
+                            Saídas no mês
+                        </span>
+
+                        <strong class="fs-4 text-danger">
+                            {{ saidas_mes_formatado }}
+                        </strong>
+
+                    </div>
                 </div>
-            </div>
 
-            <div class="col-6 col-lg-3">
-                <div class="border-end h-100 px-lg-3">
-                    <span class="text-muted small text-uppercase d-block mb-2">
-                        Movimentações hoje
-                    </span>
+                <div class="col-6 col-xl-3">
+                    <div class="border-end h-100 px-xl-3">
 
-                    <strong class="fs-3">
-                        {{ quantidade_movimentacoes_hoje }}
-                    </strong>
+                        <span class="text-muted small text-uppercase d-block mb-2">
+                            Entradas hoje
+                        </span>
+
+                        <strong class="fs-4">
+                            {{ entradas_hoje_formatado }}
+                        </strong>
+
+                    </div>
                 </div>
-            </div>
 
-            <div class="col-6 col-lg-3">
-                <div class="ps-lg-3">
-                    <span class="text-muted small text-uppercase d-block mb-2">
-                        Saldo financeiro
-                    </span>
+                <div class="col-6 col-xl-3">
+                    <div class="ps-xl-3">
 
-                    <strong class="fs-3">
-                        {{ saldo_financeiro_formatado }}
-                    </strong>
+                        <span class="text-muted small text-uppercase d-block mb-2">
+                            Saídas hoje
+                        </span>
+
+                        <strong class="fs-4">
+                            {{ saidas_hoje_formatado }}
+                        </strong>
+
+                    </div>
                 </div>
+
             </div>
 
         </div>
     </div>
-</div>
 
+
+    <!-- =========================================================
+         INDICADORES OPERACIONAIS
+    ========================================================== -->
     <div class="row g-4 mb-4">
 
-        <div class="col-12 col-xl-8">
+        <div class="col-12 col-md-6 col-xl-3">
             <div class="card shadow-sm border-0 h-100">
+                <div class="card-body px-4 py-4">
+
+                    <div class="d-flex justify-content-between align-items-start gap-3">
+
+                        <div>
+                            <span class="text-muted small text-uppercase d-block mb-2">
+                                Contas a receber
+                            </span>
+
+                            <strong class="fs-3">
+                                {{ quantidade_contas_receber_pendentes }}
+                            </strong>
+
+                            <div class="text-muted small mt-2">
+                                Pendentes ou parciais
+                            </div>
+                        </div>
+
+                        <i class="bi bi-arrow-down-circle fs-3 text-success"></i>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body px-4 py-4">
+
+                    <div class="d-flex justify-content-between align-items-start gap-3">
+
+                        <div>
+                            <span class="text-muted small text-uppercase d-block mb-2">
+                                Contas a pagar
+                            </span>
+
+                            <strong class="fs-3">
+                                {{ quantidade_contas_pagar_pendentes }}
+                            </strong>
+
+                            <div class="text-muted small mt-2">
+                                Pendentes ou parciais
+                            </div>
+                        </div>
+
+                        <i class="bi bi-arrow-up-circle fs-3 text-danger"></i>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body px-4 py-4">
+
+                    <div class="d-flex justify-content-between align-items-start gap-3">
+
+                        <div>
+                            <span class="text-muted small text-uppercase d-block mb-2">
+                                Recebimentos vencidos
+                            </span>
+
+                            <strong class="fs-3 text-danger">
+                                {{ quantidade_contas_receber_vencidas }}
+                            </strong>
+
+                            <div class="text-muted small mt-2">
+                                {{ total_receber_vencido_formatado }}
+                            </div>
+                        </div>
+
+                        <i class="bi bi-exclamation-circle fs-3 text-danger"></i>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body px-4 py-4">
+
+                    <div class="d-flex justify-content-between align-items-start gap-3">
+
+                        <div>
+                            <span class="text-muted small text-uppercase d-block mb-2">
+                                Pagamentos vencidos
+                            </span>
+
+                            <strong class="fs-3 text-danger">
+                                {{ quantidade_contas_pagar_vencidas }}
+                            </strong>
+
+                            <div class="text-muted small mt-2">
+                                {{ total_pagar_vencido_formatado }}
+                            </div>
+                        </div>
+
+                        <i class="bi bi-exclamation-triangle fs-3 text-danger"></i>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         PRÓXIMOS RECEBIMENTOS E PAGAMENTOS
+    ========================================================== -->
+    <div class="row g-4 mb-4">
+
+        <!-- Próximos recebimentos -->
+        <div class="col-12 col-xl-6">
+            <div class="card shadow-sm border-0 h-100">
+
                 <div class="card-header bg-transparent border-0 pt-4 px-4">
-                    {% include "components/cards/section_header.html" with titulo="Próximos vencimentos" subtitulo="Parcelas pendentes com vencimento mais próximo." acao_texto="Ver todos em breve" %}
+                    {% include "components/cards/section_header.html" with titulo="Próximos recebimentos" subtitulo="Parcelas de clientes com vencimento mais próximo." %}
                 </div>
 
                 <div class="card-body px-4">
 
-                    {% if proximos_vencimentos %}
+                    {% if proximos_recebimentos %}
+
                         <div class="table-responsive">
-                            <table class="table align-middle">
+                            <table class="table align-middle mb-0">
+
                                 <thead>
                                     <tr>
                                         <th>Conta</th>
-                                        <th>Descrição</th>
+                                        <th>Cliente</th>
+                                        <th>Vencimento</th>
+                                        <th class="text-end">Saldo</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {% for parcela in proximos_recebimentos %}
+                                        <tr>
+
+                                            <td>
+                                                <strong>
+                                                    #{{ parcela.conta_receber.numero }}
+                                                </strong>
+
+                                                <span class="text-muted small">
+                                                    / {{ parcela.numero }}
+                                                </span>
+
+                                                <div class="text-muted small">
+                                                    {{ parcela.conta_receber.descricao|default:"Sem descrição" }}
+                                                </div>
+                                            </td>
+
+                                            <td>
+                                                {% if parcela.conta_receber.cliente %}
+                                                    {{ parcela.conta_receber.cliente }}
+                                                {% else %}
+                                                    <span class="text-muted">
+                                                        Não informado
+                                                    </span>
+                                                {% endif %}
+                                            </td>
+
+                                            <td>
+                                                {{ parcela.data_vencimento|date:"d/m/Y" }}
+                                            </td>
+
+                                            <td class="text-end fw-semibold text-success">
+                                                R$ {{ parcela.saldo|floatformat:2 }}
+                                            </td>
+
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+
+                            </table>
+                        </div>
+
+                    {% else %}
+
+                        <div class="text-center py-5">
+
+                            <i class="bi bi-calendar-check fs-2 text-muted"></i>
+
+                            <h5 class="mt-3 mb-2">
+                                Nenhum recebimento próximo
+                            </h5>
+
+                            <p class="text-muted mb-0">
+                                As próximas parcelas a receber aparecerão aqui.
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+                <div class="card-footer bg-transparent border-0 px-4 pb-4">
+                    <a
+                        href="{% url 'financeiro:lista_contas_receber' %}"
+                        class="btn btn-outline-secondary btn-sm"
+                    >
+                        Ver contas a receber
+                    </a>
+                </div>
+
+            </div>
+        </div>
+
+
+        <!-- Próximos pagamentos -->
+        <div class="col-12 col-xl-6">
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-header bg-transparent border-0 pt-4 px-4">
+                    {% include "components/cards/section_header.html" with titulo="Próximos pagamentos" subtitulo="Parcelas de fornecedores com vencimento mais próximo." %}
+                </div>
+
+                <div class="card-body px-4">
+
+                    {% if proximos_pagamentos %}
+
+                        <div class="table-responsive">
+                            <table class="table align-middle mb-0">
+
+                                <thead>
+                                    <tr>
+                                        <th>Conta</th>
                                         <th>Fornecedor</th>
                                         <th>Vencimento</th>
                                         <th class="text-end">Saldo</th>
@@ -103,17 +351,21 @@
                                 </thead>
 
                                 <tbody>
-                                    {% for parcela in proximos_vencimentos %}
+                                    {% for parcela in proximos_pagamentos %}
                                         <tr>
-                                            <td>
-                                                #{{ parcela.conta_pagar.numero }}
-                                                <span class="text-muted">
-                                                    / {{ parcela.numero }}
-                                                </span>
-                                            </td>
 
                                             <td>
-                                                {{ parcela.conta_pagar.descricao }}
+                                                <strong>
+                                                    #{{ parcela.conta_pagar.numero }}
+                                                </strong>
+
+                                                <span class="text-muted small">
+                                                    / {{ parcela.numero }}
+                                                </span>
+
+                                                <div class="text-muted small">
+                                                    {{ parcela.conta_pagar.descricao|default:"Sem descrição" }}
+                                                </div>
                                             </td>
 
                                             <td>
@@ -130,74 +382,360 @@
                                                 {{ parcela.data_vencimento|date:"d/m/Y" }}
                                             </td>
 
-                                            <td class="text-end fw-semibold">
+                                            <td class="text-end fw-semibold text-danger">
                                                 R$ {{ parcela.saldo|floatformat:2 }}
                                             </td>
+
                                         </tr>
                                     {% endfor %}
                                 </tbody>
+
                             </table>
                         </div>
 
                     {% else %}
+
                         <div class="text-center py-5">
-                            <i class="bi bi-calendar-check 2 text-muted"></i>
+
+                            <i class="bi bi-calendar-check fs-2 text-muted"></i>
 
                             <h5 class="mt-3 mb-2">
-                                Nenhum vencimento pendente
+                                Nenhum pagamento próximo
                             </h5>
 
                             <p class="text-muted mb-0">
-                                As próximas parcelas aparecerão aqui.
+                                As próximas parcelas a pagar aparecerão aqui.
                             </p>
+
                         </div>
+
                     {% endif %}
 
                 </div>
+
+                <div class="card-footer bg-transparent border-0 px-4 pb-4">
+                    <a
+                        href="{% url 'financeiro:lista_contas_pagar' %}"
+                        class="btn btn-outline-secondary btn-sm"
+                    >
+                        Ver contas a pagar
+                    </a>
+                </div>
+
             </div>
         </div>
 
-        <div class="col-12 col-xl-4">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-header bg-transparent border-0 pt-4 px-4">
-                    <div class="d-flex justify-content-between align-items-start gap-3">
-                        <div>
-                            {% include "components/cards/section_header.html" with titulo="Contas vencidas" subtitulo="Parcelas com vencimento anterior à data atual." acao_texto="Ver todas em breve" %}
-                            <p class="text-muted small mb-0">
-                                Parcelas com vencimento anterior à data atual.
-                            </p>
-                        </div>
+    </div>
 
-                        <span class="text-muted small text-nowrap">
-                            Ver todas em breve
-                        </span>
-                    </div>
+
+    <!-- =========================================================
+         CONTAS VENCIDAS
+    ========================================================== -->
+    <div class="row g-4 mb-4">
+
+        <!-- Recebimentos vencidos -->
+        <div class="col-12 col-xl-6">
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-header bg-transparent border-0 pt-4 px-4">
+                    {% include "components/cards/section_header.html" with titulo="Recebimentos vencidos" subtitulo="Parcelas de clientes ainda não recebidas." %}
                 </div>
 
                 <div class="card-body px-4">
+
+                    {% if contas_receber_vencidas %}
+
+                        <div class="list-group list-group-flush">
+
+                            {% for parcela in contas_receber_vencidas %}
+                                <div class="list-group-item px-0">
+
+                                    <div class="d-flex justify-content-between align-items-start gap-3">
+
+                                        <div>
+
+                                            <strong>
+                                                Conta #{{ parcela.conta_receber.numero }}
+                                                — Parcela {{ parcela.numero }}
+                                            </strong>
+
+                                            <div class="text-muted small">
+                                                {% if parcela.conta_receber.cliente %}
+                                                    {{ parcela.conta_receber.cliente }}
+                                                {% else %}
+                                                    Cliente não informado
+                                                {% endif %}
+                                            </div>
+
+                                            <div class="text-danger small mt-1">
+                                                Vencida em
+                                                {{ parcela.data_vencimento|date:"d/m/Y" }}
+                                            </div>
+
+                                        </div>
+
+                                        <div class="text-end fw-semibold text-danger text-nowrap">
+                                            R$ {{ parcela.saldo|floatformat:2 }}
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            {% endfor %}
+
+                        </div>
+
+                    {% else %}
+
+                        <div class="text-center py-5">
+
+                            <i class="bi bi-check-circle fs-2 text-success"></i>
+
+                            <h5 class="mt-3 mb-2">
+                                Nenhum recebimento vencido
+                            </h5>
+
+                            <p class="text-muted mb-0">
+                                Não existem parcelas de clientes em atraso.
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+        </div>
+
+
+        <!-- Pagamentos vencidos -->
+        <div class="col-12 col-xl-6">
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-header bg-transparent border-0 pt-4 px-4">
+                    {% include "components/cards/section_header.html" with titulo="Pagamentos vencidos" subtitulo="Parcelas de fornecedores ainda não pagas." %}
+                </div>
+
+                <div class="card-body px-4">
+
+                    {% if contas_pagar_vencidas %}
+
+                        <div class="list-group list-group-flush">
+
+                            {% for parcela in contas_pagar_vencidas %}
+                                <div class="list-group-item px-0">
+
+                                    <div class="d-flex justify-content-between align-items-start gap-3">
+
+                                        <div>
+
+                                            <strong>
+                                                Conta #{{ parcela.conta_pagar.numero }}
+                                                — Parcela {{ parcela.numero }}
+                                            </strong>
+
+                                            <div class="text-muted small">
+                                                {% if parcela.conta_pagar.fornecedor %}
+                                                    {{ parcela.conta_pagar.fornecedor }}
+                                                {% else %}
+                                                    Fornecedor não informado
+                                                {% endif %}
+                                            </div>
+
+                                            <div class="text-danger small mt-1">
+                                                Vencida em
+                                                {{ parcela.data_vencimento|date:"d/m/Y" }}
+                                            </div>
+
+                                        </div>
+
+                                        <div class="text-end fw-semibold text-danger text-nowrap">
+                                            R$ {{ parcela.saldo|floatformat:2 }}
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            {% endfor %}
+
+                        </div>
+
+                    {% else %}
+
+                        <div class="text-center py-5">
+
+                            <i class="bi bi-check-circle fs-2 text-success"></i>
+
+                            <h5 class="mt-3 mb-2">
+                                Nenhum pagamento vencido
+                            </h5>
+
+                            <p class="text-muted mb-0">
+                                Não existem parcelas de fornecedores em atraso.
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         MOVIMENTAÇÕES E ACESSOS RÁPIDOS
+    ========================================================== -->
+    <div class="row g-4">
+
+        <!-- Últimas movimentações -->
+        <div class="col-12 col-xl-8">
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-header bg-transparent border-0 pt-4 px-4">
+                    {% include "components/cards/section_header.html" with titulo="Últimas movimentações" subtitulo="Entradas e saídas financeiras registradas recentemente." %}
+                </div>
+
+                <div class="card-body px-4">
+
+                    {% if ultimas_movimentacoes %}
+
+                        <div class="list-group list-group-flush">
+
+                            {% for movimentacao in ultimas_movimentacoes %}
+                                <div class="list-group-item px-0">
+
+                                    <div class="d-flex justify-content-between align-items-start gap-3">
+
+                                        <div class="d-flex align-items-start gap-3">
+
+                                            <div>
+                                                {% if movimentacao.tipo == "entrada" %}
+                                                    <i class="bi bi-arrow-down-circle fs-4 text-success"></i>
+                                                {% else %}
+                                                    <i class="bi bi-arrow-up-circle fs-4 text-danger"></i>
+                                                {% endif %}
+                                            </div>
+
+                                            <div>
+
+                                                <strong>
+                                                    {{ movimentacao.descricao }}
+                                                </strong>
+
+                                                <div class="text-muted small">
+                                                    {{ movimentacao.conta_financeira }}
+                                                    ·
+                                                    {{ movimentacao.data_movimentacao|date:"d/m/Y" }}
+                                                </div>
+
+                                                <div class="small mt-1">
+                                                    {{ movimentacao.get_tipo_display }}
+
+                                                    {% if movimentacao.categoria %}
+                                                        · {{ movimentacao.categoria }}
+                                                    {% endif %}
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                        <div
+                                            class="
+                                                text-end
+                                                fw-semibold
+                                                text-nowrap
+                                                {% if movimentacao.tipo == 'entrada' %}
+                                                    text-success
+                                                {% else %}
+                                                    text-danger
+                                                {% endif %}
+                                            "
+                                        >
+                                            {% if movimentacao.tipo == "entrada" %}
+                                                +
+                                            {% else %}
+                                                -
+                                            {% endif %}
+
+                                            R$ {{ movimentacao.valor|floatformat:2 }}
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            {% endfor %}
+
+                        </div>
+
+                    {% else %}
+
+                        <div class="text-center py-5">
+
+                            <i class="bi bi-arrow-left-right fs-2 text-muted"></i>
+
+                            <h5 class="mt-3 mb-2">
+                                Nenhuma movimentação registrada
+                            </h5>
+
+                            <p class="text-muted mb-0">
+                                Pagamentos e recebimentos aparecerão aqui.
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+        </div>
+
+
+        <!-- Acessos rápidos -->
+        <div class="col-12 col-xl-4">
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-header bg-transparent border-0 pt-4 px-4">
+
+                    <h5 class="mb-1">
+                        Acessos rápidos
+                    </h5>
+
+                    <p class="text-muted small mb-0">
+                        Principais áreas do módulo financeiro.
+                    </p>
+
+                </div>
+
+                <div class="card-body px-4">
+
                     <div class="d-grid gap-3">
 
-                            <a
-                                href="{% url 'financeiro:lista_contas_pagar' %}"
-                                class="btn btn-primary text-start d-flex justify-content-between align-items-center"
-                            >
-
-                                <span>
-                                    <i class="bi bi-receipt me-2"></i>
-                                    Contas a pagar
-                                </span>
-
-                                <i class="bi bi-chevron-right"></i>
-
-                            </a>
-
                         <a
-                            href="{% url 'financeiro:lista_categorias' %}"
-                            class="btn btn-outline-secondary text-start d-flex justify-content-between align-items-center"
+                            href="{% url 'financeiro:lista_contas_receber' %}"
+                            class="btn btn-outline-success text-start d-flex justify-content-between align-items-center"
                         >
                             <span>
-                                <i class="bi bi-tags me-2"></i>
-                                Categorias financeiras
+                                <i class="bi bi-arrow-down-circle me-2"></i>
+                                Contas a receber
+                            </span>
+
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+
+                        <a
+                            href="{% url 'financeiro:lista_contas_pagar' %}"
+                            class="btn btn-outline-danger text-start d-flex justify-content-between align-items-center"
+                        >
+                            <span>
+                                <i class="bi bi-arrow-up-circle me-2"></i>
+                                Contas a pagar
                             </span>
 
                             <i class="bi bi-chevron-right"></i>
@@ -215,139 +753,48 @@
                             <i class="bi bi-chevron-right"></i>
                         </a>
 
-                </div>
-            </div>
-        </div>
+                        <a
+                            href="{% url 'financeiro:lista_categorias' %}"
+                            class="btn btn-outline-secondary text-start d-flex justify-content-between align-items-center"
+                        >
+                            <span>
+                                <i class="bi bi-tags me-2"></i>
+                                Categorias financeiras
+                            </span>
 
-    </div>
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
 
-    <div class="row g-4">
-
-        <div class="col-12 col-xl-6">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-header bg-transparent border-0 pt-4 px-4">
-                    <div class="d-flex justify-content-between align-items-start gap-3">
-                        <div>
-                            <h5 class="mb-1">Últimas movimentações</h5>
-                            <p class="text-muted small mb-0">
-                                Entradas, saídas, ajustes e estornos recentes.
-                            </p>
-                        </div>
-
-                        <span class="text-muted small text-nowrap">
-                            Ver histórico em breve
-                        </span>
                     </div>
-                </div>
 
-                <div class="card-body px-4">
+                    <hr class="my-4">
 
-                    {% if contas_vencidas %}
-                        <div class="list-group list-group-flush">
-                            {% for parcela in contas_vencidas %}
-                                <div class="list-group-item px-0">
-                                    <div class="d-flex justify-content-between gap-3">
+                    <div class="d-flex justify-content-between align-items-center">
 
-                                        <div>
-                                            <strong>
-                                                Conta #{{ parcela.conta_pagar.numero }}
-                                                — Parcela {{ parcela.numero }}
-                                            </strong>
+                        <span class="text-muted small">
+                            Contas financeiras ativas
+                        </span>
 
-                                            <div class="text-muted small">
-                                                {{ parcela.conta_pagar.descricao }}
-                                            </div>
+                        <strong>
+                            {{ quantidade_contas_financeiras }}
+                        </strong>
 
-                                            <div class="text-danger small mt-1">
-                                                Vencida em
-                                                {{ parcela.data_vencimento|date:"d/m/Y" }}
-                                            </div>
-                                        </div>
+                    </div>
 
-                                        <div class="text-end fw-semibold">
-                                            R$ {{ parcela.saldo|floatformat:2 }}
-                                        </div>
+                    <div class="d-flex justify-content-between align-items-center mt-3">
 
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        </div>
+                        <span class="text-muted small">
+                            Movimentações hoje
+                        </span>
 
-                    {% else %}
-                        <div class="text-center py-5">
-                            <i class="bi bi-check-circle fs-2 text-muted"></i>
+                        <strong>
+                            {{ quantidade_movimentacoes_hoje }}
+                        </strong>
 
-                            <h5 class="mt-3 mb-2">
-                                Nenhuma conta vencida
-                            </h5>
-
-                            <p class="text-muted mb-0">
-                                As contas em atraso serão destacadas aqui.
-                            </p>
-                        </div>
-                    {% endif %}
+                    </div>
 
                 </div>
-            </div>
-        </div>
 
-        <div class="col-12 col-xl-6">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-header bg-transparent border-0 pt-4 px-4">
-                    {% include "components/cards/section_header.html" with titulo="Últimas movimentações" subtitulo="Entradas, saídas, ajustes e estornos recentes." acao_texto="Ver histórico em breve" %}
-                    <p class="text-muted small mb-0">
-                        Entradas, saídas, ajustes e estornos recentes.
-                    </p>
-                </div>
-
-                <div class="card-body px-4">
-
-                    {% if ultimas_movimentacoes %}
-                        <div class="list-group list-group-flush">
-                            {% for movimentacao in ultimas_movimentacoes %}
-                                <div class="list-group-item px-0">
-                                    <div class="d-flex justify-content-between gap-3">
-
-                                        <div>
-                                            <strong>
-                                                {{ movimentacao.descricao }}
-                                            </strong>
-
-                                            <div class="text-muted small">
-                                                {{ movimentacao.conta_financeira }}
-                                                ·
-                                                {{ movimentacao.data_movimentacao|date:"d/m/Y" }}
-                                            </div>
-
-                                            <div class="small mt-1">
-                                                {{ movimentacao.get_tipo_display }}
-                                            </div>
-                                        </div>
-
-                                        <div class="text-end fw-semibold">
-                                            R$ {{ movimentacao.valor|floatformat:2 }}
-                                        </div>
-
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        </div>
-
-                    {% else %}
-                        <div class="text-center py-5">
-                            <i class="bi bi-arrow-left-right fs-2 text-muted"></i>
-
-                            <h5 class="mt-3 mb-2">
-                                Nenhuma movimentação registrada
-                            </h5>
-
-                            <p class="text-muted mb-0">
-                                Pagamentos e demais movimentações aparecerão aqui.
-                            </p>
-                        </div>
-                    {% endif %}
-
-                </div>
             </div>
         </div>
 

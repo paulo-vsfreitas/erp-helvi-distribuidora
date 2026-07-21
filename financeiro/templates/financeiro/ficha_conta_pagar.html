@@ -85,20 +85,8 @@ Conta a Pagar #{{ conta.numero }} | ERP Helvi
                     Conta quitada
                 </button>
 
-            {% else %}
-                <button
-                    type="button"
-                    class="btn btn-primary"
-                    disabled
-                    title="Funcionalidade disponível na próxima etapa"
-                >
-                    <i class="bi bi-cash-coin me-1"></i>
-                    Registrar pagamento
-                </button>
             {% endif %}
-        </div>
-
-    </div>
+  
 
     {% include "components/cards/dashboard_cards.html" with cards=cards %}
 
