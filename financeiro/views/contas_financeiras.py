@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 
 from financeiro.forms import ContaFinanceiraForm
 from financeiro.models import ContaFinanceira
@@ -10,7 +11,6 @@ from financeiro.services.conta_financeira_service import (
     obter_dados_ficha_conta_financeira,
     reativar_conta_financeira as reativar_conta_service,
     salvar_conta_financeira,
-  
 )
 from usuarios.decorators import perfil_requerido
 
@@ -70,7 +70,6 @@ def lista_contas_financeiras(request):
         "status_selecionado": status,
         "tipos": ContaFinanceira.TIPO_CHOICES,
     }
-    
 
     return render(
         request,
@@ -86,7 +85,7 @@ def nova_conta_financeira(request):
         form = ContaFinanceiraForm(request.POST)
 
         if form.is_valid():
-            salvar_conta_financeira(form)
+            conta = salvar_conta_financeira(form)
 
             messages.success(
                 request,
@@ -94,8 +93,10 @@ def nova_conta_financeira(request):
             )
 
             return redirect(
-                "financeiro:lista_contas_financeiras"
+                "financeiro:ficha_conta_financeira",
+                pk=conta.pk,
             )
+
     else:
         form = ContaFinanceiraForm(
             initial={
@@ -110,8 +111,8 @@ def nova_conta_financeira(request):
             "form": form,
             "titulo": "Nova conta financeira",
             "subtitulo": (
-                "Cadastre uma conta bancária, caixa, carteira digital "
-                "ou outro local de movimentação financeira."
+                "Cadastre uma conta bancária, caixa, carteira "
+                "digital ou outro local de movimentação financeira."
             ),
         },
     )
@@ -132,18 +133,30 @@ def editar_conta_financeira(request, pk):
         )
 
         if form.is_valid():
-            salvar_conta_financeira(form)
+            try:
+                conta = salvar_conta_financeira(form)
 
-            messages.success(
-                request,
-                "Conta financeira atualizada com sucesso.",
-            )
+            except ValueError as erro:
+                form.add_error(
+                    None,
+                    str(erro),
+                )
 
-            return redirect(
-                "financeiro:lista_contas_financeiras"
-            )
+            else:
+                messages.success(
+                    request,
+                    "Conta financeira atualizada com sucesso.",
+                )
+
+                return redirect(
+                    "financeiro:ficha_conta_financeira",
+                    pk=conta.pk,
+                )
+
     else:
-        form = ContaFinanceiraForm(instance=conta)
+        form = ContaFinanceiraForm(
+            instance=conta,
+        )
 
     return render(
         request,
@@ -161,8 +174,6 @@ def editar_conta_financeira(request, pk):
 
 @login_required
 @perfil_requerido("ADM", "GER", "FIN")
-@login_required
-@perfil_requerido("ADM", "GER", "FIN")
 def ficha_conta_financeira(request, pk):
     conta = get_object_or_404(
         ContaFinanceira,
@@ -173,8 +184,14 @@ def ficha_conta_financeira(request, pk):
         conta
     )
 
+    url_extrato = (
+        reverse("financeiro:lista_movimentacoes")
+        + f"?conta_financeira={conta.pk}"
+    )
+
     contexto = {
         "conta": conta,
+        "url_extrato": url_extrato,
         **dados_ficha,
     }
 
@@ -195,7 +212,8 @@ def inativar_conta_financeira(request, pk):
 
     if request.method != "POST":
         return redirect(
-            "financeiro:lista_contas_financeiras"
+            "financeiro:ficha_conta_financeira",
+            pk=conta.pk,
         )
 
     try:
@@ -210,7 +228,8 @@ def inativar_conta_financeira(request, pk):
         messages.warning(request, str(erro))
 
     return redirect(
-        "financeiro:lista_contas_financeiras"
+        "financeiro:ficha_conta_financeira",
+        pk=conta.pk,
     )
 
 
@@ -224,7 +243,8 @@ def reativar_conta_financeira(request, pk):
 
     if request.method != "POST":
         return redirect(
-            "financeiro:lista_contas_financeiras"
+            "financeiro:ficha_conta_financeira",
+            pk=conta.pk,
         )
 
     try:
@@ -239,5 +259,6 @@ def reativar_conta_financeira(request, pk):
         messages.warning(request, str(erro))
 
     return redirect(
-        "financeiro:lista_contas_financeiras"
+        "financeiro:ficha_conta_financeira",
+        pk=conta.pk,
     )

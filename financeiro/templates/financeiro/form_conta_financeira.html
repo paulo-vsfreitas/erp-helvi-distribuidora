@@ -31,6 +31,24 @@
                     </div>
                 {% endif %}
 
+                {% if form.conta_possui_movimentacoes %}
+                    <div class="alert alert-warning d-flex align-items-start gap-2 mb-4">
+                        <i class="bi bi-shield-lock-fill mt-1"></i>
+
+                        <div>
+                            <strong>Conta com histórico financeiro</strong>
+
+                            <div class="small mt-1">
+                                Esta conta já possui movimentações financeiras.
+                                O tipo da conta, o saldo inicial e a data do saldo
+                                inicial estão protegidos para preservar a integridade
+                                do histórico. Os demais dados cadastrais continuam
+                                podendo ser alterados.
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
                 <div class="row g-4">
 
                     <div class="col-12 col-lg-8">

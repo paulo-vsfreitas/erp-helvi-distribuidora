@@ -46,6 +46,7 @@ urlpatterns = [
     ),
 
     # Fluxo de caixa
+    
     path(
         "movimentacoes/",
         lista_movimentacoes,

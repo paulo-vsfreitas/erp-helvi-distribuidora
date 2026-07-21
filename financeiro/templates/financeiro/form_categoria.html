@@ -21,6 +21,23 @@
                     </div>
                 {% endif %}
 
+                {% if categoria_em_uso %}
+                    <div class="alert alert-warning d-flex align-items-start gap-2 mb-4">
+                        <i class="bi bi-shield-lock-fill mt-1"></i>
+
+                        <div>
+                            <strong>Categoria já utilizada</strong>
+
+                            <div class="small mt-1">
+                                Esta categoria já possui movimentações financeiras
+                                vinculadas. Você pode alterar o nome e a descrição,
+                                porém o tipo (Receita/Despesa) não poderá ser alterado
+                                para preservar a integridade do histórico financeiro.
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
                 <div class="row g-4">
 
                     <div class="col-12 col-lg-8">

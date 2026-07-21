@@ -172,7 +172,7 @@
                                                 method="post"
                                                 action="{% url 'financeiro:inativar_categoria' categoria.pk %}"
                                                 class="d-inline"
-                                                onsubmit="return confirm('Deseja realmente inativar esta categoria?');"
+                                                onsubmit="return confirm('Deseja realmente inativar esta categoria? Ela deixará de aparecer em novos lançamentos, mas continuará vinculada ao histórico financeiro.');"
                                             >
                                                 {% csrf_token %}
 

@@ -1,10 +1,15 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import (
+    get_object_or_404,
+    redirect,
+    render,
+)
 
 from financeiro.forms import CategoriaFinanceiraForm
 from financeiro.models import CategoriaFinanceira
 from financeiro.services.categoria_service import (
+    categoria_possui_movimentacoes,
     inativar_categoria_financeira,
     listar_categorias_financeiras,
     reativar_categoria_financeira,
@@ -45,17 +50,31 @@ def lista_categorias(request):
 @perfil_requerido("ADM", "GER", "FIN")
 def nova_categoria(request):
     if request.method == "POST":
-        form = CategoriaFinanceiraForm(request.POST)
+        form = CategoriaFinanceiraForm(
+            request.POST
+        )
 
         if form.is_valid():
-            salvar_categoria_financeira(form)
+            try:
+                salvar_categoria_financeira(form)
 
-            messages.success(
-                request,
-                "Categoria financeira cadastrada com sucesso.",
-            )
+            except ValueError as erro:
+                form.add_error(
+                    None,
+                    str(erro),
+                )
 
-            return redirect("financeiro:lista_categorias")
+            else:
+                messages.success(
+                    request,
+                    "Categoria financeira cadastrada "
+                    "com sucesso.",
+                )
+
+                return redirect(
+                    "financeiro:lista_categorias"
+                )
+
     else:
         form = CategoriaFinanceiraForm()
 
@@ -81,6 +100,12 @@ def editar_categoria(request, pk):
         pk=pk,
     )
 
+    categoria_em_uso = (
+        categoria_possui_movimentacoes(
+            categoria
+        )
+    )
+
     if request.method == "POST":
         form = CategoriaFinanceiraForm(
             request.POST,
@@ -88,16 +113,30 @@ def editar_categoria(request, pk):
         )
 
         if form.is_valid():
-            salvar_categoria_financeira(form)
+            try:
+                salvar_categoria_financeira(form)
 
-            messages.success(
-                request,
-                "Categoria financeira atualizada com sucesso.",
-            )
+            except ValueError as erro:
+                form.add_error(
+                    "tipo",
+                    str(erro),
+                )
 
-            return redirect("financeiro:lista_categorias")
+            else:
+                messages.success(
+                    request,
+                    "Categoria financeira atualizada "
+                    "com sucesso.",
+                )
+
+                return redirect(
+                    "financeiro:lista_categorias"
+                )
+
     else:
-        form = CategoriaFinanceiraForm(instance=categoria)
+        form = CategoriaFinanceiraForm(
+            instance=categoria
+        )
 
     return render(
         request,
@@ -105,9 +144,11 @@ def editar_categoria(request, pk):
         {
             "form": form,
             "categoria": categoria,
+            "categoria_em_uso": categoria_em_uso,
             "titulo": "Editar categoria financeira",
             "subtitulo": (
-                "Atualize os dados da categoria selecionada."
+                "Atualize os dados da categoria "
+                "selecionada."
             ),
         },
     )
@@ -122,18 +163,33 @@ def inativar_categoria(request, pk):
     )
 
     if request.method != "POST":
-        return redirect("financeiro:lista_categorias")
+        return redirect(
+            "financeiro:lista_categorias"
+        )
 
     try:
-        inativar_categoria_financeira(categoria)
+        inativar_categoria_financeira(
+            categoria
+        )
+
         messages.success(
             request,
-            "Categoria financeira inativada com sucesso.",
+            (
+                "Categoria financeira inativada com sucesso. "
+                "Os registros históricos vinculados a ela "
+                "foram preservados."
+            ),
         )
-    except ValueError as erro:
-        messages.warning(request, str(erro))
 
-    return redirect("financeiro:lista_categorias")
+    except ValueError as erro:
+        messages.warning(
+            request,
+            str(erro),
+        )
+
+    return redirect(
+        "financeiro:lista_categorias"
+    )
 
 
 @login_required
@@ -145,15 +201,27 @@ def reativar_categoria(request, pk):
     )
 
     if request.method != "POST":
-        return redirect("financeiro:lista_categorias")
+        return redirect(
+            "financeiro:lista_categorias"
+        )
 
     try:
-        reativar_categoria_financeira(categoria)
+        reativar_categoria_financeira(
+            categoria
+        )
+
         messages.success(
             request,
-            "Categoria financeira reativada com sucesso.",
+            "Categoria financeira reativada "
+            "com sucesso.",
         )
-    except ValueError as erro:
-        messages.warning(request, str(erro))
 
-    return redirect("financeiro:lista_categorias")
+    except ValueError as erro:
+        messages.warning(
+            request,
+            str(erro),
+        )
+
+    return redirect(
+        "financeiro:lista_categorias"
+    )

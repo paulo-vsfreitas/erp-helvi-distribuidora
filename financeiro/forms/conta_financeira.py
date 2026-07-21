@@ -26,7 +26,10 @@ class ContaFinanceiraForm(forms.ModelForm):
             "nome": forms.TextInput(
                 attrs={
                     "class": "form-control",
-                    "placeholder": "Ex.: Banco Inter, Caixa Geral ou InfinitePay",
+                    "placeholder": (
+                        "Ex.: Banco Inter, Caixa Geral "
+                        "ou InfinitePay"
+                    ),
                     "autofocus": True,
                 }
             ),
@@ -38,7 +41,10 @@ class ContaFinanceiraForm(forms.ModelForm):
             "instituicao": forms.TextInput(
                 attrs={
                     "class": "form-control",
-                    "placeholder": "Ex.: Banco Inter, InfinitePay ou Mercado Pago",
+                    "placeholder": (
+                        "Ex.: Banco Inter, InfinitePay "
+                        "ou Mercado Pago"
+                    ),
                 }
             ),
             "agencia": forms.TextInput(
@@ -104,6 +110,39 @@ class ContaFinanceiraForm(forms.ModelForm):
             "%d/%m/%Y",
         ]
 
+        self.conta_possui_movimentacoes = False
+
+        if self.instance and self.instance.pk:
+            self.conta_possui_movimentacoes = (
+                self.instance.movimentacoes.exists()
+            )
+
+        if self.conta_possui_movimentacoes:
+            campos_protegidos = [
+                "tipo",
+                "saldo_inicial",
+                "data_saldo_inicial",
+            ]
+
+            for nome_campo in campos_protegidos:
+                self.fields[nome_campo].disabled = True
+
+                classes_atuais = (
+                    self.fields[nome_campo]
+                    .widget
+                    .attrs
+                    .get("class", "")
+                )
+
+                self.fields[nome_campo].widget.attrs["class"] = (
+                    f"{classes_atuais} bg-light"
+                ).strip()
+
+                self.fields[nome_campo].widget.attrs["title"] = (
+                    "Este campo não pode ser alterado porque "
+                    "a conta já possui movimentações financeiras."
+                )
+
     def clean_nome(self):
         nome = self.cleaned_data["nome"].strip()
 
@@ -112,7 +151,9 @@ class ContaFinanceiraForm(forms.ModelForm):
         )
 
         if self.instance.pk:
-            contas = contas.exclude(pk=self.instance.pk)
+            contas = contas.exclude(
+                pk=self.instance.pk
+            )
 
         if contas.exists():
             raise ValidationError(
@@ -125,11 +166,18 @@ class ContaFinanceiraForm(forms.ModelForm):
         cleaned_data = super().clean()
 
         tipo = cleaned_data.get("tipo")
-        saldo_inicial = cleaned_data.get("saldo_inicial")
-        conta_padrao = cleaned_data.get("conta_padrao")
+        saldo_inicial = cleaned_data.get(
+            "saldo_inicial"
+        )
+        conta_padrao = cleaned_data.get(
+            "conta_padrao"
+        )
         ativo = cleaned_data.get("ativo")
 
-        if saldo_inicial is not None and saldo_inicial < 0:
+        if (
+            saldo_inicial is not None
+            and saldo_inicial < 0
+        ):
             self.add_error(
                 "saldo_inicial",
                 "O saldo inicial não pode ser negativo.",
@@ -138,7 +186,8 @@ class ContaFinanceiraForm(forms.ModelForm):
         if conta_padrao and not ativo:
             raise ValidationError(
                 "Esta conta não pode ser inativada. "
-                "Defina outra conta financeira como padrão antes de inativá-la."
+                "Defina outra conta financeira como padrão "
+                "antes de inativá-la."
             )
 
         if tipo == ContaFinanceira.TIPO_CAIXA:
