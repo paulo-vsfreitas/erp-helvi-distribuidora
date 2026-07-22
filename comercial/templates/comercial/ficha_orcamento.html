@@ -1,0 +1,625 @@
+{% extends "core/base.html" %}
+
+{% load static %}
+
+{% block title %}
+{{ orcamento.codigo }} | ERP Helvi
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/comercial.css' %}">
+<link rel="stylesheet" href="{% static 'css/ficha.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="ficha-header comercial-ficha-header">
+
+    <div class="ficha-header-top">
+
+        <div class="ficha-title">
+
+            <div class="d-flex align-items-center gap-3 mb-2">
+
+                <h1 class="mb-0">
+                    {{ orcamento.codigo }}
+                </h1>
+
+                <span class="badge rounded-pill bg-secondary">
+                    {{ orcamento.get_status_display }}
+                </span>
+
+            </div>
+
+            <p>
+                Orçamento comercial para
+                <strong>{{ orcamento.cliente_nome }}</strong>
+            </p>
+
+        </div>
+
+        <div class="ficha-actions">
+
+            <a
+                href="{% url 'comercial:dashboard' %}"
+                class="btn btn-secondary"
+            >
+                <i class="bi bi-arrow-left"></i>
+                Voltar
+            </a>
+
+                        {% if orcamento.status == orcamento.Status.RASCUNHO %}
+
+                <a href="{% url 'comercial:editar' orcamento.numero %}"
+                class="btn btn-secondary">
+                    <i class="bi bi-pencil"></i>
+                    Editar
+                </a>
+
+                    <button
+                        type="button"
+                        class="btn btn-primary btn-status"
+                        data-url="{% url 'comercial:alterar_status' orcamento.numero 'enviado' %}"
+                        data-titulo="Enviar orçamento"
+                        data-texto="Deseja realmente enviar este orçamento?"
+                        data-botao="Confirmar envio"
+                    >
+                        <i class="bi bi-send"></i>
+                        Enviar
+                    </button>
+                
+                </a>
+
+                    <button
+                        type="button"
+                        class="btn btn-dark btn-status"
+                        data-url="{% url 'comercial:alterar_status' orcamento.numero 'cancelado' %}"
+                        data-titulo="Cancelar orçamento"
+                        data-texto="Deseja realmente cancelar este orçamento?"
+                        data-botao="Confirmar cancelamento"
+                    >
+                        <i class="bi bi-slash-circle"></i>
+                        Cancelar
+                    </button>
+                </a>
+
+            {% elif orcamento.status == orcamento.Status.ENVIADO %}
+
+                <button
+                    type="button"
+                    class="btn btn-success btn-status"
+                    data-url="{% url 'comercial:alterar_status' orcamento.numero 'aprovado' %}"
+                    data-titulo="Aprovar orçamento"
+                    data-texto="Deseja realmente aprovar este orçamento?"
+                    data-botao="Confirmar aprovação"
+                >
+                    <i class="bi bi-check-circle"></i>
+                    Aprovar
+                </button>
+
+                <button
+                    type="button"
+                    class="btn btn-danger btn-status"
+                    data-url="{% url 'comercial:alterar_status' orcamento.numero 'rejeitado' %}"
+                    data-titulo="Rejeitar orçamento"
+                    data-texto="Deseja realmente rejeitar este orçamento?"
+                    data-botao="Confirmar rejeição"
+                >
+                    <i class="bi bi-x-circle"></i>
+                    Rejeitar
+                </button>
+
+                <button class="btn btn-secondary" disabled>
+                    <i class="bi bi-file-earmark-pdf"></i>
+                    PDF
+                </button>
+
+            {% elif orcamento.status == orcamento.Status.APROVADO %}
+                {% if orcamento.status == orcamento.Status.APROVADO and not orcamento.cliente_id %}
+
+                    <a
+                        href="{% url 'comercial:vincular_cliente' orcamento.numero %}"
+                        class="btn btn-secondary"
+                    >
+                        <i class="bi bi-person-plus"></i>
+                        Vincular Cliente
+                    </a>
+
+                {% endif %}
+                <button
+                    type="button"
+                    class="btn btn-success btn-status"
+                    data-url="{% url 'comercial:converter_orcamento' orcamento.numero %}"
+                    data-titulo="Converter em Venda"
+                    data-texto="Deseja converter este orçamento em uma venda? Esta ação não poderá ser desfeita."
+                    data-botao="Converter Venda"
+                >
+                    <i class="bi bi-cart-check"></i>
+                    Converter em Venda
+                </button>
+
+                <button class="btn btn-secondary" disabled>
+                    PDF
+                </button>
+
+            {% elif orcamento.status == orcamento.Status.REJEITADO %}
+
+                <span class="badge bg-danger fs-6">
+                    Orçamento rejeitado
+                </span>
+
+            {% elif orcamento.status == orcamento.Status.CANCELADO %}
+
+                <span class="badge bg-dark fs-6">
+                    Orçamento cancelado
+                </span>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="row g-4">
+
+    <div class="col-xl-8">
+
+        <div class="table-card ficha-section-card">
+
+            <div class="table-card-header ficha-section-header">
+                <div>
+                    <h2>Dados do orçamento</h2>
+                    <p>Informações gerais da proposta comercial.</p>
+                </div>
+            </div>
+
+            <div class="table-card-body">
+
+                <div class="row g-4">
+
+                    <div class="col-md-3">
+
+                        <div class="ficha-info-item">
+                            <span>Status</span>
+
+                            <strong>
+                                {{ orcamento.get_status_display }}
+                            </strong>
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-3">
+
+                        <div class="ficha-info-item">
+                            <span>Emissão</span>
+
+                            <strong>
+                                {{ orcamento.data_emissao|date:"d/m/Y" }}
+                            </strong>
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-3">
+
+                        <div class="ficha-info-item">
+                            <span>Validade</span>
+
+                            <strong>
+                                {{ orcamento.data_validade|date:"d/m/Y" }}
+                            </strong>
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-3">
+
+                        <div class="ficha-info-item">
+                            <span>Vendedor</span>
+
+                            <strong>
+                                {{ orcamento.vendedor.get_full_name|default:orcamento.vendedor.username }}
+                            </strong>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="table-card ficha-section-card mt-4">
+
+            <div class="table-card-header ficha-section-header">
+                <div>
+                    <h2>Cliente ou interessado</h2>
+                    <p>Dados utilizados para emissão do orçamento.</p>
+                </div>
+            </div>
+
+            <div class="table-card-body">
+
+                <div class="row g-4">
+
+                    <div class="col-md-6">
+
+                        <div class="ficha-info-item">
+                            <span>Nome</span>
+
+                            <strong>
+                                {{ orcamento.cliente_nome }}
+                            </strong>
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <div class="ficha-info-item">
+                            <span>Tipo</span>
+
+                            <strong>
+                                {% if orcamento.cliente %}
+                                    Cliente cadastrado
+                                {% else %}
+                                    Interessado avulso
+                                {% endif %}
+                            </strong>
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-4">
+
+                        <div class="ficha-info-item">
+                            <span>CPF / CNPJ</span>
+
+                            <strong>
+                                {{ orcamento.cliente_documento|default:"Não informado" }}
+                            </strong>
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-4">
+
+                        <div class="ficha-info-item">
+                            <span>Telefone / WhatsApp</span>
+
+                            <strong>
+                                {{ orcamento.cliente_telefone|default:"Não informado" }}
+                            </strong>
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-4">
+
+                        <div class="ficha-info-item">
+                            <span>E-mail</span>
+
+                            <strong>
+                                {{ orcamento.cliente_email|default:"Não informado" }}
+                            </strong>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="table-card ficha-section-card mt-4">
+
+            <div class="table-card-header ficha-section-header">
+
+                <div>
+                    <h2>Produtos</h2>
+                    <p>Itens incluídos nesta proposta comercial.</p>
+                </div>
+
+                <div class="ficha-header-summary">
+
+                    <span>
+                        {{ quantidade_itens }} itens
+                    </span>
+
+                    <strong>
+                        {{ quantidade_pecas }} peças
+                    </strong>
+
+                </div>
+
+            </div>
+
+            <div class="table-card-body p-0">
+
+                <div class="table-responsive">
+
+                    <table class="table ficha-produtos-table align-middle mb-0">
+
+                        <thead>
+
+                            <tr>
+                                <th>Código</th>
+                                <th>Produto</th>
+                                <th class="text-center">Qtd.</th>
+                                <th class="text-end">Unitário</th>
+                                <th class="text-end">Desconto</th>
+                                <th class="text-end">Total</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            {% for item in orcamento.itens.all %}
+
+                                <tr>
+
+                                    <td>
+                                        <strong>
+                                            {{ item.produto.codigo }}
+                                        </strong>
+                                    </td>
+
+                                    <td>
+
+                                        <div class="produto-ficha-nome">
+                                            {{ item.produto.modelo }}
+                                        </div>
+
+                                        {% if item.produto.marca %}
+                                            <div class="produto-ficha-meta">
+                                                {{ item.produto.marca.nome }}
+                                            </div>
+                                        {% endif %}
+
+                                    </td>
+
+                                    <td class="text-center">
+                                        <span class="quantidade-badge">
+                                            {{ item.quantidade }}
+                                        </span>
+                                    </td>
+
+                                    <td class="text-end">
+                                        R$ {{ item.valor_unitario|floatformat:2 }}
+                                    </td>
+
+                                    <td class="text-end">
+                                        R$ {{ item.desconto|floatformat:2 }}
+                                    </td>
+
+                                    <td class="text-end">
+                                        <strong>
+                                            R$ {{ item.total|floatformat:2 }}
+                                        </strong>
+                                    </td>
+
+                                </tr>
+
+                            {% empty %}
+
+                                <tr>
+
+                                    <td
+                                        colspan="6"
+                                        class="text-center text-muted py-5"
+                                    >
+                                        Nenhum produto registrado.
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="table-card ficha-section-card mt-4">
+
+            <div class="table-card-header ficha-section-header">
+                <div>
+                    <h2>Informações comerciais</h2>
+                    <p>Condições e observações desta proposta.</p>
+                </div>
+            </div>
+
+            <div class="table-card-body">
+
+                <div class="ficha-text-block mb-4">
+
+                    <span>Condições comerciais</span>
+
+                    <div>
+                        {{ orcamento.condicoes_comerciais|default:"Não informado"|linebreaksbr }}
+                    </div>
+
+                </div>
+
+                <div class="ficha-text-block">
+
+                    <span>Observações</span>
+
+                    <div>
+                        {{ orcamento.observacoes|default:"Não informado"|linebreaksbr }}
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-xl-4">
+
+        <div class="table-card resumo-orcamento-card sticky-top">
+
+            <div class="table-card-header ficha-section-header">
+                <div>
+                    <h2>Resumo financeiro</h2>
+                    <p>Consolidação dos valores do orçamento.</p>
+                </div>
+            </div>
+
+            <div class="table-card-body">
+
+                <div class="resumo-orcamento-linha">
+                    <span>Itens</span>
+                    <strong>{{ quantidade_itens }}</strong>
+                </div>
+
+                <div class="resumo-orcamento-linha">
+                    <span>Peças</span>
+                    <strong>{{ quantidade_pecas }}</strong>
+                </div>
+
+                <div class="resumo-orcamento-divisor"></div>
+
+                <div class="resumo-orcamento-linha">
+                    <span>Subtotal</span>
+
+                    <strong>
+                        R$ {{ orcamento.subtotal|floatformat:2 }}
+                    </strong>
+                </div>
+
+                <div class="resumo-orcamento-linha">
+                    <span>Desconto</span>
+
+                    <strong>
+                        R$ {{ orcamento.desconto|floatformat:2 }}
+                    </strong>
+                </div>
+
+                <div class="resumo-orcamento-linha">
+                    <span>Frete</span>
+
+                    <strong>
+                        R$ {{ orcamento.frete|floatformat:2 }}
+                    </strong>
+                </div>
+
+                <div class="resumo-orcamento-total">
+
+                    <span>Total do orçamento</span>
+
+                    <strong>
+                        R$ {{ orcamento.total|floatformat:2 }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<div class="modal fade"
+     id="modalStatus"
+     tabindex="-1">
+
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5
+                    class="modal-title"
+                    id="modalStatusTitulo">
+                </h5>
+
+                <button
+                    class="btn-close"
+                    data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <p
+                    class="mb-0"
+                    id="modalStatusTexto">
+                </p>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal">
+                    Fechar
+                </button>
+
+                <form method="post" id="modalStatusForm">
+                    {% csrf_token %}
+
+                    <button
+                        type="submit"
+                        id="modalStatusConfirmar"
+                        class="btn btn-primary">
+                    </button>
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+document.querySelectorAll(".btn-status").forEach(botao => {
+
+    botao.addEventListener("click", function(){
+
+        document.getElementById("modalStatusTitulo").textContent =
+            this.dataset.titulo;
+
+        document.getElementById("modalStatusTexto").textContent =
+            this.dataset.texto;
+
+        document.getElementById("modalStatusConfirmar").textContent =
+            this.dataset.botao;
+
+        document.getElementById("modalStatusForm").action =
+            this.dataset.url;
+
+        new bootstrap.Modal(
+            document.getElementById("modalStatus")
+        ).show();
+
+    });
+
+});
+
+</script>
+{% endblock %}
+
+{% block extra_js %}        
+{% endblock %}

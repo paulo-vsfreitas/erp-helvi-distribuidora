@@ -1,0 +1,517 @@
+
+.autocomplete-list {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 1050;
+
+    max-height: 320px;
+    overflow-y: auto;
+
+    background: var(--bs-body-bg, #fff);
+    border: 1px solid var(--bs-border-color, #dee2e6);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.autocomplete-item {
+    display: block;
+    width: 100%;
+    padding: 12px 14px;
+
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--bs-border-color, #dee2e6);
+
+    text-align: left;
+    cursor: pointer;
+}
+
+.autocomplete-item:last-child {
+    border-bottom: 0;
+}
+
+.autocomplete-item:hover,
+.autocomplete-item:focus {
+    background: rgba(0, 0, 0, 0.04);
+    outline: none;
+}
+
+.autocomplete-item strong,
+.autocomplete-item span {
+    display: block;
+}
+
+.autocomplete-item span {
+    margin-top: 3px;
+    color: var(--bs-secondary-color, #6c757d);
+    font-size: 0.875rem;
+}
+
+.autocomplete-item-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.autocomplete-empty {
+    padding: 14px;
+    color: var(--bs-secondary-color, #6c757d);
+    text-align: center;
+}
+
+.item-produto-descricao strong,
+.item-produto-descricao span {
+    display: block;
+}
+
+.item-produto-descricao span {
+    margin-top: 3px;
+    color: var(--bs-secondary-color, #6c757d);
+    font-size: 0.82rem;
+}
+
+#orcamento-itens .item-quantidade {
+    min-width: 75px;
+}
+
+#orcamento-itens .item-valor-unitario,
+#orcamento-itens .item-desconto {
+    min-width: 110px;
+}
+
+#orcamento-itens .item-total {
+    white-space: nowrap;
+}
+
+.table-card.sticky-top {
+    top: 90px;
+}
+
+.comercial-ficha-header {
+    margin-bottom: 24px;
+}
+
+.comercial-ficha-header .ficha-title h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+}
+
+.comercial-ficha-header .ficha-title p {
+    margin: 0;
+    color: var(--text-muted, #6c757d);
+}
+
+.ficha-section-card {
+    overflow: hidden;
+}
+
+.ficha-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 18px 22px;
+}
+
+.ficha-section-header h2 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.ficha-section-header p {
+    margin: 4px 0 0;
+    color: var(--text-muted, #6c757d);
+    font-size: 0.82rem;
+    font-weight: 400;
+}
+
+.ficha-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.ficha-info-item span,
+.ficha-text-block > span {
+    color: var(--text-muted, #6c757d);
+    font-size: 0.78rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.ficha-info-item strong {
+    color: var(--text-primary, #212529);
+    font-size: 0.95rem;
+}
+
+.ficha-header-summary {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    white-space: nowrap;
+}
+
+.ficha-header-summary span {
+    color: var(--text-muted, #6c757d);
+    font-size: 0.85rem;
+}
+
+.ficha-header-summary strong {
+    font-size: 0.9rem;
+}
+
+.ficha-produtos-table thead th {
+    padding: 14px 18px;
+    background: rgba(0, 0, 0, 0.025);
+    color: var(--text-muted, #6c757d);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    white-space: nowrap;
+}
+
+.ficha-produtos-table tbody td {
+    padding: 17px 18px;
+    vertical-align: middle;
+}
+
+.produto-ficha-nome {
+    font-weight: 700;
+}
+
+.produto-ficha-meta {
+    margin-top: 3px;
+    color: var(--text-muted, #6c757d);
+    font-size: 0.82rem;
+}
+
+.quantidade-badge {
+    display: inline-flex;
+    min-width: 34px;
+    min-height: 30px;
+    align-items: center;
+    justify-content: center;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.055);
+    font-weight: 700;
+}
+
+.ficha-text-block > div {
+    margin-top: 8px;
+    line-height: 1.6;
+}
+
+.resumo-orcamento-card {
+    top: 90px;
+    overflow: hidden;
+}
+
+.resumo-orcamento-linha {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px 0;
+}
+
+.resumo-orcamento-linha span {
+    color: var(--text-muted, #6c757d);
+}
+
+.resumo-orcamento-divisor {
+    height: 1px;
+    margin: 10px 0;
+    background: var(--bs-border-color, #dee2e6);
+}
+
+.resumo-orcamento-total {
+    margin: 18px -22px -22px;
+    padding: 20px 22px;
+    background: rgba(29, 154, 98, 0.08);
+    border-top: 1px solid rgba(29, 154, 98, 0.16);
+}
+
+.resumo-orcamento-total span {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--text-muted, #6c757d);
+    font-size: 0.8rem;
+}
+
+.resumo-orcamento-total strong {
+    display: block;
+    color: #198754;
+    font-size: 1.55rem;
+    line-height: 1.2;
+}
+
+@media (max-width: 1199.98px) {
+    .resumo-orcamento-card {
+        position: static !important;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .ficha-section-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .ficha-header-summary {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .comercial-ficha-header .ficha-header-top {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    .comercial-ficha-header .ficha-actions {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+}
+
+/* Mais respiro interno nas fichas do Comercial */
+
+.ficha-section-card .table-card-body {
+    padding: 24px;
+}
+
+.ficha-section-header {
+    padding: 22px 24px;
+}
+
+.ficha-section-header h2 {
+    margin-bottom: 4px;
+}
+
+.ficha-info-item {
+    min-height: 74px;
+    padding: 14px 16px;
+    background: rgba(0, 0, 0, 0.025);
+    border-radius: 10px;
+}
+
+.ficha-info-item span {
+    margin-bottom: 4px;
+}
+
+.ficha-text-block {
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.025);
+    border-radius: 10px;
+}
+
+.ficha-produtos-table thead th {
+    padding: 16px 20px;
+}
+
+.ficha-produtos-table tbody td {
+    padding: 18px 20px;
+}
+
+.ficha-header-summary {
+    padding-right: 4px;
+}
+
+.resumo-orcamento-card .table-card-body {
+    padding: 22px 24px 24px;
+}
+
+.resumo-orcamento-linha {
+    padding: 12px 0;
+}
+
+.resumo-orcamento-divisor {
+    margin: 14px 0;
+}
+
+.resumo-orcamento-total {
+    margin: 20px -24px -24px;
+    padding: 22px 24px;
+}
+
+.comercial-ficha-header {
+    padding: 22px 24px;
+}
+
+.comercial-ficha-header .ficha-actions {
+    gap: 10px;
+}
+
+/* =========================================
+   NOVO / EDITAR ORÇAMENTO
+========================================= */
+
+#form-orcamento .orcamento-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(340px, 1fr);
+    gap: 24px;
+    align-items: start;
+}
+
+#form-orcamento .orcamento-content {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 20px;
+}
+
+#form-orcamento .orcamento-summary-column {
+    display: block;
+    min-width: 0;
+}
+
+#form-orcamento .orcamento-form-card,
+#form-orcamento .table-card {
+    overflow: visible;
+}
+
+#form-orcamento .orcamento-form-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding: 24px;
+}
+
+#form-orcamento .orcamento-grid-cliente {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
+    gap: 24px;
+    align-items: start;
+}
+
+#form-orcamento .orcamento-grid-contato {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+}
+
+#form-orcamento .orcamento-grid-validade {
+    display: grid;
+    grid-template-columns: minmax(240px, 320px);
+}
+
+#form-orcamento .orcamento-grid-financeiro {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+}
+
+#form-orcamento .orcamento-field {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 8px;
+}
+
+#form-orcamento .orcamento-field label {
+    display: block;
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1.35;
+}
+
+#form-orcamento .orcamento-field input:not([type="hidden"]),
+#form-orcamento .orcamento-field select {
+    display: block;
+    width: 100%;
+    min-height: 44px;
+    margin: 0;
+    padding: 10px 14px;
+}
+
+#form-orcamento .orcamento-field textarea {
+    display: block;
+    width: 100%;
+    min-height: 96px;
+    margin: 0;
+    padding: 12px 14px;
+    resize: vertical;
+}
+
+#form-orcamento .orcamento-help {
+    margin: 0;
+    color: #6c757d;
+    font-size: 0.82rem;
+    line-height: 1.45;
+}
+
+#form-orcamento .orcamento-produto-busca {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 150px;
+    gap: 16px;
+    align-items: stretch;
+}
+
+#form-orcamento .orcamento-produtos-table {
+    margin-top: 22px;
+}
+
+#form-orcamento .orcamento-produtos-table th,
+#form-orcamento .orcamento-produtos-table td {
+    padding: 14px 16px;
+    vertical-align: middle;
+}
+
+#form-orcamento .orcamento-summary-card {
+    position: sticky;
+    top: 90px;
+    overflow: hidden;
+}
+
+#form-orcamento .orcamento-summary-body {
+    padding: 20px 24px;
+}
+
+#form-orcamento .orcamento-summary-row,
+#form-orcamento .orcamento-summary-total {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 9px 0;
+}
+
+#form-orcamento .table-card-header {
+    padding: 18px 24px;
+    font-weight: 700;
+}
+
+@media (max-width: 991.98px) {
+    #form-orcamento .orcamento-layout {
+        grid-template-columns: 1fr;
+    }
+
+    #form-orcamento .orcamento-summary-card {
+        position: static;
+    }
+}
+
+@media (max-width: 767.98px) {
+    #form-orcamento .orcamento-grid-cliente,
+    #form-orcamento .orcamento-grid-contato,
+    #form-orcamento .orcamento-grid-financeiro,
+    #form-orcamento .orcamento-produto-busca {
+        grid-template-columns: 1fr;
+    }
+
+    #form-orcamento .orcamento-grid-validade {
+        grid-template-columns: 1fr;
+    }
+
+    #form-orcamento .orcamento-form-card-body {
+        padding: 18px;
+    }
+}

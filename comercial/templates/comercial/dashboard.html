@@ -1,0 +1,242 @@
+{% extends "core/base.html" %}
+
+{% load static %}
+
+{% block title %}Comercial | ERP Helvi{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/comercial.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+
+    <div>
+        <h1>{{ titulo }}</h1>
+        <p>{{ subtitulo }}</p>
+    </div>
+
+    <div>
+        <a
+            href="{% url 'comercial:novo' %}"
+            class="btn btn-primary"
+        >
+            <i class="bi bi-plus-lg"></i>
+            Novo Orçamento
+        </a>
+    </div>
+
+</div>
+
+<div class="row g-3 mb-4">
+
+    <div class="col-md-3">
+
+        <div class="dashboard-card">
+
+            <span class="dashboard-card-label">
+                Orçamentos
+            </span>
+
+            <strong class="dashboard-card-value">
+                {{ total_orcamentos }}
+            </strong>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-3">
+
+        <div class="dashboard-card">
+
+            <span class="dashboard-card-label">
+                Rascunhos
+            </span>
+
+            <strong class="dashboard-card-value">
+                {{ total_rascunhos }}
+            </strong>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-3">
+
+        <div class="dashboard-card">
+
+            <span class="dashboard-card-label">
+                Aprovados
+            </span>
+
+            <strong class="dashboard-card-value">
+                {{ total_aprovados }}
+            </strong>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-3">
+
+        <div class="dashboard-card">
+
+            <span class="dashboard-card-label">
+                Valor orçado
+            </span>
+
+            <strong class="dashboard-card-value">
+                R$ {{ valor_total|floatformat:2 }}
+            </strong>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="table-card">
+
+    <div class="table-card-header">
+
+        <div>
+            Orçamentos recentes
+        </div>
+
+    </div>
+
+    <div class="table-card-body p-0">
+
+        {% if orcamentos %}
+
+            <div class="table-responsive">
+
+                <table class="table align-middle mb-0">
+
+                    <thead>
+
+                        <tr>
+                            <th>Número</th>
+                            <th>Cliente</th>
+                            <th>Emissão</th>
+                            <th>Validade</th>
+                            <th>Status</th>
+                            <th>Itens</th>
+                            <th>Peças</th>
+                            <th>Total</th>
+                            <th></th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for orcamento in orcamentos %}
+
+                            <tr>
+
+                                <td>
+                                    <strong>
+                                        {{ orcamento.codigo }}
+                                    </strong>
+                                </td>
+
+                                <td>
+
+                                    <div>
+                                        <strong>
+                                            {{ orcamento.cliente_nome }}
+                                        </strong>
+                                    </div>
+
+                                    {% if orcamento.cliente %}
+                                        <small class="text-muted">
+                                            Cliente cadastrado
+                                        </small>
+                                    {% else %}
+                                        <small class="text-muted">
+                                            Interessado avulso
+                                        </small>
+                                    {% endif %}
+
+                                </td>
+
+                                <td>
+                                    {{ orcamento.data_emissao|date:"d/m/Y" }}
+                                </td>
+
+                                <td>
+                                    {{ orcamento.data_validade|date:"d/m/Y" }}
+                                </td>
+
+                                <td>
+
+                                    <span class="badge bg-secondary">
+                                        {{ orcamento.get_status_display }}
+                                    </span>
+
+                                </td>
+
+                                <td>
+                                    {{ orcamento.qtd_itens|default:0 }}
+                                </td>
+
+                                <td>
+                                    {{ orcamento.qtd_pecas|default:0 }}
+                                </td>
+
+                                <td>
+                                    <strong>
+                                        R$ {{ orcamento.total|floatformat:2 }}
+                                    </strong>
+                                </td>
+
+                                <td class="text-end">
+
+                                    <a
+                                        href="{% url 'comercial:ficha' orcamento.numero %}"
+                                        class="btn btn-sm btn-outline-primary"
+                                    >
+                                        Ver
+                                    </a>
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-state py-5">
+
+                <h2>Nenhum orçamento cadastrado</h2>
+
+                <p>
+                    Crie o primeiro orçamento comercial da Helvi.
+                </p>
+
+                <a
+                    href="{% url 'comercial:novo' %}"
+                    class="btn btn-primary"
+                >
+                    Novo Orçamento
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

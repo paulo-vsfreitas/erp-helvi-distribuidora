@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'relatorios',
     'configuracoes',
     'compras',
+    "comercial.apps.ComercialConfig",
 ]
 
 MIDDLEWARE = [

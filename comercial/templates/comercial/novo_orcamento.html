@@ -1,0 +1,505 @@
+{% extends "core/base.html" %}
+
+{% load static %}
+
+{% block title %}
+    {% if modo_edicao %}
+        Editar {{ orcamento.codigo }} | ERP Helvi
+    {% else %}
+        Novo Orçamento | ERP Helvi
+    {% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/comercial.css' %}?v=4.0.4">
+{% endblock %}
+
+{% block content %}
+
+
+
+<form method="post" id="form-orcamento">
+
+    {% csrf_token %}
+
+    <input
+        type="hidden"
+        id="itens-json"
+        name="itens_json"
+        value="{{ itens_json|default:'[]' }}"
+    >
+
+    <div class="ficha-header orcamento-form-header">
+
+        <div class="ficha-header-top">
+
+            <div class="ficha-title">
+
+                {% if modo_edicao %}
+                    <h1>Editar Orçamento</h1>
+                    <p>
+                        Altere as informações de
+                        {{ orcamento.codigo }} e salve as alterações.
+                    </p>
+                {% else %}
+                    <h1>Novo Orçamento</h1>
+                    <p>
+                        Cadastre um novo orçamento para um cliente
+                        ou interessado.
+                    </p>
+                {% endif %}
+
+            </div>
+
+            <div class="ficha-actions">
+
+                {% if modo_edicao %}
+                    <a
+                        href="{% url 'comercial:ficha' numero=orcamento.numero %}"
+                        class="btn btn-secondary"
+                    >
+                        Cancelar
+                    </a>
+                {% else %}
+                    <a
+                        href="{% url 'comercial:dashboard' %}"
+                        class="btn btn-secondary"
+                    >
+                        Cancelar
+                    </a>
+                {% endif %}
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    <i class="bi bi-floppy"></i>
+
+                    {% if modo_edicao %}
+                        Salvar Alterações
+                    {% else %}
+                        Salvar Orçamento
+                    {% endif %}
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {% if form.non_field_errors %}
+        <div class="alert alert-danger mb-4">
+            {{ form.non_field_errors }}
+        </div>
+    {% endif %}
+
+    <div class="orcamento-layout">
+
+        <main class="orcamento-content">
+
+            <!-- DADOS GERAIS -->
+            <section class="table-card orcamento-form-card">
+
+                <div class="table-card-header">
+                    Dados Gerais
+                </div>
+
+                <div class="orcamento-form-card-body">
+
+                    <div class="orcamento-grid-cliente">
+
+                        <div class="orcamento-field">
+
+                            <label
+                                for="{{ form.cliente_nome.id_for_label }}"
+                            >
+                                Cliente ou interessado
+                                <span class="campo-obrigatorio">*</span>
+                            </label>
+
+
+                            <div class="position-relative">
+
+                                {{ form.cliente.as_hidden }}
+                                {{ form.cliente_nome }}
+
+                                <div
+                                    id="cliente-resultados"
+                                    class="autocomplete-list d-none"
+                                ></div>
+
+                            </div>
+
+                            {% for error in form.cliente_nome.errors %}
+                                <div class="text-danger small">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+
+                            {% for error in form.cliente.errors %}
+                                <div class="text-danger small">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+
+                            <small class="orcamento-help">
+                                Selecione um cliente cadastrado ou informe
+                                apenas o nome de um novo interessado.
+                            </small>
+
+                        </div>
+
+                        <div class="orcamento-field">
+
+                            <label>
+                                Emissão
+                            </label>
+
+                            <input
+                                type="text"
+                                class="form-control"
+                                value="{% if modo_edicao %}{{ orcamento.data_emissao|date:'d/m/Y' }}{% else %}Hoje{% endif %}"
+                                readonly
+                            >
+
+                        </div>
+
+                    </div>
+
+                    <div class="orcamento-grid-contato">
+
+                        <div class="orcamento-field">
+
+                            <label
+                                for="{{ form.cliente_documento.id_for_label }}"
+                            >
+                                Documento
+                            </label>
+
+                            {{ form.cliente_documento }}
+
+                            {% for error in form.cliente_documento.errors %}
+                                <div class="text-danger small">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+
+                        </div>
+
+                        <div class="orcamento-field">
+
+                            <label
+                                for="{{ form.cliente_telefone.id_for_label }}"
+                            >
+                                Telefone
+                            </label>
+
+                            {{ form.cliente_telefone }}
+
+                            {% for error in form.cliente_telefone.errors %}
+                                <div class="text-danger small">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+
+                        </div>
+
+                        <div class="orcamento-field">
+
+                            <label
+                                for="{{ form.cliente_email.id_for_label }}"
+                            >
+                                E-mail
+                            </label>
+
+                            {{ form.cliente_email }}
+
+                            {% for error in form.cliente_email.errors %}
+                                <div class="text-danger small">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+
+                        </div>
+
+                    </div>
+
+                    <div class="orcamento-grid-validade">
+
+                        <div class="orcamento-field">
+
+                            <label
+                                for="{{ form.data_validade.id_for_label }}"
+                            >
+                                Validade
+                                <span class="campo-obrigatorio">*</span>
+                            </label>
+
+                            {{ form.data_validade }}
+
+                            {% for error in form.data_validade.errors %}
+                                <div class="text-danger small">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- PRODUTOS -->
+            <section class="table-card orcamento-form-card">
+
+                <div class="table-card-header">
+                    Produtos
+                </div>
+
+                <div class="orcamento-form-card-body">
+
+                    <div class="orcamento-field">
+
+                        <label for="produto-search">
+                            Buscar Produto
+                        </label>
+
+                        <div class="orcamento-produto-busca">
+
+                            <div class="position-relative">
+
+                                <input
+                                    type="text"
+                                    id="produto-search"
+                                    class="form-control"
+                                    placeholder="Digite código, modelo ou marca..."
+                                    autocomplete="off"
+                                >
+
+                                <input
+                                    type="hidden"
+                                    id="produto-id"
+                                >
+
+                                <div
+                                    id="produto-resultados"
+                                    class="autocomplete-list d-none"
+                                ></div>
+
+                            </div>
+
+                            <button
+                                type="button"
+                                id="btn-adicionar-produto"
+                                class="btn btn-primary"
+                            >
+                                <i class="bi bi-plus-circle"></i>
+                                Adicionar
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <div class="table-responsive orcamento-produtos-wrapper">
+
+                        <table class="table align-middle orcamento-produtos-table">
+
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Produto</th>
+                                    <th>Qtd.</th>
+                                    <th>Unitário</th>
+                                    <th>Desc.</th>
+                                    <th>Total</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="orcamento-itens">
+
+                                <tr id="estado-vazio">
+                                    <td
+                                        colspan="7"
+                                        class="text-center text-muted"
+                                    >
+                                        Nenhum produto adicionado.
+                                    </td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                    {% if form.errors.itens %}
+                        <div class="text-danger small mt-2">
+                            {{ form.errors.itens }}
+                        </div>
+                    {% endif %}
+
+                </div>
+
+            </section>
+
+            <!-- INFORMAÇÕES COMERCIAIS -->
+            <section class="table-card orcamento-form-card">
+
+                <div class="table-card-header">
+                    Informações Comerciais
+                </div>
+
+                <div class="orcamento-form-card-body">
+
+                    <div class="orcamento-grid-financeiro">
+
+                        <div class="orcamento-field">
+
+                            <label
+                                for="{{ form.desconto.id_for_label }}"
+                            >
+                                Desconto geral (R$)
+                            </label>
+
+                            {{ form.desconto }}
+
+                            {% for error in form.desconto.errors %}
+                                <div class="text-danger small">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+
+                        </div>
+
+                        <div class="orcamento-field">
+
+                            <label
+                                for="{{ form.frete.id_for_label }}"
+                            >
+                                Frete (R$)
+                            </label>
+
+                            {{ form.frete }}
+
+                            {% for error in form.frete.errors %}
+                                <div class="text-danger small">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+
+                        </div>
+
+                    </div>
+
+                    <div class="orcamento-field">
+
+                        <label
+                            for="{{ form.condicoes_comerciais.id_for_label }}"
+                        >
+                            Condições Comerciais
+                        </label>
+
+                        {{ form.condicoes_comerciais }}
+
+                        {% for error in form.condicoes_comerciais.errors %}
+                            <div class="text-danger small">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+
+                    </div>
+
+                    <div class="orcamento-field">
+
+                        <label
+                            for="{{ form.observacoes.id_for_label }}"
+                        >
+                            Observações
+                        </label>
+
+                        {{ form.observacoes }}
+
+                        {% for error in form.observacoes.errors %}
+                            <div class="text-danger small">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </main>
+
+        <!-- RESUMO FINANCEIRO -->
+        <aside class="orcamento-summary-column">
+
+            <section class="table-card orcamento-summary-card">
+
+                <div class="table-card-header">
+                    Resumo Financeiro
+                </div>
+
+                <div class="orcamento-summary-body">
+
+                    <div class="orcamento-summary-row">
+                        <span>Subtotal</span>
+                        <strong id="subtotal">
+                            R$ 0,00
+                        </strong>
+                    </div>
+
+                    <div class="orcamento-summary-row">
+                        <span>Desconto</span>
+                        <strong id="desconto">
+                            R$ 0,00
+                        </strong>
+                    </div>
+
+                    <div class="orcamento-summary-row">
+                        <span>Frete</span>
+                        <strong id="frete">
+                            R$ 0,00
+                        </strong>
+                    </div>
+
+                    <div class="orcamento-summary-divider"></div>
+
+                    <div class="orcamento-summary-total">
+
+                        <span>Total</span>
+
+                        <strong id="total-geral">
+                            R$ 0,00
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </aside>
+
+    </div>
+
+</form>
+
+{% endblock %}
+
+{% block extra_js %}
+
+<script src="{% static 'js/comercial/cliente_autocomplete.js' %}"></script>
+<script src="{% static 'js/comercial/produto_autocomplete.js' %}"></script>
+<script src="{% static 'js/comercial/itens_orcamento.js' %}"></script>
+<script src="{% static 'js/comercial/resumo_financeiro.js' %}"></script>
+<script src="{% static 'js/comercial/novo_orcamento.js' %}"></script>
+
+{% endblock %}

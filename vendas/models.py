@@ -25,12 +25,32 @@ class Venda(models.Model):
         related_name='vendas'
     )
 
-    data_venda = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='aberta')
-    forma_pagamento = models.CharField(max_length=20, choices=FORMA_PAGAMENTO_CHOICES)
 
-    desconto = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    observacoes = models.TextField(blank=True, null=True)
+    data_venda = models.DateTimeField(auto_now_add=True)
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='aberta'
+    )
+
+    forma_pagamento = models.CharField(
+        max_length=20,
+        choices=FORMA_PAGAMENTO_CHOICES,
+        blank=True,
+        null=True,
+    )
+
+    desconto = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+
+    observacoes = models.TextField(
+        blank=True,
+        null=True
+    )
 
     estoque_baixado = models.BooleanField(default=False)
 

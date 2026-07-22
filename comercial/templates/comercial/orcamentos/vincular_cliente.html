@@ -1,0 +1,105 @@
+{% extends "core/base.html" %}
+
+{% block title %}
+    Vincular Cliente | ERP Helvi
+{% endblock %}
+
+{% block content %}
+
+<div class="ficha-header">
+    <div class="ficha-header-top">
+
+        <div class="ficha-title">
+            <h1>Vincular Cliente</h1>
+
+            <p>
+                Selecione um cliente cadastrado para concluir a conversão
+                do orçamento {{ orcamento.codigo }}.
+            </p>
+
+            <p class="mb-0">
+                Caso o cliente ainda não esteja cadastrado,
+                utilize o botão “Cadastrar Novo Cliente”.
+            </p>
+        </div>
+
+    </div>
+</div>
+
+<form method="post">
+    {% csrf_token %}
+
+    <section class="table-card">
+        <div class="table-card-header">
+            Cliente
+        </div>
+
+        <div class="p-4">
+
+            <div class="mb-3">
+
+                <label
+                    for="{{ form.cliente.id_for_label }}"
+                    class="form-label"
+                >
+                    Cliente cadastrado
+                    <span class="campo-obrigatorio">*</span>
+                </label>
+
+                {{ form.cliente }}
+
+                {% for error in form.cliente.errors %}
+                    <div class="text-danger small mt-1">
+                        {{ error }}
+                    </div>
+                {% endfor %}
+
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mb-4">
+
+                <a
+                    href=""
+                    class="btn btn-outline-secondary"
+                >
+                    <i class="bi bi-arrow-clockwise"></i>
+                    Atualizar lista
+                </a>
+
+                <a
+                    href="{% url 'novo_cliente' %}"
+                    target="_blank"
+                    rel="noopener"
+                    class="btn btn-outline-primary"
+                >
+                    <i class="bi bi-person-plus"></i>
+                    Cadastrar Novo Cliente
+                </a>
+
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+
+                <a
+                    href="{% url 'comercial:ficha' numero=orcamento.numero %}"
+                    class="btn btn-secondary"
+                >
+                    Cancelar
+                </a>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    <i class="bi bi-check-circle"></i>
+                    Vincular Cliente
+                </button>
+
+            </div>
+
+        </div>
+    </section>
+
+</form>
+
+{% endblock %}
