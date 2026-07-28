@@ -1,0 +1,348 @@
+{% extends "core/base.html" %}
+
+{% block title %}Relatório de Vendas | ERP Helvi{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Relatório de Vendas</h1>
+        <p>
+            Analise o desempenho comercial, os recebimentos
+            e os produtos vendidos.
+        </p>
+    </div>
+
+    <div class="d-flex gap-2">
+        <a
+            href="{% url 'vendas:lista' %}"
+            class="btn btn-outline-secondary"
+        >
+            Voltar
+        </a>
+
+        <a
+            href="{% url 'vendas:nova' %}"
+            class="btn btn-primary"
+        >
+            Nova Venda
+        </a>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get">
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <div class="row g-3">
+                <div class="col-md-6 col-xl-3">
+                    <label class="form-label">
+                        {{ form.data_inicial.label }}
+                    </label>
+                    {{ form.data_inicial }}
+                </div>
+
+                <div class="col-md-6 col-xl-3">
+                    <label class="form-label">
+                        {{ form.data_final.label }}
+                    </label>
+                    {{ form.data_final }}
+                </div>
+
+                <div class="col-md-6 col-xl-3">
+                    <label class="form-label">
+                        {{ form.cliente.label }}
+                    </label>
+                    {{ form.cliente }}
+                </div>
+
+                <div class="col-md-6 col-xl-3">
+                    <label class="form-label">
+                        {{ form.vendedor.label }}
+                    </label>
+                    {{ form.vendedor }}
+                </div>
+
+                <div class="col-md-6 col-xl-3">
+                    <label class="form-label">
+                        {{ form.forma_pagamento.label }}
+                    </label>
+                    {{ form.forma_pagamento }}
+                </div>
+
+                <div class="col-md-6 col-xl-3">
+                    <label class="form-label">
+                        {{ form.status.label }}
+                    </label>
+                    {{ form.status }}
+                </div>
+
+                <div class="col-md-6 col-xl-3">
+                    <label class="form-label">
+                        {{ form.status_pagamento.label }}
+                    </label>
+                    {{ form.status_pagamento }}
+                </div>
+
+                <div class="col-md-6 col-xl-3">
+                    <label class="form-label">
+                        {{ form.consumidor_final.label }}
+                    </label>
+                    {{ form.consumidor_final }}
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-3">
+                <a
+                    href="{% url 'vendas:relatorio' %}"
+                    class="btn btn-outline-secondary"
+                >
+                    Limpar
+                </a>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Aplicar filtros
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% include "components/dashboard/kpi_cards.html" with kpis=kpis %}
+
+<div class="card mb-4">
+    <div class="card-header">
+        <strong>Vendas encontradas</strong>
+    </div>
+
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Número</th>
+                        <th>Data</th>
+                        <th>Cliente</th>
+                        <th>Vendedor</th>
+                        <th>Pagamento</th>
+                        <th>Status</th>
+                        <th>Peças</th>
+                        <th class="text-end">Total</th>
+                        <th class="text-end">Recebido</th>
+                        <th class="text-end">Saldo</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for venda in pagina %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'vendas:ficha' venda.numero %}">
+                                    #{{ venda.numero|stringformat:"06d" }}
+                                </a>
+                            </td>
+
+                            <td>
+                                {{ venda.data_venda|date:"d/m/Y H:i" }}
+                            </td>
+
+                            <td>
+                                {% if venda.cliente %}
+                                    {{ venda.cliente }}
+                                {% else %}
+                                    Consumidor Final
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if venda.finalizada_por %}
+                                    {{ venda.finalizada_por.get_full_name|default:venda.finalizada_por }}
+                                {% elif venda.criada_por %}
+                                    {{ venda.criada_por.get_full_name|default:venda.criada_por }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {{ venda.get_forma_pagamento_display|default:"—" }}
+                            </td>
+
+                            <td>
+                                {{ venda.get_status_pagamento_display }}
+                            </td>
+
+                            <td>
+                                {{ venda.total_pecas }}
+                            </td>
+
+                            <td class="text-end">
+                                R$ {{ venda.total|floatformat:2 }}
+                            </td>
+
+                            <td class="text-end">
+                                R$ {{ venda.valor_recebido|floatformat:2 }}
+                            </td>
+
+                            <td class="text-end">
+                                R$ {{ venda.saldo_receber|floatformat:2 }}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td
+                                colspan="10"
+                                class="text-center py-5"
+                            >
+                                Nenhuma venda encontrada para os filtros informados.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-12 col-xl-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <strong>Formas de pagamento</strong>
+            </div>
+
+            <div class="card-body">
+                {% for item in formas_pagamento %}
+                    <div class="d-flex justify-content-between border-bottom py-2">
+                        <div>
+                            {{ item.forma_pagamento|default:"Não informado" }}
+                            <small class="text-muted d-block">
+                                {{ item.quantidade }} venda{{ item.quantidade|pluralize }}
+                            </small>
+                        </div>
+
+                        <strong>
+                            R$ {{ item.total|floatformat:2 }}
+                        </strong>
+                    </div>
+                {% empty %}
+                    <p class="text-muted mb-0">
+                        Nenhum dado disponível.
+                    </p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-xl-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <strong>Status dos pagamentos</strong>
+            </div>
+
+            <div class="card-body">
+                {% for item in status_pagamento %}
+                    <div class="d-flex justify-content-between border-bottom py-2">
+                        <div>
+                            {{ item.status_pagamento|default:"Não informado" }}
+                            <small class="text-muted d-block">
+                                {{ item.quantidade }} venda{{ item.quantidade|pluralize }}
+                            </small>
+                        </div>
+
+                        <strong>
+                            R$ {{ item.total|floatformat:2 }}
+                        </strong>
+                    </div>
+                {% empty %}
+                    <p class="text-muted mb-0">
+                        Nenhum dado disponível.
+                    </p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-xl-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <strong>Produtos mais vendidos</strong>
+            </div>
+
+            <div class="card-body">
+                {% for item in produtos_mais_vendidos %}
+                    <div class="d-flex justify-content-between border-bottom py-2">
+                        <div>
+                            <strong>
+                                {{ item.produto__codigo }}
+                            </strong>
+
+                            <small class="text-muted d-block">
+                                {{ item.produto__modelo }}
+                            </small>
+                        </div>
+
+                        <div class="text-end">
+                            <strong>
+                                {{ item.quantidade }} un.
+                            </strong>
+
+                            <small class="text-muted d-block">
+                                R$ {{ item.total|floatformat:2 }}
+                            </small>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p class="text-muted mb-0">
+                        Nenhum produto vendido.
+                    </p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if pagina.paginator.num_pages > 1 %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if pagina.has_previous %}
+                <li class="page-item">
+                    <a
+                        class="page-link"
+                        href="?pagina={{ pagina.previous_page_number }}"
+                    >
+                        Anterior
+                    </a>
+                </li>
+            {% endif %}
+
+            <li class="page-item disabled">
+                <span class="page-link">
+                    Página {{ pagina.number }}
+                    de {{ pagina.paginator.num_pages }}
+                </span>
+            </li>
+
+            {% if pagina.has_next %}
+                <li class="page-item">
+                    <a
+                        class="page-link"
+                        href="?pagina={{ pagina.next_page_number }}"
+                    >
+                        Próxima
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endif %}
+
+{% endblock %}

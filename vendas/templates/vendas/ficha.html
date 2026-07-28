@@ -1,0 +1,388 @@
+{% extends "core/base.html" %}
+
+{% block title %}
+Venda nº {{ venda.numero|stringformat:"06d" }} | ERP Helvi
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>
+            Venda nº {{ venda.numero|stringformat:"06d" }}
+        </h1>
+
+        <p>
+            Consulte os dados, produtos e valores desta venda.
+        </p>
+    </div>
+
+    <div class="d-flex gap-2">
+        <a
+            href="{% url 'vendas:lista' %}"
+            class="btn btn-outline-secondary"
+        >
+            Voltar
+        </a>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <div
+            class="d-flex flex-wrap justify-content-between align-items-center gap-3"
+        >
+            <div>
+                <small class="text-muted">Cliente</small>
+
+                <h4 class="mb-0">
+                    {% if venda.cliente %}
+                        {{ venda.cliente }}
+                    {% else %}
+                        Consumidor Final
+                    {% endif %}
+                </h4>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2">
+                {% if venda.status == "aberta" %}
+                    <span class="badge bg-warning text-dark">
+                        {{ venda.get_status_display }}
+                    </span>
+                {% elif venda.status == "finalizada" %}
+                    <span class="badge bg-success">
+                        {{ venda.get_status_display }}
+                    </span>
+                {% else %}
+                    <span class="badge bg-danger">
+                        {{ venda.get_status_display }}
+                    </span>
+                {% endif %}
+
+                {% if venda.status_pagamento == "pago" %}
+                    <span class="badge bg-success">
+                        {{ venda.get_status_pagamento_display }}
+                    </span>
+                {% elif venda.status_pagamento == "parcial" %}
+                    <span class="badge bg-info text-dark">
+                        {{ venda.get_status_pagamento_display }}
+                    </span>
+                {% else %}
+                    <span class="badge bg-secondary">
+                        {{ venda.get_status_pagamento_display }}
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title mb-3">
+                    Dados da venda
+                </h5>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">
+                            Cliente
+                        </small>
+
+                        <strong>
+                            {% if venda.cliente %}
+                                {{ venda.cliente }}
+                            {% else %}
+                                Consumidor Final
+                            {% endif %}
+                        </strong>
+                    </div>
+
+                    <div class="col-md-3">
+                        <small class="text-muted d-block">
+                            Data
+                        </small>
+
+                        <strong>
+                            {{ venda.data_venda|date:"d/m/Y H:i" }}
+                        </strong>
+                    </div>
+
+                    <div class="col-md-3">
+                        <small class="text-muted d-block">
+                            Vendedor
+                        </small>
+
+                        <strong>
+                            {{ venda.criada_por|default:"Não informado" }}
+                        </strong>
+                    </div>
+
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">
+                            Forma de pagamento
+                        </small>
+
+                        <strong>
+                            {{ venda.get_forma_pagamento_display|default:"Não informada" }}
+                        </strong>
+                    </div>
+
+                    <div class="col-md-3">
+                        <small class="text-muted d-block">
+                            Estoque
+                        </small>
+
+                        <strong>
+                            {% if venda.estoque_baixado %}
+                                Baixado
+                            {% else %}
+                                Pendente
+                            {% endif %}
+                        </strong>
+                    </div>
+
+                    <div class="col-md-3">
+                        <small class="text-muted d-block">
+                            Financeiro
+                        </small>
+
+                        <strong>
+                            {% if venda.financeiro_gerado %}
+                                Gerado
+                            {% else %}
+                                Pendente
+                            {% endif %}
+                        </strong>
+                    </div>
+
+                    {% if venda.observacoes %}
+                        <div class="col-12">
+                            <small class="text-muted d-block">
+                                Observações
+                            </small>
+
+                            <div>
+                                {{ venda.observacoes|linebreaksbr }}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title mb-3">
+                    Produtos
+                </h5>
+
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Produto</th>
+                                <th class="text-center">Qtde.</th>
+                                <th class="text-end">Unitário</th>
+                                <th class="text-end">Desconto</th>
+                                <th class="text-end">Total</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for item in venda.itens.all %}
+                                <tr>
+                                    <td>
+                                        {{ item.produto.codigo }}
+                                    </td>
+
+                                    <td>
+                                        <strong>
+                                            {{ item.produto.modelo }}
+                                        </strong>
+
+                                        {% if item.produto.marca %}
+                                            <small class="text-muted d-block">
+                                                {{ item.produto.marca.nome }}
+                                            </small>
+                                        {% endif %}
+                                    </td>
+
+                                    <td class="text-center">
+                                        {{ item.quantidade }}
+                                    </td>
+
+                                    <td class="text-end">
+                                        R$ {{ item.preco_unitario|floatformat:2 }}
+                                    </td>
+
+                                    <td class="text-end">
+                                        R$ {{ item.desconto|floatformat:2 }}
+                                    </td>
+
+                                    <td class="text-end">
+                                        <strong>
+                                            R$ {{ item.total|floatformat:2 }}
+                                        </strong>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td
+                                        colspan="6"
+                                        class="text-center py-4"
+                                    >
+                                        Nenhum produto cadastrado.
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="col-lg-4">
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title mb-3">
+                    Resumo da venda
+                </h5>
+
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Produtos</span>
+                    <strong>{{ venda.quantidade_itens }}</strong>
+                </div>
+
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Peças</span>
+                    <strong>{{ venda.quantidade_pecas }}</strong>
+                </div>
+
+                <hr>
+
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Subtotal</span>
+                    <strong>
+                        R$ {{ venda.subtotal|floatformat:2 }}
+                    </strong>
+                </div>
+
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Desconto</span>
+                    <strong>
+                        R$ {{ venda.desconto|floatformat:2 }}
+                    </strong>
+                </div>
+
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Frete</span>
+                    <strong>
+                        R$ {{ venda.frete|floatformat:2 }}
+                    </strong>
+                </div>
+
+                <hr>
+
+                <div class="d-flex justify-content-between mb-3">
+                    <span>Total</span>
+
+                    <strong class="fs-5">
+                        R$ {{ venda.total|floatformat:2 }}
+                    </strong>
+                </div>
+
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Recebido</span>
+                    <strong>
+                        R$ {{ venda.valor_recebido|floatformat:2 }}
+                    </strong>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <span>Saldo a receber</span>
+
+                    <strong>
+                        R$ {{ venda.saldo_receber|floatformat:2 }}
+                    </strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title mb-3">
+                    Ações
+                </h5>
+
+                <div class="d-grid gap-2">
+                    {% if venda.status == "aberta" %}
+                        <form
+                            method="post"
+                            action="{% url 'vendas:finalizar' venda.numero %}"
+                            onsubmit="return confirm(
+                                'Deseja finalizar esta venda? O estoque será baixado e o financeiro será gerado.'
+                            );"
+                        >
+                            {% csrf_token %}
+
+                            <button
+                                type="submit"
+                                class="btn btn-primary w-100"
+                            >
+                                Finalizar Venda
+                            </button>
+                        </form>
+
+                        <button
+                            type="button"
+                            class="btn btn-outline-secondary"
+                            disabled
+                        >
+                            Registrar Pagamento
+                        </button>
+
+                        <button
+                            type="button"
+                            class="btn btn-outline-danger"
+                            disabled
+                        >
+                            Cancelar Venda
+                        </button>
+                    {% endif %}
+
+                    <button
+                        type="button"
+                        class="btn btn-outline-secondary"
+                        disabled
+                    >
+                        Emitir PDF
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn btn-outline-secondary"
+                        disabled
+                    >
+                        Enviar pelo WhatsApp
+                    </button>
+                </div>
+
+                <small class="text-muted d-block mt-3">
+                    As ações serão liberadas conforme as integrações
+                    de estoque, financeiro e documentos forem concluídas.
+                </small>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

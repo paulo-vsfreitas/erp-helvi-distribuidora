@@ -1,0 +1,1108 @@
+{% extends "core/base.html" %}
+
+{% block title %}Nova Venda | ERP Helvi{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Nova Venda</h1>
+        <p>Selecione o cliente e adicione os produtos vendidos.</p>
+    </div>
+
+    <a href="{% url 'vendas:lista' %}" class="btn btn-outline-secondary">
+        Voltar
+    </a>
+</div>
+
+<form id="form-venda" method="post" novalidate>
+    {% csrf_token %}
+
+    {% if form.errors %}
+        <div class="alert alert-danger">
+            Verifique os dados informados.
+            {{ form.non_field_errors }}
+            <pre>{{ form.errors }}</pre>
+        </div>
+    {% endif %}
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">Dados da venda</h5>
+
+            <div class="mb-3">
+                <label class="form-label d-block">Tipo de cliente</label>
+
+                <div class="d-flex gap-4">
+                    <div class="form-check">
+                        <input
+                            type="radio"
+                            name="tipo_cliente"
+                            value="cadastrado"
+                            id="tipo-cliente-cadastrado"
+                            class="form-check-input"
+                            {% if request.POST.tipo_cliente != "consumidor_final" %}
+                                checked
+                            {% endif %}
+                        >
+
+                        <label
+                            for="tipo-cliente-cadastrado"
+                            class="form-check-label"
+                        >
+                            Cliente cadastrado
+                        </label>
+                    </div>
+
+                    <div class="form-check">
+                        <input
+                            type="radio"
+                            name="tipo_cliente"
+                            value="consumidor_final"
+                            id="tipo-consumidor-final"
+                            class="form-check-input"
+                            {% if request.POST.tipo_cliente == "consumidor_final" %}
+                                checked
+                            {% endif %}
+                        >
+
+                        <label
+                            for="tipo-consumidor-final"
+                            class="form-check-label"
+                        >
+                            Consumidor Final
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3">
+                <div
+                    class="col-12"
+                    id="campo-cliente"
+                >
+                    <label class="form-label">Cliente</label>
+                    {{ form.cliente }}
+                    {{ form.cliente.errors }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Desconto geral</label>
+                    {{ form.desconto }}
+                    {{ form.desconto.errors }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Frete</label>
+                    {{ form.frete }}
+                    {{ form.frete.errors }}
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label">Observações</label>
+                    {{ form.observacoes }}
+                    {{ form.observacoes.errors }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-9">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div
+                        class="d-flex justify-content-between align-items-center mb-3"
+                    >
+                        <h5 class="card-title mb-0">Produtos</h5>
+
+                        <button
+                            type="button"
+                            class="btn btn-outline-secondary"
+                            id="adicionar-item"
+                        >
+                            Adicionar produto
+                        </button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead>
+                                <tr>
+                                    <th style="min-width: 360px;">
+                                        Produto
+                                    </th>
+                                    <th style="width: 100px;">
+                                        Qtde.
+                                    </th>
+                                    <th style="width: 145px;">
+                                        Unitário
+                                    </th>
+                                    <th style="width: 130px;">
+                                        Desconto
+                                    </th>
+                                    <th style="width: 145px;">
+                                        Total
+                                    </th>
+                                    <th style="width: 70px;"></th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="itens-venda"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <div class="card mb-3">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h5 class="card-title mb-1">Pagamento</h5>
+                <p class="text-muted mb-0">
+                    Informe como a venda será recebida.
+                </p>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-12">
+                <label class="form-label d-block">
+                    Condição de pagamento
+                </label>
+
+                <div class="d-flex flex-wrap gap-4">
+                    <div class="form-check">
+                        <input
+                            type="radio"
+                            name="condicao_pagamento"
+                            value="avista"
+                            id="condicao-avista"
+                            class="form-check-input"
+                            checked
+                        >
+
+                        <label
+                            for="condicao-avista"
+                            class="form-check-label"
+                        >
+                            À vista
+                        </label>
+                    </div>
+
+                    <div class="form-check">
+                        <input
+                            type="radio"
+                            name="condicao_pagamento"
+                            value="aprazo"
+                            id="condicao-aprazo"
+                            class="form-check-input"
+                        >
+
+                        <label
+                            for="condicao-aprazo"
+                            class="form-check-label"
+                        >
+                            A prazo
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">
+                    Forma de pagamento
+                </label>
+
+                {{ form.forma_pagamento }}
+                {{ form.forma_pagamento.errors }}
+            </div>
+
+            <div class="col-md-6">
+                <label
+                    for="conta-financeira"
+                    class="form-label"
+                >
+                    Conta financeira
+                </label>
+
+                <div class="col-md-6">
+                    <label class="form-label">
+                        Conta financeira
+                    </label>
+
+                    {{ form.conta_financeira }}
+                    {{ form.conta_financeira.errors }}
+                </div>
+            </div>
+
+            <div
+                class="col-md-4"
+                id="campo-valor-entregue"
+            >
+                <label
+                    for="valor-entregue"
+                    class="form-label"
+                >
+                    Valor entregue
+                </label>
+
+                <input
+                    type="text"
+                    id="valor-entregue"
+                    name="valor_entregue"
+                    class="form-control"
+                    value="0,00"
+                    inputmode="decimal"
+                    autocomplete="off"
+                >
+
+                <div class="form-text">
+                    Usado para calcular o troco em dinheiro.
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">
+                    Valor recebido
+                </label>
+
+                <div
+                    id="pagamento-valor-recebido"
+                    class="form-control bg-light"
+                >
+                    R$ 0,00
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">
+                    Troco
+                </label>
+
+                <div
+                    id="pagamento-troco"
+                    class="form-control bg-light"
+                >
+                    R$ 0,00
+                </div>
+            </div>
+
+            <div
+                class="col-12"
+                id="campos-pagamento-prazo"
+                style="display: none;"
+            >
+                <div class="border rounded p-3 bg-light">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label
+                                for="valor-entrada"
+                                class="form-label"
+                            >
+                                Entrada
+                            </label>
+
+                            <input
+                                type="text"
+                                id="valor-entrada"
+                                name="valor_entrada"
+                                class="form-control"
+                                value="0,00"
+                                inputmode="decimal"
+                            >
+                        </div>
+
+                        <div class="col-md-3">
+                            <label
+                                for="quantidade-parcelas"
+                                class="form-label"
+                            >
+                                Parcelas
+                            </label>
+
+                            <input
+                                type="number"
+                                id="quantidade-parcelas"
+                                name="quantidade_parcelas"
+                                class="form-control"
+                                value="1"
+                                min="1"
+                                max="60"
+                            >
+                        </div>
+
+                        <div class="col-md-3">
+                            <label
+                                for="primeiro-vencimento"
+                                class="form-label"
+                            >
+                                Primeiro vencimento
+                            </label>
+
+                            <input
+                                type="date"
+                                id="primeiro-vencimento"
+                                name="primeiro_vencimento"
+                                class="form-control"
+                            >
+                        </div>
+
+                        <div class="col-md-3">
+                            <label
+                                for="periodicidade"
+                                class="form-label"
+                            >
+                                Periodicidade
+                            </label>
+
+                            <select
+                                id="periodicidade"
+                                name="periodicidade"
+                                class="form-select"
+                            >
+                                <option value="mensal">
+                                    Mensal
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">
+                                    Saldo a parcelar
+                                </span>
+
+                                <strong id="pagamento-saldo">
+                                    R$ 0,00
+                                </strong>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div
+                                id="previa-parcelas"
+                                class="small text-muted"
+                            >
+                                A prévia das parcelas será exibida aqui.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>    
+
+        <div class="col-lg-3">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        Resumo da venda
+                    </h5>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Produtos</span>
+                        <strong id="resumo-produtos">0</strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Peças</span>
+                        <strong id="resumo-pecas">0</strong>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal</span>
+                        <strong id="resumo-subtotal">
+                            R$ 0,00
+                        </strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Descontos</span>
+                        <strong id="resumo-descontos">
+                            R$ 0,00
+                        </strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Frete</span>
+                        <strong id="resumo-frete">
+                            R$ 0,00
+                        </strong>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between">
+                        <span>Total</span>
+                        <strong
+                            id="resumo-total"
+                            class="fs-5"
+                        >
+                            R$ 0,00
+                        </strong>
+                    </div>
+
+                    <hr>
+
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Recebido</span>
+
+                            <strong id="resumo-recebido">
+                                R$ 0,00
+                            </strong>
+                        </div>
+
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Troco</span>
+
+                            <strong id="resumo-troco">
+                                R$ 0,00
+                            </strong>
+                        </div>
+
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Saldo</span>
+
+                            <strong id="resumo-saldo">
+                                R$ 0,00
+                            </strong>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <span>Parcelamento</span>
+
+                            <strong id="resumo-parcelas">
+                                À vista
+                            </strong>
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body d-flex justify-content-end gap-2">
+            <a
+                href="{% url 'vendas:lista' %}"
+                class="btn btn-outline-secondary"
+            >
+                Cancelar
+            </a>
+
+            <button
+                type="submit"
+                name="acao"
+                value="salvar"
+                class="btn btn-outline-primary"
+            >
+                Salvar em aberto
+            </button>
+
+            <button
+                type="submit"
+                name="acao"
+                value="finalizar"
+                class="btn btn-primary"
+            >
+                Finalizar Venda
+            </button>
+        </div>
+    </div>
+</form>
+
+<template id="template-item">
+    <tr class="linha-item">
+        <td>
+            <div class="produto-busca-container position-relative">
+                <input
+                    type="text"
+                    class="form-control produto-busca"
+                    placeholder="Código, modelo, marca, coleção..."
+                    autocomplete="off"
+                >
+
+                <input
+                    type="hidden"
+                    name="produto_id[]"
+                    class="produto-id"
+                >
+
+                <div
+                    class="produto-resultados list-group position-absolute w-100 shadow"
+                    style="z-index: 1050; display: none; max-height: 320px; overflow-y: auto;"
+                ></div>
+
+                <small class="produto-selecionado text-muted"></small>
+            </div>
+        </td>
+
+        <td>
+            <input
+                type="number"
+                name="quantidade[]"
+                class="form-control quantidade"
+                min="1"
+                value="1"
+                required
+            >
+        </td>
+
+        <td>
+            <input
+                type="text"
+                name="preco_unitario[]"
+                class="form-control preco-unitario"
+                value=""
+                required
+            >
+        </td>
+
+        <td>
+            <input
+                type="text"
+                name="desconto_item[]"
+                class="form-control desconto-item"
+                value="0,00"
+            >
+        </td>
+
+        <td>
+            <strong class="total-item">
+                R$ 0,00
+            </strong>
+        </td>
+
+        <td class="text-end">
+            <button
+                type="button"
+                class="btn btn-outline-danger remover-item"
+                title="Remover item"
+            >
+                ×
+            </button>
+        </td>
+    </tr>
+</template>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const corpo = document.getElementById("itens-venda");
+    const template = document.getElementById("template-item");
+    const adicionar = document.getElementById("adicionar-item");
+    const form = document.getElementById("form-venda");
+
+    const descontoGeral = document.getElementById("id_desconto");
+    const frete = document.getElementById("id_frete");
+
+    const valorEntregue =
+    document.getElementById("valor-entregue");
+
+    const valorEntrada =
+    document.getElementById("valor-entrada");
+
+    const quantidadeParcelas =
+    document.getElementById("quantidade-parcelas");
+
+    const camposPagamentoPrazo =
+    document.getElementById("campos-pagamento-prazo");
+
+    const urlBuscaProdutos =
+        "{% url 'vendas:api_produtos' %}";
+
+    let temporizadorBusca = null;
+
+    function numero(valor) {
+        const texto = String(valor || "")
+            .trim()
+            .replace("R$", "")
+            .replace(/\s/g, "");
+
+        if (!texto) {
+            return 0;
+        }
+
+        if (texto.includes(",")) {
+            return Number(
+                texto.replace(/\./g, "").replace(",", ".")
+            ) || 0;
+        }
+
+        return Number(texto) || 0;
+    }
+
+    function moeda(valor) {
+        return valor.toLocaleString(
+            "pt-BR",
+            {
+                style: "currency",
+                currency: "BRL"
+            }
+        );
+    }
+
+    function adicionarItem() {
+        corpo.appendChild(
+            template.content.cloneNode(true)
+        );
+    }
+
+    function produtosJaAdicionados(linhaIgnorada = null) {
+        const produtos = new Set();
+
+        corpo.querySelectorAll(".linha-item").forEach(function (linha) {
+            if (linha === linhaIgnorada) {
+                return;
+            }
+
+            const produtoId =
+                linha.querySelector(".produto-id").value;
+
+            if (produtoId) {
+                produtos.add(String(produtoId));
+            }
+        });
+
+        return produtos;
+    }
+
+    function limparSelecaoProduto(linha) {
+        linha.querySelector(".produto-id").value = "";
+        linha.querySelector(".preco-unitario").value = "";
+        linha.querySelector(".produto-selecionado").textContent = "";
+        atualizarTotais();
+    }
+
+    function atualizarTotais() {
+        let quantidadeProdutos = 0;
+        let quantidadePecas = 0;
+        let subtotal = 0;
+        let descontosItens = 0;
+
+        corpo.querySelectorAll(".linha-item").forEach(function (linha) {
+            const produtoId =
+                linha.querySelector(".produto-id").value;
+
+            const quantidade = numero(
+                linha.querySelector(".quantidade").value
+            );
+
+            const preco = numero(
+                linha.querySelector(".preco-unitario").value
+            );
+
+            const desconto = numero(
+                linha.querySelector(".desconto-item").value
+            );
+
+            const bruto = quantidade * preco;
+            const totalItem = Math.max(0, bruto - desconto);
+
+            linha.querySelector(".total-item").textContent =
+                moeda(totalItem);
+
+            if (produtoId) {
+                quantidadeProdutos += 1;
+                quantidadePecas += quantidade;
+                subtotal += bruto;
+                descontosItens += desconto;
+            }
+        });
+
+        const descontoVenda = numero(descontoGeral.value);
+        const valorFrete = numero(frete.value);
+
+        const descontosTotais =
+            descontosItens + descontoVenda;
+
+        const total =
+            Math.max(
+                0,
+                subtotal - descontosTotais + valorFrete
+            );
+
+        document.getElementById("resumo-produtos").textContent =
+            quantidadeProdutos;
+
+        document.getElementById("resumo-pecas").textContent =
+            quantidadePecas;
+
+        document.getElementById("resumo-subtotal").textContent =
+            moeda(subtotal);
+
+        document.getElementById("resumo-descontos").textContent =
+            moeda(descontosTotais);
+
+        document.getElementById("resumo-frete").textContent =
+            moeda(valorFrete);
+
+        document.getElementById("resumo-total").textContent =
+            moeda(total);
+
+        const valorRecebido = numero(valorEntregue.value);
+
+        const pagamentoPrazo =
+            document.getElementById("condicao-aprazo").checked;
+
+        let recebido = 0;
+        let troco = 0;
+        let saldo = total;
+
+        if (pagamentoPrazo) {
+            recebido = Math.min(
+                Math.max(numero(valorEntrada.value), 0),
+                total
+            );
+
+            saldo = Math.max(total - recebido, 0);
+        } else {
+            const entregue = Math.max(
+                numero(valorEntregue.value),
+                0
+            );
+
+            recebido = Math.min(entregue, total);
+            troco = Math.max(entregue - total, 0);
+            saldo = Math.max(total - recebido, 0);
+        }
+
+        document.getElementById(
+            "pagamento-valor-recebido"
+        ).textContent = moeda(recebido);
+
+        document.getElementById(
+            "pagamento-troco"
+        ).textContent = moeda(troco);
+
+        document.getElementById(
+            "pagamento-saldo"
+        ).textContent = moeda(saldo);
+
+        document.getElementById(
+            "resumo-recebido"
+        ).textContent = moeda(recebido);
+
+        document.getElementById(
+            "resumo-troco"
+        ).textContent = moeda(troco);
+
+        document.getElementById(
+            "resumo-saldo"
+        ).textContent = moeda(saldo);
+
+        const parcelas = pagamentoPrazo
+            ? Math.max(
+                parseInt(quantidadeParcelas.value || "1", 10),
+                1
+            )
+            : 1;
+
+        document.getElementById(
+            "resumo-parcelas"
+        ).textContent = pagamentoPrazo
+            ? `${parcelas}x`
+            : "À vista";
+
+    }
+
+    async function executarBusca(input) {
+        const linha = input.closest(".linha-item");
+        const resultados =
+            linha.querySelector(".produto-resultados");
+
+        const termo = input.value.trim();
+
+        resultados.innerHTML = `
+            <div class="list-group-item text-muted">
+                Buscando produtos...
+            </div>
+        `;
+
+        resultados.style.display = "block";
+
+        try {
+            const resposta = await fetch(
+                `${urlBuscaProdutos}?q=${encodeURIComponent(termo)}`
+            );
+
+            if (!resposta.ok) {
+                throw new Error("Erro na busca.");
+            }
+
+            const dados = await resposta.json();
+
+            resultados.innerHTML = "";
+
+            if (!dados.resultados.length) {
+                resultados.innerHTML = `
+                    <div class="list-group-item text-muted">
+                        Nenhum produto encontrado.
+                    </div>
+                `;
+                return;
+            }
+
+            const adicionados =
+                produtosJaAdicionados(linha);
+
+            dados.resultados.forEach(function (produto) {
+                const partes = [
+                    produto.codigo,
+                    produto.modelo,
+                    produto.marca,
+                    produto.colecao
+                ].filter(Boolean);
+
+                const descricao = partes.join(" — ");
+
+                const repetido = adicionados.has(
+                    String(produto.id)
+                );
+
+                const botao = document.createElement("button");
+
+                botao.type = "button";
+                botao.className =
+                    "list-group-item list-group-item-action resultado-produto";
+
+                botao.dataset.id = produto.id;
+                botao.dataset.preco = produto.preco;
+                botao.dataset.estoque = produto.estoque;
+                botao.dataset.descricao = descricao;
+
+                botao.innerHTML = `
+                    <div class="d-flex justify-content-between gap-3">
+                        <strong>${descricao}</strong>
+                        <span>${moeda(numero(produto.preco))}</span>
+                    </div>
+
+                    <small class="text-muted">
+                        Estoque: ${produto.estoque}
+                        ${produto.genero ? " · " + produto.genero : ""}
+                        ${produto.tipo_armacao ? " · " + produto.tipo_armacao : ""}
+                        ${repetido ? " · Produto já adicionado" : ""}
+                    </small>
+                `;
+
+                if (repetido) {
+                    botao.disabled = true;
+                }
+
+                resultados.appendChild(botao);
+            });
+        } catch (erro) {
+            resultados.innerHTML = `
+                <div class="list-group-item text-danger">
+                    Não foi possível buscar os produtos.
+                </div>
+            `;
+        }
+    }
+
+    adicionar.addEventListener("click", function () {
+        adicionarItem();
+
+        const linhas = corpo.querySelectorAll(".linha-item");
+        const ultimaLinha = linhas[linhas.length - 1];
+
+        ultimaLinha.querySelector(".produto-busca").focus();
+    });
+
+    corpo.addEventListener("focusin", function (evento) {
+        const input = evento.target.closest(".produto-busca");
+
+        if (!input) {
+            return;
+        }
+
+        executarBusca(input);
+    });
+
+    corpo.addEventListener("input", function (evento) {
+        if (
+            evento.target.matches(
+                ".quantidade, .preco-unitario, .desconto-item"
+            )
+        ) {
+            atualizarTotais();
+            return;
+        }
+
+        const input = evento.target.closest(".produto-busca");
+
+        if (!input) {
+            return;
+        }
+
+        const linha = input.closest(".linha-item");
+
+        limparSelecaoProduto(linha);
+        clearTimeout(temporizadorBusca);
+
+        temporizadorBusca = setTimeout(function () {
+            executarBusca(input);
+        }, 250);
+    });
+
+    corpo.addEventListener("click", function (evento) {
+        const remover = evento.target.closest(".remover-item");
+
+        if (remover) {
+            remover.closest(".linha-item").remove();
+
+            if (!corpo.querySelector(".linha-item")) {
+                adicionarItem();
+            }
+
+            atualizarTotais();
+            return;
+        }
+
+        const resultado =
+            evento.target.closest(".resultado-produto");
+
+        if (!resultado) {
+            return;
+        }
+
+        const linha = resultado.closest(".linha-item");
+        const produtoId = String(resultado.dataset.id);
+
+        if (produtosJaAdicionados(linha).has(produtoId)) {
+            alert(
+                "Produto já adicionado. " +
+                "Altere somente a quantidade do item existente."
+            );
+            return;
+        }
+
+        linha.querySelector(".produto-id").value =
+            produtoId;
+
+        linha.querySelector(".produto-busca").value =
+            resultado.dataset.descricao;
+
+        linha.querySelector(".preco-unitario").value =
+            numero(resultado.dataset.preco)
+                .toFixed(2)
+                .replace(".", ",");
+
+        linha.querySelector(".produto-selecionado").textContent =
+            "Estoque disponível: " +
+            resultado.dataset.estoque;
+
+        linha.querySelector(".produto-resultados").style.display =
+            "none";
+
+        atualizarTotais();
+    });
+
+    document.addEventListener("click", function (evento) {
+        if (
+            evento.target.closest(".produto-busca-container")
+        ) {
+            return;
+        }
+
+        document
+            .querySelectorAll(".produto-resultados")
+            .forEach(function (resultados) {
+                resultados.style.display = "none";
+            });
+    });
+
+    descontoGeral.addEventListener("input", atualizarTotais);
+    frete.addEventListener("input", atualizarTotais);
+
+    document
+        .querySelectorAll('input[name="tipo_cliente"]')
+        .forEach(function (radio) {
+            radio.addEventListener("change", alternarCliente);
+        });
+
+    function alternarCliente() {
+        const consumidorFinal =
+            document.getElementById(
+                "tipo-consumidor-final"
+            ).checked;
+
+        const campoCliente =
+            document.getElementById("campo-cliente");
+
+        const selectCliente =
+            document.getElementById("id_cliente");
+
+        campoCliente.style.display =
+            consumidorFinal ? "none" : "";
+
+        if (consumidorFinal) {
+            selectCliente.value = "";
+        }
+    }
+
+            function alternarCondicaoPagamento() {
+            const pagamentoPrazo =
+                document.getElementById("condicao-aprazo").checked;
+
+            camposPagamentoPrazo.style.display =
+                pagamentoPrazo ? "" : "none";
+
+            document.getElementById(
+                "campo-valor-entregue"
+            ).style.display = pagamentoPrazo ? "none" : "";
+
+            atualizarTotais();
+        }
+
+        document
+            .querySelectorAll('input[name="condicao_pagamento"]')
+            .forEach(function (radio) {
+                radio.addEventListener(
+                    "change",
+                    alternarCondicaoPagamento
+                );
+            });
+
+        valorEntregue.addEventListener(
+            "input",
+            atualizarTotais
+        );
+
+        valorEntrada.addEventListener(
+            "input",
+            atualizarTotais
+        );
+
+        quantidadeParcelas.addEventListener(
+            "input",
+            atualizarTotais
+        );
+
+    form.addEventListener("submit", function (evento) {
+        const itensValidos = Array.from(
+            corpo.querySelectorAll(".produto-id")
+        ).filter(function (input) {
+            return Boolean(input.value);
+        });
+
+        if (!itensValidos.length) {
+            evento.preventDefault();
+
+            alert(
+                "Adicione pelo menos um produto à venda."
+            );
+        }
+    });
+
+    adicionarItem();
+    alternarCliente();
+    alternarCondicaoPagamento();
+    atualizarTotais();
+});
+</script>
+
+{% endblock %}
