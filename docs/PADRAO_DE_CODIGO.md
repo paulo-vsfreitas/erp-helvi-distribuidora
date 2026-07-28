@@ -1,201 +1,52 @@
-# Padrão de Desenvolvimento - ERP Helvi Distribuidora
+# Padrão de Código do ERP Helvi
 
-## Objetivo
+## Convenções
 
-Este documento define os padrões oficiais de arquitetura, organização e desenvolvimento do ERP Helvi Distribuidora.
+- classes: `PascalCase`;
+- funções e variáveis: `snake_case`;
+- constantes: letras maiúsculas;
+- valores monetários: `Decimal`;
+- identificador interno: `pk`;
+- identificador comercial: `numero`.
 
-Todo novo módulo deverá seguir estas regras.
+## Ordem recomendada
 
----
+1. arquitetura;
+2. models;
+3. migrations;
+4. forms;
+5. services;
+6. views;
+7. URLs;
+8. templates;
+9. CSS e JavaScript;
+10. permissões;
+11. homologação;
+12. documentação;
+13. commit.
 
-# Estrutura do projeto
+## Consultas
 
+Utilizar quando apropriado:
+
+- `select_related`;
+- `prefetch_related`;
+- `annotate`;
+- `aggregate`;
+- `exists`;
+- paginação;
+- ordenação explícita.
+
+## Componentização
+
+Componentes estruturais podem ser criados desde o primeiro uso.
+
+Componentes específicos de negócio devem ser extraídos quando houver
+reutilização real.
+
+## Verificação antes do commit
+
+```powershell
+python manage.py check
+git status
 ```
-catalogo/
-│
-├── models/
-├── forms/
-├── views/
-├── services/
-├── utils/
-├── templates/
-├── migrations/
-└── urls.py
-```
-
----
-
-# Models
-
-- Um arquivo por model.
-- Nome do arquivo sempre no singular.
-
-Exemplo:
-
-```
-marca.py
-colecao.py
-genero.py
-material.py
-```
-
----
-
-# Forms
-
-- Um arquivo por módulo.
-- Nome do arquivo sempre no plural.
-
-Exemplo:
-
-```
-marcas.py
-colecoes.py
-generos.py
-```
-
-Cada arquivo poderá conter um ou mais Forms relacionados ao módulo.
-
----
-
-# Views
-
-- Um arquivo por módulo.
-- Nome do arquivo sempre no plural.
-
-Exemplo:
-
-```
-marcas.py
-colecoes.py
-generos.py
-```
-
----
-
-# Templates
-
-Sempre utilizar uma pasta por módulo.
-
-Exemplo:
-
-```
-templates/catalogo/
-
-marcas/
-colecoes/
-generos/
-```
-
----
-
-# CRUD
-
-Todo cadastro simples deverá possuir:
-
-- Lista
-- Novo
-- Editar
-- Inativar
-- Reativar
-
----
-
-# Models simples
-
-Todo cadastro simples deverá possuir, sempre que aplicável:
-
-- nome
-- descricao
-- ativo
-- data_cadastro
-- data_atualizacao
-
----
-
-# URLs
-
-Padrão:
-
-lista_xxx
-
-novo_xxx
-
-editar_xxx
-
-inativar_xxx
-
-reativar_xxx
-
----
-
-# Ordem de desenvolvimento
-
-Sempre seguir:
-
-1. Model
-2. Migration
-3. Form
-4. View
-5. URL
-6. Template
-7. Menu
-8. Permissões
-9. Testes
-10. Git Commit
-
-Nunca alterar esta ordem.
-
----
-
-# Convenções
-
-Classes:
-
-PascalCase
-
-Funções:
-
-snake_case
-
-Arquivos de model:
-
-singular
-
-Arquivos de form:
-
-plural
-
-Arquivos de view:
-
-plural
-
-Pastas de templates:
-
-plural
-
----
-
-# Objetivo
-
-O sistema deve priorizar:
-
-- simplicidade
-- organização
-- escalabilidade
-- padronização
-- reutilização de código
-
-Toda implementação deve seguir estes princípios.
-
-REGRA Nº 1 DO ERP HELVI
-
-Nunca desenvolver pensando apenas na necessidade de hoje. Sempre desenvolver pensando na necessidade dos próximos anos.
-
-📌 Missão do ERP Helvi
-
-Quero deixar registrado o que será a essência do projeto.
-
-Desenvolver um ERP moderno, modular, intuitivo, escalável e preparado para acompanhar o crescimento da Helvi Distribuidora, tornando-se o principal ativo tecnológico da empresa.
-
-Essa será nossa referência para todas as decisões.

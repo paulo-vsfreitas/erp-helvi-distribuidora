@@ -1,27 +1,122 @@
-# Arquitetura - ERP Helvi Distribuidora
+# Arquitetura Oficial do ERP Helvi
 
-O ERP Helvi Distribuidora utiliza arquitetura modular, separando responsabilidades por camadas.
+## Visão geral
 
-## Estrutura principal
+Cada aplicação Django representa um domínio de negócio.
 
-- models: definição das tabelas e regras básicas dos dados
-- forms: formulários do sistema
-- views: controle das telas e ações do usuário
-- templates: arquivos HTML
-- services: regras de negócio mais complexas
-- utils: funções reutilizáveis
-- docs: documentação do projeto
+Exemplos:
 
-## Padrão dos módulos
+- usuários;
+- catálogo;
+- produtos;
+- clientes;
+- fornecedores;
+- estoque;
+- compras;
+- financeiro;
+- vendas;
+- core.
 
-Cada módulo deve seguir:
+O `core` contém recursos transversais e componentes compartilhados.
+Ele não deve concentrar regras específicas dos módulos de negócio.
 
-- Model no singular
-- Form no plural
-- View no plural
-- Templates em pasta no plural
-- URLs centralizadas no arquivo `catalogo/urls.py`
+## Estrutura recomendada
 
-## Objetivo
+```text
+modulo/
+|-- admin.py
+|-- apps.py
+|-- models.py
+|-- urls.py
+|-- forms/
+|-- services/
+|-- utils/
+|-- views/
+|-- templates/
+|-- migrations/
+`-- tests/
+```
 
-Manter o sistema simples, organizado, escalável e fácil de manter.
+## Models
+
+Representam entidades persistidas, relacionamentos, choices, constantes e
+propriedades simples.
+
+Fluxos que afetam vários módulos devem ficar em services.
+
+## Forms
+
+Responsáveis por:
+
+- validação de entrada;
+- normalização;
+- mensagens de erro;
+- preparação dos dados.
+
+## Views
+
+Devem:
+
+- receber a requisição;
+- validar autenticação e permissões;
+- instanciar forms;
+- chamar services;
+- montar o contexto;
+- renderizar ou redirecionar.
+
+Views não devem executar fluxos complexos de negócio.
+
+## Services
+
+Concentram regras operacionais e integrações.
+
+Um service não deve:
+
+- receber `request`;
+- renderizar templates;
+- retornar `HttpResponse`;
+- depender de HTML.
+
+Operações compostas devem utilizar `transaction.atomic`.
+
+## URLs
+
+Cada app possui seu próprio `urls.py` e namespace.
+
+Documentos comerciais utilizam `numero` nas URLs. A chave primária continua
+sendo usada internamente.
+
+## Fichas
+
+A ficha é a tela central de documentos e cadastros relevantes.
+
+Pode apresentar:
+
+- identificação;
+- status;
+- ações;
+- resumo;
+- dados gerais;
+- itens;
+- financeiro;
+- histórico;
+- observações.
+
+## Telas públicas
+
+Login, recuperação de senha e páginas de erro não devem herdar
+`core/base.html`.
+
+## Conclusão de módulos
+
+Um módulo somente é considerado concluído após validar:
+
+- cadastro;
+- edição;
+- pesquisa;
+- validações;
+- permissões;
+- interface;
+- integrações;
+- cenários de erro;
+- homologação.

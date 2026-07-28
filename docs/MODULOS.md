@@ -1,49 +1,29 @@
-# Módulos - ERP Helvi Distribuidora
+# Estado dos Módulos
 
-## Catálogo
+## Funcionais
 
-Responsável pelos cadastros básicos dos produtos.
+- autenticação e usuários;
+- catálogo;
+- produtos;
+- clientes;
+- estoque;
+- compras;
+- contas a pagar;
+- contas a receber;
+- vendas.
 
-### Marcas
+## Em evolução
 
-Status: concluído.
+- fornecedores;
+- relatórios;
+- dashboard;
+- framework de componentes.
 
-Funções:
+## Planejados
 
-- listar marcas
-- cadastrar marca
-- editar marca
-- inativar marca
-- reativar marca
-
-### Coleções
-
-Status: concluído.
-
-Funções:
-
-- listar coleções
-- cadastrar coleção
-- editar coleção
-- inativar coleção
-- reativar coleção
-
-### Gêneros
-
-Status: em desenvolvimento.
-
-Funções previstas:
-
-- listar gêneros
-- cadastrar gênero
-- editar gênero
-- inativar gênero
-- reativar gênero
-
-### Próximos cadastros
-
-- Materiais
-- Cores
-- Formatos
-- Modelos
-- Tipos de Armação
+- pesquisa global;
+- auditoria;
+- relatórios financeiros avançados;
+- relatórios de estoque;
+- transferências entre locais;
+- homologação integrada da versão 1.0.

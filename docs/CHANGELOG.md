@@ -1,26 +1,36 @@
-# Changelog - ERP Helvi Distribuidora
+# Changelog do ERP Helvi
 
-## 2026-06-28
+## Julho de 2026
 
 ### Adicionado
 
-- Criação da documentação inicial do projeto.
-- Definição do padrão oficial de desenvolvimento.
-- Criação dos arquivos:
-  - PADRAO_DE_CODIGO.md
-  - ARQUITETURA.md
-  - ROADMAP.md
-  - CHANGELOG.md
-  - MODULOS.md
+- fluxo principal de vendas;
+- baixa automática de estoque;
+- integração com contas a receber;
+- recebimentos financeiros;
+- ficha de venda;
+- relatório de vendas;
+- filtros comerciais;
+- indicadores de vendas;
+- componente reutilizável de KPIs;
+- URLs comerciais baseadas no número do documento.
 
-### Em desenvolvimento
+### Arquitetura
 
-- Módulo de Gêneros.
+- modularização das views de vendas;
+- expansão da camada de services;
+- formalização do Framework Helvi;
+- atualização da documentação oficial.
 
-## 2026-06-29
+## Junho de 2026
 
-### Autenticação
-- Implementado modelo personalizado `usuarios.Usuario`
-- Configurado `AUTH_USER_MODEL`
-- Criada estrutura inicial do módulo de usuários
-- Login adaptado para o novo modelo
+- fundação do projeto;
+- autenticação;
+- catálogo;
+- produtos;
+- clientes;
+- estoque;
+- compras;
+- financeiro;
+- permissões;
+- identidade visual inicial.
