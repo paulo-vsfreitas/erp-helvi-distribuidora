@@ -15,6 +15,7 @@ from financeiro.models import (
 )
 
 
+
 def formatar_moeda(valor):
     valor = valor or Decimal("0.00")
 

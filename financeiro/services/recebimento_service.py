@@ -242,4 +242,4 @@ def registrar_recebimento(
         usuario=usuario,
     )
 
-    return recebimentoq213
+    return recebimento

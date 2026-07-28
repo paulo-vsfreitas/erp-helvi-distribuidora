@@ -9,7 +9,9 @@ from usuarios.permissoes import usuario_tem_permissao
 
 def perfil_requerido(*perfis_permitidos):
     """
-    Restringe acesso por perfil específico.
+    Restringe o acesso por perfil específico.
+
+    Superusuários possuem acesso automático.
     """
 
     def decorator(view_func):
@@ -18,7 +20,10 @@ def perfil_requerido(*perfis_permitidos):
         @wraps(view_func)
         def wrapper(request, *args, **kwargs):
 
-            if request.user.perfil not in perfis_permitidos:
+            if (
+                not request.user.is_superuser
+                and request.user.perfil not in perfis_permitidos
+            ):
                 messages.error(
                     request,
                     "Você não possui permissão para acessar esta página.",
@@ -43,7 +48,10 @@ def permissao_requerida(modulo):
         @wraps(view_func)
         def wrapper(request, *args, **kwargs):
 
-            if not usuario_tem_permissao(request.user, modulo):
+            if not usuario_tem_permissao(
+                request.user,
+                modulo,
+            ):
                 messages.error(
                     request,
                     "Você não possui permissão para acessar esta página.",

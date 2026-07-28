@@ -82,18 +82,3 @@ def usuario_tem_permissao(usuario, modulo):
         return False
 
     return modulo in perfil["permissoes"]
-
-
-def usuario_tem_permissao(usuario, modulo):
-    if not usuario or not usuario.is_authenticated:
-        return False
-
-    if usuario.is_superuser:
-        return True
-
-    perfil = PERFIS.get(usuario.perfil)
-
-    if not perfil:
-        return False
-
-    return modulo in perfil["permissoes"]

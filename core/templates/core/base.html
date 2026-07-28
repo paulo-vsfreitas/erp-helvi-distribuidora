@@ -55,8 +55,18 @@
                     COMERCIAL
                 </div>
 
+                <a href="{% url 'vendas:nova' %}">
+                    <i class="bi bi-cart-plus"></i>
+                    Nova Venda
+                </a>
+
+                <a href="{% url 'vendas:lista' %}">
+                    <i class="bi bi-receipt"></i>
+                    Vendas
+                </a>
+
                 <a href="{% url 'comercial:novo' %}">
-                    <i class="bi bi-plus-lg"></i>
+                    <i class="bi bi-file-earmark-plus"></i>
                     Novo Orçamento
                 </a>
             {% endif %}

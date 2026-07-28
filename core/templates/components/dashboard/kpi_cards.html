@@ -1,0 +1,50 @@
+<div class="row g-3 mb-4">
+    {% for kpi in kpis %}
+        <div class="col-12 col-sm-6 col-xl-3">
+            {% if kpi.url %}
+                <a
+                    href="{{ kpi.url }}"
+                    class="kpi-card-link"
+                >
+            {% endif %}
+
+            <article class="card h-100 kpi-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-start justify-content-between gap-3">
+                        <div class="min-w-0">
+                            <p class="kpi-card-title">
+                                {{ kpi.titulo }}
+                            </p>
+
+                            <h3 class="kpi-card-value">
+                                {{ kpi.valor }}
+                            </h3>
+
+                            {% if kpi.subtitulo %}
+                                <small class="kpi-card-subtitle">
+                                    {{ kpi.subtitulo }}
+                                </small>
+                            {% endif %}
+                        </div>
+
+                        {% if kpi.icone %}
+                            <div class="kpi-card-icon" aria-hidden="true">
+                                <i class="bi {{ kpi.icone }}"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </article>
+
+            {% if kpi.url %}
+                </a>
+            {% endif %}
+        </div>
+    {% empty %}
+        <div class="col-12">
+            <div class="alert alert-light border mb-0">
+                Nenhum indicador disponível.
+            </div>
+        </div>
+    {% endfor %}
+</div>

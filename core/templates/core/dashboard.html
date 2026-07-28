@@ -1,43 +1,529 @@
-{% extends 'core/base.html' %}
+{% extends "core/base.html" %}
 
 {% block title %}Dashboard | ERP Helvi{% endblock %}
 
 {% block content %}
 
-<h1 style="margin-bottom:5px;">Painel Principal</h1>
-<p style="color:#666;">Gestão da Helvi Distribuidora de Armações</p>
+<div class="dashboard-page">
 
-<div class="cards">
+    <div class="dashboard-header">
+        <div>
+            <h1>Painel Principal</h1>
+            <p>Visão geral da Helvi Distribuidora de Armações.</p>
+        </div>
 
-    <div class="card">
-        <h3>➕ Nova Venda</h3>
-        <p>Venda rápida em poucos cliques</p>
+        {% if permissoes.vendas %}
+            <a
+                href="{% url 'vendas:nova' %}"
+                class="btn btn-gold"
+            >
+                <i class="bi bi-cart-plus"></i>
+                Nova Venda
+            </a>
+        {% endif %}
     </div>
 
-    <div class="card">
-        <h3>🏢 Clientes / Óticas</h3>
-        <p>Cadastro e histórico das óticas</p>
+    <section class="dashboard-section">
+        <div class="dashboard-section-header">
+            <div>
+                <h2>Visão geral</h2>
+                <p>Indicadores atualizados com os dados do ERP.</p>
+            </div>
+        </div>
+
+        <div class="dashboard-kpi-grid">
+
+            <a
+                href="{% url 'vendas:lista' %}"
+                class="dashboard-kpi dashboard-kpi-link"
+                title="Consultar vendas"
+            >
+                <div class="dashboard-kpi-icon">
+                    <i class="bi bi-cart-check"></i>
+                </div>
+
+                <div class="dashboard-kpi-content">
+                    <span class="dashboard-kpi-label">
+                        Vendas hoje
+                    </span>
+
+                    <strong class="dashboard-kpi-value">
+                        R$ {{ dashboard.vendas_hoje.valor|floatformat:2 }}
+                    </strong>
+
+                    <small>
+                        {{ dashboard.vendas_hoje.quantidade }}
+                        venda{{ dashboard.vendas_hoje.quantidade|pluralize }}
+                        finalizada{{ dashboard.vendas_hoje.quantidade|pluralize }}
+                    </small>
+                </div>
+
+                <i class="bi bi-arrow-up-right dashboard-kpi-arrow"></i>
+            </a>
+
+            <a
+                href="{% url 'vendas:lista' %}"
+                class="dashboard-kpi dashboard-kpi-link"
+                title="Consultar vendas do mês"
+            >
+                <div class="dashboard-kpi-icon">
+                    <i class="bi bi-graph-up-arrow"></i>
+                </div>
+
+                <div class="dashboard-kpi-content">
+                    <span class="dashboard-kpi-label">
+                        Faturamento do mês
+                    </span>
+
+                    <strong class="dashboard-kpi-value">
+                        R$ {{ dashboard.faturamento_mes.valor|floatformat:2 }}
+                    </strong>
+
+                    <small>
+                        {{ dashboard.faturamento_mes.quantidade }}
+                        venda{{ dashboard.faturamento_mes.quantidade|pluralize }}
+                        no período
+                    </small>
+                </div>
+
+                <i class="bi bi-arrow-up-right dashboard-kpi-arrow"></i>
+            </a>
+
+            <a
+                href="{% url 'financeiro:lista_contas_financeiras' %}"
+                class="dashboard-kpi dashboard-kpi-link"
+                title="Consultar contas financeiras"
+            >
+                <div class="dashboard-kpi-icon">
+                    <i class="bi bi-wallet2"></i>
+                </div>
+
+                <div class="dashboard-kpi-content">
+                    <span class="dashboard-kpi-label">
+                        Saldo financeiro
+                    </span>
+
+                    <strong class="dashboard-kpi-value">
+                        R$ {{ dashboard.saldo_financeiro.valor|floatformat:2 }}
+                    </strong>
+
+                    <small>
+                        {{ dashboard.saldo_financeiro.quantidade_contas }}
+                        conta{{ dashboard.saldo_financeiro.quantidade_contas|pluralize }}
+                        ativa{{ dashboard.saldo_financeiro.quantidade_contas|pluralize }}
+                    </small>
+                </div>
+
+                <i class="bi bi-arrow-up-right dashboard-kpi-arrow"></i>
+            </a>
+
+            <a
+                href="{% url 'financeiro:lista_contas_receber' %}"
+                class="dashboard-kpi dashboard-kpi-link"
+                title="Consultar contas a receber"
+            >
+                <div class="dashboard-kpi-icon">
+                    <i class="bi bi-cash-stack"></i>
+                </div>
+
+                <div class="dashboard-kpi-content">
+                    <span class="dashboard-kpi-label">
+                        Contas a receber
+                    </span>
+
+                    <strong class="dashboard-kpi-value">
+                        R$ {{ dashboard.contas_receber.valor|floatformat:2 }}
+                    </strong>
+
+                    <small>
+                        {{ dashboard.contas_receber.quantidade }}
+                        conta{{ dashboard.contas_receber.quantidade|pluralize }}
+                        em aberto
+                    </small>
+                </div>
+
+                <i class="bi bi-arrow-up-right dashboard-kpi-arrow"></i>
+            </a>
+
+        </div>
+    </section>
+
+    <div class="dashboard-main-grid">
+
+        <section class="dashboard-section">
+            <div class="dashboard-section-header">
+                <div>
+                    <h2>Atalhos rápidos</h2>
+                    <p>Acesse os principais módulos do ERP.</p>
+                </div>
+            </div>
+
+            <div class="dashboard-shortcut-grid">
+
+                {% if permissoes.vendas %}
+                    <a
+                        href="{% url 'vendas:nova' %}"
+                        class="dashboard-shortcut-card dashboard-shortcut-primary"
+                    >
+                        <span class="dashboard-shortcut-icon">
+                            <i class="bi bi-cart-plus"></i>
+                        </span>
+
+                        <div>
+                            <h3>Nova Venda</h3>
+                            <p>Registre uma venda e processe o pagamento.</p>
+                        </div>
+
+                        <i class="bi bi-arrow-right dashboard-shortcut-arrow"></i>
+                    </a>
+
+                    <a
+                        href="{% url 'vendas:lista' %}"
+                        class="dashboard-shortcut-card"
+                    >
+                        <span class="dashboard-shortcut-icon">
+                            <i class="bi bi-receipt"></i>
+                        </span>
+
+                        <div>
+                            <h3>Vendas</h3>
+                            <p>Consulte as vendas registradas.</p>
+                        </div>
+
+                        <i class="bi bi-arrow-right dashboard-shortcut-arrow"></i>
+                    </a>
+                {% endif %}
+
+                {% if permissoes.clientes %}
+                    <a
+                        href="{% url 'lista_clientes' %}"
+                        class="dashboard-shortcut-card"
+                    >
+                        <span class="dashboard-shortcut-icon">
+                            <i class="bi bi-buildings"></i>
+                        </span>
+
+                        <div>
+                            <h3>Clientes / Óticas</h3>
+                            <p>Gerencie os clientes da distribuidora.</p>
+                        </div>
+
+                        <i class="bi bi-arrow-right dashboard-shortcut-arrow"></i>
+                    </a>
+                {% endif %}
+
+                {% if permissoes.produtos %}
+                    <a
+                        href="{% url 'produtos:lista_produtos' %}"
+                        class="dashboard-shortcut-card"
+                    >
+                        <span class="dashboard-shortcut-icon">
+                            <i class="bi bi-eyeglasses"></i>
+                        </span>
+
+                        <div>
+                            <h3>Produtos</h3>
+                            <p>Consulte modelos, preços e coleções.</p>
+                        </div>
+
+                        <i class="bi bi-arrow-right dashboard-shortcut-arrow"></i>
+                    </a>
+                {% endif %}
+
+                {% if permissoes.estoque %}
+                    <a
+                        href="{% url 'estoque:dashboard_estoque' %}"
+                        class="dashboard-shortcut-card"
+                    >
+                        <span class="dashboard-shortcut-icon">
+                            <i class="bi bi-box-seam"></i>
+                        </span>
+
+                        <div>
+                            <h3>Estoque</h3>
+                            <p>Acompanhe entradas, saídas e saldos.</p>
+                        </div>
+
+                        <i class="bi bi-arrow-right dashboard-shortcut-arrow"></i>
+                    </a>
+                {% endif %}
+
+                {% if permissoes.financeiro %}
+                    <a
+                        href="{% url 'financeiro:dashboard' %}"
+                        class="dashboard-shortcut-card"
+                    >
+                        <span class="dashboard-shortcut-icon">
+                            <i class="bi bi-cash-coin"></i>
+                        </span>
+
+                        <div>
+                            <h3>Financeiro</h3>
+                            <p>Gerencie contas, recebimentos e pagamentos.</p>
+                        </div>
+
+                        <i class="bi bi-arrow-right dashboard-shortcut-arrow"></i>
+                    </a>
+                {% endif %}
+
+                {% if permissoes.compras %}
+                    <a
+                        href="{% url 'compras:lista' %}"
+                        class="dashboard-shortcut-card"
+                    >
+                        <span class="dashboard-shortcut-icon">
+                            <i class="bi bi-bag-check"></i>
+                        </span>
+
+                        <div>
+                            <h3>Compras</h3>
+                            <p>Consulte compras e recebimentos de estoque.</p>
+                        </div>
+
+                        <i class="bi bi-arrow-right dashboard-shortcut-arrow"></i>
+                    </a>
+                {% endif %}
+
+            </div>
+        </section>
+
+        <aside class="dashboard-side-column">
+
+            <section class="dashboard-panel">
+                <div class="dashboard-panel-header">
+                    <div>
+                        <h2>Alertas</h2>
+                        <p>Pontos que precisam de atenção.</p>
+                    </div>
+                </div>
+
+                <div class="dashboard-alert-list">
+
+                    {% if dashboard.alertas.estoque_baixo > 0 %}
+                        <a
+                            href="{% url 'produtos:lista_produtos' %}"
+                            class="dashboard-alert dashboard-alert-warning"
+                        >
+                            <span class="dashboard-alert-icon">
+                                <i class="bi bi-box-seam"></i>
+                            </span>
+
+                            <div>
+                                <strong>Estoque baixo</strong>
+                                <span>
+                                    {{ dashboard.alertas.estoque_baixo }}
+                                    produto{{ dashboard.alertas.estoque_baixo|pluralize }}
+                                    precisa{{ dashboard.alertas.estoque_baixo|pluralize:"m" }}
+                                    de atenção
+                                </span>
+                            </div>
+                        </a>
+                    {% else %}
+                        <div class="dashboard-alert dashboard-alert-success">
+                            <span class="dashboard-alert-icon">
+                                <i class="bi bi-check-circle"></i>
+                            </span>
+
+                            <div>
+                                <strong>Estoque controlado</strong>
+                                <span>Nenhum produto abaixo do mínimo.</span>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {% if dashboard.alertas.parcelas_vencidas > 0 %}
+                        <a
+                            href="{% url 'financeiro:lista_contas_receber' %}"
+                            class="dashboard-alert dashboard-alert-danger"
+                        >
+                            <span class="dashboard-alert-icon">
+                                <i class="bi bi-exclamation-triangle"></i>
+                            </span>
+
+                            <div>
+                                <strong>Parcelas vencidas</strong>
+                                <span>
+                                    {{ dashboard.alertas.parcelas_vencidas }}
+                                    parcela{{ dashboard.alertas.parcelas_vencidas|pluralize }}
+                                    · R$ {{ dashboard.alertas.valor_vencido|floatformat:2 }}
+                                </span>
+                            </div>
+                        </a>
+                    {% else %}
+                        <div class="dashboard-alert dashboard-alert-success">
+                            <span class="dashboard-alert-icon">
+                                <i class="bi bi-check-circle"></i>
+                            </span>
+
+                            <div>
+                                <strong>Recebimentos em dia</strong>
+                                <span>Nenhuma parcela vencida.</span>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {% if dashboard.alertas.parcelas_hoje > 0 %}
+                        <a
+                            href="{% url 'financeiro:lista_contas_receber' %}"
+                            class="dashboard-alert dashboard-alert-warning"
+                        >
+                            <span class="dashboard-alert-icon">
+                                <i class="bi bi-calendar-event"></i>
+                            </span>
+
+                            <div>
+                                <strong>Vencem hoje</strong>
+                                <span>
+                                    {{ dashboard.alertas.parcelas_hoje }}
+                                    parcela{{ dashboard.alertas.parcelas_hoje|pluralize }}
+                                    · R$ {{ dashboard.alertas.valor_vencendo_hoje|floatformat:2 }}
+                                </span>
+                            </div>
+                        </a>
+                    {% else %}
+                        <div class="dashboard-alert dashboard-alert-success">
+                            <span class="dashboard-alert-icon">
+                                <i class="bi bi-check-circle"></i>
+                            </span>
+
+                            <div>
+                                <strong>Nenhum vencimento hoje</strong>
+                                <span>Não há parcelas previstas para hoje.</span>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                </div>
+            </section>
+
+            <section class="dashboard-panel">
+                <div class="dashboard-panel-header">
+                    <div>
+                        <h2>Estoque</h2>
+                        <p>Resumo dos produtos ativos.</p>
+                    </div>
+                </div>
+
+                <div class="dashboard-stock-summary">
+                    <div>
+                        <span>Produtos ativos</span>
+                        <strong>
+                            {{ dashboard.produtos.quantidade_produtos }}
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>Unidades em estoque</span>
+                        <strong>
+                            {{ dashboard.produtos.unidades_estoque }}
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>Abaixo do mínimo</span>
+                        <strong>
+                            {{ dashboard.produtos.estoque_baixo }}
+                        </strong>
+                    </div>
+                </div>
+            </section>
+
+        </aside>
+
     </div>
 
-    <div class="card">
-        <h3>👓 Produtos</h3>
-        <p>Modelos, cores e coleções</p>
-    </div>
+    <section class="dashboard-section">
+        <div class="dashboard-section-header">
+            <div>
+                <h2>Últimas vendas</h2>
+                <p>Vendas finalizadas mais recentemente.</p>
+            </div>
 
-    <div class="card">
-        <h3>📦 Estoque</h3>
-        <p>Entradas, saídas e saldo atual</p>
-    </div>
+            {% if permissoes.vendas %}
+                <a
+                    href="{% url 'vendas:lista' %}"
+                    class="dashboard-section-link"
+                >
+                    Ver todas
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+            {% endif %}
+        </div>
 
-    <div class="card">
-        <h3>💰 Financeiro</h3>
-        <p>Recebimentos e contas a pagar</p>
-    </div>
+        <div class="dashboard-table-wrapper">
+            {% if dashboard.ultimas_vendas %}
+                <table class="dashboard-table">
+                    <thead>
+                        <tr>
+                            <th>Venda</th>
+                            <th>Cliente</th>
+                            <th>Data</th>
+                            <th>Pagamento</th>
+                            <th>Status</th>
+                            <th class="text-end">Total</th>
+                        </tr>
+                    </thead>
 
-    <div class="card">
-        <h3>📊 Relatórios</h3>
-        <p>Vendas, lucro e desempenho</p>
-    </div>
+                    <tbody>
+                        {% for venda in dashboard.ultimas_vendas %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'vendas:ficha' venda.pk %}">
+                                        nº {{ venda.numero|stringformat:"06d" }}
+                                    </a>
+                                </td>
+
+                                <td>
+                                    {% if venda.cliente %}
+                                        {{ venda.cliente }}
+                                    {% else %}
+                                        Consumidor Final
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {{ venda.finalizada_em|date:"d/m/Y H:i" }}
+                                </td>
+
+                                <td>
+                                    {{ venda.get_forma_pagamento_display|default:"Não informada" }}
+                                </td>
+                                <td>
+                                    {% if venda.status_pagamento == "pago" %}
+                                        <span class="dashboard-badge dashboard-badge-success">
+                                            Pago
+                                        </span>
+
+                                    {% elif venda.status_pagamento == "parcial" %}
+                                        <span class="dashboard-badge dashboard-badge-warning">
+                                            Parcial
+                                        </span>
+
+                                    {% else %}
+                                        <span class="dashboard-badge dashboard-badge-danger">
+                                            Pendente
+                                        </span>
+                                    {% endif %}
+                                </td>
+
+                                <td class="text-end">
+                                    <strong>
+                                        R$ {{ venda.total|floatformat:2 }}
+                                    </strong>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="dashboard-empty">
+                    <i class="bi bi-receipt"></i>
+                    <strong>Nenhuma venda finalizada.</strong>
+                    <span>As últimas vendas aparecerão aqui.</span>
+                </div>
+            {% endif %}
+        </div>
+    </section>
 
 </div>
 
