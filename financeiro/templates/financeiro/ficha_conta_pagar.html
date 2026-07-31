@@ -1,48 +1,42 @@
 {% extends "core/base.html" %}
+{% load static %}
 
 {% block title %}
 Conta a Pagar #{{ conta.numero }} | ERP Helvi
 {% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/financeiro_ficha.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid">
+<div class="container-fluid financeiro-ficha">
 
-    <div class="d-flex justify-content-between align-items-start gap-3 mb-4">
+    <div class="ficha-topbar">
+        <a
+            href="{% url 'financeiro:dashboard' %}"
+            class="btn btn-outline-secondary btn-sm"
+        >
+            <i class="bi bi-arrow-left me-1"></i>
+            Voltar ao Financeiro
+        </a>
+    </div>
 
+    <div class="ficha-heading">
         <div>
-            <a
-                href="{% url 'financeiro:dashboard' %}"
-                class="btn btn-outline-secondary btn-sm mb-3"
-            >
-                <i class="bi bi-arrow-left me-1"></i>
-                Voltar ao Financeiro
-            </a>
-
-            <h1 class="mb-1">
-                Conta a Pagar #{{ conta.numero }}
-            </h1>
-
-            <div class="d-flex align-items-center flex-wrap gap-2">
-                <span class="text-muted">
-                    {{ conta.descricao }}
-                </span>
+            <div class="d-flex align-items-center flex-wrap gap-2 mb-2">
+                <h1 class="ficha-titulo mb-0">
+                    Conta a Pagar #{{ conta.numero }}
+                </h1>
 
                 {% if conta.status == "paga" %}
-                    <span class="badge text-bg-success">
-                        Paga
-                    </span>
+                    <span class="badge text-bg-success">Paga</span>
                 {% elif conta.status == "parcial" %}
-                    <span class="badge text-bg-warning">
-                        Parcial
-                    </span>
+                    <span class="badge text-bg-warning">Parcial</span>
                 {% elif conta.status == "cancelada" %}
-                    <span class="badge text-bg-danger">
-                        Cancelada
-                    </span>
+                    <span class="badge text-bg-danger">Cancelada</span>
                 {% else %}
-                    <span class="badge text-bg-secondary">
-                        Pendente
-                    </span>
+                    <span class="badge text-bg-secondary">Pendente</span>
                 {% endif %}
 
                 {% if conta.possui_parcela_vencida %}
@@ -52,81 +46,17 @@ Conta a Pagar #{{ conta.numero }} | ERP Helvi
                     </span>
                 {% endif %}
             </div>
-        </div>
 
-        <div class="d-flex gap-2">
-            {% if conta.compra %}
-                <a
-                    href="{% url 'compras:ficha' conta.compra.pk %}"
-                    class="btn btn-outline-primary"
-                >
-                    <i class="bi bi-box-arrow-up-right me-1"></i>
-                    Abrir compra
-                </a>
-            {% endif %}
-
-            {% if conta.status == "cancelada" %}
-                <button
-                    type="button"
-                    class="btn btn-outline-secondary"
-                    disabled
-                >
-                    <i class="bi bi-x-circle me-1"></i>
-                    Conta cancelada
-                </button>
-
-            {% elif conta.status == "paga" %}
-                <button
-                    type="button"
-                    class="btn btn-outline-success"
-                    disabled
-                >
-                    <i class="bi bi-check-circle me-1"></i>
-                    Conta quitada
-                </button>
-
-            {% endif %}
-  
-
-    {% include "components/cards/dashboard_cards.html" with cards=cards %}
-
-    <div class="card shadow-sm border-0 mb-4">
-        <div class="card-body px-4 py-3">
-
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <div>
-                    <strong>Progresso do pagamento</strong>
-
-                    <div class="text-muted small">
-                        {{ parcelas_pagas }} de {{ total_parcelas }}
-                        parcela{{ total_parcelas|pluralize:"s" }} quitada{{ parcelas_pagas|pluralize:"s" }}.
-                    </div>
-                </div>
-
-                <strong>
-                    {{ percentual_pago|floatformat:1 }}%
-                </strong>
-            </div>
-
-            <div
-                class="progress"
-                role="progressbar"
-                aria-label="Progresso do pagamento"
-                aria-valuenow="{{ percentual_pago|floatformat:0 }}"
-                aria-valuemin="0"
-                aria-valuemax="100"
-                style="height: 10px;"
-            >
-                <div
-                    class="progress-bar"
-                    style="width: {{ percentual_pago|stringformat:'f' }}%;"
-                ></div>
-            </div>
-
+            <p class="text-muted mb-0">
+                {{ conta.descricao }}
+            </p>
         </div>
     </div>
 
-    <div class="card shadow-sm border-0">
+    <div class="row g-4 align-items-start">
+
+        <div class="col-12 col-xl-8">
+<div class="card shadow-sm border-0">
         <div class="card-body p-4">
 
             <ul
@@ -346,7 +276,150 @@ Conta a Pagar #{{ conta.numero }} | ERP Helvi
                                 </thead>
 
                                     <tbody>
-                                        {% for parcela in parcelas %}
+        </div>
+
+        <div class="col-12 col-xl-4">
+            <aside class="ficha-sidebar">
+
+                <div class="ficha-sidebar-card">
+                    <div class="ficha-sidebar-section">
+                        <span class="ficha-sidebar-label">Status</span>
+
+                        <div class="mt-2">
+                            {% if conta.status == "paga" %}
+                                <span class="badge text-bg-success fs-6">
+                                    <i class="bi bi-check-circle me-1"></i>
+                                    Paga
+                                </span>
+                            {% elif conta.status == "parcial" %}
+                                <span class="badge text-bg-warning fs-6">
+                                    <i class="bi bi-hourglass-split me-1"></i>
+                                    Parcial
+                                </span>
+                            {% elif conta.status == "cancelada" %}
+                                <span class="badge text-bg-danger fs-6">
+                                    <i class="bi bi-x-circle me-1"></i>
+                                    Cancelada
+                                </span>
+                            {% else %}
+                                <span class="badge text-bg-secondary fs-6">
+                                    <i class="bi bi-clock me-1"></i>
+                                    Pendente
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="ficha-sidebar-section">
+                        <span class="ficha-sidebar-label">Valor total</span>
+                        <strong class="ficha-sidebar-value">
+                            R$ {{ conta.valor_total|floatformat:2 }}
+                        </strong>
+                    </div>
+
+                    <div class="ficha-sidebar-section">
+                        <span class="ficha-sidebar-label">Total desembolsado</span>
+                        <strong class="ficha-sidebar-value text-success">
+                            R$ {{ valor_movimentado|floatformat:2 }}
+                        </strong>
+                    </div>
+
+                    <div class="ficha-sidebar-section">
+                        <span class="ficha-sidebar-label">Saldo</span>
+                        <strong class="ficha-sidebar-value">
+                            R$ {{ conta.saldo|floatformat:2 }}
+                        </strong>
+                    </div>
+
+                    <div class="ficha-sidebar-section">
+                        <div class="d-flex justify-content-between align-items-start gap-3 mb-2">
+                            <div>
+                                <span class="ficha-sidebar-label">Progresso</span>
+                                <div class="small text-muted mt-1">
+                                    {{ parcelas_pagas }} de {{ total_parcelas }}
+                                    parcela{{ total_parcelas|pluralize:"s" }}
+                                    quitada{{ parcelas_pagas|pluralize:"s" }}.
+                                </div>
+                            </div>
+
+                            <strong>
+                                {{ percentual_pago|floatformat:1 }}%
+                            </strong>
+                        </div>
+
+                        <div
+                            class="progress"
+                            role="progressbar"
+                            aria-label="Progresso do pagamento"
+                            aria-valuenow="{{ percentual_pago|floatformat:0 }}"
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                            style="height: 10px;"
+                        >
+                            <div
+                                class="progress-bar"
+                                style="width: {{ percentual_pago|stringformat:'f' }}%;"
+                            ></div>
+                        </div>
+                    </div>
+
+                    <div class="ficha-sidebar-section border-bottom-0 pb-0">
+                        <span class="ficha-sidebar-label d-block mb-3">
+                            Ações
+                        </span>
+
+                        <div class="d-grid gap-2">
+                            {% if conta.status == "cancelada" %}
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-secondary"
+                                    disabled
+                                >
+                                    <i class="bi bi-x-circle me-2"></i>
+                                    Conta cancelada
+                                </button>
+
+                            {% elif primeira_parcela_pendente %}
+                                <a
+                                    href="{% url 'financeiro:registrar_baixa' primeira_parcela_pendente.pk %}"
+                                    class="btn btn-success"
+                                >
+                                    <i class="bi bi-cash-coin me-2"></i>
+                                    Registrar Baixa
+                                </a>
+
+                            {% else %}
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-success"
+                                    disabled
+                                >
+                                    <i class="bi bi-check-circle me-2"></i>
+                                    Conta totalmente quitada
+                                </button>
+                            {% endif %}
+
+                            {% if conta.compra %}
+                                <a
+                                    href="{% url 'compras:ficha' conta.compra.pk %}"
+                                    class="btn btn-outline-primary"
+                                >
+                                    <i class="bi bi-box-arrow-up-right me-2"></i>
+                                    Abrir Compra
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+            </aside>
+        </div>
+
+    </div>
+
+</div>
+
+{% for parcela in parcelas %}
                                             <tr>
 
                                                 <td>
@@ -429,7 +502,7 @@ Conta a Pagar #{{ conta.numero }} | ERP Helvi
 
                                                                     {% if baixa.desconto > 0 %}
                                                                         <div class="small text-success">
-                                                                            − Desconto:
+                                                                            âˆ’ Desconto:
                                                                             R$ {{ baixa.desconto|floatformat:2 }}
                                                                         </div>
                                                                     {% endif %}
@@ -438,7 +511,7 @@ Conta a Pagar #{{ conta.numero }} | ERP Helvi
                                                             {% endfor %}
 
                                                         {% else %}
-                                                            <span class="text-muted">—</span>
+                                                            <span class="text-muted">â€”</span>
                                                         {% endif %}
 
                                                     {% endwith %}
@@ -488,7 +561,7 @@ Conta a Pagar #{{ conta.numero }} | ERP Helvi
                                                             {% endif %}
 
                                                             {% if not baixas and parcela.status == "paga" %}
-                                                                <span class="text-muted">—</span>
+                                                                <span class="text-muted">â€”</span>
                                                             {% endif %}
 
                                                         </div>
@@ -555,7 +628,7 @@ Conta a Pagar #{{ conta.numero }} | ERP Helvi
                     aria-labelledby="historico-tab"
                     tabindex="0"
                 >
-                    {% include "components/cards/section_header.html" with titulo="Histórico" subtitulo="Eventos e alterações registrados nesta Conta a Pagar." %}
+                    {% include "components/cards/section_header.html" with titulo="Histórico" subtitulo="Eventos e alterções registrados nesta Conta a Pagar." %}
 
                     {% if historicos %}
                         <div class="d-flex flex-column gap-4">
@@ -618,7 +691,7 @@ Conta a Pagar #{{ conta.numero }} | ERP Helvi
                     aria-labelledby="movimentacoes-tab"
                     tabindex="0"
                 >
-                    {% include "components/cards/section_header.html" with titulo="Movimentações financeiras" subtitulo="Saídas e estornos vinculados às baixas desta conta." %}
+                    {% include "components/cards/section_header.html" with titulo="Movimentações financeiras" subtitulo="Saídas e estornos vinculados as baixas desta conta." %}
 
                     {% if movimentacoes %}
                         <div class="table-responsive">

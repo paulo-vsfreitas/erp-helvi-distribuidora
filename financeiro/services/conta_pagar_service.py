@@ -3,7 +3,7 @@ from datetime import date
 from decimal import Decimal
 
 from django.db import transaction
-from django.db.models import Prefetch, Sum
+from django.db.models import Prefetch, Q, Sum
 from django.utils import timezone
 
 from financeiro.models import (
@@ -73,7 +73,7 @@ def obter_ou_criar_categoria_compra():
 
 
 @transaction.atomic
-def criar_conta_pagar_compra(compra, usuario):
+def criar_conta_pagar_compra(*, compra, usuario):
     """
     Gera a Conta a Pagar vinculada a uma Compra.
 
@@ -125,10 +125,10 @@ def criar_conta_pagar_compra(compra, usuario):
 
     categoria = obter_ou_criar_categoria_compra()
 
-    valor_pago_importado = min(
-        compra.valor_pago or Decimal("0.00"),
-        compra.total,
-    )
+    # Uma conta gerada pelo fluxo operacional de Compras sempre nasce
+    # pendente. Valores pagos somente podem existir após uma baixa
+    # financeira registrada.
+    valor_pago_inicial = Decimal("0.00")
 
     conta = ContaPagar.objects.create(
         descricao=f"Compra #{compra.numero} — {compra.fornecedor_nome}",
@@ -138,7 +138,7 @@ def criar_conta_pagar_compra(compra, usuario):
         data_emissao=compra.data_compra,
         data_competencia=compra.data_compra,
         valor_total=compra.total,
-        valor_pago=valor_pago_importado,
+        valor_pago=valor_pago_inicial,
         observacoes=(
             "Conta gerada automaticamente no recebimento "
             f"da compra #{compra.numero}."
@@ -154,7 +154,7 @@ def criar_conta_pagar_compra(compra, usuario):
         numero=1,
         data_vencimento=timezone.localdate(),
         valor_original=compra.total,
-        valor_pago=valor_pago_importado,
+        valor_pago=valor_pago_inicial,
         observacoes=(
             "Parcela gerada automaticamente a partir "
             f"da compra #{compra.numero}."
@@ -173,7 +173,7 @@ def criar_conta_pagar_compra(compra, usuario):
             "compra_numero": compra.numero,
             "parcela_id": parcela.pk,
             "valor_total": str(compra.total),
-            "valor_pago_importado": str(valor_pago_importado),
+            "valor_pago_inicial": str(valor_pago_inicial),
             "vencimento_inicial": parcela.data_vencimento.isoformat(),
         },
         usuario=usuario,
@@ -416,6 +416,19 @@ def obter_dados_ficha_conta_pagar(conta_id):
         },
     ]
 
+    primeira_parcela_pendente = next(
+        (
+            parcela
+            for parcela in parcelas_exibicao
+            if parcela.status
+            in [
+                ParcelaPagar.STATUS_PENDENTE,
+                ParcelaPagar.STATUS_PARCIAL,
+            ]
+        ),
+        None,
+    )
+
     return {
         "conta": conta,
         "cards": cards,
@@ -427,30 +440,218 @@ def obter_dados_ficha_conta_pagar(conta_id):
         "parcelas_pendentes": parcelas_pendentes,
         "valor_movimentado": valor_movimentado,
         "percentual_pago": percentual_pago,
-        
+        "primeira_parcela_pendente": primeira_parcela_pendente,
     }
 
 def listar_contas_pagar(request):
+    """
+    Prepara a listagem operacional de Contas a Pagar.
+
+    Aplica os filtros informados na requisição e calcula os
+    indicadores financeiros referentes ao resultado encontrado.
+    """
+
+    hoje = timezone.localdate()
+
+    busca = (request.GET.get("q") or "").strip()
+    fornecedor_id = (request.GET.get("fornecedor") or "").strip()
+    categoria_id = (request.GET.get("categoria") or "").strip()
+    status = (request.GET.get("status") or "").strip()
+    vencimento_inicio = (
+        request.GET.get("vencimento_inicio") or ""
+    ).strip()
+    vencimento_fim = (
+        request.GET.get("vencimento_fim") or ""
+    ).strip()
+
+    parcelas_queryset = (
+        ParcelaPagar.objects
+        .order_by(
+            "data_vencimento",
+            "numero",
+        )
+    )
+
     contas = (
         ContaPagar.objects
         .select_related(
             "fornecedor",
             "categoria",
         )
+        .prefetch_related(
+            Prefetch(
+                "parcelas",
+                queryset=parcelas_queryset,
+                to_attr="parcelas_ordenadas",
+            )
+        )
         .order_by(
             "-criado_em",
         )
     )
 
-    busca = request.GET.get("q")
-
     if busca:
-        contas = contas.filter(
-            descricao__icontains=busca,
+        filtro_busca = (
+            Q(descricao__icontains=busca)
+            | Q(fornecedor__nome_fantasia__icontains=busca)
+            | Q(fornecedor__razao_social__icontains=busca)
         )
 
+        if busca.isdigit():
+            filtro_busca |= Q(numero=int(busca))
+
+        contas = contas.filter(filtro_busca)
+
+    if fornecedor_id.isdigit():
+        contas = contas.filter(
+            fornecedor_id=int(fornecedor_id),
+        )
+
+    if categoria_id.isdigit():
+        contas = contas.filter(
+            categoria_id=int(categoria_id),
+        )
+
+    status_validos = {
+        valor
+        for valor, descricao in (
+            ContaPagar._meta
+            .get_field("status")
+            .choices
+        )
+    }
+
+    if status in status_validos:
+        contas = contas.filter(
+            status=status,
+        )
+
+    if vencimento_inicio:
+        contas = contas.filter(
+            parcelas__data_vencimento__gte=vencimento_inicio,
+        )
+
+    if vencimento_fim:
+        contas = contas.filter(
+            parcelas__data_vencimento__lte=vencimento_fim,
+        )
+
+    contas = contas.distinct()
+
+    totais = contas.aggregate(
+        valor_total=Sum("valor_total"),
+        valor_pago=Sum("valor_pago"),
+    )
+
+    valor_total = (
+        totais["valor_total"]
+        or Decimal("0.00")
+    )
+
+    valor_pago = (
+        totais["valor_pago"]
+        or Decimal("0.00")
+    )
+
+    saldo_total = valor_total - valor_pago
+    quantidade_contas = contas.count()
+
+    contas_vencidas = (
+        contas
+        .filter(
+            parcelas__data_vencimento__lt=hoje,
+            parcelas__status__in=[
+                ParcelaPagar.STATUS_PENDENTE,
+                ParcelaPagar.STATUS_PARCIAL,
+            ],
+        )
+        .distinct()
+        .count()
+    )
+
+    contas_exibicao = list(contas)
+
+    for conta in contas_exibicao:
+        parcelas_abertas = [
+            parcela
+            for parcela in conta.parcelas_ordenadas
+            if parcela.status in [
+                ParcelaPagar.STATUS_PENDENTE,
+                ParcelaPagar.STATUS_PARCIAL,
+            ]
+        ]
+
+        conta.proximo_vencimento = (
+            parcelas_abertas[0].data_vencimento
+            if parcelas_abertas
+            else None
+        )
+
+
+    modelo_fornecedor = (
+        ContaPagar._meta
+        .get_field("fornecedor")
+        .remote_field
+        .model
+    )
+
+    fornecedores = (
+        modelo_fornecedor.objects
+        .filter(
+            contas_pagar__isnull=False,
+        )
+        .distinct()
+        .order_by(
+            "nome_fantasia",
+            "razao_social",
+        )
+    )
+
+    categorias = (
+        CategoriaFinanceira.objects
+        .filter(
+            tipo=CategoriaFinanceira.TIPO_DESPESA,
+            ativo=True,
+        )
+        .order_by("nome")
+    )
+
+    status_opcoes = (
+        ContaPagar._meta
+        .get_field("status")
+        .choices
+    )
+
+    filtros_ativos = any(
+        [
+            busca,
+            fornecedor_id,
+            categoria_id,
+            status,
+            vencimento_inicio,
+            vencimento_fim,
+        ]
+    )
+
     return {
-        "contas": contas,
+        "contas": contas_exibicao,
+        "fornecedores": fornecedores,
+        "categorias": categorias,
+        "status_opcoes": status_opcoes,
+        "quantidade_contas": quantidade_contas,
+        "contas_vencidas": contas_vencidas,
+        "valor_total": valor_total,
+        "valor_pago": valor_pago,
+        "saldo_total": saldo_total,
+        "filtros_ativos": filtros_ativos,
+        "filtros": {
+            "q": busca,
+            "fornecedor": fornecedor_id,
+            "categoria": categoria_id,
+            "status": status,
+            "vencimento_inicio": vencimento_inicio,
+            "vencimento_fim": vencimento_fim,
+        },
     }
 
 def adicionar_meses(data_base, quantidade_meses):

@@ -1,0 +1,98 @@
+.financeiro-ficha {
+    padding-bottom: 2rem;
+}
+
+.ficha-topbar {
+    margin-bottom: 1.25rem;
+}
+
+.ficha-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.ficha-titulo {
+    font-size: clamp(1.75rem, 3vw, 2.35rem);
+    line-height: 1.15;
+    font-weight: 700;
+}
+
+.ficha-sidebar {
+    position: sticky;
+    top: 1.25rem;
+}
+
+.ficha-sidebar-card {
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 1rem;
+    box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+}
+
+.ficha-sidebar-section {
+    padding: 1.25rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.ficha-sidebar-label {
+    color: #6c757d;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.ficha-sidebar-value {
+    display: block;
+    margin-top: 0.35rem;
+    font-size: 1.55rem;
+    line-height: 1.2;
+}
+
+.financeiro-ficha .card {
+    border-radius: 1rem;
+}
+
+.financeiro-ficha .nav-tabs {
+    gap: 0.25rem;
+}
+
+.financeiro-ficha .nav-tabs .nav-link {
+    white-space: nowrap;
+}
+
+.financeiro-ficha .table th {
+    white-space: nowrap;
+}
+
+@media (max-width: 1199.98px) {
+    .ficha-sidebar {
+        position: static;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .financeiro-ficha {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .ficha-heading {
+        flex-direction: column;
+    }
+
+    .financeiro-ficha .card-body {
+        padding: 1.25rem !important;
+    }
+
+    .financeiro-ficha .nav-tabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding-bottom: 0.25rem;
+    }
+}

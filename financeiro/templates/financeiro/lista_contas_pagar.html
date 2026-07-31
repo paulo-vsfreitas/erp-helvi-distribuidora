@@ -1,37 +1,340 @@
 {% extends "core/base.html" %}
 
-{% block title %}Contas a Pagar{% endblock %}
+{% block title %}Contas a Pagar | ERP Helvi{% endblock %}
 
 {% block content %}
 
 <div class="container-fluid">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-
+    <div
+        class="d-flex flex-column flex-lg-row
+               justify-content-between align-items-lg-start
+               gap-3 mb-4"
+    >
         <div>
-            <div class="d-flex justify-content-between align-items-start mb-4">
+            <h1 class="mb-1">
+                Contas a Pagar
+            </h1>
 
-                <div>
+            <p class="text-muted mb-0">
+                Consulte, acompanhe e gerencie todas as despesas cadastradas.
+            </p>
+        </div>
 
-                    <h1 class="mb-1">
-                        Contas a Pagar
-                    </h1>
+        <a
+            href="{% url 'financeiro:nova_conta_pagar' %}"
+            class="btn btn-primary"
+        >
+            <i class="bi bi-plus-lg me-1"></i>
+            Nova Conta
+        </a>
+    </div>
 
-                    <p class="text-muted mb-0">
-                        Relação de todas as contas cadastradas.
-                    </p>
+    <div class="row g-3 mb-4">
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+
+                    <div
+                        class="d-flex justify-content-between
+                               align-items-start gap-3"
+                    >
+                        <div>
+                            <div class="text-muted small mb-1">
+                                Contas encontradas
+                            </div>
+
+                            <div class="fs-4 fw-semibold">
+                                {{ quantidade_contas }}
+                            </div>
+                        </div>
+
+                        <i class="bi bi-receipt fs-3 text-primary"></i>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+
+                    <div
+                        class="d-flex justify-content-between
+                               align-items-start gap-3"
+                    >
+                        <div>
+                            <div class="text-muted small mb-1">
+                                Valor total
+                            </div>
+
+                            <div class="fs-4 fw-semibold">
+                                R$ {{ valor_total|floatformat:2 }}
+                            </div>
+                        </div>
+
+                        <i class="bi bi-cash-stack fs-3 text-primary"></i>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+
+                    <div
+                        class="d-flex justify-content-between
+                               align-items-start gap-3"
+                    >
+                        <div>
+                            <div class="text-muted small mb-1">
+                                Total pago
+                            </div>
+
+                            <div class="fs-4 fw-semibold">
+                                R$ {{ valor_pago|floatformat:2 }}
+                            </div>
+                        </div>
+
+                        <i class="bi bi-check-circle fs-3 text-success"></i>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+
+                    <div
+                        class="d-flex justify-content-between
+                               align-items-start gap-3"
+                    >
+                        <div>
+                            <div class="text-muted small mb-1">
+                                Saldo pendente
+                            </div>
+
+                            <div class="fs-4 fw-semibold">
+                                R$ {{ saldo_total|floatformat:2 }}
+                            </div>
+
+                            {% if contas_vencidas %}
+                                <div class="small text-danger mt-1">
+                                    {{ contas_vencidas }}
+                                    conta{{ contas_vencidas|pluralize }}
+                                    com vencimento em atraso
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <i class="bi bi-wallet2 fs-3 text-danger"></i>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+
+        <div class="card-body">
+
+            <form method="get">
+
+                <div class="row g-3 align-items-end">
+
+                    <div class="col-lg-4">
+
+                        <label
+                            for="filtro-q"
+                            class="form-label"
+                        >
+                            Pesquisar
+                        </label>
+
+                        <input
+                            type="search"
+                            id="filtro-q"
+                            name="q"
+                            value="{{ filtros.q }}"
+                            class="form-control"
+                            placeholder="Número ou descrição da conta"
+                        >
+
+                    </div>
+
+                    <div class="col-md-6 col-lg-4">
+
+                        <label
+                            for="filtro-fornecedor"
+                            class="form-label"
+                        >
+                            Fornecedor
+                        </label>
+
+                        <select
+                            id="filtro-fornecedor"
+                            name="fornecedor"
+                            class="form-select"
+                        >
+                            <option value="">
+                                Todos os fornecedores
+                            </option>
+
+                            {% for fornecedor in fornecedores %}
+                                <option
+                                    value="{{ fornecedor.pk }}"
+                                    {% if filtros.fornecedor == fornecedor.pk|stringformat:"s" %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ fornecedor }}
+                                </option>
+                            {% endfor %}
+                        </select>
+
+                    </div>
+
+                    <div class="col-md-6 col-lg-4">
+
+                        <label
+                            for="filtro-categoria"
+                            class="form-label"
+                        >
+                            Categoria
+                        </label>
+
+                        <select
+                            id="filtro-categoria"
+                            name="categoria"
+                            class="form-select"
+                        >
+                            <option value="">
+                                Todas as categorias
+                            </option>
+
+                            {% for categoria in categorias %}
+                                <option
+                                    value="{{ categoria.pk }}"
+                                    {% if filtros.categoria == categoria.pk|stringformat:"s" %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ categoria.nome }}
+                                </option>
+                            {% endfor %}
+                        </select>
+
+                    </div>
+
+                    <div class="col-md-4">
+
+                        <label
+                            for="filtro-status"
+                            class="form-label"
+                        >
+                            Status
+                        </label>
+
+                        <select
+                            id="filtro-status"
+                            name="status"
+                            class="form-select"
+                        >
+                            <option value="">
+                                Todos os status
+                            </option>
+
+                            {% for valor, descricao in status_opcoes %}
+                                <option
+                                    value="{{ valor }}"
+                                    {% if filtros.status == valor %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ descricao }}
+                                </option>
+                            {% endfor %}
+                        </select>
+
+                    </div>
+
+                    <div class="col-md-4">
+
+                        <label
+                            for="filtro-vencimento-inicio"
+                            class="form-label"
+                        >
+                            Vencimento inicial
+                        </label>
+
+                        <input
+                            type="date"
+                            id="filtro-vencimento-inicio"
+                            name="vencimento_inicio"
+                            value="{{ filtros.vencimento_inicio }}"
+                            class="form-control"
+                        >
+
+                    </div>
+
+                    <div class="col-md-4">
+
+                        <label
+                            for="filtro-vencimento-fim"
+                            class="form-label"
+                        >
+                            Vencimento final
+                        </label>
+
+                        <input
+                            type="date"
+                            id="filtro-vencimento-fim"
+                            name="vencimento_fim"
+                            value="{{ filtros.vencimento_fim }}"
+                            class="form-control"
+                        >
+
+                    </div>
+
+                    <div class="col-12">
+
+                        <div
+                            class="d-flex flex-column flex-sm-row
+                                   justify-content-end gap-2"
+                        >
+                            {% if filtros_ativos %}
+                                <a
+                                    href="{% url 'financeiro:lista_contas_pagar' %}"
+                                    class="btn btn-outline-secondary"
+                                >
+                                    <i class="bi bi-x-lg me-1"></i>
+                                    Limpar filtros
+                                </a>
+                            {% endif %}
+
+                            <button
+                                type="submit"
+                                class="btn btn-primary"
+                            >
+                                <i class="bi bi-search me-1"></i>
+                                Pesquisar
+                            </button>
+                        </div>
+
+                    </div>
 
                 </div>
 
-                <a
-                    href="{% url 'financeiro:nova_conta_pagar' %}"
-                    class="btn btn-primary"
-                >
-                    <i class="bi bi-plus-lg me-1"></i>
-                    Nova Conta
-                </a>
+            </form>
 
-            </div>
         </div>
 
     </div>
@@ -43,78 +346,136 @@
             <table class="table align-middle mb-0">
 
                 <thead>
-
                     <tr>
-
                         <th>Número</th>
                         <th>Fornecedor</th>
                         <th>Descrição</th>
+                        <th>Categoria</th>
+                        <th>Próximo vencimento</th>
                         <th>Status</th>
-                        <th>Total</th>
+                        <th class="text-end">Total</th>
+                        <th class="text-end">Pago</th>
+                        <th class="text-end">Saldo</th>
                         <th></th>
-
                     </tr>
-
                 </thead>
 
                 <tbody>
 
-                {% for conta in contas %}
+                    {% for conta in contas %}
 
-                    <tr>
+                        <tr>
 
-                        <td>#{{ conta.numero }}</td>
+                            <td class="fw-semibold">
+                                #{{ conta.numero }}
+                            </td>
 
-                        <td>
+                            <td>
+                                {{ conta.fornecedor|default:"—" }}
+                            </td>
 
-                            {{ conta.fornecedor }}
+                            <td>
+                                {{ conta.descricao }}
+                            </td>
 
-                        </td>
+                            <td>
+                                {{ conta.categoria|default:"—" }}
+                            </td>
 
-                        <td>
+                            <td>
+                                {% if conta.proximo_vencimento %}
+                                    <div>
+                                        {{ conta.proximo_vencimento|date:"d/m/Y" }}
+                                    </div>
 
-                            {{ conta.descricao }}
+                                    {% if conta.possui_parcela_vencida %}
+                                        <span class="badge text-bg-danger mt-1">
+                                            Em atraso
+                                        </span>
+                                    {% endif %}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
 
-                        </td>
+                            <td>
 
-                        <td>
+                                {% if conta.status == "paga" %}
 
-                            {{ conta.get_status_display }}
+                                    <span class="badge text-bg-success">
+                                        {{ conta.get_status_display }}
+                                    </span>
 
-                        </td>
+                                {% elif conta.status == "cancelada" %}
 
-                        <td>
+                                    <span class="badge text-bg-secondary">
+                                        {{ conta.get_status_display }}
+                                    </span>
 
-                            R$ {{ conta.valor_total|floatformat:2 }}
+                                {% elif conta.status == "parcial" %}
 
-                        </td>
+                                    <span class="badge text-bg-warning">
+                                        {{ conta.get_status_display }}
+                                    </span>
 
-                        <td class="text-end">
+                                {% else %}
 
-                            <a
-                                href="{% url 'financeiro:ficha_conta_pagar' conta.pk %}"
-                                class="btn btn-sm btn-primary"
+                                    <span class="badge text-bg-primary">
+                                        {{ conta.get_status_display }}
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                            <td class="text-end text-nowrap">
+                                R$ {{ conta.valor_total|floatformat:2 }}
+                            </td>
+
+                            <td class="text-end text-nowrap">
+                                R$ {{ conta.valor_pago|floatformat:2 }}
+                            </td>
+
+                            <td class="text-end text-nowrap fw-semibold">
+                                R$ {{ conta.saldo|floatformat:2 }}
+                            </td>
+
+                            <td class="text-end">
+
+                                <a
+                                    href="{% url 'financeiro:ficha_conta_pagar' conta.pk %}"
+                                    class="btn btn-sm btn-primary"
+                                >
+                                    Abrir
+                                </a>
+
+                            </td>
+
+                        </tr>
+
+                    {% empty %}
+
+                        <tr>
+                            <td
+                                colspan="10"
+                                class="text-center py-5"
                             >
-                                Abrir
-                            </a>
+                                <i
+                                    class="bi bi-inbox
+                                           d-block fs-1 text-muted mb-2"
+                                ></i>
 
-                        </td>
+                                <div class="fw-semibold">
+                                    Nenhuma conta encontrada
+                                </div>
 
-                    </tr>
+                                <div class="text-muted small mt-1">
+                                    Ajuste os filtros ou cadastre uma nova conta.
+                                </div>
+                            </td>
+                        </tr>
 
-                {% empty %}
-
-                    <tr>
-
-                        <td colspan="6" class="text-center py-5">
-
-                            Nenhuma conta cadastrada.
-
-                        </td>
-
-                    </tr>
-
-                {% endfor %}
+                    {% endfor %}
 
                 </tbody>
 

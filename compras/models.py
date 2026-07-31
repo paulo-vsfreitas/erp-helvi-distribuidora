@@ -64,6 +64,26 @@ class Compra(models.Model):
         verbose_name="Recebida por",
     )
 
+    cancelada_em = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name="Cancelada em",
+)
+
+    cancelada_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="compras_canceladas",
+        verbose_name="Cancelada por",
+)
+
+    motivo_cancelamento = models.TextField(
+        blank=True,
+        verbose_name="Motivo do cancelamento",
+)
+
     numero = models.PositiveIntegerField(
         unique=True,
         editable=False,

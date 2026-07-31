@@ -1,0 +1,206 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Central de Relatórios | ERP Helvi{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/relatorios.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="relatorios-page">
+
+    <nav class="relatorios-breadcrumb" aria-label="breadcrumb">
+        <a href="{% url 'dashboard' %}">
+            Dashboard
+        </a>
+
+        <i class="bi bi-chevron-right"></i>
+
+        <span>Relatórios</span>
+    </nav>
+
+    <header class="relatorios-hero">
+        <div class="relatorios-hero-content">
+            <span class="relatorios-eyebrow">
+                Inteligência de negócio
+            </span>
+
+            <h1>Central de Relatórios</h1>
+
+            <p>
+                Acompanhe indicadores comerciais, financeiros,
+                operacionais e estratégicos da Helvi Distribuidora.
+            </p>
+        </div>
+
+        <div class="relatorios-hero-icon">
+            <i class="bi bi-bar-chart-line"></i>
+        </div>
+    </header>
+
+    <section class="relatorios-kpis" aria-label="Indicadores da Central">
+
+        <article class="relatorios-kpi">
+            <div class="relatorios-kpi-icon">
+                <i class="bi bi-grid"></i>
+            </div>
+
+            <div>
+                <strong>{{ indicadores.total_modulos }}</strong>
+                <span>Módulos</span>
+            </div>
+        </article>
+
+        <article class="relatorios-kpi">
+            <div class="relatorios-kpi-icon">
+                <i class="bi bi-file-earmark-bar-graph"></i>
+            </div>
+
+            <div>
+                <strong>{{ indicadores.total_relatorios }}</strong>
+                <span>Relatórios</span>
+            </div>
+        </article>
+
+        <article class="relatorios-kpi relatorios-kpi-success">
+            <div class="relatorios-kpi-icon">
+                <i class="bi bi-check-circle"></i>
+            </div>
+
+            <div>
+                <strong>{{ indicadores.total_disponiveis }}</strong>
+                <span>Disponíveis</span>
+            </div>
+        </article>
+
+        <article class="relatorios-kpi relatorios-kpi-warning">
+            <div class="relatorios-kpi-icon">
+                <i class="bi bi-tools"></i>
+            </div>
+
+            <div>
+                <strong>{{ indicadores.total_desenvolvimento }}</strong>
+                <span>Em desenvolvimento</span>
+            </div>
+        </article>
+
+    </section>
+
+    <div class="relatorios-secoes">
+
+        {% for secao in secoes %}
+
+            <section class="relatorios-modulo">
+
+                <header class="relatorios-modulo-header">
+                    <div class="relatorios-modulo-heading">
+                        <div class="relatorios-modulo-icon">
+                            <i class="bi {{ secao.icone }}"></i>
+                        </div>
+
+                        <div>
+                            <h2>{{ secao.titulo }}</h2>
+                            <p>{{ secao.descricao }}</p>
+                        </div>
+                    </div>
+
+                    <span class="relatorios-modulo-count">
+                        {{ secao.relatorios|length }}
+                        relatório{{ secao.relatorios|length|pluralize }}
+                    </span>
+                </header>
+
+                <div class="relatorios-grid">
+
+                    {% for relatorio in secao.relatorios %}
+
+                        <article
+                            class="relatorio-card
+                            {% if not relatorio.disponivel %}
+                                relatorio-card-disabled
+                            {% endif %}"
+                        >
+
+                            <div class="relatorio-card-header">
+                                <div class="relatorio-card-icon">
+                                    <i class="bi {{ relatorio.icone }}"></i>
+                                </div>
+
+                                {% if relatorio.status == "disponivel" %}
+                                    <span class="relatorio-status status-disponivel">
+                                        <i class="bi bi-check-circle-fill"></i>
+                                        Disponível
+                                    </span>
+
+                                {% elif relatorio.status == "planejado" %}
+                                    <span class="relatorio-status status-planejado">
+                                        <i class="bi bi-calendar3"></i>
+                                        Planejado
+                                    </span>
+
+                                {% else %}
+                                    <span class="relatorio-status status-desenvolvimento">
+                                        <i class="bi bi-tools"></i>
+                                        Em breve
+                                    </span>
+                                {% endif %}
+                            </div>
+
+                            <div class="relatorio-card-content">
+                                <h3>{{ relatorio.titulo }}</h3>
+                                <p>{{ relatorio.descricao }}</p>
+                            </div>
+
+                            <div class="relatorio-card-footer">
+
+                                {% if relatorio.disponivel %}
+
+                                    <a
+                                        href="{{ relatorio.url }}"
+                                        class="relatorio-action relatorio-action-active"
+                                    >
+                                        <span>Abrir relatório</span>
+                                        <i class="bi bi-arrow-right"></i>
+                                    </a>
+
+                                {% else %}
+
+                                    <span class="relatorio-action relatorio-action-disabled">
+                                        <span>Em desenvolvimento</span>
+                                        <i class="bi bi-lock"></i>
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+                        </article>
+
+                    {% endfor %}
+
+                </div>
+
+            </section>
+
+        {% empty %}
+
+            <div class="relatorios-empty">
+                <i class="bi bi-bar-chart"></i>
+
+                <h2>Nenhum relatório disponível</h2>
+
+                <p>
+                    Os relatórios aparecerão aqui conforme forem
+                    implementados.
+                </p>
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+{% endblock %}

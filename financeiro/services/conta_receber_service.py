@@ -12,6 +12,7 @@ from financeiro.models import (
     MovimentacaoFinanceira,
     ParcelaReceber,
     RecebimentoConta,
+    CategoriaFinanceira,
 )
 
 
@@ -170,61 +171,250 @@ def criar_conta_receber_manual(
 
 def listar_contas_receber(request):
     """
-    Retorna as Contas a Receber com os filtros da listagem.
+    Prepara a listagem operacional de Contas a Receber.
+
+    Centraliza:
+    - pesquisa;
+    - filtros;
+    - indicadores financeiros;
+    - próximo vencimento;
+    - identificação de contas em atraso.
     """
+
+    hoje = timezone.localdate()
+
+    busca = (request.GET.get("q") or "").strip()
+    cliente_id = (request.GET.get("cliente") or "").strip()
+    categoria_id = (request.GET.get("categoria") or "").strip()
+    status = (request.GET.get("status") or "").strip()
+    origem = (request.GET.get("origem") or "").strip()
+    vencimento_inicio = (
+        request.GET.get("vencimento_inicio") or ""
+    ).strip()
+    vencimento_fim = (
+        request.GET.get("vencimento_fim") or ""
+    ).strip()
+
+    parcelas_queryset = (
+        ParcelaReceber.objects
+        .order_by(
+            "data_vencimento",
+            "numero",
+        )
+    )
+
     contas = (
         ContaReceber.objects
         .select_related(
             "cliente",
             "categoria",
         )
+        .prefetch_related(
+            Prefetch(
+                "parcelas",
+                queryset=parcelas_queryset,
+                to_attr="parcelas_ordenadas_lista",
+            )
+        )
         .order_by(
             "-criado_em",
         )
     )
 
-    busca = (request.GET.get("q") or "").strip()
-    status = (request.GET.get("status") or "").strip()
-    origem = (request.GET.get("origem") or "").strip()
-    vencidas = request.GET.get("vencidas")
-
     if busca:
-        filtros = (
+        filtro_busca = (
             Q(descricao__icontains=busca)
             | Q(nome_devedor__icontains=busca)
             | Q(documento_devedor__icontains=busca)
         )
 
         if busca.isdigit():
-            filtros |= Q(numero=int(busca))
+            filtro_busca |= Q(numero=int(busca))
 
-        contas = contas.filter(filtros)
+        contas = contas.filter(filtro_busca)
 
-    if status:
-        contas = contas.filter(status=status)
-
-    if origem:
-        contas = contas.filter(origem=origem)
-
-    if vencidas:
-        hoje = timezone.localdate()
-
+    if cliente_id.isdigit():
         contas = contas.filter(
+            cliente_id=int(cliente_id),
+        )
+
+    if categoria_id.isdigit():
+        contas = contas.filter(
+            categoria_id=int(categoria_id),
+        )
+
+    status_opcoes = (
+        ContaReceber._meta
+        .get_field("status")
+        .choices
+    )
+
+    status_validos = {
+        valor
+        for valor, descricao in status_opcoes
+    }
+
+    if status in status_validos:
+        contas = contas.filter(
+            status=status,
+        )
+
+    origem_opcoes = (
+        ContaReceber._meta
+        .get_field("origem")
+        .choices
+    )
+
+    origens_validas = {
+        valor
+        for valor, descricao in origem_opcoes
+    }
+
+    if origem in origens_validas:
+        contas = contas.filter(
+            origem=origem,
+        )
+
+    if vencimento_inicio:
+        contas = contas.filter(
+            parcelas__data_vencimento__gte=vencimento_inicio,
+        )
+
+    if vencimento_fim:
+        contas = contas.filter(
+            parcelas__data_vencimento__lte=vencimento_fim,
+        )
+
+    contas = contas.distinct()
+
+    totais = contas.aggregate(
+        valor_total=Sum("valor_total"),
+        valor_recebido=Sum("valor_recebido"),
+    )
+
+    valor_total = (
+        totais["valor_total"]
+        or Decimal("0.00")
+    )
+
+    valor_recebido = (
+        totais["valor_recebido"]
+        or Decimal("0.00")
+    )
+
+    saldo_total = valor_total - valor_recebido
+    quantidade_contas = contas.count()
+
+    contas_vencidas = (
+        contas
+        .filter(
             parcelas__data_vencimento__lt=hoje,
             parcelas__status__in=[
                 ParcelaReceber.STATUS_PENDENTE,
                 ParcelaReceber.STATUS_PARCIAL,
             ],
-        ).distinct()
+        )
+        .distinct()
+        .count()
+    )
+
+    contas_exibicao = list(contas)
+
+    for conta in contas_exibicao:
+        parcelas_abertas = [
+            parcela
+            for parcela in conta.parcelas_ordenadas_lista
+            if parcela.status in [
+                ParcelaReceber.STATUS_PENDENTE,
+                ParcelaReceber.STATUS_PARCIAL,
+            ]
+        ]
+
+        conta.proximo_vencimento_lista = (
+            parcelas_abertas[0].data_vencimento
+            if parcelas_abertas
+            else None
+        )
+
+        conta.tem_parcela_vencida_lista = any(
+            parcela.data_vencimento < hoje
+            and parcela.status in [
+                ParcelaReceber.STATUS_PENDENTE,
+                ParcelaReceber.STATUS_PARCIAL,
+            ]
+            for parcela in conta.parcelas_ordenadas_lista
+        )
+
+    modelo_cliente = (
+        ContaReceber._meta
+        .get_field("cliente")
+        .remote_field
+        .model
+    )
+
+    cliente_ids = (
+        ContaReceber.objects
+        .filter(
+            cliente__isnull=False,
+        )
+        .values_list(
+            "cliente_id",
+            flat=True,
+        )
+        .distinct()
+    )
+
+    clientes = (
+        modelo_cliente.objects
+        .filter(
+            pk__in=cliente_ids,
+        )
+        .order_by("pk")
+    )
+
+    categorias = (
+        CategoriaFinanceira.objects
+        .filter(
+            tipo=CategoriaFinanceira.TIPO_RECEITA,
+            ativo=True,
+        )
+        .order_by("nome")
+    )
+
+    filtros_ativos = any(
+        [
+            busca,
+            cliente_id,
+            categoria_id,
+            status,
+            origem,
+            vencimento_inicio,
+            vencimento_fim,
+        ]
+    )
 
     return {
-        "contas": contas,
-        "busca": busca,
-        "status_selecionado": status,
-        "origem_selecionada": origem,
-        "somente_vencidas": bool(vencidas),
+        "contas": contas_exibicao,
+        "clientes": clientes,
+        "categorias": categorias,
+        "status_opcoes": status_opcoes,
+        "origem_opcoes": origem_opcoes,
+        "quantidade_contas": quantidade_contas,
+        "contas_vencidas": contas_vencidas,
+        "valor_total": valor_total,
+        "valor_recebido": valor_recebido,
+        "saldo_total": saldo_total,
+        "filtros_ativos": filtros_ativos,
+        "filtros": {
+            "q": busca,
+            "cliente": cliente_id,
+            "categoria": categoria_id,
+            "status": status,
+            "origem": origem,
+            "vencimento_inicio": vencimento_inicio,
+            "vencimento_fim": vencimento_fim,
+        },
     }
-
 
 def obter_dados_ficha_conta_receber(conta_id):
     """

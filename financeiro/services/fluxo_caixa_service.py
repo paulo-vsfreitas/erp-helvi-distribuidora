@@ -9,7 +9,7 @@ from financeiro.models import (
     ContaFinanceira,
     MovimentacaoFinanceira,
 )
-from financeiro.services.dashboard_service import (
+from financeiro.services.indicadores_service import (
     formatar_moeda,
 )
 
@@ -202,10 +202,10 @@ def obter_fluxo_caixa(parametros):
                 estornada=True,
             )
 
-        elif status == FluxoCaixaFiltroForm.STATUS_TODAS:
-            pass
-
-        else:
+        elif (
+            status
+            != FluxoCaixaFiltroForm.STATUS_TODAS
+        ):
             movimentacoes = movimentacoes.filter(
                 estornada=False,
             )

@@ -4,6 +4,9 @@ from django.shortcuts import get_object_or_404, render
 
 from compras.forms import PagamentoCompraForm
 from compras.models import Compra, PagamentoCompra
+from compras.services.historico_estoque_service import (
+    buscar_movimentacoes_entrada_compra,
+)
 
 
 def moeda(valor):
@@ -27,6 +30,7 @@ def ficha_compra(request, pk):
 
     itens = compra.itens.all()
     pagamentos = compra.pagamentos.all()
+    movimentacoes_entrada = buscar_movimentacoes_entrada_compra(compra)
 
     quantidade_itens = itens.count()
     quantidade_pecas = sum(
@@ -142,6 +146,7 @@ def ficha_compra(request, pk):
         "resumo_financeiro": resumo_financeiro,
         "pagamentos": pagamentos,
         "pagamento_form": pagamento_form,
+        "movimentacoes_entrada": movimentacoes_entrada,
     }
 
     return render(
