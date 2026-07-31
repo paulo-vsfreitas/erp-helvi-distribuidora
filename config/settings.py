@@ -182,3 +182,8 @@ AUTH_USER_MODEL = "usuarios.Usuario"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+
+# E-mail em ambiente de desenvolvimento
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+DEFAULT_FROM_EMAIL = "ERP Helvi <nao-responda@helvi.local>"

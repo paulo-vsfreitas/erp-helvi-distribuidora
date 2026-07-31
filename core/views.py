@@ -29,10 +29,3 @@ def central_relatorios(request):
         "core/relatorios.html",
         contexto,
     )
-
-
-def recuperacao_acesso(request):
-    return render(
-        request,
-        "core/recuperacao_acesso.html",
-    )

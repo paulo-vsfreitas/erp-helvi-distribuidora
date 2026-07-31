@@ -14,9 +14,4 @@ urlpatterns = [
         views.central_relatorios,
         name="central_relatorios",
     ),
-    path(
-        "recuperar-acesso/",
-        views.recuperacao_acesso,
-        name="recuperacao_acesso",
-    ),
 ]
