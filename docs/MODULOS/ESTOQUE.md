@@ -1,11 +1,24 @@
-# Módulo Estoque
+﻿# Módulo Estoque
 
-Responsável por movimentações, ajustes, inventários e integração com
-compras e vendas.
+## Responsabilidade
 
-Pendências:
+Movimentações, entradas, saídas, ajustes, inventários e integrações com Compras e Vendas.
+
+## Implementado
+
+- dashboard;
+- lista de movimentações;
+- filtros;
+- entradas por compra;
+- saídas por venda;
+- ajustes;
+- inventário;
+- rastreio de origem.
+
+## Pendências
 
 - locais de estoque;
 - transferências;
 - alertas de estoque mínimo;
-- relatório consolidado.
+- relatório consolidado;
+- homologação integrada de estornos.

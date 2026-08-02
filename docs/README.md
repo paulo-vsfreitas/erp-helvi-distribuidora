@@ -1,28 +1,35 @@
-# ERP Helvi Distribuidora
+﻿# Documentação Oficial — ERP Helvi
 
-Documentação oficial do ERP Helvi.
+Esta pasta é a fonte oficial de contexto arquitetural, funcional e de planejamento do ERP Helvi.
 
-O sistema é desenvolvido em Django com arquitetura modular em camadas,
-integração entre os domínios e componentes reutilizáveis.
+## Ordem de leitura ao iniciar uma nova conversa ou sprint
 
-## Documentos principais
+1. `DEVELOPMENT_GUIDE.md`
+2. `ARQUITETURA.md`
+3. `DECISOES.md`
+4. `ROADMAP.md`
+5. `BACKLOG.md`
+6. documentação do módulo em `MODULOS/`
+7. `CHANGELOG.md`
 
+## Regra de continuidade
+
+Antes de criar código novo:
+
+1. verificar se a funcionalidade já existe;
+2. procurar componente, service, helper, CSS ou JavaScript reutilizável;
+3. confirmar o estado atual somente no arquivo específico necessário;
+4. preservar decisões já homologadas;
+5. atualizar a documentação junto com o código.
+
+## Estrutura
+
+- `DEVELOPMENT_GUIDE.md`: metodologia permanente de desenvolvimento;
 - `ARQUITETURA.md`: arquitetura oficial;
-- `PADRAO_DE_CODIGO.md`: convenções de desenvolvimento;
-- `MODULOS.md`: situação atual dos módulos;
-- `ROADMAP.md`: planejamento da versão 1.0;
-- `CHANGELOG.md`: histórico de evolução;
-- `FRAMEWORK/`: padrões e componentes reutilizáveis;
-- `MODULOS/`: documentação detalhada por domínio;
-- `RELEASES/`: escopo e critérios das versões.
-
-## Regras permanentes
-
-- preservar a arquitetura em camadas;
-- manter views finas;
-- concentrar regras operacionais em services;
-- utilizar forms para validação de entrada;
-- integrar estoque, financeiro e histórico;
-- utilizar fichas como telas centrais;
-- homologar cada fluxo antes de considerá-lo concluído;
-- atualizar a documentação junto com o código.
+- `DECISOES.md`: decisões permanentes e regras de negócio;
+- `ROADMAP.md`: estado atual e próximos marcos;
+- `BACKLOG.md`: pendências priorizadas;
+- `CHANGELOG.md`: evolução consolidada;
+- `FRAMEWORK/`: recursos compartilhados do Framework Helvi;
+- `MODULOS/`: estado funcional de cada domínio;
+- `RELEASES/`: critérios de versões.

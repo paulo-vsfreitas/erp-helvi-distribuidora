@@ -1,6 +1,10 @@
-# ERP Helvi 1.0
+﻿# ERP Helvi 1.0
 
-## Critérios de lançamento
+## Objetivo
+
+Primeira versão utilizável de ponta a ponta na operação real da Helvi.
+
+## Critérios
 
 - fluxos principais homologados;
 - integrações consistentes;
@@ -9,14 +13,30 @@
 - interface responsiva;
 - documentação atualizada;
 - banco validado;
-- estratégia de backup definida.
+- backup e restauração definidos;
+- estratégia de produção estabelecida.
+
+## Escopo funcional esperado
+
+- cadastros;
+- produtos e catálogo;
+- clientes e fornecedores;
+- estoque;
+- compras;
+- financeiro;
+- orçamentos;
+- vendas;
+- PDFs essenciais;
+- relatórios básicos.
 
 ## Entregas restantes
 
-- relatório financeiro;
-- relatório de estoque;
+- homologação integrada;
+- cancelamentos e estornos;
+- relatórios financeiro e de estoque;
 - pesquisa global;
 - auditoria;
-- polimento visual;
+- padronização visual e monetária;
 - revisão de performance;
-- homologação integrada.
+- backup;
+- preparação de produção.

@@ -1,28 +1,43 @@
-# Services do Framework Helvi
+﻿# Services do Framework Helvi
 
-Services de negócio permanecem dentro de seus módulos.
+## Regra
+
+Services de negócio permanecem em seus módulos:
 
 ```text
+comercial/services/
 vendas/services/
 compras/services/
 estoque/services/
 financeiro/services/
 ```
 
-O `core` pode fornecer apenas recursos genéricos.
+O `core` fornece apenas recursos genéricos, sem regra específica de domínio.
 
-Dependência permitida:
+## Contrato
+
+Um service:
+
+- não recebe `request`;
+- não renderiza template;
+- não retorna `HttpResponse`;
+- recebe argumentos explícitos;
+- retorna entidades ou resultados estruturados;
+- usa `transaction.atomic` em operações compostas;
+- valida duplicidade e idempotência quando necessário.
+
+## Dependências
+
+Permitido:
 
 ```text
-vendas -> core
-financeiro -> core
-estoque -> core
+modulo -> core
 ```
 
-Dependência que deve ser evitada:
+Evitar:
 
 ```text
-core -> vendas
-core -> financeiro
-core -> estoque
+core -> modulo
 ```
+
+Integrações entre módulos devem ser explícitas e testáveis.
