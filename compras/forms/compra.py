@@ -123,15 +123,15 @@ class CompraForm(forms.ModelForm):
         return fornecedor
 
     def limpar_decimal(self, valor):
-        if valor in [None, ""]:
+        if valor in (None, ""):
             return Decimal("0.00")
 
-        valor = (
-            str(valor)
-            .strip()
-            .replace(".", "")
-            .replace(",", ".")
-        )
+        valor = str(valor).strip()
+
+        # Formato brasileiro
+        if "," in valor:
+            valor = valor.replace(".", "")
+            valor = valor.replace(",", ".")
 
         try:
             return Decimal(valor)

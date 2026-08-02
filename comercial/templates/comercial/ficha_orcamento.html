@@ -48,40 +48,64 @@
                 Voltar
             </a>
 
-                        {% if orcamento.status == orcamento.Status.RASCUNHO %}
+            <a
+                href="{% url 'comercial:pdf' orcamento.numero %}"
+                target="_blank"
+                class="btn btn-outline-secondary"
+            >
+                <i class="bi bi-file-earmark-pdf"></i>
+                Gerar PDF
+            </a>
 
-                <a href="{% url 'comercial:editar' orcamento.numero %}"
-                class="btn btn-secondary">
+            <form
+                method="post"
+                action="{% url 'comercial:duplicar' orcamento.numero %}"
+                class="d-inline"
+            >
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    class="btn btn-outline-primary"
+                >
+                    <i class="bi bi-copy"></i>
+                    Duplicar
+                </button>
+            </form>
+
+            {% if orcamento.status == orcamento.Status.RASCUNHO %}
+
+                <a
+                    href="{% url 'comercial:editar' orcamento.numero %}"
+                    class="btn btn-secondary"
+                >
                     <i class="bi bi-pencil"></i>
                     Editar
                 </a>
 
-                    <button
-                        type="button"
-                        class="btn btn-primary btn-status"
-                        data-url="{% url 'comercial:alterar_status' orcamento.numero 'enviado' %}"
-                        data-titulo="Enviar orçamento"
-                        data-texto="Deseja realmente enviar este orçamento?"
-                        data-botao="Confirmar envio"
-                    >
-                        <i class="bi bi-send"></i>
-                        Enviar
-                    </button>
-                
-                </a>
+                <button
+                    type="button"
+                    class="btn btn-primary btn-status"
+                    data-url="{% url 'comercial:alterar_status' orcamento.numero 'enviado' %}"
+                    data-titulo="Enviar orçamento"
+                    data-texto="Deseja realmente enviar este orçamento?"
+                    data-botao="Confirmar envio"
+                >
+                    <i class="bi bi-send"></i>
+                    Enviar
+                </button>
 
-                    <button
-                        type="button"
-                        class="btn btn-dark btn-status"
-                        data-url="{% url 'comercial:alterar_status' orcamento.numero 'cancelado' %}"
-                        data-titulo="Cancelar orçamento"
-                        data-texto="Deseja realmente cancelar este orçamento?"
-                        data-botao="Confirmar cancelamento"
-                    >
-                        <i class="bi bi-slash-circle"></i>
-                        Cancelar
-                    </button>
-                </a>
+                <button
+                    type="button"
+                    class="btn btn-dark btn-status"
+                    data-url="{% url 'comercial:alterar_status' orcamento.numero 'cancelado' %}"
+                    data-titulo="Cancelar orçamento"
+                    data-texto="Deseja realmente cancelar este orçamento?"
+                    data-botao="Confirmar cancelamento"
+                >
+                    <i class="bi bi-slash-circle"></i>
+                    Cancelar
+                </button>
 
             {% elif orcamento.status == orcamento.Status.ENVIADO %}
 
@@ -109,37 +133,28 @@
                     Rejeitar
                 </button>
 
-                <button class="btn btn-secondary" disabled>
-                    <i class="bi bi-file-earmark-pdf"></i>
-                    PDF
-                </button>
-
             {% elif orcamento.status == orcamento.Status.APROVADO %}
-                {% if orcamento.status == orcamento.Status.APROVADO and not orcamento.cliente_id %}
 
+                {% if not orcamento.cliente_id %}
                     <a
                         href="{% url 'comercial:vincular_cliente' orcamento.numero %}"
                         class="btn btn-secondary"
                     >
                         <i class="bi bi-person-plus"></i>
-                        Vincular Cliente
+                        Vincular cliente
                     </a>
-
                 {% endif %}
+
                 <button
                     type="button"
                     class="btn btn-success btn-status"
                     data-url="{% url 'comercial:converter_orcamento' orcamento.numero %}"
-                    data-titulo="Converter em Venda"
+                    data-titulo="Converter em venda"
                     data-texto="Deseja converter este orçamento em uma venda? Esta ação não poderá ser desfeita."
-                    data-botao="Converter Venda"
+                    data-botao="Converter venda"
                 >
                     <i class="bi bi-cart-check"></i>
-                    Converter em Venda
-                </button>
-
-                <button class="btn btn-secondary" disabled>
-                    PDF
+                    Converter em venda
                 </button>
 
             {% elif orcamento.status == orcamento.Status.REJEITADO %}
@@ -152,6 +167,12 @@
 
                 <span class="badge bg-dark fs-6">
                     Orçamento cancelado
+                </span>
+
+            {% elif orcamento.status == orcamento.Status.CONVERTIDO %}
+
+                <span class="badge bg-success fs-6">
+                    Convertido em venda
                 </span>
 
             {% endif %}

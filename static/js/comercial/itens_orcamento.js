@@ -65,12 +65,13 @@
             );
 
             if (existente) {
-                existente.quantidade += 1;
-                this.atualizar();
+                this.destacarProdutoExistente(produtoId);
 
                 return {
-                    sucesso: true,
-                    mensagem: "Quantidade do produto atualizada.",
+                    sucesso: false,
+                    mensagem:
+                        "Este produto já foi adicionado ao orçamento. " +
+                        "Altere a quantidade ou o desconto diretamente na lista.",
                 };
             }
 
@@ -100,6 +101,38 @@
             ].filter(Boolean);
 
             return partes.join(" • ");
+        }
+
+        destacarProdutoExistente(produtoId) {
+            const linha = this.corpoTabela.querySelector(
+                `tr[data-produto-id="${produtoId}"]`
+            );
+
+            if (!linha) {
+                return;
+            }
+
+            linha.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+            });
+
+            linha.classList.add("item-produto-destacado");
+
+            window.setTimeout(() => {
+                linha.classList.remove("item-produto-destacado");
+            }, 2200);
+
+            const campoQuantidade = linha.querySelector(
+                ".item-quantidade"
+            );
+
+            if (campoQuantidade) {
+                window.setTimeout(() => {
+                    campoQuantidade.focus();
+                    campoQuantidade.select();
+                }, 400);
+            }
         }
 
         atualizarQuantidade(produtoId, valor) {

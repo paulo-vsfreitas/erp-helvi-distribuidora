@@ -11,12 +11,25 @@ TAMANHO_MINIMO_TERMO = 2
 def buscar_clientes_para_orcamento(termo):
     termo = (termo or "").strip()
 
+    clientes = (
+        Cliente.objects
+        .filter(ativo=True)
+        .order_by(
+            "nome_fantasia",
+            "razao_social",
+        )
+    )
+
+    # Ao clicar no campo sem digitar, retorna os primeiros
+    # clientes ativos cadastrados.
+    if not termo:
+        return clientes[:LIMITE_RESULTADOS]
+
     if len(termo) < TAMANHO_MINIMO_TERMO:
         return Cliente.objects.none()
 
     return (
-        Cliente.objects
-        .filter(ativo=True)
+        clientes
         .filter(
             Q(nome_fantasia__icontains=termo)
             | Q(razao_social__icontains=termo)
@@ -24,10 +37,6 @@ def buscar_clientes_para_orcamento(termo):
             | Q(responsavel__icontains=termo)
             | Q(telefone__icontains=termo)
             | Q(whatsapp__icontains=termo)
-        )
-        .order_by(
-            "nome_fantasia",
-            "razao_social",
         )[:LIMITE_RESULTADOS]
     )
 
@@ -35,10 +44,7 @@ def buscar_clientes_para_orcamento(termo):
 def buscar_produtos_para_orcamento(termo):
     termo = (termo or "").strip()
 
-    if len(termo) < TAMANHO_MINIMO_TERMO:
-        return Produto.objects.none()
-
-    return (
+    produtos = (
         Produto.objects
         .filter(ativo=True)
         .select_related(
@@ -47,6 +53,20 @@ def buscar_produtos_para_orcamento(termo):
             "genero",
             "tipo_armacao",
         )
+        .order_by(
+            "codigo",
+            "modelo",
+        )
+    )
+
+    if not termo:
+        return produtos[:LIMITE_RESULTADOS]
+
+    if len(termo) < TAMANHO_MINIMO_TERMO:
+        return Produto.objects.none()
+
+    return (
+        produtos
         .filter(
             Q(codigo__icontains=termo)
             | Q(codigo_fornecedor__icontains=termo)
@@ -56,9 +76,5 @@ def buscar_produtos_para_orcamento(termo):
             | Q(genero__nome__icontains=termo)
             | Q(tipo_armacao__nome__icontains=termo)
             | Q(cores_disponiveis__icontains=termo)
-        )
-        .order_by(
-            "codigo",
-            "modelo",
         )[:LIMITE_RESULTADOS]
     )

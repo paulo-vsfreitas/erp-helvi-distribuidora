@@ -9,6 +9,8 @@ from comercial.views import (
     editar_orcamento,
     alterar_status,
     converter_orcamento,
+    gerar_pdf_orcamento,
+    duplicar_orcamento_view,
     
     
 )
@@ -65,5 +67,17 @@ urlpatterns = [
     "orcamentos/<int:numero>/vincular-cliente/",
     vincular_cliente,
     name="vincular_cliente",
+    ),
+
+    path(
+    "orcamentos/<int:numero>/pdf/",
+    gerar_pdf_orcamento,
+    name="pdf",
+    ),
+
+    path(
+    "orcamentos/<int:numero>/duplicar/",
+    duplicar_orcamento_view,
+    name="duplicar",
     ),
 ]

@@ -14,4 +14,6 @@ from .api import (
 from .status import alterar_status
 from .conversao import converter_orcamento
 from .cliente import vincular_cliente
+from .pdf import gerar_pdf_orcamento
+from .duplicacao import duplicar_orcamento_view
 

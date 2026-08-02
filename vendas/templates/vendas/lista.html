@@ -52,9 +52,15 @@
                     {% for venda in vendas %}
                         <tr>
                             <td>
-                                <a href="{% url 'vendas:ficha' venda.numero %}">
-                                    #{{ venda.numero|stringformat:"06d" }}
-                                </a>
+                                {% if venda.numero %}
+                                    <a href="{% url 'vendas:ficha' venda.numero %}">
+                                        #{{ venda.numero|stringformat:"06d" }}
+                                    </a>
+                                {% else %}
+                                    <span class="text-danger">
+                                        Sem número
+                                    </span>
+                                {% endif %}
                             </td>
                             <td>
                                 {% if venda.cliente %}

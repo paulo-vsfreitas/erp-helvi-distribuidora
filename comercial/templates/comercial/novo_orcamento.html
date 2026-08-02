@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/comercial.css' %}?v=4.0.4">
+<link rel="stylesheet"  href="{% static 'css/comercial.css' %}?v=4.0.8">
 {% endblock %}
 
 {% block content %}
@@ -51,38 +51,6 @@
 
             </div>
 
-            <div class="ficha-actions">
-
-                {% if modo_edicao %}
-                    <a
-                        href="{% url 'comercial:ficha' numero=orcamento.numero %}"
-                        class="btn btn-secondary"
-                    >
-                        Cancelar
-                    </a>
-                {% else %}
-                    <a
-                        href="{% url 'comercial:dashboard' %}"
-                        class="btn btn-secondary"
-                    >
-                        Cancelar
-                    </a>
-                {% endif %}
-
-                <button
-                    type="submit"
-                    class="btn btn-primary"
-                >
-                    <i class="bi bi-floppy"></i>
-
-                    {% if modo_edicao %}
-                        Salvar Alterações
-                    {% else %}
-                        Salvar Orçamento
-                    {% endif %}
-                </button>
-
-            </div>
 
         </div>
 
@@ -121,7 +89,7 @@
 
                             <div class="position-relative">
 
-                                {{ form.cliente.as_hidden }}
+                                {{ form.cliente }}
                                 {{ form.cliente_nome }}
 
                                 <div
@@ -303,6 +271,12 @@
                         </div>
 
                     </div>
+                    
+                    <div
+                        id="mensagem-produtos"
+                        class="d-none mt-3"
+                        aria-live="polite"
+                    ></div>
 
                     <div class="table-responsive orcamento-produtos-wrapper">
 
@@ -441,50 +415,86 @@
         <!-- RESUMO FINANCEIRO -->
         <aside class="orcamento-summary-column">
 
-            <section class="table-card orcamento-summary-card">
+            <div class="orcamento-lateral-sticky">
 
-                <div class="table-card-header">
-                    Resumo Financeiro
-                </div>
+                <div class="orcamento-acoes-laterais">
 
-                <div class="orcamento-summary-body">
+                    {% if modo_edicao %}
+                        <a
+                            href="{% url 'comercial:ficha' numero=orcamento.numero %}"
+                            class="btn btn-secondary"
+                        >
+                            Cancelar
+                        </a>
+                    {% else %}
+                        <a
+                            href="{% url 'comercial:dashboard' %}"
+                            class="btn btn-secondary"
+                        >
+                            Cancelar
+                        </a>
+                    {% endif %}
 
-                    <div class="orcamento-summary-row">
-                        <span>Subtotal</span>
-                        <strong id="subtotal">
-                            R$ 0,00
-                        </strong>
-                    </div>
+                    <button
+                        type="submit"
+                        form="form-orcamento"
+                        class="btn btn-primary"
+                    >
+                        <i class="bi bi-floppy"></i>
 
-                    <div class="orcamento-summary-row">
-                        <span>Desconto</span>
-                        <strong id="desconto">
-                            R$ 0,00
-                        </strong>
-                    </div>
-
-                    <div class="orcamento-summary-row">
-                        <span>Frete</span>
-                        <strong id="frete">
-                            R$ 0,00
-                        </strong>
-                    </div>
-
-                    <div class="orcamento-summary-divider"></div>
-
-                    <div class="orcamento-summary-total">
-
-                        <span>Total</span>
-
-                        <strong id="total-geral">
-                            R$ 0,00
-                        </strong>
-
-                    </div>
+                        {% if modo_edicao %}
+                            Salvar Alterações
+                        {% else %}
+                            Salvar Orçamento
+                        {% endif %}
+                    </button>
 
                 </div>
 
-            </section>
+                <section class="table-card orcamento-summary-card">
+
+                    <div class="table-card-header">
+                        Resumo Financeiro
+                    </div>
+
+                    <div class="orcamento-summary-body">
+
+                        <div class="orcamento-summary-row">
+                            <span>Subtotal</span>
+                            <strong id="subtotal">
+                                R$ 0,00
+                            </strong>
+                        </div>
+
+                        <div class="orcamento-summary-row">
+                            <span>Desconto</span>
+                            <strong id="desconto">
+                                R$ 0,00
+                            </strong>
+                        </div>
+
+                        <div class="orcamento-summary-row">
+                            <span>Frete</span>
+                            <strong id="frete">
+                                R$ 0,00
+                            </strong>
+                        </div>
+
+                        <div class="orcamento-summary-divider"></div>
+
+                        <div class="orcamento-summary-total">
+                            <span>Total</span>
+
+                            <strong id="total-geral">
+                                R$ 0,00
+                            </strong>
+                        </div>
+
+                    </div>
+
+                </section>
+
+            </div>
 
         </aside>
 
@@ -496,10 +506,10 @@
 
 {% block extra_js %}
 
-<script src="{% static 'js/comercial/cliente_autocomplete.js' %}"></script>
-<script src="{% static 'js/comercial/produto_autocomplete.js' %}"></script>
-<script src="{% static 'js/comercial/itens_orcamento.js' %}"></script>
-<script src="{% static 'js/comercial/resumo_financeiro.js' %}"></script>
-<script src="{% static 'js/comercial/novo_orcamento.js' %}"></script>
+<script src="{% static 'js/comercial/cliente_autocomplete.js' %}?v=6"></script>
+<script src="{% static 'js/comercial/produto_autocomplete.js' %}?v=5"></script>
+<script src="{% static 'js/comercial/itens_orcamento.js' %}?v=3"></script>
+<script src="{% static 'js/comercial/resumo_financeiro.js' %}?v=2"></script>
+<script src="{% static 'js/comercial/novo_orcamento.js' %}?v=5"></script>
 
 {% endblock %}

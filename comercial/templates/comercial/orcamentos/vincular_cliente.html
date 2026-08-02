@@ -1,84 +1,157 @@
 {% extends "core/base.html" %}
 
+{% load static %}
+
 {% block title %}
     Vincular Cliente | ERP Helvi
 {% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/comercial.css' %}?v=4.0.5">
+{% endblock %}
+
 {% block content %}
 
-<div class="ficha-header">
-    <div class="ficha-header-top">
+<div class="vincular-cliente-page">
 
-        <div class="ficha-title">
-            <h1>Vincular Cliente</h1>
+    <section class="vincular-cliente-card">
 
-            <p>
-                Selecione um cliente cadastrado para concluir a conversão
-                do orçamento {{ orcamento.codigo }}.
-            </p>
+        <header class="vincular-cliente-header">
 
-            <p class="mb-0">
-                Caso o cliente ainda não esteja cadastrado,
-                utilize o botão “Cadastrar Novo Cliente”.
-            </p>
-        </div>
+            <div class="vincular-cliente-header-icon">
+                <i class="bi bi-person-check"></i>
+            </div>
 
-    </div>
-</div>
+            <div>
+                <h1>Vincular Cliente</h1>
 
-<form method="post">
-    {% csrf_token %}
+                <p>
+                    Selecione um cliente cadastrado para concluir a conversão
+                    do orçamento <strong>{{ orcamento.codigo }}</strong>.
+                </p>
 
-    <section class="table-card">
-        <div class="table-card-header">
-            Cliente
-        </div>
+                <span>
+                    Caso o cliente ainda não esteja cadastrado, utilize a opção
+                    “Cadastrar Novo Cliente”.
+                </span>
+            </div>
 
-        <div class="p-4">
+        </header>
 
-            <div class="mb-3">
+        <form method="post" class="vincular-cliente-form">
+            {% csrf_token %}
 
-                <label
-                    for="{{ form.cliente.id_for_label }}"
-                    class="form-label"
-                >
-                    Cliente cadastrado
-                    <span class="campo-obrigatorio">*</span>
-                </label>
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {% for error in form.non_field_errors %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
 
-                {{ form.cliente }}
+            <div class="vincular-cliente-section">
 
-                {% for error in form.cliente.errors %}
-                    <div class="text-danger small mt-1">
-                        {{ error }}
+                <div class="vincular-cliente-section-header">
+                    <div>
+                        <h2>Cliente</h2>
+                        <p>Escolha o cadastro que será vinculado ao orçamento.</p>
                     </div>
-                {% endfor %}
+                </div>
+
+                <div class="vincular-cliente-section-body">
+
+                    <div class="vincular-cliente-field">
+
+                        <label for="cliente-search">
+                            Cliente cadastrado
+                            <span class="campo-obrigatorio">*</span>
+                        </label>
+
+                        <div class="cliente-autocomplete-wrapper">
+
+                            <div class="cliente-autocomplete-input">
+
+                                <i class="bi bi-search"></i>
+
+                                <input
+                                    type="text"
+                                    id="cliente-search"
+                                    class="form-control"
+                                    placeholder="Clique para visualizar ou digite nome, CPF/CNPJ, telefone..."
+                                    autocomplete="off"
+                                >
+
+                            </div>
+
+                            <input
+                                type="hidden"
+                                id="cliente-id"
+                                name="cliente"
+                                value="{{ form.cliente.value|default:'' }}"
+                            >
+
+                            <div
+                                id="cliente-resultados"
+                                class="autocomplete-list d-none"
+                            ></div>
+
+                        </div>
+
+                        <div
+                            id="cliente-selecionado"
+                            class="cliente-selecionado-card d-none"
+                        ></div>
+
+                        {% for error in form.cliente.errors %}
+                            <div class="text-danger small mt-2">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+
+                    </div>
+
+                    <div class="vincular-cliente-tip">
+
+                        <i class="bi bi-lightbulb-fill"></i>
+
+                        <div>
+                            <strong>Dica</strong>
+
+                            <p>
+                                Após cadastrar um novo cliente em outra aba,
+                                clique em “Atualizar lista” para exibi-lo neste campo.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <div class="vincular-cliente-secondary-actions">
+
+                        <a
+                            href="{% url 'comercial:vincular_cliente' numero=orcamento.numero %}"
+                            class="btn btn-outline-secondary"
+                        >
+                            <i class="bi bi-arrow-clockwise"></i>
+                            Atualizar lista
+                        </a>
+
+                        <a
+                            href="{% url 'novo_cliente' %}"
+                            target="_blank"
+                            rel="noopener"
+                            class="btn btn-outline-primary"
+                        >
+                            <i class="bi bi-person-plus"></i>
+                            Cadastrar Novo Cliente
+                        </a>
+
+                    </div>
+
+                </div>
 
             </div>
 
-            <div class="d-flex justify-content-end gap-2 mb-4">
-
-                <a
-                    href="{% url 'comercial:vincular_cliente' numero=orcamento.numero %}"
-                    class="btn btn-outline-secondary"
-                >
-                    <i class="bi bi-arrow-clockwise"></i>
-                    Atualizar lista
-                </a>
-
-                <a
-                    href="{% url 'novo_cliente' %}"
-                    target="_blank"
-                    rel="noopener"
-                    class="btn btn-outline-primary"
-                >
-                    <i class="bi bi-person-plus"></i>
-                    Cadastrar Novo Cliente
-                </a>
-
-            </div>
-
-            <div class="d-flex justify-content-end gap-2">
+            <footer class="vincular-cliente-actions">
 
                 <a
                     href="{% url 'comercial:ficha' numero=orcamento.numero %}"
@@ -95,11 +168,15 @@
                     Vincular Cliente
                 </button>
 
-            </div>
+            </footer>
 
-        </div>
+        </form>
+
     </section>
 
-</form>
+</div>
 
+{% endblock %}
+{% block extra_js %}
+<script src="{% static 'js/comercial/cliente_autocomplete.js' %}?v=5"></script>
 {% endblock %}
