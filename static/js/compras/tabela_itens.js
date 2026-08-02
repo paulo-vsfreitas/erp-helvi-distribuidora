@@ -50,40 +50,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function numero(valor) {
-        const texto = String(
-            valor ?? "0"
-        ).trim();
-
-        if (!texto) {
-            return 0;
-        }
-
-        /*
-         * Formato brasileiro:
-         * 1.250,50 → 1250.50
-         *
-         * Formato padrão:
-         * 1250.50 → 1250.50
-         */
-        if (texto.includes(",")) {
-            return (
-                Number(
-                    texto
-                        .replace(/\./g, "")
-                        .replace(",", ".")
-                ) || 0
-            );
-        }
-
-        return Number(texto) || 0;
+        return window.Helvi.money.parse(valor);
     }
 
     function valorDecimalParaInput(valor) {
-        return numero(valor).toFixed(2);
+        return window.Helvi.money.decimal(valor);
     }
 
     function moeda(valor) {
-        return numero(valor).toLocaleString(
+        return window.Helvi.money.parse(valor).toLocaleString(
             "pt-BR",
             {
                 style: "currency",

@@ -148,11 +148,9 @@
                         {% endif %}
                     {% endif %}
             {% if permissoes.configuracoes %}
-                <a href="javascript:void(0);"
-                    class="menu-disabled"
-                     title="Módulo em desenvolvimento">
-                     ⚙️ Configurações
-                    <small class="text-muted">(Em breve)</small>
+                <a href="{% url 'configuracoes:dados_empresa' %}">
+                    <i class="bi bi-gear"></i>
+                    Configurações
                 </a>
             {% endif %}
 
@@ -216,6 +214,15 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="{% static 'js/core/validation.js' %}"></script>
+
+<script src="{% static 'js/core/money.js' %}"></script>
+<script src="{% static 'js/core/mascaras.js' %}"></script>
+<script src="{% static 'js/core/cep.js' %}"></script>
+<script src="{% static 'js/core/money.js' %}"></script>
+<script src="{% static 'js/core/image_preview.js' %}"></script>
+<script src="{% static 'js/core/autocomplete.js' %}"></script>
+
+<script src="{% static 'js/core/init.js' %}"></script>
 
 {% block extra_js %}
 {% endblock %}

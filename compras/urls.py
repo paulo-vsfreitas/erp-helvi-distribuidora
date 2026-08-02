@@ -10,6 +10,7 @@ from compras.views.api.produtos import api_buscar_produtos
 from compras.views.pagamento import registrar_pagamento
 from compras.views.cancelamento_pagamento import cancelar_pagamento
 from compras.views.cancelamento import cancelar_compra_view
+from compras.views import gerar_pdf_compra
 
 
 app_name = "compras"
@@ -29,4 +30,5 @@ urlpatterns = [
         cancelar_pagamento,
         name="cancelar_pagamento",
     ),
+    path("<int:pk>/pdf/", gerar_pdf_compra, name="pdf"),
 ]

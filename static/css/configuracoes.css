@@ -1,0 +1,262 @@
+.configuracoes-page {
+    padding-bottom: 2rem;
+}
+
+.configuracoes-header {
+    margin-bottom: 1.5rem;
+}
+
+.configuracoes-header h1 {
+    margin: 0 0 0.35rem;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.configuracoes-header p {
+    margin: 0;
+    color: var(--text-muted, #6b7280);
+}
+
+.configuracoes-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.configuracoes-main,
+.configuracoes-sidebar {
+    min-width: 0;
+}
+
+.configuracoes-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+    margin-bottom: 1rem;
+    overflow: hidden;
+}
+
+.configuracoes-card-header {
+    padding: 1.25rem 1.35rem 0.85rem;
+}
+
+.configuracoes-card-header h2 {
+    margin: 0 0 0.25rem;
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.configuracoes-card-header p {
+    margin: 0;
+    color: var(--text-muted, #6b7280);
+    font-size: 0.9rem;
+}
+
+.configuracoes-card-body {
+    padding: 0.75rem 1.35rem 1.35rem;
+}
+
+.configuracoes-form-grid {
+    display: grid;
+    gap: 1rem 1.25rem;
+}
+
+.configuracoes-form-grid.identificacao {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.configuracoes-form-grid.contato {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.configuracoes-form-grid.endereco {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+
+.configuracoes-field {
+    min-width: 0;
+}
+
+.configuracoes-field label {
+    display: block;
+    margin-bottom: 0.45rem;
+    font-size: 0.86rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+.configuracoes-field .form-control,
+.configuracoes-field .form-select {
+    width: 100%;
+    min-height: 42px;
+    border-radius: 9px;
+    border: 1px solid #d8dee8;
+    padding: 0.65rem 0.75rem;
+}
+
+.configuracoes-field textarea.form-control {
+    min-height: 96px;
+    resize: vertical;
+}
+
+.configuracoes-field .form-control:focus,
+.configuracoes-field .form-select:focus {
+    border-color: #c89f32;
+    box-shadow: 0 0 0 0.2rem rgba(200, 159, 50, 0.14);
+}
+
+.configuracoes-error {
+    margin-top: 0.35rem;
+    color: #dc2626;
+    font-size: 0.78rem;
+}
+
+.configuracoes-logo-box {
+    min-height: 180px;
+    border: 1px solid #d8dee8;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    margin-bottom: 1.25rem;
+    background: #fff;
+}
+
+.configuracoes-logo-box img {
+    max-width: 100%;
+    max-height: 150px;
+    object-fit: contain;
+}
+
+.configuracoes-logo-placeholder {
+    color: #9ca3af;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+.configuracoes-help {
+    margin-top: 0.65rem;
+    color: #6b7280;
+    font-size: 0.78rem;
+    line-height: 1.45;
+}
+
+.configuracoes-actions {
+    position: sticky;
+    top: 1rem;
+}
+
+.configuracoes-save {
+    width: 100%;
+    min-height: 46px;
+    border: 0;
+    border-radius: 9px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #c99d2d, #d6ad42);
+    color: #fff;
+}
+
+.configuracoes-save:hover {
+    filter: brightness(0.97);
+    color: #fff;
+}
+
+.span-1 {
+    grid-column: span 1;
+}
+
+.span-2 {
+    grid-column: span 2;
+}
+
+.span-3 {
+    grid-column: span 3;
+}
+
+.span-4 {
+    grid-column: span 4;
+}
+
+.span-5 {
+    grid-column: span 5;
+}
+
+.span-6 {
+    grid-column: span 6;
+}
+
+.span-7 {
+    grid-column: span 7;
+}
+
+.span-8 {
+    grid-column: span 8;
+}
+
+.span-9 {
+    grid-column: span 9;
+}
+
+.span-10 {
+    grid-column: span 10;
+}
+
+.span-11 {
+    grid-column: span 11;
+}
+
+.span-12 {
+    grid-column: span 12;
+}
+
+@media (max-width: 1199px) {
+    .configuracoes-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .configuracoes-actions {
+        position: static;
+    }
+
+    .configuracoes-sidebar {
+        order: -1;
+    }
+}
+
+@media (max-width: 767px) {
+    .configuracoes-form-grid.identificacao,
+    .configuracoes-form-grid.contato,
+    .configuracoes-form-grid.endereco {
+        grid-template-columns: 1fr;
+    }
+
+    .configuracoes-field {
+        grid-column: span 1 !important;
+    }
+
+    .configuracoes-card-header,
+    .configuracoes-card-body {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}
+
+.configuracoes-form-alert {
+    margin-bottom: 1.25rem;
+    border-radius: 10px;
+}
+
+.configuracoes-field:has(.configuracoes-error) .form-control,
+.configuracoes-field:has(.configuracoes-error) .form-select {
+    border-color: #dc3545;
+}
+
+.configuracoes-error {
+    margin-top: 0.4rem;
+    color: #dc3545;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
