@@ -34,7 +34,6 @@ não representam falhas conhecidas nos fluxos 1.0 já homologados.
 ## Comercial e relacionamento
 
 - integração oficial com provedor de WhatsApp, se contratada;
-- templates de mensagem configuráveis;
 - confirmação automática de entrega/leitura quando o provedor permitir;
 - validade padrão configurável por empresa;
 - lembretes de orçamento próximo do vencimento.
@@ -53,7 +52,6 @@ não representam falhas conhecidas nos fluxos 1.0 já homologados.
 
 - consolidar aliases históricos de componentes após mapear todos os includes;
 - migrar formatadores monetários locais restantes para `core.formatters`;
-- implementar ou remover conscientemente os scaffolds PDF vazios;
 - ampliar testes de fornecedores, estoque e configurações;
 - testes de concorrência em numeração comercial;
 - testes end-to-end dos quatro perfis;

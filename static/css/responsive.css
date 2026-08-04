@@ -20,6 +20,20 @@
         max-height: none;
     }
 
+    .menu {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        column-gap: 12px;
+    }
+
+    .menu-section {
+        grid-column: 1 / -1;
+    }
+
+    .menu a {
+        min-width: 0;
+    }
+
     .topbar {
         position: static;
     }
@@ -37,5 +51,11 @@
 
     .table-card {
         overflow-x: auto;
+    }
+}
+
+@media (max-width: 479.98px) {
+    .menu {
+        display: block;
     }
 }

@@ -32,6 +32,7 @@ Cliente cadastrado ou interessado avulso
 - histórico de compartilhamentos;
 - e-mail com PDF anexado;
 - URL preparada para WhatsApp;
+- assunto e mensagens padrão configuráveis com variáveis do orçamento;
 - conversão idempotente em venda;
 - formatação monetária brasileira;
 - testes de regra, filtros, comunicação e conversão.
@@ -71,6 +72,13 @@ WhatsApp:
 - registra resultado “preparado”;
 - a confirmação final depende do usuário no aplicativo externo.
 
+Os modelos são editados em Configurações e aceitam `{CLIENTE}`, `{ORCAMENTO}`,
+`{TOTAL}`, `{VALIDADE}`, `{VENDEDOR}` e `{EMPRESA}`. Campos vazios preservam as
+mensagens originais do sistema como fallback. A interface permite inserir essas
+variáveis no cursor e conferir imediatamente a mensagem com dados de exemplo.
+Novas configurações recebem modelos iniciais específicos para e-mail e WhatsApp;
+registros existentes com campos vazios são preenchidos sem substituir modelos personalizados.
+
 ## Arquivos principais
 
 - models: `comercial/models.py`;
@@ -83,7 +91,6 @@ WhatsApp:
 
 ## Evoluções não bloqueantes
 
-- templates de mensagem configuráveis;
 - validade padrão por configuração;
 - provedor oficial de WhatsApp;
 - lembretes e automações de acompanhamento;

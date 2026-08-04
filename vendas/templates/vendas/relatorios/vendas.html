@@ -2,10 +2,37 @@
 
 {% block title %}Relatório de Vendas | ERP Helvi{% endblock %}
 
+{% load static %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/relatorios.css' %}?v=2.0">{% endblock %}
+
 {% block content %}
 <div class="hui-module-page hui-module-page--vendas hui-report-page">
 {% url "vendas:lista" as voltar_url %}
 {% include "components/layout/page_header.html" with titulo="Relatório de vendas" subtitulo="Analise desempenho comercial, recebimentos e produtos vendidos." botao_url=voltar_url botao_texto="Voltar às vendas" botao_icon="bi bi-arrow-left" %}
+
+<div class="relatorio-print-header"><strong>Relatório de vendas</strong><span>{{ periodo_texto }}</span></div>
+<div class="relatorio-toolbar no-print">
+    <div class="relatorio-periodos">
+        <span>Período:</span>
+        <a href="?periodo=hoje" class="btn btn-sm {% if periodo_rapido == 'hoje' %}btn-dark{% else %}btn-outline-secondary{% endif %}">Hoje</a>
+        <a href="?periodo=7d" class="btn btn-sm {% if periodo_rapido == '7d' %}btn-dark{% else %}btn-outline-secondary{% endif %}">7 dias</a>
+        <a href="?periodo=30d" class="btn btn-sm {% if periodo_rapido == '30d' %}btn-dark{% else %}btn-outline-secondary{% endif %}">30 dias</a>
+        <a href="?periodo=90d" class="btn btn-sm {% if periodo_rapido == '90d' %}btn-dark{% else %}btn-outline-secondary{% endif %}">90 dias</a>
+        <a href="?periodo=mes" class="btn btn-sm {% if periodo_rapido == 'mes' %}btn-dark{% else %}btn-outline-secondary{% endif %}">Mês atual</a>
+        <a href="?periodo=ano" class="btn btn-sm {% if periodo_rapido == 'ano' %}btn-dark{% else %}btn-outline-secondary{% endif %}">Ano atual</a>
+    </div>
+    <div class="relatorio-entrega">
+        <a href="?{% if querystring %}{{ querystring }}&{% endif %}exportar=csv" class="btn btn-outline-success"><i class="bi bi-filetype-csv"></i> CSV</a>
+        <a href="?{% if querystring %}{{ querystring }}&{% endif %}exportar=pdf" target="_blank" class="btn btn-outline-danger"><i class="bi bi-file-earmark-pdf"></i> PDF oficial</a>
+        <button type="button" class="btn btn-dark" onclick="window.print()"><i class="bi bi-printer"></i> Imprimir</button>
+    </div>
+</div>
+
+{% if filtros_ativos %}
+<div class="relatorio-filtros-ativos no-print">
+    <strong>{{ filtros_ativos }}</strong> filtro{{ filtros_ativos|pluralize }} ativo{{ filtros_ativos|pluralize }}.
+</div>
+{% endif %}
 
 <div class="card mb-4 hui-entity-filters">
     <div class="card-body">
@@ -71,6 +98,15 @@
                         {{ form.consumidor_final.label }}
                     </label>
                     {{ form.consumidor_final }}
+                </div>
+
+                <div class="col-md-6 col-xl-3">
+                    <label class="form-label" for="id_por_pagina">Linhas por página</label>
+                    <select class="form-select" id="id_por_pagina" name="por_pagina">
+                        <option value="25" {% if por_pagina == '25' %}selected{% endif %}>25</option>
+                        <option value="50" {% if por_pagina == '50' %}selected{% endif %}>50</option>
+                        <option value="100" {% if por_pagina == '100' %}selected{% endif %}>100</option>
+                    </select>
                 </div>
             </div>
 

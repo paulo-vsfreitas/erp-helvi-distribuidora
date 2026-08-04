@@ -29,9 +29,11 @@ compras          documentos de compra e recebimento
 financeiro       contas, parcelas, movimentos, baixas e recebimentos
 comercial        orçamentos e compartilhamentos
 vendas           vendas, pagamento, finalização e cancelamento
-configuracoes    dados da empresa
-relatorios       aplicação reservada; central atual composta pelo core
+configuracoes    dados da empresa e modelos de comunicação
 ```
+
+A Central de Relatórios é uma composição transversal do `core`; não existe
+uma aplicação Django separada sem responsabilidade de domínio.
 
 ## Estrutura padrão
 
@@ -169,6 +171,8 @@ aplicação, não bibliotecas genéricas.
 - orçamento e compra possuem PDF;
 - e-mail utiliza a camada `core/communication` e backend configurável;
 - WhatsApp é integração por URL preparada no navegador, não API de envio.
+- modelos editáveis são validados e renderizados por `configuracoes`; o
+  `core/communication` permanece responsável apenas pelo transporte genérico.
 
 ## Comandos operacionais
 

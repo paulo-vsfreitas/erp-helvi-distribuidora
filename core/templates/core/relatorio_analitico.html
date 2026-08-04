@@ -1,0 +1,81 @@
+{% extends "core/base.html" %}
+
+{% block title %}{{ titulo }} | ERP Helvi{% endblock %}
+
+{% load static %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/relatorios.css' %}?v=2.0">{% endblock %}
+
+{% block content %}
+<div class="hui-module-page hui-report-page relatorio-analitico-page">
+{% url "central_relatorios" as voltar_url %}
+{% include "components/layout/page_header.html" with titulo=titulo subtitulo=subtitulo botao_url=voltar_url botao_texto="Central de Relatórios" botao_icon="bi bi-arrow-left" %}
+
+<div class="relatorio-print-header"><strong>{{ titulo }}</strong><span>{{ periodo_texto }}</span></div>
+
+<div class="relatorio-toolbar no-print">
+    <div class="relatorio-periodos" aria-label="Períodos rápidos">
+        <span>Período:</span>
+        <a href="?periodo=hoje" class="btn btn-sm {% if periodo_rapido == 'hoje' %}btn-dark{% else %}btn-outline-secondary{% endif %}">Hoje</a>
+        <a href="?periodo=7d" class="btn btn-sm {% if periodo_rapido == '7d' %}btn-dark{% else %}btn-outline-secondary{% endif %}">7 dias</a>
+        <a href="?periodo=30d" class="btn btn-sm {% if periodo_rapido == '30d' %}btn-dark{% else %}btn-outline-secondary{% endif %}">30 dias</a>
+        <a href="?periodo=90d" class="btn btn-sm {% if periodo_rapido == '90d' %}btn-dark{% else %}btn-outline-secondary{% endif %}">90 dias</a>
+        <a href="?periodo=mes" class="btn btn-sm {% if periodo_rapido == 'mes' %}btn-dark{% else %}btn-outline-secondary{% endif %}">Mês atual</a>
+        <a href="?periodo=ano" class="btn btn-sm {% if periodo_rapido == 'ano' %}btn-dark{% else %}btn-outline-secondary{% endif %}">Ano atual</a>
+    </div>
+    <div class="relatorio-entrega">
+        <a href="?{% if querystring %}{{ querystring }}&{% endif %}exportar=csv" class="btn btn-outline-success"><i class="bi bi-filetype-csv"></i> CSV</a>
+        {% if possui_pdf %}<a href="?{% if querystring %}{{ querystring }}&{% endif %}exportar=pdf" target="_blank" class="btn btn-outline-danger"><i class="bi bi-file-earmark-pdf"></i> PDF oficial</a>{% endif %}
+        <button type="button" class="btn btn-dark" onclick="window.print()"><i class="bi bi-printer"></i> Imprimir</button>
+    </div>
+</div>
+
+{% if filtros_ativos %}<div class="relatorio-filtros-ativos no-print"><i class="bi bi-funnel-fill"></i> {{ filtros_ativos }} filtro{{ filtros_ativos|pluralize }} ativo{{ filtros_ativos|pluralize }} · {{ periodo_texto }}</div>{% endif %}
+
+<div class="card mb-4 hui-entity-filters">
+    <div class="card-body">
+        <form method="get">
+            {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+            <div class="row g-3">
+                <div class="col-md-6 col-xl-3"><label class="form-label">{{ form.data_inicial.label }}</label>{{ form.data_inicial }}</div>
+                <div class="col-md-6 col-xl-3"><label class="form-label">{{ form.data_final.label }}</label>{{ form.data_final }}</div>
+                <div class="col-md-6 col-xl-3"><label class="form-label">{{ form.busca.label }}</label>{{ form.busca }}</div>
+                {% if form.status %}<div class="col-md-6 col-xl-3"><label class="form-label">{{ form.status.label }}</label>{{ form.status }}</div>{% endif %}
+                <div class="col-md-6 col-xl-3"><label class="form-label">{{ form.por_pagina.label }}</label>{{ form.por_pagina }}</div>
+            </div>
+            <div class="hui-form-actions">
+                <a href="{% url 'relatorio_analitico' slug=slug %}" class="btn btn-outline-secondary">Limpar</a>
+                <button type="submit" class="btn btn-primary">Aplicar filtros</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% include "components/dashboard/kpi_cards.html" with kpis=kpis %}
+
+<div class="card mb-4 hui-entity-panel relatorio-tabela-card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <strong>Resultado analítico</strong><span class="hui-count-badge">{{ pagina.paginator.count }} registro{{ pagina.paginator.count|pluralize }}</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead><tr>{% for coluna in colunas %}<th>{{ coluna }}</th>{% endfor %}</tr></thead>
+                <tbody>
+                {% for linha in pagina %}
+                    <tr>{% for valor in linha.valores %}<td>{% if linha.url and forloop.first %}<a href="{{ linha.url }}">{{ valor }}</a>{% else %}{{ valor }}{% endif %}</td>{% endfor %}</tr>
+                {% empty %}<tr><td colspan="{{ colunas|length }}" class="text-center py-5 text-muted">Nenhum registro encontrado para os filtros informados.</td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% if pagina.paginator.num_pages > 1 %}
+<nav aria-label="Paginação"><ul class="pagination justify-content-center">
+    {% if pagina.has_previous %}<li class="page-item"><a class="page-link" href="?{% if querystring %}{{ querystring }}&{% endif %}pagina={{ pagina.previous_page_number }}">Anterior</a></li>{% endif %}
+    <li class="page-item disabled"><span class="page-link">Página {{ pagina.number }} de {{ pagina.paginator.num_pages }}</span></li>
+    {% if pagina.has_next %}<li class="page-item"><a class="page-link" href="?{% if querystring %}{{ querystring }}&{% endif %}pagina={{ pagina.next_page_number }}">Próxima</a></li>{% endif %}
+</ul></nav>
+{% endif %}
+</div>
+{% endblock %}

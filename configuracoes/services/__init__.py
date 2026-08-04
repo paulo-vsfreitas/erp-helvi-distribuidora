@@ -6,6 +6,12 @@ from .empresa_service import (
     obter_ou_criar_empresa,
     salvar_empresa,
 )
+from .mensagens_service import (
+    CONTEXTO_EXEMPLO_MENSAGEM,
+    VARIAVEIS_MENSAGEM,
+    renderizar_modelo_mensagem,
+    validar_modelo_mensagem,
+)
 
 __all__ = [
     "empresa_possui_dados_fiscais",
@@ -14,4 +20,8 @@ __all__ = [
     "obter_empresa",
     "obter_ou_criar_empresa",
     "salvar_empresa",
+    "VARIAVEIS_MENSAGEM",
+    "CONTEXTO_EXEMPLO_MENSAGEM",
+    "renderizar_modelo_mensagem",
+    "validar_modelo_mensagem",
 ]

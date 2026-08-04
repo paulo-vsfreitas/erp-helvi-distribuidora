@@ -6,15 +6,19 @@ Atualizado em **04/08/2026**.
 
 O ERP Helvi está em **release candidate 1.0**. Os fluxos essenciais funcionam de
 ponta a ponta, as telas principais compartilham o Helvi UI, as integrações
-críticas possuem auditoria e o pacote automatizado possui 61 testes aprovados.
+críticas possuem auditoria e o pacote automatizado possui 73 testes aprovados.
 
 O código está pronto para a homologação de aceitação e para a preparação do
 ambiente definitivo. Publicação em produção ainda exige backup, configuração
 de infraestrutura, SMTP real, HTTPS e plano de restauração.
 
+A Central de Configurações permite manter os dados institucionais e os modelos
+padrão de WhatsApp e e-mail usados no compartilhamento de orçamentos. O editor
+insere variáveis de forma guiada e mostra uma prévia com dados de exemplo.
+
 ## Validação registrada
 
-- `python manage.py test --keepdb`: **61 testes aprovados**;
+- `python manage.py test --keepdb`: **73 testes aprovados**;
 - `python manage.py check`: nenhum problema;
 - `python manage.py makemigrations --check --dry-run`: nenhuma mudança;
 - `python manage.py auditar_integracoes`: zero divergências;
@@ -38,8 +42,8 @@ de infraestrutura, SMTP real, HTTPS e plano de restauração.
 | Financeiro | Concluído no escopo 1.0 | contas, parcelas, baixas, recebimentos, estornos e fluxo |
 | Comercial | Concluído | orçamento, edição, filtros, PDF, compartilhamento, status e conversão |
 | Vendas | Concluído | venda direta, orçamento, pagamento, estoque, financeiro e cancelamento |
-| Relatórios | Funcional | 13 entradas ativas; relatório de vendas dedicado e visões operacionais |
-| Configurações | Funcional | dados institucionais da empresa |
+| Relatórios | Concluído no escopo 1.0 | 13 análises com filtros, KPIs, CSV e impressão; 6 PDFs oficiais |
+| Configurações | Funcional | dados institucionais e modelos de comunicação com variáveis validadas |
 
 ## Regras críticas já implementadas
 
@@ -61,8 +65,8 @@ de infraestrutura, SMTP real, HTTPS e plano de restauração.
   final ocorre no aplicativo do usuário;
 - e-mail depende de SMTP configurado; em desenvolvimento, o backend padrão pode
   apenas escrever a mensagem no console;
-- a Central de Relatórios centraliza 13 acessos funcionais, mas somente Vendas
-  possui relatório analítico dedicado; exportações avançadas são evolução futura;
+- os 13 relatórios possuem visão analítica dedicada, exportação CSV e impressão;
+  gráficos interativos permanecem como evolução futura;
 - não há locais múltiplos de estoque nem transferências entre depósitos;
 - pesquisa global entre todos os módulos ainda não existe;
 - não há API pública nem aplicativo móvel nesta versão;

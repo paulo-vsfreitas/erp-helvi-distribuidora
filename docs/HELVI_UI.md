@@ -9,7 +9,7 @@ páginas autenticadas.
 
 - tokens e componentes: `static/helvi_ui/helvi-ui.css`;
 - base interna: `core/templates/core/base.html`;
-- componentes recentes: `core/templates/helvi_ui/`;
+- componentes compartilhados: `core/templates/components/`;
 - cabeçalho oficial: `core/templates/components/layout/page_header.html`;
 - CSS estrutural legado/compatível: `static/css/`.
 

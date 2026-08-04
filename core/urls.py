@@ -14,4 +14,9 @@ urlpatterns = [
         views.central_relatorios,
         name="central_relatorios",
     ),
+    path(
+        "relatorios/<slug:slug>/",
+        views.relatorio_analitico,
+        name="relatorio_analitico",
+    ),
 ]

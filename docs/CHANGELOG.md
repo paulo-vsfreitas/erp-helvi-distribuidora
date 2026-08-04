@@ -1,5 +1,35 @@
 # Changelog do ERP Helvi
 
+## 04/08/2026 — Relatórios analíticos dedicados
+
+- substituídos os atalhos operacionais da Central por 12 relatórios dedicados;
+- adicionados filtros por período, pesquisa e status conforme o domínio;
+- adicionados KPIs, tabelas detalhadas, paginação e acesso às fichas de origem;
+- preservado o relatório de Vendas existente, totalizando 13 análises operantes;
+- incluídos períodos rápidos, indicação de filtros ativos e paginação configurável;
+- todos os relatórios oferecem CSV e versão otimizada para impressão;
+- Vendas, Contas a Receber, Contas a Pagar, Fluxo de Caixa, Posição de Estoque
+  e Compras emitem PDF oficial paginado com identificação da empresa.
+
+## 04/08/2026 — Auditoria estrutural e limpeza
+
+- remoção da aplicação vazia `relatorios`; a Central permanece no `core`;
+- exclusão de templates, scripts, services e scaffolds PDF sem referências;
+- correção de imports residuais de módulos vazios;
+- Central de Relatórios simplificada para conter somente destinos funcionais;
+- sintaxe Python/JavaScript, banco, migrations, integrações e 73 testes validados.
+
+## 04/08/2026 — Central de Configurações de comunicação
+
+- assunto e mensagens padrão de e-mail e WhatsApp editáveis na interface;
+- editor guiado com inserção de variáveis no cursor, contador e prévia instantânea;
+- modelos iniciais adequados à formalidade de e-mail e WhatsApp, personalizáveis pelo usuário;
+- suporte validado às variáveis de cliente, orçamento, total, validade,
+  vendedor e empresa;
+- integração dos modelos ao compartilhamento de orçamentos;
+- fallback preservado para as mensagens originais quando os campos estão vazios;
+- testes de validação, renderização, personalização e compatibilidade adicionados.
+
 ## 04/08/2026 — Release Candidate 1.0
 
 ### Interface e Framework Helvi

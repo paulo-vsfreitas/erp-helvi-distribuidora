@@ -165,6 +165,34 @@ class PermissoesModulosTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
+    def test_sidebar_do_vendedor_exibe_apenas_dominios_permitidos(self):
+        self.client.force_login(self.vendedor)
+
+        response = self.client.get(reverse("dashboard"))
+        sidebar = response.content.decode().split(
+            '<nav class="menu"', 1
+        )[1].split("</nav>", 1)[0]
+
+        self.assertIn(reverse("vendas:nova"), sidebar)
+        self.assertIn(reverse("estoque:dashboard_estoque"), sidebar)
+        self.assertNotIn(reverse("compras:lista"), sidebar)
+        self.assertNotIn(reverse("financeiro:dashboard"), sidebar)
+        self.assertNotIn(reverse("usuarios:lista_usuarios"), sidebar)
+
+    def test_sidebar_do_financeiro_oculta_comercial_e_operacao(self):
+        self.client.force_login(self.financeiro)
+
+        response = self.client.get(reverse("dashboard"))
+        sidebar = response.content.decode().split(
+            '<nav class="menu"', 1
+        )[1].split("</nav>", 1)[0]
+
+        self.assertIn(reverse("financeiro:dashboard"), sidebar)
+        self.assertIn(reverse("central_relatorios"), sidebar)
+        self.assertNotIn(reverse("vendas:nova"), sidebar)
+        self.assertNotIn(reverse("estoque:dashboard_estoque"), sidebar)
+        self.assertNotIn(reverse("compras:lista"), sidebar)
+
 
 class AcoesUsuarioTests(TestCase):
     @classmethod

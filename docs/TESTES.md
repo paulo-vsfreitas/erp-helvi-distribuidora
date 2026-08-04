@@ -4,7 +4,7 @@ Atualizado em 04/08/2026.
 
 ## Estado
 
-A suíte completa possui **61 testes** e estava integralmente aprovada no
+A suíte completa possui **73 testes** e estava integralmente aprovada no
 fechamento desta documentação.
 
 Os testes cobrem principalmente:

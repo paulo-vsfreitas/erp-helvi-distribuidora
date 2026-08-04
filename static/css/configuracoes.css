@@ -75,6 +75,10 @@
     grid-template-columns: repeat(12, minmax(0, 1fr));
 }
 
+.configuracoes-form-grid.mensagens {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+
 .configuracoes-field {
     min-width: 0;
 }
@@ -229,7 +233,8 @@
 @media (max-width: 767px) {
     .configuracoes-form-grid.identificacao,
     .configuracoes-form-grid.contato,
-    .configuracoes-form-grid.endereco {
+    .configuracoes-form-grid.endereco,
+    .configuracoes-form-grid.mensagens {
         grid-template-columns: 1fr;
     }
 
@@ -259,4 +264,56 @@
     color: #dc3545;
     font-size: 0.8rem;
     font-weight: 500;
+}
+
+.mensagem-editor-variaveis {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.mensagem-editor-variavel {
+    border: 1px solid #d8dee8;
+    border-radius: 999px;
+    padding: 0.35rem 0.65rem;
+    background: #fff;
+    color: #5f4812;
+    font-family: monospace;
+    font-size: 0.78rem;
+}
+
+.mensagem-editor-variavel:hover,
+.mensagem-editor-variavel:focus-visible {
+    border-color: #c89f32;
+    background: #fff8e6;
+}
+
+.mensagem-editor-campo.is-active .form-control {
+    border-color: #c89f32;
+}
+
+.mensagem-editor-status {
+    min-height: 1.25rem;
+    margin-top: 0.35rem;
+    color: #6b7280;
+    font-size: 0.75rem;
+}
+
+.mensagem-editor-previa {
+    min-height: 3rem;
+    padding: 0.7rem 0.8rem;
+    border: 1px dashed #d8dee8;
+    border-radius: 9px;
+    background: #f9fafb;
+    color: #374151;
+    font-size: 0.82rem;
+    line-height: 1.45;
+    white-space: pre-wrap;
+}
+
+.mensagem-editor-previa::before {
+    content: "Prévia: ";
+    color: #6b7280;
+    font-weight: 600;
 }

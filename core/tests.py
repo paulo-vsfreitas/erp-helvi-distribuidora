@@ -1,5 +1,6 @@
+from django.contrib.auth import get_user_model
 from django.template.loader import get_template
-from django.test import SimpleTestCase
+from django.test import SimpleTestCase, TestCase
 from django.urls import reverse
 
 from core.services.central_relatorios_service import montar_central_relatorios
@@ -7,10 +8,6 @@ from core.services.central_relatorios_service import montar_central_relatorios
 
 class HelviUITemplateTests(SimpleTestCase):
     templates_migrados = (
-        "helvi_ui/page_header.html",
-        "helvi_ui/section_card.html",
-        "helvi_ui/empty_state.html",
-        "helvi_ui/action_bar.html",
         "components/layout/page_header.html",
         "components/ui/page_header.html",
         "components/states/confirmation_page.html",
@@ -62,6 +59,7 @@ class HelviUITemplateTests(SimpleTestCase):
         "financeiro/lista_categorias.html",
         "financeiro/form_categoria.html",
         "core/relatorios.html",
+        "core/relatorio_analitico.html",
         "core/dashboard.html",
         "core/login.html",
         "registration/password_reset_form.html",
@@ -107,6 +105,26 @@ class HelviUITemplateTests(SimpleTestCase):
         self.assertIn("helvi_ui/helvi-ui.css", source)
         self.assertIn("?v=1.9.0", source)
 
+    def test_sidebar_organiza_modulos_por_dominio_e_marca_pagina_ativa(self):
+        source = get_template("core/base.html").template.source
+
+        secoes = (
+            "PRINCIPAL",
+            "COMERCIAL",
+            "RELACIONAMENTO",
+            "CATÁLOGO",
+            "OPERAÇÃO",
+            "FINANCEIRO",
+            "GESTÃO",
+        )
+        posicoes = [source.index(secao) for secao in secoes]
+
+        self.assertEqual(posicoes, sorted(posicoes))
+        self.assertIn('aria-label="Navegação principal"', source)
+        self.assertIn('aria-current="page"', source)
+        self.assertLess(source.index("Estoque"), source.index("Compras"))
+        self.assertLess(source.index("Relatórios"), source.index("Configurações"))
+
     def test_telas_principais_usam_card_de_cabecalho(self):
         templates = (
             "vendas/nova.html",
@@ -133,12 +151,10 @@ class CentralRelatoriosTests(SimpleTestCase):
         ]
 
         self.assertEqual(len(relatorios), 13)
-        self.assertTrue(all(item["disponivel"] for item in relatorios))
         self.assertTrue(all(item["url"] for item in relatorios))
-        self.assertEqual(contexto["indicadores"]["total_disponiveis"], 13)
-        self.assertEqual(contexto["indicadores"]["total_desenvolvimento"], 0)
+        self.assertEqual(contexto["indicadores"]["total_relatorios"], 13)
 
-    def test_destinos_principais_sao_os_paineis_existentes(self):
+    def test_destinos_principais_sao_relatorios_dedicados(self):
         contexto = montar_central_relatorios()
         destinos = {
             relatorio["titulo"]: relatorio["url"]
@@ -146,6 +162,90 @@ class CentralRelatoriosTests(SimpleTestCase):
             for relatorio in secao["relatorios"]
         }
 
-        self.assertEqual(destinos["Relatório de Clientes"], reverse("lista_clientes"))
-        self.assertEqual(destinos["Fluxo de Caixa"], reverse("financeiro:lista_movimentacoes"))
-        self.assertEqual(destinos["Movimentações de Estoque"], reverse("estoque:lista_movimentacoes"))
+        self.assertEqual(destinos["Relatório de Clientes"], reverse("relatorio_analitico", kwargs={"slug": "clientes"}))
+        self.assertEqual(destinos["Fluxo de Caixa"], reverse("relatorio_analitico", kwargs={"slug": "fluxo-caixa"}))
+        self.assertEqual(destinos["Movimentações de Estoque"], reverse("relatorio_analitico", kwargs={"slug": "movimentacoes-estoque"}))
+
+
+class RelatoriosAnaliticosTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        Usuario = get_user_model()
+        cls.usuario = Usuario.objects.create_superuser(
+            username="admin_relatorios",
+            password="senha-segura",
+            perfil=Usuario.Perfil.ADMINISTRADOR,
+        )
+
+    def setUp(self):
+        self.client.force_login(self.usuario)
+
+    def test_todos_os_relatorios_dedicados_abrem_sem_dados(self):
+        slugs = (
+            "clientes", "produtos", "visao-financeira", "contas-receber",
+            "contas-pagar", "fluxo-caixa", "posicao-estoque",
+            "movimentacoes-estoque", "giro-produtos", "compras",
+            "fornecedores", "evolucao-custos",
+        )
+        for slug in slugs:
+            with self.subTest(slug=slug):
+                resposta = self.client.get(
+                    reverse("relatorio_analitico", kwargs={"slug": slug})
+                )
+                self.assertEqual(resposta.status_code, 200)
+                self.assertTemplateUsed(resposta, "core/relatorio_analitico.html")
+
+    def test_slug_desconhecido_retorna_404(self):
+        resposta = self.client.get(
+            reverse("relatorio_analitico", kwargs={"slug": "inexistente"})
+        )
+        self.assertEqual(resposta.status_code, 404)
+
+    def test_filtro_rejeita_periodo_invertido(self):
+        resposta = self.client.get(
+            reverse("relatorio_analitico", kwargs={"slug": "clientes"}),
+            {"data_inicial": "2026-08-10", "data_final": "2026-08-01"},
+        )
+        self.assertContains(resposta, "A data inicial não pode ser posterior")
+
+    def test_periodo_rapido_e_tamanho_de_pagina(self):
+        resposta = self.client.get(
+            reverse("relatorio_analitico", kwargs={"slug": "clientes"}),
+            {"periodo": "30d", "por_pagina": "50"},
+        )
+        self.assertEqual(resposta.status_code, 200)
+        self.assertEqual(resposta.context["pagina"].paginator.per_page, 50)
+        self.assertEqual(resposta.context["periodo_rapido"], "30d")
+
+    def test_todos_os_relatorios_exportam_csv(self):
+        for slug in (
+            "clientes", "produtos", "visao-financeira", "contas-receber",
+            "contas-pagar", "fluxo-caixa", "posicao-estoque",
+            "movimentacoes-estoque", "giro-produtos", "compras",
+            "fornecedores", "evolucao-custos",
+        ):
+            with self.subTest(slug=slug):
+                resposta = self.client.get(
+                    reverse("relatorio_analitico", kwargs={"slug": slug}),
+                    {"exportar": "csv"},
+                )
+                self.assertEqual(resposta.status_code, 200)
+                self.assertEqual(resposta["Content-Type"], "text/csv; charset=utf-8")
+
+    def test_relatorios_prioritarios_geram_pdf_oficial(self):
+        for slug in ("contas-receber", "contas-pagar", "fluxo-caixa", "posicao-estoque", "compras"):
+            with self.subTest(slug=slug):
+                resposta = self.client.get(
+                    reverse("relatorio_analitico", kwargs={"slug": slug}),
+                    {"exportar": "pdf"},
+                )
+                self.assertEqual(resposta.status_code, 200)
+                self.assertEqual(resposta["Content-Type"], "application/pdf")
+                self.assertTrue(resposta.content.startswith(b"%PDF"))
+
+    def test_relatorio_sem_pdf_oficial_retorna_404(self):
+        resposta = self.client.get(
+            reverse("relatorio_analitico", kwargs={"slug": "clientes"}),
+            {"exportar": "pdf"},
+        )
+        self.assertEqual(resposta.status_code, 404)

@@ -2,6 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 
 from configuracoes.models import Empresa
+from configuracoes.services.mensagens_service import validar_modelo_mensagem
 from fornecedores.utils.documentos import (
     formatar_cpf_cnpj,
     formatar_telefone,
@@ -35,6 +36,9 @@ class EmpresaForm(forms.ModelForm):
             "estado",
             "logo",
             "rodape_documentos",
+            "assunto_padrao_email",
+            "mensagem_padrao_email",
+            "mensagem_padrao_whatsapp",
         ]
 
         widgets = {
@@ -186,7 +190,44 @@ class EmpresaForm(forms.ModelForm):
                     ),
                 }
             ),
+            "assunto_padrao_email": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "data-mensagem-editor": "",
+                    "placeholder": "Ex.: {EMPRESA} • Orçamento {ORCAMENTO}",
+                }
+            ),
+            "mensagem_padrao_email": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "data-mensagem-editor": "",
+                    "rows": 8,
+                    "placeholder": "Olá, {CLIENTE}! Segue o orçamento {ORCAMENTO}.",
+                }
+            ),
+            "mensagem_padrao_whatsapp": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "data-mensagem-editor": "",
+                    "rows": 8,
+                    "placeholder": "Olá, {CLIENTE}! Seu orçamento é {ORCAMENTO}.",
+                }
+            ),
         }
+
+    def _clean_modelo(self, nome_campo):
+        modelo = (self.cleaned_data.get(nome_campo) or "").strip()
+        validar_modelo_mensagem(modelo)
+        return modelo
+
+    def clean_assunto_padrao_email(self):
+        return self._clean_modelo("assunto_padrao_email")
+
+    def clean_mensagem_padrao_email(self):
+        return self._clean_modelo("mensagem_padrao_email")
+
+    def clean_mensagem_padrao_whatsapp(self):
+        return self._clean_modelo("mensagem_padrao_whatsapp")
 
     def clean_nome_fantasia(self):
         nome_fantasia = (

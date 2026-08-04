@@ -13,15 +13,23 @@ from core.communication import (
     gerar_url_whatsapp,
 )
 from configuracoes.models import Empresa
+from configuracoes.services import renderizar_modelo_mensagem
 from core.formatters import formatar_moeda_br
 from core.pdf.documents.orcamento import OrcamentoPDF
 
 
-def nome_empresa():
-    empresa = Empresa.objects.only(
+def obter_configuracao_empresa():
+    return Empresa.objects.only(
         "nome_fantasia",
         "razao_social",
+        "assunto_padrao_email",
+        "mensagem_padrao_email",
+        "mensagem_padrao_whatsapp",
     ).first()
+
+
+def nome_empresa(empresa=None):
+    empresa = empresa or obter_configuracao_empresa()
 
     if empresa:
         return empresa.nome_fantasia or empresa.razao_social
@@ -39,6 +47,34 @@ class ResultadoCompartilhamento:
 
 def formatar_moeda(valor):
     return formatar_moeda_br(valor)
+
+
+def contexto_modelo_mensagem(orcamento, empresa=None):
+    empresa = empresa or obter_configuracao_empresa()
+    vendedor = (
+        orcamento.vendedor.get_full_name()
+        or orcamento.vendedor.username
+    )
+
+    return {
+        "CLIENTE": orcamento.cliente_nome or "Cliente",
+        "ORCAMENTO": orcamento.codigo,
+        "TOTAL": formatar_moeda(orcamento.total),
+        "VALIDADE": date_format(
+            orcamento.data_validade,
+            format="d/m/Y",
+            use_l10n=False,
+        ),
+        "VENDEDOR": vendedor,
+        "EMPRESA": nome_empresa(empresa),
+    }
+
+
+def renderizar_modelo_configurado(modelo, orcamento, empresa):
+    return renderizar_modelo_mensagem(
+        modelo,
+        contexto_modelo_mensagem(orcamento, empresa),
+    )
 
 # ==========================================================
 # MENSAGENS PADRÃO
@@ -58,8 +94,16 @@ def formatar_moeda(valor):
 #
 # ==========================================================
 def gerar_mensagem_whatsapp(orcamento):
+    configuracao = obter_configuracao_empresa()
+    if configuracao and configuracao.mensagem_padrao_whatsapp.strip():
+        return renderizar_modelo_configurado(
+            configuracao.mensagem_padrao_whatsapp,
+            orcamento,
+            configuracao,
+        )
+
     cliente = orcamento.cliente_nome or "Cliente"
-    empresa = nome_empresa()
+    empresa = nome_empresa(configuracao)
 
     vendedor = (
         orcamento.vendedor.get_full_name()
@@ -101,8 +145,16 @@ Atenciosamente,
 """
 
 def gerar_mensagem_email(orcamento):
+    configuracao = obter_configuracao_empresa()
+    if configuracao and configuracao.mensagem_padrao_email.strip():
+        return renderizar_modelo_configurado(
+            configuracao.mensagem_padrao_email,
+            orcamento,
+            configuracao,
+        )
+
     cliente = orcamento.cliente_nome or "Cliente"
-    empresa = nome_empresa()
+    empresa = nome_empresa(configuracao)
 
     vendedor = (
         orcamento.vendedor.get_full_name()
@@ -140,7 +192,15 @@ def gerar_mensagem_email(orcamento):
 
 
 def gerar_assunto_email(orcamento):
-    return f"{nome_empresa()} • Orçamento {orcamento.codigo}"
+    configuracao = obter_configuracao_empresa()
+    if configuracao and configuracao.assunto_padrao_email.strip():
+        return renderizar_modelo_configurado(
+            configuracao.assunto_padrao_email,
+            orcamento,
+            configuracao,
+        )
+
+    return f"{nome_empresa(configuracao)} • Orçamento {orcamento.codigo}"
 
 
 def gerar_pdf_orcamento_bytes(orcamento):

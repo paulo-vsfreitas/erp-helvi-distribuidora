@@ -17,7 +17,7 @@ Atualizado em 04/08/2026.
 - [x] auditoria e conciliação de integrações;
 - [x] constraints críticas de produto e venda;
 - [x] configuração de segurança e documentação de implantação;
-- [x] 61 testes automatizados;
+- [x] 73 testes automatizados;
 - [x] homologação visual das 19 telas principais.
 
 ## Publicação da versão 1.0

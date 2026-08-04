@@ -104,6 +104,27 @@ class ListaVendasTests(TestCase):
             f"status={Venda.STATUS_FINALIZADA}",
         )
 
+    def test_relatorio_exporta_csv_e_pdf(self):
+        csv_response = self.client.get(
+            reverse("vendas:relatorio"), {"exportar": "csv"}
+        )
+        pdf_response = self.client.get(
+            reverse("vendas:relatorio"), {"exportar": "pdf"}
+        )
+        self.assertEqual(csv_response["Content-Type"], "text/csv; charset=utf-8")
+        self.assertEqual(pdf_response["Content-Type"], "application/pdf")
+        self.assertTrue(pdf_response.content.startswith(b"%PDF"))
+
+    def test_relatorio_permite_configurar_paginacao_e_indica_filtros(self):
+        response = self.client.get(
+            reverse("vendas:relatorio"),
+            {"por_pagina": "50", "status": Venda.STATUS_FINALIZADA},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["pagina"].paginator.per_page, 50)
+        self.assertEqual(response.context["filtros_ativos"], 1)
+        self.assertContains(response, "filtro ativo")
+
 
 class ProcessamentoPagamentoVendaTests(TestCase):
     @classmethod

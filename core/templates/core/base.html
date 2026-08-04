@@ -20,7 +20,7 @@
 
     <link rel="stylesheet" href="{% static 'css/variables.css' %}?v=5.0.0">
     <link rel="stylesheet" href="{% static 'css/base.css' %}?v=5.1.0">
-    <link rel="stylesheet" href="{% static 'css/sidebar.css' %}?v=5.0.0">
+    <link rel="stylesheet" href="{% static 'css/sidebar.css' %}?v=5.1.0">
     <link rel="stylesheet" href="{% static 'css/topbar.css' %}?v=5.0.0">
     <link rel="stylesheet" href="{% static 'css/user_menu.css' %}">
     <link rel="stylesheet" href="{% static 'css/buttons.css' %}?v=5.0.0">
@@ -45,9 +45,11 @@
 
         {% include "components/layout/logo.html" %}
 
-        <nav class="menu">
+        <nav class="menu" aria-label="Navegação principal">
+            <div class="menu-section menu-section--first">PRINCIPAL</div>
 
-            <a href="{% url 'dashboard' %}">
+            <a href="{% url 'dashboard' %}"
+               {% if request.resolver_match.url_name == 'dashboard' %}class="is-active" aria-current="page"{% endif %}>
                 <i class="bi bi-grid-1x2"></i>
                 Dashboard
             </a>
@@ -57,49 +59,63 @@
                     COMERCIAL
                 </div>
 
-                <a href="{% url 'vendas:nova' %}">
+                <a href="{% url 'vendas:nova' %}"
+                   {% if request.resolver_match.namespace == 'vendas' and request.resolver_match.url_name == 'nova' %}class="is-active" aria-current="page"{% endif %}>
                     <i class="bi bi-cart-plus"></i>
                     Nova Venda
                 </a>
 
-                <a href="{% url 'vendas:lista' %}">
+                <a href="{% url 'vendas:lista' %}"
+                   {% if request.resolver_match.namespace == 'vendas' and request.resolver_match.url_name != 'nova' %}class="is-active" aria-current="page"{% endif %}>
                     <i class="bi bi-receipt"></i>
                     Vendas
                 </a>
 
-                <a href="{% url 'comercial:dashboard' %}">
+                <a href="{% url 'comercial:dashboard' %}"
+                   {% if request.resolver_match.namespace == 'comercial' and request.resolver_match.url_name != 'novo' %}class="is-active" aria-current="page"{% endif %}>
                     <i class="bi bi-file-earmark-text"></i>
                     Orçamentos
                 </a>
 
-                <a href="{% url 'comercial:novo' %}">
+                <a href="{% url 'comercial:novo' %}"
+                   {% if request.resolver_match.namespace == 'comercial' and request.resolver_match.url_name == 'novo' %}class="is-active" aria-current="page"{% endif %}>
                     <i class="bi bi-file-earmark-plus"></i>
                     Novo Orçamento
                 </a>
             {% endif %}
 
-            {% if permissoes.clientes or permissoes.fornecedores or permissoes.produtos or permissoes.catalogo %}
+            {% if permissoes.clientes or permissoes.fornecedores %}
 
                 <div class="menu-section">
-                    CADASTROS
+                    RELACIONAMENTO
                 </div>
 
                 {% if permissoes.clientes %}
-                    <a href="{% url 'lista_clientes' %}">
+                    <a href="{% url 'lista_clientes' %}"
+                       {% if request.resolver_match.namespace == 'clientes' %}class="is-active" aria-current="page"{% endif %}>
                         <i class="bi bi-buildings"></i>
                         Clientes / Óticas
                     </a>
                 {% endif %}
 
                 {% if permissoes.fornecedores %}
-                    <a href="{% url 'fornecedores:dashboard' %}">
+                    <a href="{% url 'fornecedores:dashboard' %}"
+                       {% if request.resolver_match.namespace == 'fornecedores' %}class="is-active" aria-current="page"{% endif %}>
                         <i class="bi bi-truck"></i>
                         Fornecedores
                     </a>
                 {% endif %}
 
+            {% endif %}
+
+            {% if permissoes.produtos or permissoes.catalogo %}
+                <div class="menu-section">
+                    CATÁLOGO
+                </div>
+
                 {% if permissoes.produtos %}
-                    <a href="{% url 'produtos:lista_produtos' %}">
+                    <a href="{% url 'produtos:lista_produtos' %}"
+                       {% if request.resolver_match.namespace == 'produtos' %}class="is-active" aria-current="page"{% endif %}>
                         <i class="bi bi-eyeglasses"></i>
                         Produtos
                     </a>
@@ -107,22 +123,26 @@
 
                 {% if permissoes.catalogo %}
 
-                    <a href="{% url 'catalogo:lista_marcas' %}">
+                    <a href="{% url 'catalogo:lista_marcas' %}"
+                       {% if request.resolver_match.namespace == 'catalogo' and 'marca' in request.resolver_match.url_name %}class="is-active" aria-current="page"{% endif %}>
                         <i class="bi bi-tag"></i>
                         Marcas
                     </a>
 
-                    <a href="{% url 'catalogo:lista_colecoes' %}">
+                    <a href="{% url 'catalogo:lista_colecoes' %}"
+                       {% if request.resolver_match.namespace == 'catalogo' and 'colecao' in request.resolver_match.url_name %}class="is-active" aria-current="page"{% endif %}>
                         <i class="bi bi-collection"></i>
                         Coleções
                     </a>
 
-                    <a href="{% url 'catalogo:lista_generos' %}">
+                    <a href="{% url 'catalogo:lista_generos' %}"
+                       {% if request.resolver_match.namespace == 'catalogo' and 'genero' in request.resolver_match.url_name %}class="is-active" aria-current="page"{% endif %}>
                         <i class="bi bi-people"></i>
                         Gêneros
                     </a>
 
-                    <a href="{% url 'catalogo:lista_tipo_armacao' %}">
+                    <a href="{% url 'catalogo:lista_tipo_armacao' %}"
+                       {% if request.resolver_match.namespace == 'catalogo' and 'tipo_armacao' in request.resolver_match.url_name %}class="is-active" aria-current="page"{% endif %}>
                         <i class="bi bi-tools"></i>
                         Tipos de Armação
                     </a>
@@ -131,60 +151,75 @@
 
             {% endif %}
 
-                {% if permissoes.estoque or permissoes.financeiro or permissoes.relatorios %}
-                        <div class="menu-section">
-                            OPERAÇÃO
-                        </div>
+            {% if permissoes.estoque or permissoes.compras %}
+                <div class="menu-section">
+                    OPERAÇÃO
+                </div>
 
-                        {% if permissoes.estoque %}
-                            <a href="{% url 'estoque:dashboard_estoque' %}">
-                                <i class="bi bi-box-seam"></i>
-                                Estoque
-                            </a>
-                        {% endif %}
-
-                        {% if permissoes.financeiro %}
-                            <a href="{% url 'financeiro:dashboard' %}">
-                                <i class="bi bi-wallet2"></i>
-                                Financeiro
-                            </a>
-
-                            <a href="{% url 'financeiro:lista_movimentacoes' %}">
-                                <i class="bi bi-arrow-left-right"></i>
-                                Fluxo de Caixa
-                            </a>
-                        {% endif %}
-
-                        {% if permissoes.relatorios %}
-                            <a href="{% url 'central_relatorios' %}">
-                                <i class="bi bi-bar-chart-line"></i>
-                                Relatórios
-                            </a>
-                        {% endif %}
-                    {% endif %}
-            {% if permissoes.configuracoes %}
-                <a href="{% url 'configuracoes:dados_empresa' %}">
-                    <i class="bi bi-gear"></i>
-                    Configurações
-                </a>
-            {% endif %}
-
-                {% if permissoes.usuarios %}
-                    <a href="{% url 'usuarios:lista_usuarios' %}">
-                        <i class="bi bi-person-gear"></i>
-                        Usuários
+                {% if permissoes.estoque %}
+                    <a href="{% url 'estoque:dashboard_estoque' %}"
+                       {% if request.resolver_match.namespace == 'estoque' %}class="is-active" aria-current="page"{% endif %}>
+                        <i class="bi bi-box-seam"></i>
+                        Estoque
                     </a>
                 {% endif %}
 
                 {% if permissoes.compras %}
-                    <a href="{% url 'compras:lista' %}">
+                    <a href="{% url 'compras:lista' %}"
+                       {% if request.resolver_match.namespace == 'compras' %}class="is-active" aria-current="page"{% endif %}>
                         <i class="bi bi-bag"></i>
                         Compras
                     </a>
                 {% endif %}
+            {% endif %}
 
-            
+            {% if permissoes.financeiro %}
+                <div class="menu-section">
+                    FINANCEIRO
+                </div>
 
+                <a href="{% url 'financeiro:dashboard' %}"
+                   {% if request.resolver_match.namespace == 'financeiro' and request.resolver_match.url_name != 'lista_movimentacoes' %}class="is-active" aria-current="page"{% endif %}>
+                    <i class="bi bi-wallet2"></i>
+                    Visão Financeira
+                </a>
+
+                <a href="{% url 'financeiro:lista_movimentacoes' %}"
+                   {% if request.resolver_match.namespace == 'financeiro' and request.resolver_match.url_name == 'lista_movimentacoes' %}class="is-active" aria-current="page"{% endif %}>
+                    <i class="bi bi-arrow-left-right"></i>
+                    Fluxo de Caixa
+                </a>
+            {% endif %}
+
+            {% if permissoes.relatorios or permissoes.configuracoes or permissoes.usuarios %}
+                <div class="menu-section">
+                    GESTÃO
+                </div>
+
+                {% if permissoes.relatorios %}
+                    <a href="{% url 'central_relatorios' %}"
+                       {% if request.resolver_match.url_name == 'central_relatorios' %}class="is-active" aria-current="page"{% endif %}>
+                        <i class="bi bi-bar-chart-line"></i>
+                        Relatórios
+                    </a>
+                {% endif %}
+
+                {% if permissoes.configuracoes %}
+                    <a href="{% url 'configuracoes:dados_empresa' %}"
+                       {% if request.resolver_match.namespace == 'configuracoes' %}class="is-active" aria-current="page"{% endif %}>
+                        <i class="bi bi-gear"></i>
+                        Configurações
+                    </a>
+                {% endif %}
+
+                {% if permissoes.usuarios %}
+                    <a href="{% url 'usuarios:lista_usuarios' %}"
+                       {% if request.resolver_match.namespace == 'usuarios' %}class="is-active" aria-current="page"{% endif %}>
+                        <i class="bi bi-person-gear"></i>
+                        Usuários
+                    </a>
+                {% endif %}
+            {% endif %}
         </nav>
 
     </aside>
@@ -230,13 +265,10 @@
 {% endblock %}
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="{% static 'js/core/validation.js' %}"></script>
-
 <script src="{% static 'js/core/money.js' %}"></script>
 <script src="{% static 'js/core/mascaras.js' %}"></script>
 <script src="{% static 'js/core/cep.js' %}"></script>
 <script src="{% static 'js/core/image_preview.js' %}"></script>
-<script src="{% static 'js/core/autocomplete.js' %}"></script>
 
 <script src="{% static 'js/core/init.js' %}"></script>
 

@@ -84,7 +84,7 @@
 
 .relatorios-kpis {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.85rem;
 }
 
@@ -125,16 +125,6 @@
     margin-top: 0.3rem;
     color: #777777;
     font-size: 0.76rem;
-}
-
-.relatorios-kpi-success .relatorios-kpi-icon {
-    color: #1f7a4f;
-    background: #e8f7ef;
-}
-
-.relatorios-kpi-warning .relatorios-kpi-icon {
-    color: #9a741c;
-    background: #fff4d8;
 }
 
 .relatorios-secoes {
@@ -223,14 +213,10 @@
         box-shadow 0.18s ease;
 }
 
-.relatorio-card:not(.relatorio-card-disabled):hover {
+.relatorio-card:hover {
     border-color: rgba(179, 138, 37, 0.45);
     box-shadow: 0 9px 20px rgba(30, 30, 30, 0.07);
     transform: translateY(-2px);
-}
-
-.relatorio-card-disabled {
-    background: #fcfcfc;
 }
 
 .relatorio-card-header {
@@ -253,11 +239,6 @@
     font-size: 0.95rem;
 }
 
-.relatorio-card-disabled .relatorio-card-icon {
-    color: #8b8b8b;
-    background: #eeeeee;
-}
-
 .relatorio-status {
     display: inline-flex;
     align-items: center;
@@ -273,16 +254,6 @@
 .status-disponivel {
     color: #1d7149;
     background: #e6f6ed;
-}
-
-.status-desenvolvimento {
-    color: #846311;
-    background: #fff3d2;
-}
-
-.status-planejado {
-    color: #3f63a4;
-    background: #eaf0fb;
 }
 
 .relatorio-card-content {
@@ -326,10 +297,6 @@
 
 .relatorio-action-active:hover {
     color: #735510;
-}
-
-.relatorio-action-disabled {
-    color: #a2a2a2;
 }
 
 .relatorios-empty {
@@ -407,4 +374,28 @@
     .relatorio-card {
         min-height: auto;
     }
+}
+
+.relatorio-analitico-page { display: flex; flex-direction: column; gap: 1rem; }
+.relatorio-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .85rem 1rem; border: 1px solid #ebe7de; border-radius: 14px; background: #fff; }
+.relatorio-periodos, .relatorio-entrega { display: flex; align-items: center; flex-wrap: wrap; gap: .45rem; }
+.relatorio-periodos > span { margin-right: .25rem; color: #666; font-size: .8rem; font-weight: 700; }
+.relatorio-filtros-ativos { padding: .65rem .85rem; border-left: 3px solid #a77e1f; border-radius: 8px; color: #6b5318; background: #faf5e8; font-size: .82rem; }
+.relatorio-print-header { display: none; }
+
+@media (max-width: 720px) {
+    .relatorio-toolbar { align-items: stretch; flex-direction: column; }
+    .relatorio-entrega .btn { flex: 1 1 auto; }
+}
+
+@media print {
+    @page { size: landscape; margin: 12mm; }
+    .sidebar, .topbar, .hui-page-header, .hui-entity-filters, .no-print, .pagination { display: none !important; }
+    body, .page, .content, .relatorio-analitico-page { width: 100% !important; margin: 0 !important; padding: 0 !important; color: #000 !important; background: #fff !important; }
+    .relatorio-print-header { display: flex; justify-content: space-between; margin-bottom: 8mm; padding-bottom: 3mm; border-bottom: 2px solid #a77e1f; font-size: 11pt; }
+    .kpi-card, .relatorio-tabela-card { border: 1px solid #aaa !important; box-shadow: none !important; break-inside: avoid; }
+    .table-responsive { overflow: visible !important; }
+    table { font-size: 8pt; }
+    thead { display: table-header-group; }
+    tr { break-inside: avoid; }
 }

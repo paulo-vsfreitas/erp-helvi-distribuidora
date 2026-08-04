@@ -94,6 +94,12 @@ Operação original preservada
 
 ## Compartilhamento de orçamento
 
+Antes de preparar cada canal, o Comercial carrega os modelos do singleton
+`Empresa`, monta o contexto do orçamento e substitui apenas as variáveis
+permitidas. Se o modelo correspondente estiver vazio, usa o texto original do
+sistema. A camada `core/communication` não acessa configurações nem entidades de
+negócio.
+
 E-mail:
 
 - gera o PDF em memória;

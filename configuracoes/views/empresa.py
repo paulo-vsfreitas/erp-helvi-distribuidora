@@ -3,6 +3,8 @@ from django.shortcuts import redirect, render
 
 from configuracoes.forms import EmpresaForm
 from configuracoes.services import (
+    CONTEXTO_EXEMPLO_MENSAGEM,
+    VARIAVEIS_MENSAGEM,
     obter_empresa,
     salvar_empresa,
 )
@@ -40,6 +42,8 @@ def dados_empresa(request):
     contexto = {
         "form": form,
         "empresa": empresa,
+        "variaveis_mensagem": VARIAVEIS_MENSAGEM,
+        "contexto_exemplo_mensagem": CONTEXTO_EXEMPLO_MENSAGEM,
         "titulo": "Dados da empresa",
         "subtitulo": (
             "Configure as informações institucionais utilizadas "

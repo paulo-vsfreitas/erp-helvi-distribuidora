@@ -1,6 +1,12 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 
+from configuracoes.mensagens_padrao import (
+    ASSUNTO_PADRAO_EMAIL,
+    MENSAGEM_PADRAO_EMAIL,
+    MENSAGEM_PADRAO_WHATSAPP,
+)
+
 
 class Empresa(models.Model):
     """
@@ -156,6 +162,28 @@ class Empresa(models.Model):
         ),
     )
 
+    assunto_padrao_email = models.CharField(
+        max_length=200,
+        blank=True,
+        default=ASSUNTO_PADRAO_EMAIL,
+        verbose_name="Assunto padrão de e-mail",
+        help_text="Aceita as variáveis de comunicação do ERP.",
+    )
+
+    mensagem_padrao_email = models.TextField(
+        blank=True,
+        default=MENSAGEM_PADRAO_EMAIL,
+        verbose_name="Mensagem padrão de e-mail",
+        help_text="Aceita as variáveis de comunicação do ERP.",
+    )
+
+    mensagem_padrao_whatsapp = models.TextField(
+        blank=True,
+        default=MENSAGEM_PADRAO_WHATSAPP,
+        verbose_name="Mensagem padrão de WhatsApp",
+        help_text="Aceita as variáveis de comunicação do ERP.",
+    )
+
     criado_em = models.DateTimeField(
         auto_now_add=True,
         verbose_name="Criado em",
@@ -175,6 +203,17 @@ class Empresa(models.Model):
 
     def clean(self):
         super().clean()
+
+        from configuracoes.services.mensagens_service import (
+            validar_modelo_mensagem,
+        )
+
+        for modelo in (
+            self.assunto_padrao_email,
+            self.mensagem_padrao_email,
+            self.mensagem_padrao_whatsapp,
+        ):
+            validar_modelo_mensagem(modelo)
 
         outra_empresa = Empresa.objects.exclude(pk=self.pk).exists()
 

@@ -32,7 +32,7 @@ A matriz oficial está em `usuarios/permissoes.py` e é aplicada globalmente pel
 | Financeiro | `/financeiro/` |
 | Fluxo de caixa | `/financeiro/movimentacoes/` |
 | Relatórios | `/relatorios/` |
-| Configurações | `/configuracoes/` |
+| Configurações | `/configuracoes/` — empresa, documentos e mensagens padrão |
 | Usuários | `/usuarios/` |
 | Compras | `/compras/lista/` |
 

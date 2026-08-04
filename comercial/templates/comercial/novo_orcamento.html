@@ -417,40 +417,6 @@
 
             <div class="orcamento-lateral-sticky">
 
-                <div class="orcamento-acoes-laterais">
-
-                    {% if modo_edicao %}
-                        <a
-                            href="{% url 'comercial:ficha' numero=orcamento.numero %}"
-                            class="btn btn-secondary"
-                        >
-                            Cancelar
-                        </a>
-                    {% else %}
-                        <a
-                            href="{% url 'comercial:dashboard' %}"
-                            class="btn btn-secondary"
-                        >
-                            Cancelar
-                        </a>
-                    {% endif %}
-
-                    <button
-                        type="submit"
-                        form="form-orcamento"
-                        class="btn btn-primary"
-                    >
-                        <i class="bi bi-floppy"></i>
-
-                        {% if modo_edicao %}
-                            Salvar Alterações
-                        {% else %}
-                            Salvar Orçamento
-                        {% endif %}
-                    </button>
-
-                </div>
-
                 <section class="table-card orcamento-summary-card hui-card hui-summary-card">
 
                     <div class="table-card-header">
@@ -491,6 +457,44 @@
                         </div>
 
                     </div>
+
+                    <footer class="orcamento-summary-footer">
+
+                        <div class="orcamento-acoes-laterais">
+
+                            {% if modo_edicao %}
+                                <a
+                                    href="{% url 'comercial:ficha' numero=orcamento.numero %}"
+                                    class="btn btn-secondary"
+                                >
+                                    Cancelar
+                                </a>
+                            {% else %}
+                                <a
+                                    href="{% url 'comercial:dashboard' %}"
+                                    class="btn btn-secondary"
+                                >
+                                    Cancelar
+                                </a>
+                            {% endif %}
+
+                            <button
+                                type="submit"
+                                form="form-orcamento"
+                                class="btn btn-primary"
+                            >
+                                <i class="bi bi-floppy"></i>
+
+                                {% if modo_edicao %}
+                                    Salvar Alterações
+                                {% else %}
+                                    Salvar Orçamento
+                                {% endif %}
+                            </button>
+
+                        </div>
+
+                    </footer>
 
                 </section>
 

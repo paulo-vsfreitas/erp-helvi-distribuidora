@@ -10,7 +10,7 @@ Em 04/08/2026, o projeto está em **release candidate da versão 1.0**:
 
 - 19 telas principais homologadas com o Helvi UI;
 - fluxos críticos integrados e auditados;
-- 61 testes automatizados aprovados;
+- 68 testes automatizados aprovados;
 - nenhuma migração pendente;
 - nenhuma divergência encontrada pela auditoria de integrações.
 

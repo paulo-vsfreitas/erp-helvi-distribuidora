@@ -17,7 +17,11 @@ from comercial.models import (
 from comercial.services.compartilhamento_service import (
     compartilhar_por_email,
     compartilhar_por_whatsapp,
+    gerar_assunto_email,
+    gerar_mensagem_email,
+    gerar_mensagem_whatsapp,
 )
+from configuracoes.models import Empresa
 from comercial.services.conversao_service import (
     converter_orcamento_em_venda,
 )
@@ -404,4 +408,50 @@ class CompartilhamentoOrcamentoTests(TestCase):
         self.assertEqual(
             historico.resultado,
             CompartilhamentoOrcamento.Resultado.PREPARADO,
+        )
+
+    def test_modelos_configurados_substituem_variaveis(self):
+        Empresa.objects.create(
+            nome_fantasia="Helvi Teste",
+            razao_social="Helvi Teste Ltda.",
+            assunto_padrao_email="{EMPRESA} - {ORCAMENTO}",
+            mensagem_padrao_email=(
+                "Olá, {CLIENTE}. Total {TOTAL}; validade {VALIDADE}."
+            ),
+            mensagem_padrao_whatsapp="{VENDEDOR}: {ORCAMENTO} por {TOTAL}",
+        )
+
+        self.assertEqual(
+            gerar_assunto_email(self.orcamento),
+            f"Helvi Teste - {self.orcamento.codigo}",
+        )
+        self.assertIn(
+            "Cliente Compartilhamento. Total R$ 100,00",
+            gerar_mensagem_email(self.orcamento),
+        )
+        self.assertEqual(
+            gerar_mensagem_whatsapp(self.orcamento),
+            (
+                "compartilhamento-orcamento: "
+                f"{self.orcamento.codigo} por R$ 100,00"
+            ),
+        )
+
+    def test_nova_empresa_usa_modelos_padrao_aprovados(self):
+        Empresa.objects.create(
+            nome_fantasia="Empresa Fallback",
+            razao_social="Empresa Fallback Ltda.",
+        )
+
+        self.assertEqual(
+            gerar_assunto_email(self.orcamento),
+            f"Empresa Fallback • Orçamento {self.orcamento.codigo}",
+        )
+        self.assertIn(
+            f"Encaminhamos o orçamento {self.orcamento.codigo}",
+            gerar_mensagem_email(self.orcamento),
+        )
+        self.assertIn(
+            f"Preparei o orçamento {self.orcamento.codigo}",
+            gerar_mensagem_whatsapp(self.orcamento),
         )

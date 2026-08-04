@@ -1,25 +1,4 @@
-from django.urls import NoReverseMatch, reverse
-
-
-STATUS_DISPONIVEL = "disponivel"
-STATUS_DESENVOLVIMENTO = "desenvolvimento"
-STATUS_PLANEJADO = "planejado"
-
-
-def _resolver_url(nome_url):
-    """
-    Tenta resolver uma rota do ERP.
-
-    Caso a rota ainda não exista, retorna None para que a Central continue
-    funcionando sem gerar erro.
-    """
-    if not nome_url:
-        return None
-
-    try:
-        return reverse(nome_url)
-    except NoReverseMatch:
-        return None
+from django.urls import reverse
 
 
 def _criar_relatorio(
@@ -27,21 +6,18 @@ def _criar_relatorio(
     descricao,
     icone,
     nome_url=None,
-    status=STATUS_DESENVOLVIMENTO,
+    slug=None,
     acao="Abrir relatório",
 ):
-    url = _resolver_url(nome_url)
-
-    if url:
-        status = STATUS_DISPONIVEL
-
     return {
         "titulo": titulo,
         "descricao": descricao,
         "icone": icone,
-        "url": url,
-        "status": status,
-        "disponivel": bool(url),
+        "url": (
+            reverse(nome_url)
+            if nome_url
+            else reverse("relatorio_analitico", kwargs={"slug": slug})
+        ),
         "acao": acao,
     }
 
@@ -72,8 +48,8 @@ def _montar_secoes():
                         "da carteira de clientes."
                     ),
                     icone="bi-people",
-                    nome_url="lista_clientes",
-                    acao="Abrir clientes",
+                    slug="clientes",
+                    acao="Abrir relatório",
                 ),
                 _criar_relatorio(
                     titulo="Relatório de Produtos",
@@ -82,8 +58,8 @@ def _montar_secoes():
                         "coleção e categoria."
                     ),
                     icone="bi-eyeglasses",
-                    nome_url="produtos:lista_produtos",
-                    acao="Abrir produtos",
+                    slug="produtos",
+                    acao="Abrir relatório",
                 ),
             ],
         },
@@ -102,8 +78,8 @@ def _montar_secoes():
                         "e resultado do período."
                     ),
                     icone="bi-pie-chart",
-                    nome_url="financeiro:dashboard",
-                    acao="Abrir financeiro",
+                    slug="visao-financeira",
+                    acao="Abrir relatório",
                 ),
                 _criar_relatorio(
                     titulo="Contas a Receber",
@@ -112,8 +88,8 @@ def _montar_secoes():
                         "e próximos vencimentos."
                     ),
                     icone="bi-arrow-down-circle",
-                    nome_url="financeiro:lista_contas_receber",
-                    acao="Abrir contas a receber",
+                    slug="contas-receber",
+                    acao="Abrir relatório",
                 ),
                 _criar_relatorio(
                     titulo="Contas a Pagar",
@@ -122,8 +98,8 @@ def _montar_secoes():
                         "e vencimentos."
                     ),
                     icone="bi-arrow-up-circle",
-                    nome_url="financeiro:lista_contas_pagar",
-                    acao="Abrir contas a pagar",
+                    slug="contas-pagar",
+                    acao="Abrir relatório",
                 ),
                 _criar_relatorio(
                     titulo="Fluxo de Caixa",
@@ -132,8 +108,8 @@ def _montar_secoes():
                         "da empresa."
                     ),
                     icone="bi-activity",
-                    nome_url="financeiro:lista_movimentacoes",
-                    acao="Abrir fluxo de caixa",
+                    slug="fluxo-caixa",
+                    acao="Abrir relatório",
                 ),
             ],
         },
@@ -152,8 +128,8 @@ def _montar_secoes():
                         "e valor financeiro armazenado."
                     ),
                     icone="bi-boxes",
-                    nome_url="estoque:dashboard_estoque",
-                    acao="Abrir posição",
+                    slug="posicao-estoque",
+                    acao="Abrir relatório",
                 ),
                 _criar_relatorio(
                     titulo="Movimentações de Estoque",
@@ -162,8 +138,8 @@ def _montar_secoes():
                         "e vendas no período."
                     ),
                     icone="bi-arrow-left-right",
-                    nome_url="estoque:lista_movimentacoes",
-                    acao="Abrir movimentações",
+                    slug="movimentacoes-estoque",
+                    acao="Abrir relatório",
                 ),
                 _criar_relatorio(
                     titulo="Giro de Produtos",
@@ -172,8 +148,8 @@ def _montar_secoes():
                         "ou sem movimentação."
                     ),
                     icone="bi-arrow-repeat",
-                    nome_url="produtos:lista_produtos",
-                    acao="Analisar produtos",
+                    slug="giro-produtos",
+                    acao="Abrir relatório",
                 ),
             ],
         },
@@ -192,8 +168,8 @@ def _montar_secoes():
                         "e situação das entregas."
                     ),
                     icone="bi-bag-check",
-                    nome_url="compras:lista",
-                    acao="Abrir compras",
+                    slug="compras",
+                    acao="Abrir relatório",
                 ),
                 _criar_relatorio(
                     titulo="Desempenho de Fornecedores",
@@ -202,8 +178,8 @@ def _montar_secoes():
                         "e relacionamento com fornecedores."
                     ),
                     icone="bi-building",
-                    nome_url="fornecedores:dashboard",
-                    acao="Abrir fornecedores",
+                    slug="fornecedores",
+                    acao="Abrir relatório",
                 ),
                 _criar_relatorio(
                     titulo="Evolução de Custos",
@@ -212,8 +188,8 @@ def _montar_secoes():
                         "nos preços dos produtos."
                     ),
                     icone="bi-graph-up",
-                    nome_url="compras:lista",
-                    acao="Analisar compras",
+                    slug="evolucao-custos",
+                    acao="Abrir relatório",
                 ),
             ],
         },
@@ -234,26 +210,10 @@ def montar_central_relatorios():
         for secao in secoes
     )
 
-    total_disponiveis = sum(
-        1
-        for secao in secoes
-        for relatorio in secao["relatorios"]
-        if relatorio["disponivel"]
-    )
-
-    total_desenvolvimento = sum(
-        1
-        for secao in secoes
-        for relatorio in secao["relatorios"]
-        if relatorio["status"] == STATUS_DESENVOLVIMENTO
-    )
-
     return {
         "secoes": secoes,
         "indicadores": {
             "total_modulos": len(secoes),
             "total_relatorios": total_relatorios,
-            "total_disponiveis": total_disponiveis,
-            "total_desenvolvimento": total_desenvolvimento,
         },
     }

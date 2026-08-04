@@ -46,28 +46,6 @@
             </div>
         </article>
 
-        <article class="relatorios-kpi relatorios-kpi-success">
-            <div class="relatorios-kpi-icon">
-                <i class="bi bi-check-circle"></i>
-            </div>
-
-            <div>
-                <strong>{{ indicadores.total_disponiveis }}</strong>
-                <span>Disponíveis</span>
-            </div>
-        </article>
-
-        <article class="relatorios-kpi relatorios-kpi-warning">
-            <div class="relatorios-kpi-icon">
-                <i class="bi bi-tools"></i>
-            </div>
-
-            <div>
-                <strong>{{ indicadores.total_desenvolvimento }}</strong>
-                <span>Em desenvolvimento</span>
-            </div>
-        </article>
-
     </section>
 
     <div class="relatorios-secoes">
@@ -98,36 +76,17 @@
 
                     {% for relatorio in secao.relatorios %}
 
-                        <article
-                            class="relatorio-card
-                            {% if not relatorio.disponivel %}
-                                relatorio-card-disabled
-                            {% endif %}"
-                        >
+                        <article class="relatorio-card">
 
                             <div class="relatorio-card-header">
                                 <div class="relatorio-card-icon">
                                     <i class="bi {{ relatorio.icone }}"></i>
                                 </div>
 
-                                {% if relatorio.status == "disponivel" %}
-                                    <span class="relatorio-status status-disponivel">
-                                        <i class="bi bi-check-circle-fill"></i>
-                                        Disponível
-                                    </span>
-
-                                {% elif relatorio.status == "planejado" %}
-                                    <span class="relatorio-status status-planejado">
-                                        <i class="bi bi-calendar3"></i>
-                                        Planejado
-                                    </span>
-
-                                {% else %}
-                                    <span class="relatorio-status status-desenvolvimento">
-                                        <i class="bi bi-tools"></i>
-                                        Em breve
-                                    </span>
-                                {% endif %}
+                                <span class="relatorio-status status-disponivel">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    Disponível
+                                </span>
                             </div>
 
                             <div class="relatorio-card-content">
@@ -137,24 +96,13 @@
 
                             <div class="relatorio-card-footer">
 
-                                {% if relatorio.disponivel %}
-
-                                    <a
-                                        href="{{ relatorio.url }}"
-                                        class="relatorio-action relatorio-action-active"
-                                    >
-                                        <span>{{ relatorio.acao }}</span>
-                                        <i class="bi bi-arrow-right"></i>
-                                    </a>
-
-                                {% else %}
-
-                                    <span class="relatorio-action relatorio-action-disabled">
-                                        <span>Em desenvolvimento</span>
-                                        <i class="bi bi-lock"></i>
-                                    </span>
-
-                                {% endif %}
+                                <a
+                                    href="{{ relatorio.url }}"
+                                    class="relatorio-action relatorio-action-active"
+                                >
+                                    <span>{{ relatorio.acao }}</span>
+                                    <i class="bi bi-arrow-right"></i>
+                                </a>
 
                             </div>
 
@@ -171,11 +119,10 @@
             <div class="relatorios-empty">
                 <i class="bi bi-bar-chart"></i>
 
-                <h2>Nenhum relatório disponível</h2>
+                <h2>Nenhum relatório cadastrado</h2>
 
                 <p>
-                    Os relatórios aparecerão aqui conforme forem
-                    implementados.
+                    Cadastre os destinos da Central de Relatórios no service.
                 </p>
             </div>
 

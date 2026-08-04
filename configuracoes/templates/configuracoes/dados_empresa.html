@@ -9,6 +9,10 @@ Dados da empresa | ERP Helvi
 <link rel="stylesheet" href="{% static 'css/configuracoes.css' %}">
 {% endblock %}
 
+{% block extra_js %}
+<script src="{% static 'js/configuracoes/editor_mensagens.js' %}" defer></script>
+{% endblock %}
+
 {% block content %}
 
 <div class="configuracoes-page hui-module-page hui-module-page--configuracoes hui-form-page">
@@ -111,6 +115,67 @@ Dados da empresa | ERP Helvi
                                 {{ form.inscricao_municipal }}
                             </div>
 
+                        </div>
+                    </div>
+                </section>
+
+                <section class="configuracoes-card">
+                    <div class="configuracoes-card-header">
+                        <h2>Mensagens padrão</h2>
+                        <p>Modelos utilizados ao compartilhar orçamentos.</p>
+                    </div>
+
+                    <div class="configuracoes-card-body">
+                        <div class="configuracoes-help mb-3">
+                            Selecione um campo e clique em uma variável para inseri-la na posição do cursor.
+                        </div>
+                        <div class="mensagem-editor-variaveis" aria-label="Variáveis disponíveis">
+                            {% for variavel in variaveis_mensagem %}
+                                <button type="button" class="mensagem-editor-variavel" data-mensagem-variavel="{{ variavel }}">
+                                    {% templatetag openvariable %}{{ variavel }}{% templatetag closevariable %}
+                                </button>
+                            {% endfor %}
+                        </div>
+                        <div class="configuracoes-help mb-3">
+                            Deixe um campo vazio para continuar usando a mensagem original do sistema.
+                        </div>
+
+                        <div class="configuracoes-field mensagem-editor-campo mb-3">
+                            <label for="{{ form.assunto_padrao_email.id_for_label }}">
+                                Assunto padrão de e-mail
+                            </label>
+                            {{ form.assunto_padrao_email }}
+                            <div class="mensagem-editor-status" aria-live="polite"></div>
+                            <div class="mensagem-editor-previa" data-mensagem-previa></div>
+                            {% for erro in form.assunto_padrao_email.errors %}
+                                <div class="configuracoes-error">{{ erro }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="configuracoes-form-grid mensagens">
+                            <div class="configuracoes-field mensagem-editor-campo span-6">
+                                <label for="{{ form.mensagem_padrao_email.id_for_label }}">
+                                    Mensagem padrão de e-mail
+                                </label>
+                                {{ form.mensagem_padrao_email }}
+                                <div class="mensagem-editor-status" aria-live="polite"></div>
+                                <div class="mensagem-editor-previa" data-mensagem-previa></div>
+                                {% for erro in form.mensagem_padrao_email.errors %}
+                                    <div class="configuracoes-error">{{ erro }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="configuracoes-field mensagem-editor-campo span-6">
+                                <label for="{{ form.mensagem_padrao_whatsapp.id_for_label }}">
+                                    Mensagem padrão de WhatsApp
+                                </label>
+                                {{ form.mensagem_padrao_whatsapp }}
+                                <div class="mensagem-editor-status" aria-live="polite"></div>
+                                <div class="mensagem-editor-previa" data-mensagem-previa></div>
+                                {% for erro in form.mensagem_padrao_whatsapp.errors %}
+                                    <div class="configuracoes-error">{{ erro }}</div>
+                                {% endfor %}
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -342,5 +407,7 @@ Dados da empresa | ERP Helvi
     </form>
 
 </div>
+
+{{ contexto_exemplo_mensagem|json_script:"contexto-exemplo-mensagem" }}
 
 {% endblock %}
