@@ -9,35 +9,17 @@
 
 {% block content %}
 
-<div class="relatorios-page">
+<div class="relatorios-page hui-module-page hui-module-page--relatorios">
 
-    <nav class="relatorios-breadcrumb" aria-label="breadcrumb">
-        <a href="{% url 'dashboard' %}">
-            Dashboard
-        </a>
-
-        <i class="bi bi-chevron-right"></i>
-
-        <span>Relatórios</span>
-    </nav>
-
-    <header class="relatorios-hero">
-        <div class="relatorios-hero-content">
-            <span class="relatorios-eyebrow">
-                Inteligência de negócio
-            </span>
-
+    <header class="hui-page-header">
+        <div class="hui-page-header__content">
+            <span class="hui-page-header__eyebrow">Inteligência de negócio</span>
             <h1>Central de Relatórios</h1>
-
-            <p>
-                Acompanhe indicadores comerciais, financeiros,
-                operacionais e estratégicos da Helvi Distribuidora.
-            </p>
+            <p>Acesse análises comerciais, financeiras, operacionais e estratégicas da Helvi.</p>
         </div>
-
-        <div class="relatorios-hero-icon">
-            <i class="bi bi-bar-chart-line"></i>
-        </div>
+        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary hui-page-header__action">
+            <i class="bi bi-arrow-left"></i> Dashboard
+        </a>
     </header>
 
     <section class="relatorios-kpis" aria-label="Indicadores da Central">
@@ -161,7 +143,7 @@
                                         href="{{ relatorio.url }}"
                                         class="relatorio-action relatorio-action-active"
                                     >
-                                        <span>Abrir relatório</span>
+                                        <span>{{ relatorio.acao }}</span>
                                         <i class="bi bi-arrow-right"></i>
                                     </a>
 

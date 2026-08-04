@@ -123,7 +123,7 @@
                             Total desembolsado
                         </div>
 
-                        <h2 class="text-success fw-bold mb-1">
+                        <h2 class="{% if baixa.estornada %}text-muted text-decoration-line-through{% else %}text-success{% endif %} fw-bold mb-1">
                             R$ {{ baixa.valor_movimentado|floatformat:2 }}
                         </h2>
 
@@ -149,10 +149,22 @@
 
                 {% endif %}
 
+                {% if baixa.estornada %}
+                    <div class="alert alert-warning mt-4 mb-0">
+                        <strong class="d-block mb-1">Baixa estornada</strong>
+                        {{ baixa.motivo_estorno }}
+                        {% if baixa.estornada_em %}
+                            <span class="d-block small mt-1">
+                                Em {{ baixa.estornada_em|date:"d/m/Y H:i" }} por {{ baixa.estornada_por }}.
+                            </span>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
             </div>
             <hr>
 
-            <div class="row g-4">
+            <div class="row g-4 px-4 pb-4">
 
                 <div class="col-md-6">
 
@@ -180,6 +192,16 @@
 
             </div>
             <div class="modal-footer">
+
+                {% if not baixa.estornada %}
+                    <a
+                        href="{% url 'financeiro:estornar_baixa' baixa.pk %}"
+                        class="btn btn-outline-danger me-auto"
+                    >
+                        <i class="bi bi-arrow-counterclockwise me-1"></i>
+                        Estornar baixa
+                    </a>
+                {% endif %}
 
                 <button
                     type="button"

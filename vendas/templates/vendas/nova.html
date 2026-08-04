@@ -1,40 +1,55 @@
 {% extends "core/base.html" %}
+{% load static %}
 
 {% block title %}Nova Venda | ERP Helvi{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/vendas.css' %}?v=1.0.0">
+{% endblock %}
+
 {% block content %}
 
-<div class="page-header">
+<div class="hui-module-page hui-module-page--vendas hui-form-page">
+
+<div class="page-header venda-page-header hui-page-header">
     <div>
-        <h1>Nova Venda</h1>
-        <p>Selecione o cliente e adicione os produtos vendidos.</p>
+        <span class="hui-page-header__eyebrow">Operação comercial</span>
+        <h1>Nova venda</h1>
+        <p>Registre os itens, combine o pagamento e revise antes de concluir.</p>
     </div>
 
     <a href="{% url 'vendas:lista' %}" class="btn btn-outline-secondary">
-        Voltar
+        <i class="bi bi-arrow-left"></i>
+        Voltar para vendas
     </a>
 </div>
 
-<form id="form-venda" method="post" novalidate>
+<form id="form-venda" class="venda-form" method="post" novalidate>
     {% csrf_token %}
 
     {% if form.errors %}
         <div class="alert alert-danger">
             Verifique os dados informados.
             {{ form.non_field_errors }}
-            <pre>{{ form.errors }}</pre>
+            <div class="mt-2">{{ form.errors }}</div>
         </div>
     {% endif %}
 
-    <div class="card mb-3">
+    <div class="card venda-section-card mb-4">
         <div class="card-body">
-            <h5 class="card-title">Dados da venda</h5>
+            <div class="venda-section-heading">
+                <span class="venda-step">1</span>
+                <div>
+                    <h2>Cliente e condições</h2>
+                    <p>Defina para quem é a venda e ajuste os valores gerais.</p>
+                </div>
+            </div>
 
             <div class="mb-3">
-                <label class="form-label d-block">Tipo de cliente</label>
+                <label class="form-label d-block">Tipo de atendimento</label>
 
-                <div class="d-flex gap-4">
-                    <div class="form-check">
+                <div class="venda-choice-group">
+                    <div class="form-check venda-choice">
                         <input
                             type="radio"
                             name="tipo_cliente"
@@ -54,7 +69,7 @@
                         </label>
                     </div>
 
-                    <div class="form-check">
+                    <div class="form-check venda-choice">
                         <input
                             type="radio"
                             name="tipo_cliente"
@@ -107,26 +122,33 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-lg-9">
-            <div class="card mb-3">
+    <div class="row g-4 align-items-start">
+        <div class="col-xl-9 col-lg-8">
+            <div class="card venda-section-card mb-4">
                 <div class="card-body">
                     <div
                         class="d-flex justify-content-between align-items-center mb-3"
                     >
-                        <h5 class="card-title mb-0">Produtos</h5>
+                        <div class="venda-section-heading mb-0">
+                            <span class="venda-step">2</span>
+                            <div>
+                                <h2>Produtos</h2>
+                                <p>Busque produtos e informe quantidades e descontos.</p>
+                            </div>
+                        </div>
 
                         <button
                             type="button"
-                            class="btn btn-outline-secondary"
+                            class="btn btn-primary venda-add-product"
                             id="adicionar-item"
                         >
+                            <i class="bi bi-plus-lg"></i>
                             Adicionar produto
                         </button>
                     </div>
 
-                    <div class="table-responsive">
-                        <table class="table align-middle">
+                    <div class="table-responsive venda-items-table-wrap">
+                        <table class="table align-middle venda-items-table">
                             <thead>
                                 <tr>
                                     <th style="min-width: 360px;">
@@ -155,14 +177,17 @@
             </div>
         </div>
 
-    <div class="card mb-3">
+    <div class="card venda-section-card mb-4">
     <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <div>
-                <h5 class="card-title mb-1">Pagamento</h5>
-                <p class="text-muted mb-0">
+            <div class="venda-section-heading mb-0">
+                <span class="venda-step">3</span>
+                <div>
+                <h2>Pagamento</h2>
+                <p>
                     Informe como a venda será recebida.
                 </p>
+                </div>
             </div>
         </div>
 
@@ -172,8 +197,8 @@
                     Condição de pagamento
                 </label>
 
-                <div class="d-flex flex-wrap gap-4">
-                    <div class="form-check">
+                <div class="venda-choice-group">
+                    <div class="form-check venda-choice">
                         <input
                             type="radio"
                             name="condicao_pagamento"
@@ -191,7 +216,7 @@
                         </label>
                     </div>
 
-                    <div class="form-check">
+                    <div class="form-check venda-choice">
                         <input
                             type="radio"
                             name="condicao_pagamento"
@@ -227,14 +252,8 @@
                     Conta financeira
                 </label>
 
-                <div class="col-md-6">
-                    <label class="form-label">
-                        Conta financeira
-                    </label>
-
-                    {{ form.conta_financeira }}
-                    {{ form.conta_financeira.errors }}
-                </div>
+                {{ form.conta_financeira }}
+                {{ form.conta_financeira.errors }}
             </div>
 
             <div
@@ -294,7 +313,7 @@
                 id="campos-pagamento-prazo"
                 style="display: none;"
             >
-                <div class="border rounded p-3 bg-light">
+                <div class="venda-installments-panel">
                     <div class="row g-3">
                         <div class="col-md-3">
                             <label
@@ -395,12 +414,16 @@
     </div>
 </div>    
 
-        <div class="col-lg-3">
-            <div class="card mb-3">
+        <div class="col-xl-3 col-lg-4">
+            <div class="card venda-summary-card mb-4">
                 <div class="card-body">
-                    <h5 class="card-title">
-                        Resumo da venda
-                    </h5>
+                    <div class="venda-summary-heading">
+                        <span><i class="bi bi-receipt"></i></span>
+                        <div>
+                            <h2>Resumo</h2>
+                            <p>Atualizado automaticamente</p>
+                        </div>
+                    </div>
 
                     <div class="d-flex justify-content-between mb-2">
                         <span>Produtos</span>
@@ -437,8 +460,8 @@
 
                     <hr>
 
-                    <div class="d-flex justify-content-between">
-                        <span>Total</span>
+                    <div class="venda-summary-total">
+                        <span>Total da venda</span>
                         <strong
                             id="resumo-total"
                             class="fs-5"
@@ -485,8 +508,12 @@
         </div>
     </div>
 
-    <div class="card">
-        <div class="card-body d-flex justify-content-end gap-2">
+    <div class="venda-actions">
+        <div class="venda-actions-note">
+            <i class="bi bi-shield-check"></i>
+            Revise os dados antes de finalizar a venda.
+        </div>
+        <div class="d-flex flex-wrap justify-content-end gap-2">
             <a
                 href="{% url 'vendas:lista' %}"
                 class="btn btn-outline-secondary"
@@ -500,6 +527,7 @@
                 value="salvar"
                 class="btn btn-outline-primary"
             >
+                <i class="bi bi-floppy"></i>
                 Salvar em aberto
             </button>
 
@@ -509,11 +537,14 @@
                 value="finalizar"
                 class="btn btn-primary"
             >
+                <i class="bi bi-check2-circle"></i>
                 Finalizar Venda
             </button>
         </div>
     </div>
 </form>
+
+</div>
 
 <template id="template-item">
     <tr class="linha-item">

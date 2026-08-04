@@ -1,0 +1,17 @@
+<div class="hui-module-page hui-confirmation-page">
+    {% include "components/layout/page_header.html" with titulo=titulo subtitulo=subtitulo %}
+    <section class="hui-confirmation-card hui-confirmation-card--{{ tom|default:'warning' }}">
+        <span class="hui-confirmation-card__icon"><i class="bi {{ icone|default:'bi-exclamation-triangle' }}"></i></span>
+        <div class="hui-confirmation-card__content">
+            <span class="hui-table-heading__eyebrow">Confirmação necessária</span>
+            <h2>{{ pergunta }}</h2>
+            {% if descricao %}<p>{{ descricao }}</p>{% endif %}
+            <strong class="hui-confirmation-card__object">{{ objeto }}</strong>
+        </div>
+        <form method="post" class="hui-confirmation-card__actions">
+            {% csrf_token %}
+            <a href="{{ cancelar_url }}" class="btn btn-outline-secondary">Cancelar</a>
+            <button type="submit" class="btn {% if tom == 'danger' %}btn-danger{% else %}btn-primary{% endif %}"><i class="bi {{ botao_icone }}"></i> {{ botao_texto }}</button>
+        </form>
+    </section>
+</div>

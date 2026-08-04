@@ -1,25 +1,11 @@
-<div class="card shadow-sm border-0 h-100">
-    <div class="card-body px-4 py-4">
-
-        <div class="d-flex justify-content-between align-items-center gap-3">
-
-            <div class="min-width-0">
-
-                <small class="text-muted text-uppercase d-block mb-2">
-                    {{ titulo }}
-                </small>
-
-                <h2 class="fw-bold mb-0">
-                    {{ valor }}
-                </h2>
-
-            </div>
-
-            {% if icone %}
-                <i class="bi {{ icone }} fs-2 text-{{ cor|default:'primary' }}"></i>
-            {% endif %}
-
-        </div>
-
+<article class="hui-stat-card h-100">
+    <div>
+        <span class="hui-stat-card__label">{{ titulo }}</span>
+        <strong class="hui-stat-card__value">{{ valor }}</strong>
     </div>
-</div>
+    {% if icone %}
+        <span class="hui-stat-card__icon hui-stat-card__icon--{{ cor|default:'primary' }}">
+            <i class="bi {{ icone }}"></i>
+        </span>
+    {% endif %}
+</article>

@@ -3,6 +3,7 @@
 {% block title %}Marcas | ERP Helvi{% endblock %}
 
 {% block content %}
+<div class="hui-module-page hui-module-page--catalogo">
 
 {% url 'catalogo:nova_marca' as nova_marca_url %}
 
@@ -39,6 +40,7 @@
 </div>
 
 <div class="table-card">
+    <header class="hui-table-heading"><div><span class="hui-table-heading__eyebrow">Catálogo</span><h2>Marcas cadastradas</h2><p>Organize as marcas utilizadas no cadastro de produtos.</p></div><span class="hui-count-badge">{{ marcas|length }} marcas</span></header>
     <table class="table">
         <thead>
             <tr>
@@ -123,6 +125,8 @@
             {% endfor %}
         </tbody>
     </table>
+</div>
+
 </div>
 
 {% endblock %}

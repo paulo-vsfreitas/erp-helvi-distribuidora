@@ -1,25 +1,13 @@
-<div class="d-flex justify-content-between align-items-center mb-4">
-
-    <div>
-        <h2 class="mb-1">{{ titulo }}</h2>
-
-        {% if subtitulo %}
-            <p class="text-muted mb-0">
-                {{ subtitulo }}
-            </p>
-        {% endif %}
+<header class="hui-page-header">
+    <div class="hui-page-header__content">
+        <span class="hui-page-header__eyebrow">Gestão Helvi</span>
+        <h1>{{ titulo }}</h1>
+        {% if subtitulo %}<p>{{ subtitulo }}</p>{% endif %}
     </div>
-
     {% if botao_url %}
-        <a href="{{ botao_url }}" class="btn btn-primary">
-
-            {% if botao_icon %}
-                <i class="{{ botao_icon }}"></i>
-            {% endif %}
-
+        <a href="{{ botao_url }}" class="btn btn-primary hui-page-header__action">
+            {% if botao_icon %}<i class="{{ botao_icon }}"></i>{% endif %}
             {{ botao_texto }}
-
         </a>
     {% endif %}
-
-</div>
+</header>

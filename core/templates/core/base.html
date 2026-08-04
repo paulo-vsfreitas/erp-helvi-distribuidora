@@ -18,21 +18,22 @@
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
 >
 
-    <link rel="stylesheet" href="{% static 'css/variables.css' %}">
-    <link rel="stylesheet" href="{% static 'css/base.css' %}">
-    <link rel="stylesheet" href="{% static 'css/sidebar.css' %}">
-    <link rel="stylesheet" href="{% static 'css/topbar.css' %}">
+    <link rel="stylesheet" href="{% static 'css/variables.css' %}?v=5.0.0">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=5.1.0">
+    <link rel="stylesheet" href="{% static 'css/sidebar.css' %}?v=5.0.0">
+    <link rel="stylesheet" href="{% static 'css/topbar.css' %}?v=5.0.0">
     <link rel="stylesheet" href="{% static 'css/user_menu.css' %}">
-    <link rel="stylesheet" href="{% static 'css/buttons.css' %}">
-    <link rel="stylesheet" href="{% static 'css/cards.css' %}">
-    <link rel="stylesheet" href="{% static 'css/forms.css' %}">
-    <link rel="stylesheet" href="{% static 'css/tables.css' %}">
+    <link rel="stylesheet" href="{% static 'css/buttons.css' %}?v=5.0.0">
+    <link rel="stylesheet" href="{% static 'css/cards.css' %}?v=5.0.0">
+    <link rel="stylesheet" href="{% static 'css/forms.css' %}?v=5.0.0">
+    <link rel="stylesheet" href="{% static 'css/tables.css' %}?v=5.0.0">
     <link rel="stylesheet" href="{% static 'css/alerts.css' %}">
     <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-    <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
+    <link rel="stylesheet" href="{% static 'css/responsive.css' %}?v=5.0.0">
     <link rel="stylesheet" href="{% static 'css/ficha.css' %}">
-
     {% block extra_css %}{% endblock %}
+
+    <link rel="stylesheet" href="{% static 'helvi_ui/helvi-ui.css' %}?v=1.9.0">
 
 </head>
 
@@ -47,7 +48,8 @@
         <nav class="menu">
 
             <a href="{% url 'dashboard' %}">
-                🏠 Dashboard
+                <i class="bi bi-grid-1x2"></i>
+                Dashboard
             </a>
 
             {% if permissoes.vendas %}
@@ -84,38 +86,45 @@
 
                 {% if permissoes.clientes %}
                     <a href="{% url 'lista_clientes' %}">
-                        🏢 Clientes / Óticas
+                        <i class="bi bi-buildings"></i>
+                        Clientes / Óticas
                     </a>
                 {% endif %}
 
                 {% if permissoes.fornecedores %}
                     <a href="{% url 'fornecedores:dashboard' %}">
-                        🏭 Fornecedores
+                        <i class="bi bi-truck"></i>
+                        Fornecedores
                     </a>
                 {% endif %}
 
                 {% if permissoes.produtos %}
                     <a href="{% url 'produtos:lista_produtos' %}">
-                        👓 Produtos
+                        <i class="bi bi-eyeglasses"></i>
+                        Produtos
                     </a>
                 {% endif %}
 
                 {% if permissoes.catalogo %}
 
                     <a href="{% url 'catalogo:lista_marcas' %}">
-                        🏷️ Marcas
+                        <i class="bi bi-tag"></i>
+                        Marcas
                     </a>
 
                     <a href="{% url 'catalogo:lista_colecoes' %}">
-                        📚 Coleções
+                        <i class="bi bi-collection"></i>
+                        Coleções
                     </a>
 
                     <a href="{% url 'catalogo:lista_generos' %}">
-                        🎁 Gêneros
+                        <i class="bi bi-people"></i>
+                        Gêneros
                     </a>
 
                     <a href="{% url 'catalogo:lista_tipo_armacao' %}">
-                        🛠️ Tipos de Armação
+                        <i class="bi bi-tools"></i>
+                        Tipos de Armação
                     </a>
 
                 {% endif %}
@@ -129,7 +138,8 @@
 
                         {% if permissoes.estoque %}
                             <a href="{% url 'estoque:dashboard_estoque' %}">
-                                📦 Estoque
+                                <i class="bi bi-box-seam"></i>
+                                Estoque
                             </a>
                         {% endif %}
 
@@ -161,13 +171,15 @@
 
                 {% if permissoes.usuarios %}
                     <a href="{% url 'usuarios:lista_usuarios' %}">
-                        👥 Usuários
+                        <i class="bi bi-person-gear"></i>
+                        Usuários
                     </a>
                 {% endif %}
 
                 {% if permissoes.compras %}
                     <a href="{% url 'compras:lista' %}">
-                        🛒 Compras
+                        <i class="bi bi-bag"></i>
+                        Compras
                     </a>
                 {% endif %}
 
@@ -189,7 +201,7 @@
 
         </header>
 
-        <section class="page">
+        <section class="page helvi-ui">
 
             {% if messages %}
 
@@ -223,7 +235,6 @@
 <script src="{% static 'js/core/money.js' %}"></script>
 <script src="{% static 'js/core/mascaras.js' %}"></script>
 <script src="{% static 'js/core/cep.js' %}"></script>
-<script src="{% static 'js/core/money.js' %}"></script>
 <script src="{% static 'js/core/image_preview.js' %}"></script>
 <script src="{% static 'js/core/autocomplete.js' %}"></script>
 

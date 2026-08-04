@@ -2,7 +2,7 @@
     background:var(--white);
     border-radius:var(--radius);
     box-shadow:var(--shadow);
-    padding:28px;
+    padding:clamp(20px, 2.5vw, 32px);
     max-width:760px;
 }
 
@@ -14,20 +14,34 @@
     display:block;
     font-weight:700;
     margin-bottom:8px;
-    color:var(--text);
+    color:#344054;
+    font-size:.82rem;
 }
 
 .form-control{
     width:100%;
     padding:12px 14px;
     border:1px solid var(--border);
-    border-radius:10px;
+    min-height:43px;
+    border-radius:9px;
     font-size:14px;
     outline:none;
 }
 
 .form-control:focus{
     border-color:var(--gold);
+    box-shadow:0 0 0 .22rem rgba(200,162,58,.14);
+}
+
+.form-select{
+    min-height:43px;
+    border-color:var(--border);
+    border-radius:9px;
+}
+
+.form-select:focus{
+    border-color:var(--gold);
+    box-shadow:0 0 0 .22rem rgba(200,162,58,.14);
 }
 
 .form-check{

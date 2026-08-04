@@ -1,64 +1,82 @@
-﻿# ERP Helvi Development Guide
+# Guia de Desenvolvimento do ERP Helvi
 
-## 1. Objetivo principal
+## Objetivo
 
-Entregar primeiro um ERP minimamente completo, confiável e utilizável na operação real da Helvi. Refinamentos arquiteturais extensos devem ocorrer de forma incremental, sem interromper a evolução funcional.
+Manter e evoluir o ERP sem regredir integrações, identidade visual, permissões
+ou rastreabilidade financeira.
 
-## 2. Ritual obrigatório antes de qualquer sprint
+## Preparação obrigatória
 
-Antes de implementar:
+1. leia `STATUS_ATUAL.md` e `DECISOES.md`;
+2. leia o documento do módulo afetado;
+3. execute `git status --short` e inspecione os diffs;
+4. nunca descarte alterações locais sem autorização explícita;
+5. pesquise o projeto com `rg` antes de criar um recurso;
+6. execute `python manage.py check` e a auditoria quando o ambiente permitir.
 
-1. ler esta documentação;
-2. revisar arquitetura e decisões permanentes;
-3. verificar o estado do módulo;
-4. procurar recursos já existentes no Framework Helvi;
-5. solicitar somente o arquivo específico necessário para confirmar a implementação;
-6. evitar recriar código, componentes ou regras já consolidados.
+## Ordem recomendada
 
-## 3. Metodologia
+1. descrever regra, estados e efeitos;
+2. localizar models, constraints e migrations;
+3. ajustar forms e validações;
+4. implementar ou reutilizar service;
+5. manter view fina;
+6. registrar URL e método HTTP correto;
+7. aplicar template e Helvi UI;
+8. acrescentar teste de sucesso, falha e repetição;
+9. homologar integração e interface;
+10. atualizar documentação;
+11. revisar diff, commit e publicação.
 
-- explicar alterações de forma didática;
-- preservar arquitetura em camadas;
-- implementar em etapas pequenas;
-- homologar cada fluxo antes de considerá-lo concluído;
-- não encerrar uma sprint com funcionalidade crítica pendente;
-- registrar pendências reais no backlog;
-- atualizar documentação e Git ao final de cada marco.
+## Convenções
 
-## 4. Ordem recomendada de implementação
+- Python em português quando o domínio já usa português;
+- nomes explícitos em vez de abreviações;
+- `Decimal` para valores;
+- `timezone.localdate()`/`timezone.now()` para datas operacionais;
+- `transaction.atomic` para efeitos múltiplos;
+- `select_for_update` em concorrência crítica;
+- POST para alteração de estado destrutiva;
+- templates sem regra de negócio;
+- CSS novo com prefixo `hui-` quando transversal.
 
-1. blueprint e regras;
-2. models e migrations;
-3. forms e validações;
-4. services;
-5. views;
-6. URLs;
-7. templates;
-8. CSS e JavaScript;
-9. permissões;
-10. integrações;
-11. homologação;
-12. documentação;
-13. commit e tag quando aplicável.
+## Reuso
 
-## 5. Reuso
+Antes de criar:
 
-- recursos transversais ficam no `core`;
-- regras específicas permanecem no módulo;
-- componentes estruturais podem nascer no primeiro uso;
-- componentes específicos devem ser extraídos quando houver reutilização real;
-- antes de criar algo novo, pesquisar em todo o projeto.
+- cabeçalho: ver `core/templates/components/layout/page_header.html`;
+- estado vazio/confirmação: ver `core/templates/components/states/`;
+- componentes: ver `core/templates/helvi_ui/`;
+- moeda: ver `core/formatters.py` e `core/templatetags/moeda.py`;
+- comunicação: ver `core/communication/`;
+- PDF: ver o Framework PDF;
+- regras operacionais: ver `services/` do módulo.
 
-## 6. Critério de conclusão
+## Definição de pronto
 
-Um módulo só é concluído após validar:
+Uma entrega só está pronta quando:
 
-- cadastro e edição;
-- listagem, pesquisa e filtros;
-- validações e mensagens;
-- permissões;
-- interface;
-- integrações;
-- duplicidade e idempotência;
-- cenários de erro;
-- homologação funcional.
+- regra e permissões estão corretas;
+- caminho de sucesso e erros estão tratados;
+- repetição não duplica efeitos;
+- estoque/financeiro permanecem consistentes;
+- mensagens são compreensíveis;
+- interface segue Helvi UI e é responsiva;
+- testes relacionados e suíte completa passam;
+- auditoria retorna zero quando aplicável;
+- migrations estão sincronizadas;
+- documentação e changelog foram atualizados.
+
+## Comandos de fechamento
+
+```powershell
+python manage.py check
+python manage.py makemigrations --check --dry-run
+python manage.py test --keepdb
+python manage.py auditar_integracoes --fail-on-error
+git diff --check
+git status --short
+```
+
+Para produção, acrescente `check --deploy`, `migrate --plan`, backup e
+`collectstatic`, conforme `DEPLOYMENT.md`.

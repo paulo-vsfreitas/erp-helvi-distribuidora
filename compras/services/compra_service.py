@@ -4,6 +4,8 @@ from django.db import transaction
 
 from compras.models import Compra, ItemCompra
 from produtos.models import Produto
+from vendas.models import SequenciaDocumento
+from vendas.services.numero_service import gerar_proximo_numero_documento
 
 
 def aplicar_dados_fornecedor(compra, fornecedor):
@@ -84,6 +86,10 @@ def criar_compra_com_itens(form, usuario, post):
         )
 
     compra = form.save(commit=False)
+    compra.numero = gerar_proximo_numero_documento(
+        tipo=SequenciaDocumento.TIPO_COMPRA,
+        model=Compra,
+    )
     compra.criado_por = usuario
     compra.status = Compra.STATUS_AGUARDANDO_ENTREGA
 
@@ -157,9 +163,6 @@ def criar_compra_com_itens(form, usuario, post):
 
         subtotal += valor_bruto
         desconto_total += desconto
-
-        produto.preco_custo = custo_unitario
-        produto.save(update_fields=["preco_custo"])
 
     compra.subtotal = subtotal
     compra.desconto = desconto_total

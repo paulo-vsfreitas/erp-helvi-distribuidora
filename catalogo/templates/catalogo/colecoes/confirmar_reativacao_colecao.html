@@ -1,31 +1,6 @@
 {% extends "core/base.html" %}
-
-{% block title %}Reativar Coleção{% endblock %}
-
+{% block title %}Reativar Coleção | ERP Helvi{% endblock %}
 {% block content %}
-
-{% include "components/layout/page_header.html" with titulo="Reativar Coleção" subtitulo="Confirme a reativação da coleção." %}
-
-<div class="form-card">
-    <p>
-        Deseja realmente reativar a coleção
-        <strong>{{ colecao.nome }}</strong>?
-    </p>
-
-    <form method="post">
-        {% csrf_token %}
-
-        <div class="form-actions">
-            <a href="{% url 'catalogo:lista_colecoes' %}" class="btn btn-secondary">
-                Cancelar
-            </a>
-
-            <button type="submit" class="btn btn-primary">
-                <i class="bi bi-check-circle"></i>
-                Reativar
-            </button>
-        </div>
-    </form>
-</div>
-
+    {% url "catalogo:lista_colecoes" as cancelar_url %}
+    {% include "components/states/confirmation_page.html" with titulo="Reativar coleção" subtitulo="Revise os dados antes de continuar." pergunta="Deseja reativar esta coleção?" descricao="Ela voltará a ficar disponível nos cadastros de produtos." objeto=colecao.nome cancelar_url=cancelar_url tom="success" icone="bi-check-circle" botao_icone="bi-check-circle" botao_texto="Reativar coleção" %}
 {% endblock %}

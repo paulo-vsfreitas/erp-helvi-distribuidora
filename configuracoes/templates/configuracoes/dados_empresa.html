@@ -11,12 +11,9 @@ Dados da empresa | ERP Helvi
 
 {% block content %}
 
-<div class="configuracoes-page">
+<div class="configuracoes-page hui-module-page hui-module-page--configuracoes hui-form-page">
 
-    <div class="configuracoes-header">
-        <h1>{{ titulo }}</h1>
-        <p>{{ subtitulo }}</p>
-    </div>
+    {% include "components/layout/page_header.html" with titulo=titulo subtitulo=subtitulo %}
 
     <form
         method="post"

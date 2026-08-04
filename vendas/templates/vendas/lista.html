@@ -3,90 +3,89 @@
 {% block title %}Vendas | ERP Helvi{% endblock %}
 
 {% block content %}
+<div class="hui-module-page hui-module-page--vendas">
+    {% url "vendas:nova" as nova_venda_url %}
+    {% include "components/layout/page_header.html" with titulo="Vendas" subtitulo="Acompanhe vendas, recebimentos e atendimentos realizados." botao_url=nova_venda_url botao_texto="Nova venda" botao_icon="bi bi-plus-lg" %}
 
-<div class="page-header">
-    <div>
-        <h1>Vendas</h1>
-        <p>Acompanhe e gerencie as vendas realizadas.</p>
-    </div>
+    <section class="hui-entity-kpis" aria-label="Indicadores de vendas">
+        <article class="hui-entity-kpi">
+            <span class="hui-entity-kpi__icon"><i class="bi bi-receipt"></i></span>
+            <div><span>Total de vendas</span><strong>{{ total_vendas }}</strong><small>Registros cadastrados</small></div>
+        </article>
+        <article class="hui-entity-kpi hui-entity-kpi--success">
+            <span class="hui-entity-kpi__icon"><i class="bi bi-check-circle"></i></span>
+            <div><span>Finalizadas</span><strong>{{ vendas_finalizadas }}</strong><small>Vendas concluídas</small></div>
+        </article>
+        <article class="hui-entity-kpi hui-entity-kpi--warning">
+            <span class="hui-entity-kpi__icon"><i class="bi bi-hourglass-split"></i></span>
+            <div><span>Em aberto</span><strong>{{ vendas_em_aberto }}</strong><small>Aguardando conclusão</small></div>
+        </article>
+        <article class="hui-entity-kpi">
+            <span class="hui-entity-kpi__icon"><i class="bi bi-cash-stack"></i></span>
+            <div><span>Faturamento</span><strong>R$ {{ faturamento|floatformat:"2g" }}</strong><small>Somente vendas finalizadas</small></div>
+        </article>
+    </section>
 
-    <a href="{% url 'vendas:nova' %}" class="btn btn-primary">
-        Nova Venda
-    </a>
-</div>
-
-<div class="card">
-    <div class="card-body">
-        <form method="get" class="row g-2 mb-3">
-            <div class="col-md-10">
-                <input
-                    type="text"
-                    name="busca"
-                    value="{{ busca }}"
-                    class="form-control"
-                    placeholder="Buscar por número ou cliente"
-                >
-            </div>
-
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-outline-secondary w-100">
-                    Buscar
-                </button>
-            </div>
-        </form>
-
-        <div class="table-responsive">
-            <table class="table align-middle">
-                <thead>
-                    <tr>
-                        <th>Número</th>
-                        <th>Cliente</th>
-                        <th>Data</th>
-                        <th>Status</th>
-                        <th>Pagamento</th>
-                        <th class="text-end">Total</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    {% for venda in vendas %}
-                        <tr>
-                            <td>
-                                {% if venda.numero %}
-                                    <a href="{% url 'vendas:ficha' venda.numero %}">
-                                        #{{ venda.numero|stringformat:"06d" }}
-                                    </a>
-                                {% else %}
-                                    <span class="text-danger">
-                                        Sem número
-                                    </span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if venda.cliente %}
-                                    {{ venda.cliente }}
-                                {% else %}
-                                    Consumidor Final
-                                {% endif %}
-                            </td>
-                            <td>{{ venda.data_venda|date:"d/m/Y H:i" }}</td>
-                            <td>{{ venda.get_status_display }}</td>
-                            <td>{{ venda.get_status_pagamento_display }}</td>
-                            <td class="text-end">
-                                R$ {{ venda.total|floatformat:2 }}
-                            </td>
-                        </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="6" class="text-center py-4">
-                                Nenhuma venda encontrada.
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+    <form method="get" class="hui-entity-filters">
+        <div class="hui-entity-filters__heading">
+            <div><span class="hui-table-heading__eyebrow">Pesquisa</span><h2>Filtrar vendas</h2></div>
+            {% if busca or status or pagamento %}<a href="{% url 'vendas:lista' %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-x-lg"></i> Limpar</a>{% endif %}
         </div>
-    </div>
-</div>
+        <div class="hui-entity-filters__grid">
+            <div class="hui-entity-filter hui-entity-filter--search">
+                <label for="venda-busca">Número ou cliente</label>
+                <div class="position-relative"><i class="bi bi-search"></i><input id="venda-busca" name="busca" class="form-control" value="{{ busca }}" placeholder="Digite para pesquisar"></div>
+            </div>
+            <div class="hui-entity-filter">
+                <label for="venda-status">Situação da venda</label>
+                <select id="venda-status" name="status" class="form-select">
+                    <option value="">Todas</option>
+                    {% for valor, nome in status_choices %}<option value="{{ valor }}"{% if status == valor %} selected{% endif %}>{{ nome }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="hui-entity-filter">
+                <label for="venda-pagamento">Pagamento</label>
+                <select id="venda-pagamento" name="pagamento" class="form-select">
+                    <option value="">Todos</option>
+                    {% for valor, nome in pagamento_choices %}<option value="{{ valor }}"{% if pagamento == valor %} selected{% endif %}>{{ nome }}</option>{% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="bi bi-funnel"></i> Aplicar filtros</button>
+        </div>
+    </form>
 
+    <section class="table-card hui-entity-panel">
+        <header class="hui-table-heading">
+            <div><span class="hui-table-heading__eyebrow">Resultados</span><h2>Vendas registradas</h2><p>Consulte cliente, responsável, situação e valor de cada venda.</p></div>
+            <div class="d-flex align-items-center gap-2"><a href="{% url 'vendas:relatorio' %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-bar-chart"></i> Relatório</a><span class="hui-count-badge">{{ page_obj.paginator.count }} vendas</span></div>
+        </header>
+
+        {% if page_obj.object_list %}
+            <div class="table-responsive">
+                <table class="table align-middle hui-entity-table">
+                    <thead><tr><th>Número</th><th>Cliente</th><th>Data</th><th>Responsável</th><th>Situação</th><th>Pagamento</th><th class="text-end">Total</th><th class="text-end">Ações</th></tr></thead>
+                    <tbody>
+                        {% for venda in page_obj %}
+                            <tr>
+                                <td>{% if venda.numero %}<a href="{% url 'vendas:ficha' venda.numero %}" class="hui-document-number">#{{ venda.numero|stringformat:"06d" }}</a>{% else %}<span class="text-danger">Sem número</span>{% endif %}</td>
+                                <td><strong>{% if venda.cliente %}{{ venda.cliente }}{% else %}Consumidor Final{% endif %}</strong>{% if venda.cliente and venda.cliente.razao_social != venda.cliente.nome_fantasia %}<small class="d-block text-muted">{{ venda.cliente.razao_social }}</small>{% endif %}</td>
+                                <td class="text-nowrap">{{ venda.data_venda|date:"d/m/Y H:i" }}</td>
+                                <td>{% if venda.finalizada_por %}{{ venda.finalizada_por.get_full_name|default:venda.finalizada_por }}{% elif venda.criada_por %}{{ venda.criada_por.get_full_name|default:venda.criada_por }}{% else %}<span class="text-muted">Não informado</span>{% endif %}</td>
+                                <td>{% if venda.status == "finalizada" %}<span class="badge bg-success">Finalizada</span>{% elif venda.status == "cancelada" %}<span class="badge bg-danger">Cancelada</span>{% else %}<span class="badge bg-primary">Em aberto</span>{% endif %}</td>
+                                <td>{% if venda.status_pagamento == "pago" %}<span class="badge bg-success">Pago</span>{% elif venda.status_pagamento == "parcial" %}<span class="badge bg-warning text-dark">Parcial</span>{% else %}<span class="badge bg-secondary">Pendente</span>{% endif %}</td>
+                                <td class="text-end text-nowrap"><strong>R$ {{ venda.total|floatformat:"2g" }}</strong></td>
+                                <td class="text-end text-nowrap">{% if venda.numero %}<a href="{% url 'vendas:ficha' venda.numero %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i> Ver venda</a>{% else %}<span class="text-muted">Indisponível</span>{% endif %}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% if page_obj.paginator.num_pages > 1 %}
+                <footer class="hui-table-pagination"><span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span><div class="btn-group">{% if page_obj.has_previous %}<a class="btn btn-outline-secondary btn-sm" href="?page={{ page_obj.previous_page_number }}&busca={{ busca|urlencode }}&status={{ status }}&pagamento={{ pagamento }}">Anterior</a>{% endif %}{% if page_obj.has_next %}<a class="btn btn-outline-secondary btn-sm" href="?page={{ page_obj.next_page_number }}&busca={{ busca|urlencode }}&status={{ status }}&pagamento={{ pagamento }}">Próxima</a>{% endif %}</div></footer>
+            {% endif %}
+        {% else %}
+            <div class="hui-empty-state"><i class="bi bi-receipt-cutoff"></i><h2>Nenhuma venda encontrada</h2><p>Ajuste os filtros ou registre uma nova venda.</p><a href="{{ nova_venda_url }}" class="btn btn-primary mt-3"><i class="bi bi-plus-lg"></i> Nova venda</a></div>
+        {% endif %}
+    </section>
+</div>
 {% endblock %}

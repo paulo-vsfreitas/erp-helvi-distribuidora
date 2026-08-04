@@ -1,31 +1,6 @@
 {% extends "core/base.html" %}
-
-{% block title %}Inativar Gênero{% endblock %}
-
+{% block title %}Inativar Gênero | ERP Helvi{% endblock %}
 {% block content %}
-
-{% include "components/layout/page_header.html" with titulo="Inativar Gênero" subtitulo="Confirme a inativação do gênero." %}
-
-<div class="form-card">
-    <p>
-        Deseja realmente inativar o gênero
-        <strong>{{ genero.nome }}</strong>?
-    </p>
-
-    <form method="post">
-        {% csrf_token %}
-
-        <div class="form-actions">
-            <a href="{% url 'catalogo:lista_generos' %}" class="btn btn-secondary">
-                Cancelar
-            </a>
-
-            <button type="submit" class="btn btn-danger">
-                <i class="bi bi-slash-circle"></i>
-                Inativar
-            </button>
-        </div>
-    </form>
-</div>
-
+    {% url "catalogo:lista_generos" as cancelar_url %}
+    {% include "components/states/confirmation_page.html" with titulo="Inativar gênero" subtitulo="Revise os dados antes de continuar." pergunta="Deseja realmente inativar este gênero?" descricao="Ele deixará de ficar disponível em novos cadastros de produtos." objeto=genero.nome cancelar_url=cancelar_url tom="danger" icone="bi-slash-circle" botao_icone="bi-slash-circle" botao_texto="Inativar gênero" %}
 {% endblock %}

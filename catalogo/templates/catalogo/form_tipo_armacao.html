@@ -3,6 +3,7 @@
 {% block title %}{{ titulo }} | ERP Helvi{% endblock %}
 
 {% block content %}
+<div class="hui-module-page hui-module-page--catalogo">
 
 {% url 'catalogo:lista_tipo_armacao' as lista_tipo_armacao_url %}
 
@@ -42,5 +43,6 @@
         </a>
     </div>
 </form>
+</div>
 
 {% endblock %}

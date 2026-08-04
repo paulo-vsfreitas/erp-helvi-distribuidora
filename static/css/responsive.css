@@ -1,0 +1,41 @@
+@media (max-width: 991.98px) {
+    :root {
+        --sidebar-width: 220px;
+    }
+
+    .sidebar {
+        padding: 20px 14px;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .layout {
+        display: block;
+    }
+
+    .sidebar {
+        position: static;
+        width: 100%;
+        height: auto;
+        max-height: none;
+    }
+
+    .topbar {
+        position: static;
+    }
+
+    .page-header,
+    .page-header__content {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .page-header .btn,
+    .page-header__actions {
+        width: 100%;
+    }
+
+    .table-card {
+        overflow-x: auto;
+    }
+}

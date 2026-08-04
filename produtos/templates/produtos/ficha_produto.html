@@ -1,249 +1,78 @@
-{% extends 'core/base.html' %}
+{% extends "core/base.html" %}
 
 {% block title %}{{ produto.codigo }} - {{ produto.modelo }} | ERP Helvi{% endblock %}
 
 {% block content %}
+<div class="hui-module-page hui-module-page--produtos hui-detail-page">
+    {% url "produtos:lista_produtos" as lista_produtos_url %}
+    {% include "components/layout/page_header.html" with titulo="Ficha do produto" subtitulo=produto botao_url=lista_produtos_url botao_texto="Voltar aos produtos" botao_icon="bi bi-arrow-left" %}
 
-{% url 'produtos:lista_produtos' as lista_produtos_url %}
-
-{% include "components/layout/page_header.html" with titulo="Ficha do Produto" subtitulo=produto botao_url=lista_produtos_url botao_texto="Voltar" botao_icon="bi bi-arrow-left" %}
-
-<div class="card form-card">
-
-    <div style="display: flex; justify-content: space-between; gap: 20px; align-items: flex-start;">
-        <div>
-            <h2>👓 {{ produto.codigo }} • {{ produto.modelo }}</h2>
-
-            {% if produto.codigo_fornecedor %}
-                <p class="text-muted mb-2">
-                    Código do fornecedor:
-                    <strong>{{ produto.codigo_fornecedor }}</strong>
-                </p>
-            {% endif %}
-
-            {% if produto.ativo %}
-                <span class="badge badge-success">
-                    <i class="bi bi-check-circle"></i>
-                    Ativo
-                </span>
-            {% else %}
-                <span class="badge badge-danger">
-                    <i class="bi bi-x-circle"></i>
-                    Inativo
-                </span>
-            {% endif %}
-        </div>
-
-        <div class="form-actions">
-            <a href="{% url 'produtos:editar_produto' produto.id %}" class="btn btn-primary">
-                <i class="bi bi-pencil-square"></i>
-                Editar Dados
-            </a>
-
-            <a href="{% url 'produtos:galeria_produto' produto.id %}" class="btn btn-secondary">
-                <i class="bi bi-images"></i>
-                Gerenciar Imagens
-            </a>
-        </div>
-    </div>
-
-</div>
-
-<div class="card form-card">
-
-    <div style="display: grid; grid-template-columns: 280px 1fr; gap: 30px; align-items: start;">
-
-        <div>
-            {% if produto.foto %}
-                <a href="{{ produto.foto.url }}" target="_blank">
-                    <img
-                        src="{{ produto.foto.url }}"
-                        alt="{{ produto.modelo }}"
-                        style="width: 100%; max-height: 260px; object-fit: cover; border-radius: 14px; border: 1px solid #ddd;"
-                    >
-                </a>
-            {% else %}
-                <div style="height: 240px; border-radius: 14px; border: 1px dashed #ccc; display: flex; align-items: center; justify-content: center;">
-                    Sem foto principal
-                </div>
-            {% endif %}
-        </div>
-
-        <div>
-            <h3>📌 Informações Gerais</h3>
-
-            <div class="form-grid">
-                <div class="form-group">
-                    <label>Código ERP</label>
-                    <strong>{{ produto.codigo }}</strong>
-                </div>
-
-                <div class="form-group">
-                    <label>Código do fornecedor</label>
-
-                    {% if produto.codigo_fornecedor %}
-                        <strong>{{ produto.codigo_fornecedor }}</strong>
-                    {% else %}
-                        <strong class="text-muted">Não informado</strong>
-                    {% endif %}
-                </div>
-
-                <div class="form-group">
-                    <label>Fornecedor principal</label>
-
-                    {% if produto.fornecedor %}
-                        <strong>
-                            <a
-                                href="{% url 'fornecedores:ficha' produto.fornecedor.pk %}"
-                                class="action-link action-edit"
-                            >
-                                {{ produto.fornecedor.nome_fantasia|default:produto.fornecedor.razao_social }}
-
-                                <i class="bi bi-box-arrow-up-right"></i>
-                            </a>
-                        </strong>
-                    {% else %}
-                        <strong class="text-muted">Não informado</strong>
-                    {% endif %}
-                </div>
-
-                <div class="form-group">
-                    <label>Modelo</label>
-                    <strong>{{ produto.modelo }}</strong>
-                </div>
-
-                <div class="form-group">
-                    <label>Marca</label>
-                    <strong>{{ produto.marca|default:"-" }}</strong>
-                </div>
-
-                <div class="form-group">
-                    <label>Coleção</label>
-                    <strong>{{ produto.colecao|default:"-" }}</strong>
-                </div>
-
-                <div class="form-group">
-                    <label>Gênero</label>
-                    <strong>{{ produto.genero|default:"-" }}</strong>
-                </div>
-
-                <div class="form-group">
-                    <label>Tipo de Armação</label>
-                    <strong>{{ produto.tipo_armacao|default:"-" }}</strong>
-                </div>
-
-                <div class="form-group">
-                    <label>Cores</label>
-                    <strong>{{ produto.cores_disponiveis|default:"-" }}</strong>
-                </div>
+    <section class="hui-detail-hero">
+        <div class="hui-detail-hero__identity">
+            <span class="hui-detail-hero__icon"><i class="bi bi-eyeglasses"></i></span>
+            <div>
+                <span class="hui-table-heading__eyebrow">{{ produto.codigo }}</span>
+                <h2>{{ produto.modelo }}</h2>
+                {% if produto.codigo_fornecedor %}<p>Código do fornecedor: <strong>{{ produto.codigo_fornecedor }}</strong></p>{% endif %}
             </div>
+        </div>
+        <div class="hui-detail-hero__actions">
+            {% if produto.ativo %}<span class="badge bg-success"><i class="bi bi-check-circle"></i> Ativo</span>{% else %}<span class="badge bg-danger"><i class="bi bi-x-circle"></i> Inativo</span>{% endif %}
+            <a href="{% url 'produtos:editar_produto' produto.id %}" class="btn btn-primary"><i class="bi bi-pencil-square"></i> Editar dados</a>
+            <a href="{% url 'produtos:galeria_produto' produto.id %}" class="btn btn-outline-secondary"><i class="bi bi-images"></i> Imagens</a>
+        </div>
+    </section>
 
-            {% if produto.observacoes %}
-                <div class="form-group">
-                    <label>Observações</label>
-                    <p>{{ produto.observacoes }}</p>
+    <div class="hui-detail-layout">
+        <section class="card hui-detail-section hui-detail-section--direct">
+            <div class="hui-detail-media">
+                {% if produto.foto %}
+                    <a href="{{ produto.foto.url }}" target="_blank" rel="noopener"><img src="{{ produto.foto.url }}" alt="{{ produto.modelo }}" class="hui-product-photo"></a>
+                {% else %}
+                    <div class="hui-product-photo hui-product-photo--empty"><i class="bi bi-image"></i><span>Sem foto principal</span></div>
+                {% endif %}
+            </div>
+            <div>
+                <div class="ficha-section-title"><h3>Informações gerais</h3><p>Identificação comercial e classificação da armação.</p></div>
+                <div class="ficha-grid">
+                    <div class="ficha-info-item"><span>Código ERP</span><strong>{{ produto.codigo }}</strong></div>
+                    <div class="ficha-info-item"><span>Código do fornecedor</span><strong>{{ produto.codigo_fornecedor|default:"Não informado" }}</strong></div>
+                    <div class="ficha-info-item"><span>Modelo</span><strong>{{ produto.modelo }}</strong></div>
+                    <div class="ficha-info-item"><span>Marca</span><strong>{{ produto.marca|default:"Não informado" }}</strong></div>
+                    <div class="ficha-info-item"><span>Coleção</span><strong>{{ produto.colecao|default:"Não informado" }}</strong></div>
+                    <div class="ficha-info-item"><span>Gênero</span><strong>{{ produto.genero|default:"Não informado" }}</strong></div>
+                    <div class="ficha-info-item"><span>Tipo de armação</span><strong>{{ produto.tipo_armacao|default:"Não informado" }}</strong></div>
+                    <div class="ficha-info-item"><span>Cores</span><strong>{{ produto.cores_disponiveis|default:"Não informado" }}</strong></div>
+                    <div class="ficha-info-item"><span>Fornecedor principal</span><strong>{% if produto.fornecedor %}<a href="{% url 'fornecedores:ficha' produto.fornecedor.pk %}">{{ produto.fornecedor.nome_fantasia|default:produto.fornecedor.razao_social }}</a>{% else %}Não informado{% endif %}</strong></div>
                 </div>
-            {% endif %}
-        </div>
+                {% if produto.observacoes %}<div class="hui-detail-note"><span>Observações</span><p>{{ produto.observacoes }}</p></div>{% endif %}
+            </div>
+        </section>
 
-    </div>
-
-</div>
-
-<div class="card form-card">
-    <h3>💰 Financeiro</h3>
-
-    <div class="form-grid">
-        <div class="form-group">
-            <label>Preço de Custo</label>
-            <strong>R$ {{ produto.preco_custo }}</strong>
-        </div>
-
-        <div class="form-group">
-            <label>Preço de Venda</label>
-            <strong>R$ {{ produto.preco_venda }}</strong>
-        </div>
-
-        <div class="form-group">
-            <label>Lucro Unitário</label>
-            <strong>R$ {{ produto.lucro_unitario }}</strong>
-        </div>
-
-        <div class="form-group">
-            <label>Margem de Lucro</label>
-            <strong>{{ produto.margem_lucro|floatformat:2 }}%</strong>
-        </div>
-
-        <div class="form-group">
-            <label>Valor em Estoque / Custo</label>
-            <strong>R$ {{ produto.preco_custo|floatformat:2 }}</strong>
-        </div>
-
-        <div class="form-group">
-            <label>Valor em Estoque / Venda</label>
-            <strong>R$ {{ produto.preco_venda|floatformat:2 }}</strong>
+        <div class="hui-detail-side">
+        <section class="card hui-detail-section hui-detail-section--direct">
+                <div class="ficha-section-title"><h3>Financeiro</h3><p>Custos, preço e margem.</p></div>
+                <div class="ficha-grid">
+                    <div class="ficha-info-item"><span>Preço de custo</span><strong>R$ {{ produto.preco_custo|floatformat:"2g" }}</strong></div>
+                    <div class="ficha-info-item"><span>Preço de venda</span><strong>R$ {{ produto.preco_venda|floatformat:"2g" }}</strong></div>
+                    <div class="ficha-info-item"><span>Lucro unitário</span><strong>R$ {{ produto.lucro_unitario|floatformat:"2g" }}</strong></div>
+                    <div class="ficha-info-item"><span>Margem de lucro</span><strong>{{ produto.margem_lucro|floatformat:2 }}%</strong></div>
+                </div>
+            </section>
+        <section class="card hui-detail-section hui-detail-section--direct">
+                <div class="ficha-section-title"><h3>Estoque</h3><p>Disponibilidade atual do produto.</p></div>
+                <div class="ficha-grid">
+                    <div class="ficha-info-item"><span>Estoque atual</span><strong>{{ produto.estoque_atual }}</strong></div>
+                    <div class="ficha-info-item"><span>Estoque mínimo</span><strong>{{ produto.estoque_minimo }}</strong></div>
+                    <div class="ficha-info-item"><span>Situação</span><strong>{% if produto.estoque_atual == 0 %}<span class="badge bg-danger">Esgotado</span>{% elif produto.estoque_atual <= produto.estoque_minimo %}<span class="badge bg-warning text-dark">Estoque baixo</span>{% else %}<span class="badge bg-success">Estoque adequado</span>{% endif %}</strong></div>
+                </div>
+            </section>
         </div>
     </div>
+
+    <section class="card hui-detail-section hui-detail-section--direct">
+        <div class="ficha-section-title"><h3>Imagens adicionais</h3><p>Galeria cadastrada para este produto.</p></div>
+        {% if imagens %}<div class="hui-image-gallery">{% for imagem in imagens %}<a href="{{ imagem.imagem.url }}" target="_blank" rel="noopener"><img src="{{ imagem.imagem.url }}" alt="{{ imagem.descricao|default:produto.modelo }}"></a>{% endfor %}</div>{% else %}<div class="hui-empty-state hui-empty-state--compact"><i class="bi bi-images"></i><p>Nenhuma imagem adicional cadastrada.</p></div>{% endif %}
+    </section>
 </div>
-
-<div class="card form-card">
-    <h3>📦 Estoque</h3>
-
-    <div class="form-grid">
-        <div class="form-group">
-            <label>Estoque Atual</label>
-            <strong>{{ produto.estoque_atual }}</strong>
-        </div>
-
-        <div class="form-group">
-            <label>Estoque Mínimo</label>
-            <strong>{{ produto.estoque_minimo }}</strong>
-        </div>
-
-        <div class="form-group">
-            <label>Situação</label>
-
-            {% if produto.estoque_atual == 0 %}
-                <span class="badge badge-danger">Esgotado</span>
-            {% elif produto.estoque_atual <= produto.estoque_minimo %}
-                <span class="badge badge-warning">Estoque baixo</span>
-            {% else %}
-                <span class="badge badge-success">Estoque ok</span>
-            {% endif %}
-        </div>
-    </div>
-</div>
-
-<div class="card form-card">
-    <h3>🖼️ Imagens</h3>
-
-    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-        {% for imagem in imagens %}
-            <a href="{{ imagem.imagem.url }}" target="_blank">
-                <img
-                    src="{{ imagem.imagem.url }}"
-                    alt="{{ imagem.descricao|default:produto.modelo }}"
-                    style="width: 100px; height: 100px; object-fit: cover; border-radius: 10px; border: 1px solid #ddd;"
-                >
-            </a>
-        {% empty %}
-            <p class="empty-state">Nenhuma imagem adicional cadastrada.</p>
-        {% endfor %}
-    </div>
-</div>
-
-<div class="card form-card">
-    <h3>📑 Abas futuras</h3>
-
-    <div class="tabs-menu" style="display: flex; gap: 10px; flex-wrap: wrap;">
-        <span class="btn btn-secondary">Dados Gerais</span>
-        <span class="btn btn-secondary">Imagens</span>
-        <span class="btn btn-secondary">Estoque</span>
-        <span class="btn btn-secondary">Compras</span>
-        <span class="btn btn-secondary">Vendas</span>
-        <span class="btn btn-secondary">Financeiro</span>
-        <span class="btn btn-secondary">Histórico</span>
-    </div>
-</div>
-
 {% endblock %}

@@ -13,7 +13,9 @@
 
 {% block content %}
 
-<div class="ficha-header comercial-ficha-header">
+<div class="hui-module-page hui-module-page--orcamentos hui-detail-page">
+
+<div class="ficha-header comercial-ficha-header hui-detail-header">
 
     <div class="ficha-header-top">
 
@@ -49,13 +51,65 @@
             </a>
 
             <a
+                id="btnGerarPdf"
                 href="{% url 'comercial:pdf' orcamento.numero %}"
                 target="_blank"
+                rel="noopener noreferrer"
                 class="btn btn-outline-secondary"
             >
                 <i class="bi bi-file-earmark-pdf"></i>
                 Gerar PDF
             </a>
+            <div class="btn-group">
+
+                <button
+                    type="button"
+                    class="btn btn-outline-primary dropdown-toggle"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false">
+
+                    <i class="bi bi-share"></i>
+                    Compartilhar
+
+                </button>
+
+                <ul class="dropdown-menu dropdown-menu-end">
+
+                    <li>
+
+                        <button
+                            class="dropdown-item"
+                            type="button"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalWhatsapp">
+
+                            <i class="bi bi-whatsapp text-success me-2"></i>
+
+                            WhatsApp
+
+                        </button>
+
+                    </li>
+
+                    <li>
+
+                        <button
+                            class="dropdown-item"
+                            type="button"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalEmail">
+
+                            <i class="bi bi-envelope me-2"></i>
+
+                            Enviar por E-mail
+
+                        </button>
+
+                    </li>
+
+                </ul>
+
+            </div>
 
             <form
                 method="post"
@@ -337,6 +391,8 @@
 
         </div>
 
+        {% include "comercial/components/timeline_orcamento.html" %}
+
         <div class="table-card ficha-section-card mt-4">
 
             <div class="table-card-header ficha-section-header">
@@ -555,6 +611,10 @@
     </div>
 
 </div>
+
+</div>
+
+
 <div class="modal fade"
      id="modalStatus"
      tabindex="-1">
@@ -640,7 +700,11 @@ document.querySelectorAll(".btn-status").forEach(botao => {
 });
 
 </script>
-{% endblock %}
+{% include "comercial/components/modal_whatsapp.html" %}
+{% include "comercial/components/modal_email.html" %}
 
-{% block extra_js %}        
+{% endblock %}
+{% block extra_js %}
+<script src="{% static 'js/comercial/compartilhar_whatsapp.js' %}?v=4"></script>
+<script src="{% static 'js/comercial/compartilhar_email.js' %}?v=2"></script>
 {% endblock %}

@@ -1,52 +1,49 @@
-﻿# Roadmap Atual do ERP Helvi
+# Roadmap do ERP Helvi
 
-Atualizado em 02/08/2026.
+Atualizado em 04/08/2026.
 
-## Concluído ou funcional no fluxo principal
+## Marco atual — Release Candidate 1.0
 
-- [x] autenticação, usuários e permissões;
-- [x] catálogo;
-- [x] produtos;
-- [x] clientes;
-- [x] fornecedores em operação básica;
-- [x] estoque e inventário;
-- [x] compras;
-- [x] contas a pagar;
-- [x] contas a receber;
-- [x] contas financeiras e movimentações;
-- [x] vendas;
-- [x] integração Vendas → Estoque;
-- [x] integração Vendas → Financeiro;
-- [x] Comercial → Orçamentos;
-- [x] PDF de Compra;
-- [x] PDF de Orçamento;
-- [x] conversão Orçamento → Venda;
-- [x] duplicação de orçamento;
-- [x] Framework Helvi em uso;
-- [x] Framework PDF em uso.
+- [x] autenticação, perfis, permissões e primeiro acesso;
+- [x] catálogo, produtos, clientes e fornecedores;
+- [x] estoque, ajustes e inventários;
+- [x] compras, recebimento, custo, financeiro, cancelamento e PDF;
+- [x] Contas a Pagar, Contas a Receber, contas financeiras e fluxo de caixa;
+- [x] baixas, recebimentos e estornos manuais rastreáveis;
+- [x] orçamentos, filtros, edição, PDF, compartilhamento e conversão;
+- [x] vendas, pagamentos, estoque, financeiro e cancelamento;
+- [x] Central de Relatórios com 13 entradas funcionais;
+- [x] Framework Helvi, Helvi UI e formatação monetária compartilhada;
+- [x] auditoria e conciliação de integrações;
+- [x] constraints críticas de produto e venda;
+- [x] configuração de segurança e documentação de implantação;
+- [x] 61 testes automatizados;
+- [x] homologação visual das 19 telas principais.
 
-## Etapa atual
+## Publicação da versão 1.0
 
-### Consolidação do Comercial e do Framework Helvi
+- [ ] gerar e testar backup de banco e mídia;
+- [ ] preparar ambiente de homologação equivalente à produção;
+- [ ] configurar domínio, HTTPS, PostgreSQL, estáticos e mídia;
+- [ ] configurar e testar SMTP real;
+- [ ] executar roteiro de aceitação com os quatro perfis;
+- [ ] validar restauração do backup;
+- [ ] criar release/tag 1.0 após a publicação aprovada.
 
-- [ ] padronizar moeda em templates, Python e PDFs;
-- [ ] revisar documentação oficial;
-- [ ] homologar integralmente Orçamento → Venda → Estoque → Financeiro;
-- [ ] concluir filtros e pesquisa de orçamentos;
-- [ ] definir envio real por WhatsApp/e-mail;
-- [ ] registrar histórico de status e envios.
+## Versão 1.1 — produtividade e análise
 
-## Fechamento da versão 1.0
+- [ ] pesquisa global entre módulos;
+- [ ] relatórios analíticos dedicados de clientes, produtos, financeiro e estoque;
+- [ ] exportação CSV/PDF dos relatórios;
+- [ ] comparações de períodos e rankings;
+- [ ] filtros salvos e preferências do usuário;
+- [ ] alertas configuráveis de vencimento e estoque mínimo.
 
-- [ ] cancelamentos e estornos críticos;
-- [ ] relatório financeiro;
-- [ ] relatório de estoque;
-- [ ] pesquisa global;
-- [ ] auditoria;
-- [ ] revisão de permissões;
-- [ ] revisão visual global;
-- [ ] revisão de performance;
-- [ ] homologação integrada;
-- [ ] backup e restauração;
-- [ ] preparação de produção;
-- [ ] release ERP Helvi 1.0.
+## Versão futura — escala operacional
+
+- [ ] locais múltiplos de estoque e transferências;
+- [ ] filas assíncronas para e-mails e documentos;
+- [ ] armazenamento externo de mídia;
+- [ ] observabilidade e alertas externos;
+- [ ] API de integração;
+- [ ] trilha de auditoria expandida e relatórios regulatórios.

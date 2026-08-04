@@ -1,80 +1,57 @@
-{% extends 'core/base.html' %}
+{% extends "core/base.html" %}
 
-{% block title %}Clientes{% endblock %}
+{% block title %}Clientes / Óticas | ERP Helvi{% endblock %}
 
 {% block content %}
+<div class="hui-module-page hui-module-page--clientes">
+    <header class="page-header hui-page-header">
+        <div>
+            <h1>Clientes / Óticas</h1>
+            <p>Consulte e gerencie as óticas cadastradas.</p>
+        </div>
+        <a href="{% url 'novo_cliente' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i>
+            Nova ótica
+        </a>
+    </header>
 
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+    <form method="get" class="hui-filter-bar">
+        <div class="hui-filter-bar__search">
+            <i class="bi bi-search"></i>
+            <input type="text" name="busca" value="{{ busca }}" class="form-control" placeholder="Pesquisar por nome, cidade ou responsável">
+        </div>
+        <button class="btn btn-primary" type="submit">Pesquisar</button>
+    </form>
 
-    <div>
-        <h1 class="page-title">Clientes / Óticas</h1>
-        <p class="page-subtitle">
-            Gestão das óticas cadastradas
-        </p>
+    <div class="hui-entity-grid">
+        {% for cliente in clientes %}
+            <article class="hui-entity-card">
+                <div class="hui-entity-card__heading">
+                    <span class="hui-entity-card__icon"><i class="bi bi-buildings"></i></span>
+                    <div>
+                        <h2>{{ cliente.nome_fantasia }}</h2>
+                        <p>{{ cliente.cidade }} / {{ cliente.estado }}</p>
+                    </div>
+                </div>
+                <dl class="hui-entity-card__details">
+                    <div><dt>Responsável</dt><dd>{{ cliente.responsavel|default:"Não informado" }}</dd></div>
+                    <div><dt>WhatsApp</dt><dd>{{ cliente.whatsapp|default:"Não informado" }}</dd></div>
+                    <div><dt>Limite</dt><dd>R$ {{ cliente.limite_credito }}</dd></div>
+                    <div><dt>Condição</dt><dd>{{ cliente.condicao_pagamento|default:"Não informada" }}</dd></div>
+                </dl>
+                <div class="hui-entity-card__actions">
+                    <a href="{% url 'editar_cliente' cliente.id %}" class="btn btn-outline-primary">
+                        <i class="bi bi-pencil-square"></i> Editar
+                    </a>
+                </div>
+            </article>
+        {% empty %}
+            <div class="hui-empty-state">
+                <i class="bi bi-buildings"></i>
+                <h2>Nenhuma ótica cadastrada</h2>
+                <p>Cadastre a primeira ótica para iniciar o relacionamento comercial.</p>
+            </div>
+        {% endfor %}
     </div>
-
-    <a href="{% url 'novo_cliente' %}" class="btn-gold">
-    + Nova Ótica
-    </a>
-
 </div>
-
-<form method="GET" style="margin-bottom:20px;">
-    <input
-        type="text"
-        name="busca"
-        value="{{ busca }}"
-        placeholder="Pesquisar ótica..."
-        style="
-            padding:12px;
-            width:350px;
-            border:1px solid #ddd;
-            border-radius:10px;
-        "
-    >
-
-    <button class="btn-gold">
-        Pesquisar
-    </button>
-</form>
-
-<div class="cards">
-
-    <div class="cards">
-
-    {% for cliente in clientes %}
-
-        <div class="card">
-
-            <h3>🏢 {{ cliente.nome_fantasia }}</h3>
-
-            <p>📍 {{ cliente.cidade }} / {{ cliente.estado }}</p>
-            <p>👤 {{ cliente.responsavel }}</p>
-            <p>📞 {{ cliente.whatsapp }}</p>
-
-            <p>
-                💳 Limite:
-                <strong>R$ {{ cliente.limite_credito }}</strong>
-            </p>
-
-            <p>📅 {{ cliente.condicao_pagamento }}</p>
-
-            <br>
-
-            <a href="{% url 'editar_cliente' cliente.id %}" class="btn-gold">
-                ✏️ Editar
-            </a>
-
-        </div>
-
-    {% empty %}
-
-        <div class="card">
-            Nenhuma ótica cadastrada.
-        </div>
-
-    {% endfor %}
-
-</div>
-
 {% endblock %}

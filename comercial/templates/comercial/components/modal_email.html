@@ -1,0 +1,245 @@
+<div
+    class="modal fade"
+    id="modalEmail"
+    tabindex="-1"
+    aria-labelledby="modalEmailTitulo"
+    aria-hidden="true"
+>
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+
+            <form
+                method="post"
+                action="{% url 'comercial:compartilhar' orcamento.numero %}"
+                id="formEnviarEmail"
+            >
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="canal"
+                    value="email"
+                >
+
+                <input
+                    type="hidden"
+                    name="marcar_enviado"
+                    value="on"
+                >
+
+                <div class="modal-header">
+                    <div>
+                        <h5
+                            class="modal-title"
+                            id="modalEmailTitulo"
+                        >
+                            <i class="bi bi-envelope-fill text-primary me-2"></i>
+                            Enviar orçamento por e-mail
+                        </h5>
+
+                        <p class="text-muted small mb-0 mt-1">
+                            O PDF do orçamento será anexado automaticamente.
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Fechar"
+                    ></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="card border-0 bg-light mb-4">
+                        <div class="card-body py-3">
+
+                            <div class="row g-3">
+
+                                <div class="col-md-6">
+                                    <small class="text-muted d-block">
+                                        Orçamento
+                                    </small>
+
+                                    <strong>
+                                        {{ orcamento.codigo }}
+                                    </strong>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <small class="text-muted d-block">
+                                        Cliente
+                                    </small>
+
+                                    <strong>
+                                        {{ orcamento.cliente_nome|default:"Consumidor final" }}
+                                    </strong>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <small class="text-muted d-block">
+                                        Valor
+                                    </small>
+
+                                    <strong>
+                                        R$ {{ orcamento.total|floatformat:2 }}
+                                    </strong>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <small class="text-muted d-block">
+                                        Validade
+                                    </small>
+
+                                    <strong>
+                                        {{ orcamento.data_validade|date:"d/m/Y" }}
+                                    </strong>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <small class="text-muted d-block">
+                                        Itens
+                                    </small>
+
+                                    <strong>
+                                        {{ orcamento.quantidade_itens }}
+                                    </strong>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label
+                            for="emailDestinatario"
+                            class="form-label"
+                        >
+                            E-mail do destinatário
+                        </label>
+
+                        <input
+                            type="email"
+                            name="email"
+                            id="emailDestinatario"
+                            class="form-control"
+                            value="{{ orcamento.cliente_email }}"
+                            placeholder="cliente@email.com"
+                            autocomplete="email"
+                            required
+                        >
+                    </div>
+
+                    <div class="mb-3">
+                        <label
+                            for="emailAssunto"
+                            class="form-label"
+                        >
+                            Assunto
+                        </label>
+
+                        <input
+                            type="text"
+                            name="assunto"
+                            id="emailAssunto"
+                            class="form-control"
+                            value="{{ assunto_email }}"
+                            maxlength="200"
+                            required
+                        >
+                    </div>
+
+                    <div class="mb-2">
+                        <label
+                            for="emailMensagem"
+                            class="form-label"
+                        >
+                            Mensagem
+                        </label>
+
+                        <textarea
+                            name="mensagem"
+                            id="emailMensagem"
+                            class="form-control"
+                            rows="10"
+                            required
+                        >{{ mensagem_email }}</textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            A mensagem pode ser editada antes do envio.
+                        </small>
+
+                        <small
+                            id="contadorMensagemEmail"
+                            class="text-muted fw-semibold"
+                        >
+                            0 caracteres
+                        </small>
+                    </div>
+
+                    <div class="alert alert-secondary mt-4 mb-0">
+                        <i class="bi bi-paperclip me-1"></i>
+
+                        O arquivo
+                        <strong>{{ orcamento.codigo|lower }}.pdf</strong>
+                        será anexado automaticamente.
+                    </div>
+
+                </div>
+
+                <div class="modal-footer justify-content-between">
+
+                    <div class="d-flex gap-2">
+
+                        <button
+                            type="button"
+                            id="btnCopiarMensagemEmail"
+                            class="btn btn-outline-secondary"
+                        >
+                            <i class="bi bi-clipboard"></i>
+                            Copiar mensagem
+                        </button>
+
+                        <button
+                            type="button"
+                            id="btnRestaurarMensagemEmail"
+                            class="btn btn-outline-warning"
+                        >
+                            <i class="bi bi-arrow-counterclockwise"></i>
+                            Restaurar padrão
+                        </button>
+
+                    </div>
+
+                    <div class="d-flex gap-2">
+
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal"
+                        >
+                            Cancelar
+                        </button>
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                            id="btnEnviarEmail"
+                        >
+                            <i class="bi bi-send-fill"></i>
+                            Enviar e-mail
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>

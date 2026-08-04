@@ -18,7 +18,7 @@
 
 
 
-<form method="post" id="form-orcamento">
+<form method="post" id="form-orcamento" class="hui-module-page hui-module-page--orcamentos hui-operation-form">
 
     {% csrf_token %}
 
@@ -29,7 +29,7 @@
         value="{{ itens_json|default:'[]' }}"
     >
 
-    <div class="ficha-header orcamento-form-header">
+    <div class="ficha-header orcamento-form-header hui-page-header">
 
         <div class="ficha-header-top">
 
@@ -67,7 +67,7 @@
         <main class="orcamento-content">
 
             <!-- DADOS GERAIS -->
-            <section class="table-card orcamento-form-card">
+            <section class="table-card orcamento-form-card hui-card">
 
                 <div class="table-card-header">
                     Dados Gerais
@@ -221,7 +221,7 @@
             </section>
 
             <!-- PRODUTOS -->
-            <section class="table-card orcamento-form-card">
+            <section class="table-card orcamento-form-card hui-card">
 
                 <div class="table-card-header">
                     Produtos
@@ -322,7 +322,7 @@
             </section>
 
             <!-- INFORMAÇÕES COMERCIAIS -->
-            <section class="table-card orcamento-form-card">
+            <section class="table-card orcamento-form-card hui-card">
 
                 <div class="table-card-header">
                     Informações Comerciais
@@ -451,7 +451,7 @@
 
                 </div>
 
-                <section class="table-card orcamento-summary-card">
+                <section class="table-card orcamento-summary-card hui-card hui-summary-card">
 
                     <div class="table-card-header">
                         Resumo Financeiro

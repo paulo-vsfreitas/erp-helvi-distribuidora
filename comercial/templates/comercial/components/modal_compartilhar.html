@@ -1,0 +1,292 @@
+<div
+    class="modal fade"
+    id="modalCompartilhar"
+    tabindex="-1"
+    aria-labelledby="modalCompartilharTitulo"
+    aria-hidden="true"
+>
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+
+            <form
+                method="post"
+                action="{% url 'comercial:compartilhar' orcamento.numero %}"
+                id="form-compartilhar-orcamento"
+            >
+                {% csrf_token %}
+
+                <div class="modal-header">
+                    <div>
+                        <h5
+                            class="modal-title"
+                            id="modalCompartilharTitulo"
+                        >
+                            Compartilhar orçamento
+                        </h5>
+
+                        <p class="text-muted small mb-0">
+                            {{ orcamento.codigo }}
+                            —
+                            {{ orcamento.cliente_nome }}
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Fechar"
+                    ></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">
+                            Canal
+                        </label>
+
+                        <div class="d-flex gap-4 flex-wrap">
+                            {% for radio in form_compartilhamento.canal %}
+                                <div class="form-check">
+                                    {{ radio.tag }}
+
+                                    <label
+                                        class="form-check-label"
+                                        for="{{ radio.id_for_label }}"
+                                    >
+                                        {{ radio.choice_label }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div
+                        class="mb-3"
+                        id="campo-compartilhar-telefone"
+                    >
+                        <label
+                            for="{{ form_compartilhamento.telefone.id_for_label }}"
+                            class="form-label"
+                        >
+                            Telefone / WhatsApp
+                        </label>
+
+                        {{ form_compartilhamento.telefone }}
+                    </div>
+
+                    <div
+                        class="mb-3 d-none"
+                        id="campo-compartilhar-email"
+                    >
+                        <label
+                            for="{{ form_compartilhamento.email.id_for_label }}"
+                            class="form-label"
+                        >
+                            E-mail
+                        </label>
+
+                        {{ form_compartilhamento.email }}
+                    </div>
+
+                    <div
+                        class="mb-3 d-none"
+                        id="campo-compartilhar-assunto"
+                    >
+                        <label
+                            for="{{ form_compartilhamento.assunto.id_for_label }}"
+                            class="form-label"
+                        >
+                            Assunto
+                        </label>
+
+                        {{ form_compartilhamento.assunto }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label
+                            for="{{ form_compartilhamento.mensagem.id_for_label }}"
+                            class="form-label"
+                        >
+                            Mensagem
+                        </label>
+
+                        {{ form_compartilhamento.mensagem }}
+                    </div>
+
+                    <div class="form-check mb-3">
+                        {{ form_compartilhamento.marcar_enviado }}
+
+                        <label
+                            class="form-check-label"
+                            for="{{ form_compartilhamento.marcar_enviado.id_for_label }}"
+                        >
+                            Marcar orçamento como enviado
+                        </label>
+                    </div>
+
+                    <div
+                        class="alert alert-info mb-0"
+                        id="aviso-whatsapp"
+                    >
+                        <i class="bi bi-info-circle me-1"></i>
+
+                        O WhatsApp será aberto com a mensagem pronta.
+                        O PDF deverá ser anexado manualmente.
+                    </div>
+
+                    <div
+                        class="alert alert-secondary mb-0 d-none"
+                        id="aviso-email"
+                    >
+                        <i class="bi bi-paperclip me-1"></i>
+
+                        O PDF será anexado automaticamente ao e-mail.
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <a
+                        href="{% url 'comercial:pdf' orcamento.numero %}"
+                        target="_blank"
+                        class="btn btn-outline-secondary"
+                    >
+                        <i class="bi bi-file-earmark-pdf"></i>
+                        Abrir PDF
+                    </a>
+
+                    <button
+                        type="button"
+                        id="btnCopiarMensagem"
+                        class="btn btn-outline-secondary">
+
+                        <i class="bi bi-clipboard"></i>
+
+                        Copiar mensagem
+
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal"
+                    >
+                        Cancelar
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        <i class="bi bi-send"></i>
+                        Compartilhar
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const radios = document.querySelectorAll(
+        'input[name="canal"]'
+    );
+
+    const campoTelefone = document.getElementById(
+        "campo-compartilhar-telefone"
+    );
+
+    const campoEmail = document.getElementById(
+        "campo-compartilhar-email"
+    );
+
+    const campoAssunto = document.getElementById(
+        "campo-compartilhar-assunto"
+    );
+
+    const avisoWhatsApp = document.getElementById(
+        "aviso-whatsapp"
+    );
+
+    const avisoEmail = document.getElementById(
+        "aviso-email"
+    );
+
+    const mensagem = document.getElementById(
+        "{{ form_compartilhamento.mensagem.id_for_label }}"
+    );
+
+    function atualizarCanal() {
+        const selecionado = document.querySelector(
+            'input[name="canal"]:checked'
+        )?.value;
+
+        const emailSelecionado = selecionado === "email";
+
+        campoTelefone.classList.toggle(
+            "d-none",
+            emailSelecionado
+        );
+
+        campoEmail.classList.toggle(
+            "d-none",
+            !emailSelecionado
+        );
+
+        campoAssunto.classList.toggle(
+            "d-none",
+            !emailSelecionado
+        );
+
+        avisoWhatsApp.classList.toggle(
+            "d-none",
+            emailSelecionado
+        );
+
+        avisoEmail.classList.toggle(
+            "d-none",
+            !emailSelecionado
+        );
+    }
+
+    radios.forEach((radio) => {
+        radio.addEventListener("change", atualizarCanal);
+    });
+
+    document
+        .getElementById("btn-copiar-mensagem")
+        ?.addEventListener("click", async () => {
+            try {
+                await navigator.clipboard.writeText(
+                    mensagem?.value || ""
+                );
+
+                const botao = document.getElementById(
+                    "btn-copiar-mensagem"
+                );
+
+                const textoOriginal = botao.innerHTML;
+
+                botao.innerHTML = `
+                    <i class="bi bi-check-lg"></i>
+                    Copiado
+                `;
+
+                window.setTimeout(() => {
+                    botao.innerHTML = textoOriginal;
+                }, 1500);
+            } catch (erro) {
+                console.error(erro);
+            }
+        });
+
+    atualizarCanal();
+});
+</script>

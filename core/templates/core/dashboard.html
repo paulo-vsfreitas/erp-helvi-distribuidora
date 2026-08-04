@@ -4,9 +4,9 @@
 
 {% block content %}
 
-<div class="dashboard-page">
+<div class="dashboard-page hui-module-page hui-module-page--dashboard">
 
-    <div class="dashboard-header">
+    <div class="dashboard-header hui-page-header">
         <div>
             <h1>Painel Principal</h1>
             <p>Visão geral da Helvi Distribuidora de Armações.</p>
@@ -468,7 +468,7 @@
                         {% for venda in dashboard.ultimas_vendas %}
                             <tr>
                                 <td>
-                                    <a href="{% url 'vendas:ficha' venda.pk %}">
+                                    <a href="{% url 'vendas:ficha' venda.numero %}">
                                         nº {{ venda.numero|stringformat:"06d" }}
                                     </a>
                                 </td>

@@ -1,0 +1,87 @@
+<div class="table-card ficha-section-card mt-4">
+
+    <div class="table-card-header ficha-section-header">
+
+        <div>
+            <h2 class="fw-bold">Histórico comercial</h2>
+
+            <p>
+                Acompanhamento das principais ações realizadas
+                neste orçamento.
+            </p>
+        </div>
+
+        <span class="badge rounded-pill text-bg-secondary">
+            {{ timeline_eventos|length }}
+            evento{{ timeline_eventos|length|pluralize }}
+        </span>
+
+    </div>
+
+    <div class="table-card-body">
+
+        <div class="orcamento-timeline">
+
+            {% for evento in timeline_eventos %}
+
+                <article class="orcamento-timeline-item">
+
+                    <div
+                        class="orcamento-timeline-icon {{ evento.classe }}"
+                    >
+                        <i class="bi {{ evento.icone }}"></i>
+                    </div>
+
+                    <div class="orcamento-timeline-content">
+
+                        <div class="orcamento-timeline-header">
+
+                            <strong>
+                                {{ evento.titulo }}
+                            </strong>
+
+                            <time>
+                                {{ evento.data|date:"d/m/Y" }}
+                                às
+                                {{ evento.data|time:"H:i" }}
+                            </time>
+
+                        </div>
+
+                        <p>
+                            {{ evento.descricao }}
+                        </p>
+
+                        {% if evento.venda %}
+
+                            <a
+                                href="{% url 'vendas:ficha' evento.venda.numero %}"
+                                class="btn btn-sm btn-outline-primary mt-2"
+                            >
+                                <i class="bi bi-box-arrow-up-right"></i>
+                                Abrir venda
+                            </a>
+
+                        {% endif %}
+
+                    </div>
+
+                </article>
+
+            {% empty %}
+
+                <div class="text-center text-muted py-4">
+
+                    <i class="bi bi-clock-history fs-3 d-block mb-2"></i>
+
+                    Nenhum evento registrado.
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+</div>

@@ -1,160 +1,268 @@
 {% extends "core/base.html" %}
+{% load static %}
 
-{% block title %}
-    {{ titulo }} | ERP Helvi
+{% block title %}{{ titulo }} | ERP Helvi{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/usuarios.css' %}?v=1.0.1">
 {% endblock %}
 
 {% block content %}
+<div class="hui-module-page hui-module-page--usuarios hui-form-page hui-user-page">
 
-    {% url "usuarios:lista_usuarios" as voltar_url %}
+    <header class="page-header hui-page-header">
+        <div>
+            <span class="hui-page-header__eyebrow">Gestão de usuários</span>
+            <h1>{{ titulo }}</h1>
+            <p>
+                {% if modo_edicao %}
+                    Atualize os dados, a segurança e as permissões de acesso.
+                {% else %}
+                    Cadastre os dados, a segurança e as permissões do novo usuário.
+                {% endif %}
+            </p>
+        </div>
 
-    {% include "components/layout/page_header.html" with titulo=titulo subtitulo="Preencha os dados do usuário do ERP Helvi." botao_url=voltar_url botao_texto="Voltar" botao_icon="bi bi-arrow-left" %}
+        <a href="{% url 'usuarios:lista_usuarios' %}"
+           class="btn btn-outline-secondary hui-page-header__action">
+            <i class="bi bi-arrow-left"></i>
+            Voltar para usuários
+        </a>
+    </header>
 
-    <form
-        method="post"
-        enctype="multipart/form-data"
-        class="card form-card"
-    >
+    <form method="post"
+          enctype="multipart/form-data"
+          class="hui-user-form"
+          novalidate>
         {% csrf_token %}
 
-        <div class="form-section">
-            <h3>Dados de acesso</h3>
-
-            <div class="form-grid">
-                <div class="form-group">
-                    <label for="{{ form.username.id_for_label }}">
-                        Usuário
-                    </label>
-                    {{ form.username }}
-                    {{ form.username.errors }}
-                </div>
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger mb-4" role="alert">
+                {{ form.non_field_errors }}
             </div>
-        </div>
+        {% endif %}
 
-        <div class="form-section">
-            {% if "Editar" in titulo %}
-                <h3>Alteração de senha</h3>
-                <p class="form-text text-muted">
-                    Preencha os campos abaixo apenas se quiser alterar a senha atual.
-                </p>
-            {% else %}
-                <h3>Senha</h3>
-            {% endif %}
+        <div class="hui-user-form-layout">
+            <div class="hui-user-form-stack">
+                <section class="hui-user-card">
+                    <header class="hui-user-card__header">
+                        <span class="hui-user-card__icon">
+                            <i class="bi bi-person-vcard"></i>
+                        </span>
+                        <div>
+                            <h2>Identificação do usuário</h2>
+                            <p>Dados usados no perfil e na comunicação interna.</p>
+                        </div>
+                    </header>
 
-            <div class="form-grid">
-                <div class="form-group">
-                    <label for="{{ form.senha.id_for_label }}">
-                        {% if "Editar" in titulo %}
-                            Nova senha
-                        {% else %}
-                            Senha
+                    <div class="hui-user-card__body hui-user-identity">
+                        <div class="hui-user-photo-panel">
+                            <span class="hui-user-photo-label">Foto do perfil</span>
+
+                            <div class="hui-user-avatar" data-user-photo-preview>
+                                {% if usuario and usuario.foto %}
+                                    <img src="{{ usuario.foto.url }}"
+                                         alt="Foto de {{ usuario.get_full_name|default:usuario.username }}">
+                                {% elif usuario %}
+                                    <span aria-hidden="true">
+                                        {% if usuario.first_name %}{{ usuario.first_name|first|upper }}{% endif %}{% if usuario.last_name %}{{ usuario.last_name|first|upper }}{% elif not usuario.first_name %}{{ usuario.username|first|upper }}{% endif %}
+                                    </span>
+                                {% else %}
+                                    <i class="bi bi-person"></i>
+                                {% endif %}
+                            </div>
+
+                            {{ form.foto }}
+                            <label for="{{ form.foto.id_for_label }}"
+                                   class="btn btn-outline-secondary hui-user-photo-button">
+                                <i class="bi bi-upload"></i>
+                                {% if usuario and usuario.foto %}Alterar foto{% else %}Selecionar foto{% endif %}
+                            </label>
+                            <small>JPG, PNG ou WebP, com até 2 MB.</small>
+                            {{ form.foto.errors }}
+                        </div>
+
+                        <div class="hui-user-fields">
+                            <div class="hui-user-field">
+                                <label for="{{ form.username.id_for_label }}">
+                                    Usuário <span aria-hidden="true">*</span>
+                                </label>
+                                {{ form.username }}
+                                {{ form.username.errors }}
+                            </div>
+
+                            <div class="hui-user-field">
+                                <label for="{{ form.telefone.id_for_label }}">Telefone</label>
+                                {{ form.telefone }}
+                                {{ form.telefone.errors }}
+                            </div>
+
+                            <div class="hui-user-field">
+                                <label for="{{ form.first_name.id_for_label }}">Nome</label>
+                                {{ form.first_name }}
+                                {{ form.first_name.errors }}
+                            </div>
+
+                            <div class="hui-user-field">
+                                <label for="{{ form.last_name.id_for_label }}">Sobrenome</label>
+                                {{ form.last_name }}
+                                {{ form.last_name.errors }}
+                            </div>
+
+                            <div class="hui-user-field hui-user-field--full">
+                                <label for="{{ form.email.id_for_label }}">E-mail</label>
+                                {{ form.email }}
+                                {{ form.email.errors }}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="hui-user-card">
+                    <header class="hui-user-card__header">
+                        <span class="hui-user-card__icon">
+                            <i class="bi bi-shield-lock"></i>
+                        </span>
+                        <div>
+                            <h2>Segurança da conta</h2>
+                            <p>
+                                {% if modo_edicao %}
+                                    Preencha somente quando desejar trocar a senha atual.
+                                {% else %}
+                                    Defina a senha inicial de acesso ao ERP Helvi.
+                                {% endif %}
+                            </p>
+                        </div>
+                    </header>
+
+                    <div class="hui-user-card__body">
+                        <div class="hui-user-fields hui-user-password-fields">
+                            <div class="hui-user-field">
+                                <label for="{{ form.senha.id_for_label }}">
+                                    {% if modo_edicao %}Nova senha{% else %}Senha{% endif %}
+                                    {% if not modo_edicao %}<span aria-hidden="true">*</span>{% endif %}
+                                </label>
+                                <div class="hui-user-password-control">
+                                    {{ form.senha }}
+                                    <button type="button"
+                                            class="hui-password-toggle"
+                                            data-password-target="{{ form.senha.id_for_label }}"
+                                            aria-label="Mostrar senha">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                                {{ form.senha.errors }}
+                            </div>
+
+                            <div class="hui-user-field">
+                                <label for="{{ form.confirmar_senha.id_for_label }}">
+                                    {% if modo_edicao %}Confirmar nova senha{% else %}Confirmar senha{% endif %}
+                                    {% if not modo_edicao %}<span aria-hidden="true">*</span>{% endif %}
+                                </label>
+                                <div class="hui-user-password-control">
+                                    {{ form.confirmar_senha }}
+                                    <button type="button"
+                                            class="hui-password-toggle"
+                                            data-password-target="{{ form.confirmar_senha.id_for_label }}"
+                                            aria-label="Mostrar senha">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                                {{ form.confirmar_senha.errors }}
+                            </div>
+                        </div>
+
+                        {% if modo_edicao %}
+                            <div class="hui-user-password-note">
+                                <i class="bi bi-info-circle"></i>
+                                <span>Se os campos permanecerem vazios, a senha atual será mantida.</span>
+                            </div>
                         {% endif %}
-                    </label>
-                    {{ form.senha }}
-                    {{ form.senha.errors }}
-                </div>
-
-                <div class="form-group">
-                    <label for="{{ form.confirmar_senha.id_for_label }}">
-                        {% if "Editar" in titulo %}
-                            Confirmar nova senha
-                        {% else %}
-                            Confirmar senha
-                        {% endif %}
-                    </label>
-                    {{ form.confirmar_senha }}
-                    {{ form.confirmar_senha.errors }}
-                </div>
+                    </div>
+                </section>
             </div>
 
-            {% if "Editar" in titulo %}
-                <p class="form-text text-muted mt-2">
-                    <i class="bi bi-info-circle"></i>
-                    Deixe os campos de senha em branco para manter a senha atual.
-                </p>
-            {% endif %}
+            <aside class="hui-user-form-stack">
+                <section class="hui-user-card hui-user-permissions-card">
+                    <header class="hui-user-card__header">
+                        <span class="hui-user-card__icon">
+                            <i class="bi bi-key"></i>
+                        </span>
+                        <div>
+                            <h2>Acesso e permissões</h2>
+                            <p>Controle o nível de acesso ao sistema.</p>
+                        </div>
+                    </header>
+
+                    <div class="hui-user-card__body">
+                        <div class="hui-user-field">
+                            <label for="{{ form.perfil.id_for_label }}">Perfil do usuário</label>
+                            {{ form.perfil }}
+                            {{ form.perfil.errors }}
+                        </div>
+
+                        <div class="hui-user-status-row">
+                            <div>
+                                <strong>Usuário ativo</strong>
+                                <small>Permite acesso ao ERP Helvi.</small>
+                            </div>
+
+                            <div class="hui-user-status-control">
+                                <label class="hui-user-switch"
+                                       for="{{ form.is_active.id_for_label }}">
+                                    {{ form.is_active }}
+                                    <span class="hui-user-switch__track" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Alterar situação do usuário</span>
+                                </label>
+
+                                <span class="hui-user-status-badge"
+                                      data-user-status-badge>
+                                    <i class="bi bi-check-circle"></i>
+                                    <span>Conta ativa</span>
+                                </span>
+                            </div>
+                        </div>
+
+                        {{ form.is_active.errors }}
+
+                        <div class="hui-user-permissions-summary">
+                            <span class="hui-user-permissions-summary__icon">
+                                <i class="bi bi-shield"></i>
+                            </span>
+                            <div>
+                                <strong>Permissões</strong>
+                                <p data-profile-description>
+                                    Permissões de acesso definidas conforme o perfil selecionado.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </aside>
         </div>
 
-        <div class="form-section">
-            <h3>Dados pessoais</h3>
-
-            <div class="form-grid">
-                <div class="form-group">
-                    <label for="{{ form.first_name.id_for_label }}">
-                        Nome
-                    </label>
-                    {{ form.first_name }}
-                    {{ form.first_name.errors }}
-                </div>
-
-                <div class="form-group">
-                    <label for="{{ form.last_name.id_for_label }}">
-                        Sobrenome
-                    </label>
-                    {{ form.last_name }}
-                    {{ form.last_name.errors }}
-                </div>
-
-                <div class="form-group">
-                    <label for="{{ form.email.id_for_label }}">
-                        E-mail
-                    </label>
-                    {{ form.email }}
-                    {{ form.email.errors }}
-                </div>
-
-                <div class="form-group">
-                    <label for="{{ form.telefone.id_for_label }}">
-                        Telefone
-                    </label>
-                    {{ form.telefone }}
-                    {{ form.telefone.errors }}
-                </div>
-
-                <div class="form-group">
-                    <label for="{{ form.foto.id_for_label }}">
-                        Foto
-                    </label>
-                    {{ form.foto }}
-                    {{ form.foto.errors }}
-                </div>
-            </div>
-        </div>
-
-        <div class="form-section">
-            <h3>Permissões</h3>
-
-            <div class="form-grid">
-                <div class="form-group">
-                    <label for="{{ form.perfil.id_for_label }}">
-                        Perfil
-                    </label>
-                    {{ form.perfil }}
-                    {{ form.perfil.errors }}
-                </div>
+        <div class="hui-user-action-bar">
+            <div class="hui-user-action-note">
+                <i class="bi bi-shield-check"></i>
+                <span>Revise as informações antes de salvar as alterações.</span>
             </div>
 
-            <div class="form-check-group mt-3">
-                <label>
-                    {{ form.is_active }}
-                    Usuário ativo
-                </label>
+            <div class="hui-user-actions">
+                <a href="{% url 'usuarios:lista_usuarios' %}"
+                   class="btn btn-outline-secondary">
+                    Cancelar
+                </a>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-floppy"></i>
+                    {% if modo_edicao %}Salvar alterações{% else %}Cadastrar usuário{% endif %}
+                </button>
             </div>
         </div>
-
-        <div class="form-actions">
-            <a
-                href="{% url 'usuarios:lista_usuarios' %}"
-                class="btn btn-secondary"
-            >
-                Cancelar
-            </a>
-
-            <button type="submit" class="btn btn-primary">
-                Salvar
-            </button>
-        </div>
-
     </form>
+</div>
+{% endblock %}
 
+{% block extra_js %}
+<script src="{% static 'js/usuarios/form_usuario.js' %}?v=1.0.0"></script>
 {% endblock %}

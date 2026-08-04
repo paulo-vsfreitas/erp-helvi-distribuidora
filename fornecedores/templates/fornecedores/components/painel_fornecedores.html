@@ -1,0 +1,85 @@
+<div class="hui-module-page hui-module-page--fornecedores">
+    {% url "fornecedores:cadastrar" as cadastrar_url %}
+    {% include "components/layout/page_header.html" with titulo="Fornecedores" subtitulo="Gerencie parceiros, contatos, documentos e condições comerciais." botao_url=cadastrar_url botao_texto="Novo fornecedor" botao_icon="bi bi-plus-lg" %}
+
+    <section class="hui-entity-kpis" aria-label="Indicadores de fornecedores">
+        <article class="hui-entity-kpi">
+            <span class="hui-entity-kpi__icon"><i class="bi bi-buildings"></i></span>
+            <div><span>Total de fornecedores</span><strong>{{ total_fornecedores }}</strong><small>Parceiros cadastrados</small></div>
+        </article>
+        <article class="hui-entity-kpi hui-entity-kpi--success">
+            <span class="hui-entity-kpi__icon"><i class="bi bi-check-circle"></i></span>
+            <div><span>Ativos</span><strong>{{ fornecedores_ativos }}</strong><small>Disponíveis para compras</small></div>
+        </article>
+        <article class="hui-entity-kpi hui-entity-kpi--muted">
+            <span class="hui-entity-kpi__icon"><i class="bi bi-slash-circle"></i></span>
+            <div><span>Inativos</span><strong>{{ fornecedores_inativos }}</strong><small>Cadastros desativados</small></div>
+        </article>
+        <article class="hui-entity-kpi">
+            <span class="hui-entity-kpi__icon"><i class="bi bi-briefcase"></i></span>
+            <div><span>Pessoas jurídicas</span><strong>{{ pessoas_juridicas }}</strong><small>Empresas cadastradas</small></div>
+        </article>
+    </section>
+
+    <form method="get" class="hui-entity-filters">
+        <div class="hui-entity-filters__heading">
+            <div><span class="hui-table-heading__eyebrow">Pesquisa</span><h2>Filtrar fornecedores</h2></div>
+            {% if busca or status_atual or estado_atual %}<a href="{{ request.path }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-x-lg"></i> Limpar</a>{% endif %}
+        </div>
+        <div class="hui-entity-filters__grid">
+            <div class="hui-entity-filter hui-entity-filter--search">
+                <label for="fornecedor-busca">Código, fornecedor, documento ou contato</label>
+                <div class="position-relative"><i class="bi bi-search"></i><input id="fornecedor-busca" name="busca" class="form-control" value="{{ busca }}" placeholder="Digite para pesquisar"></div>
+            </div>
+            <div class="hui-entity-filter">
+                <label for="fornecedor-status">Situação</label>
+                <select id="fornecedor-status" name="status" class="form-select">
+                    <option value="">Todos</option>
+                    <option value="ativos"{% if status_atual == "ativos" %} selected{% endif %}>Ativos</option>
+                    <option value="inativos"{% if status_atual == "inativos" %} selected{% endif %}>Inativos</option>
+                </select>
+            </div>
+            <div class="hui-entity-filter">
+                <label for="fornecedor-estado">Estado</label>
+                <select id="fornecedor-estado" name="estado" class="form-select">
+                    <option value="">Todos os estados</option>
+                    {% for sigla, nome in estados_choices %}<option value="{{ sigla }}"{% if estado_atual == sigla %} selected{% endif %}>{{ sigla }} — {{ nome }}</option>{% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="bi bi-funnel"></i> Aplicar filtros</button>
+        </div>
+    </form>
+
+    <section class="table-card hui-entity-panel">
+        <header class="hui-table-heading">
+            <div><span class="hui-table-heading__eyebrow">Resultados</span><h2>Fornecedores cadastrados</h2><p>Consulte contatos, localização e situação de cada parceiro.</p></div>
+            <span class="hui-count-badge">{{ page_obj.paginator.count }} fornecedores</span>
+        </header>
+
+        {% if page_obj.object_list %}
+            <div class="table-responsive">
+                <table class="table align-middle hui-entity-table">
+                    <thead><tr><th>Código</th><th>Fornecedor</th><th>Documento</th><th>Contato</th><th>Cidade/UF</th><th>Situação</th><th class="text-end">Ações</th></tr></thead>
+                    <tbody>
+                        {% for fornecedor in page_obj %}
+                            <tr>
+                                <td><a href="{% url 'fornecedores:ficha' fornecedor.pk %}" class="hui-document-number">{{ fornecedor.codigo }}</a></td>
+                                <td><strong>{{ fornecedor.nome_fantasia|default:fornecedor.razao_social }}</strong>{% if fornecedor.nome_fantasia %}<small class="d-block text-muted">{{ fornecedor.razao_social }}</small>{% endif %}</td>
+                                <td class="text-nowrap">{{ fornecedor.cpf_cnpj }}</td>
+                                <td>{% if fornecedor.contato_principal %}<strong>{{ fornecedor.contato_principal }}</strong>{% endif %}{% if fornecedor.whatsapp %}<small class="d-block text-muted"><i class="bi bi-whatsapp"></i> {{ fornecedor.whatsapp }}</small>{% elif fornecedor.telefone %}<small class="d-block text-muted"><i class="bi bi-telephone"></i> {{ fornecedor.telefone }}</small>{% elif not fornecedor.contato_principal %}<span class="text-muted">Não informado</span>{% endif %}</td>
+                                <td>{% if fornecedor.cidade or fornecedor.estado %}{{ fornecedor.cidade }}{% if fornecedor.cidade and fornecedor.estado %} / {% endif %}{{ fornecedor.estado }}{% else %}<span class="text-muted">Não informado</span>{% endif %}</td>
+                                <td>{% if fornecedor.ativo %}<span class="badge bg-success">Ativo</span>{% else %}<span class="badge bg-secondary">Inativo</span>{% endif %}</td>
+                                <td class="text-end text-nowrap"><a href="{% url 'fornecedores:ficha' fornecedor.pk %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i> Ver</a><a href="{% url 'fornecedores:editar' fornecedor.pk %}" class="btn btn-sm btn-outline-primary ms-1"><i class="bi bi-pencil-square"></i> Editar</a></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% if page_obj.paginator.num_pages > 1 %}
+                <footer class="hui-table-pagination"><span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span><div class="btn-group">{% if page_obj.has_previous %}<a class="btn btn-outline-secondary btn-sm" href="?page={{ page_obj.previous_page_number }}&busca={{ busca|urlencode }}&status={{ status_atual }}&estado={{ estado_atual }}">Anterior</a>{% endif %}{% if page_obj.has_next %}<a class="btn btn-outline-secondary btn-sm" href="?page={{ page_obj.next_page_number }}&busca={{ busca|urlencode }}&status={{ status_atual }}&estado={{ estado_atual }}">Próxima</a>{% endif %}</div></footer>
+            {% endif %}
+        {% else %}
+            <div class="hui-empty-state"><i class="bi bi-buildings"></i><h2>Nenhum fornecedor encontrado</h2><p>Ajuste os filtros ou cadastre um novo fornecedor.</p><a href="{{ cadastrar_url }}" class="btn btn-primary mt-3"><i class="bi bi-plus-lg"></i> Novo fornecedor</a></div>
+        {% endif %}
+    </section>
+</div>

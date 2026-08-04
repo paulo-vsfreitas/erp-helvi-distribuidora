@@ -10,7 +10,7 @@ Conta a Pagar #{{ conta.numero }} | ERP Helvi
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid financeiro-ficha">
+<div class="hui-module-page hui-module-page--financeiro hui-detail-page financeiro-ficha">
 
     <div class="ficha-topbar">
         <a
@@ -22,7 +22,7 @@ Conta a Pagar #{{ conta.numero }} | ERP Helvi
         </a>
     </div>
 
-    <div class="ficha-heading">
+    <div class="ficha-heading hui-detail-header">
         <div>
             <div class="d-flex align-items-center flex-wrap gap-2 mb-2">
                 <h1 class="ficha-titulo mb-0">
@@ -482,9 +482,13 @@ Conta a Pagar #{{ conta.numero }} | ERP Helvi
                                                                 <div
                                                                     class="{% if not forloop.last %}mb-2 pb-2 border-bottom{% endif %}"
                                                                 >
-                                                                    <strong class="text-success">
+                                                                    <strong class="{% if baixa.estornada %}text-muted text-decoration-line-through{% else %}text-success{% endif %}">
                                                                         R$ {{ baixa.valor_movimentado|floatformat:2 }}
                                                                     </strong>
+
+                                                                    {% if baixa.estornada %}
+                                                                        <div class="small text-warning">Estornada</div>
+                                                                    {% endif %}
 
                                                                     {% if baixa.juros > 0 %}
                                                                         <div class="small text-danger">
@@ -502,7 +506,7 @@ Conta a Pagar #{{ conta.numero }} | ERP Helvi
 
                                                                     {% if baixa.desconto > 0 %}
                                                                         <div class="small text-success">
-                                                                            âˆ’ Desconto:
+                                                                            − Desconto:
                                                                             R$ {{ baixa.desconto|floatformat:2 }}
                                                                         </div>
                                                                     {% endif %}
@@ -511,7 +515,7 @@ Conta a Pagar #{{ conta.numero }} | ERP Helvi
                                                             {% endfor %}
 
                                                         {% else %}
-                                                            <span class="text-muted">â€”</span>
+                                                            <span class="text-muted">—</span>
                                                         {% endif %}
 
                                                     {% endwith %}
@@ -561,7 +565,7 @@ Conta a Pagar #{{ conta.numero }} | ERP Helvi
                                                             {% endif %}
 
                                                             {% if not baixas and parcela.status == "paga" %}
-                                                                <span class="text-muted">â€”</span>
+                                                                <span class="text-muted">—</span>
                                                             {% endif %}
 
                                                         </div>

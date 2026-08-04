@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.shortcuts import redirect
 
 
 @login_required
 def dashboard_compras(request):
-    return render(request, "compras/dashboard.html")
+    return redirect("compras:lista")

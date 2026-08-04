@@ -11,6 +11,8 @@ from comercial.views import (
     converter_orcamento,
     gerar_pdf_orcamento,
     duplicar_orcamento_view,
+    compartilhar_orcamento_view,
+    baixar_pdf_orcamento,
     
     
 )
@@ -79,5 +81,17 @@ urlpatterns = [
     "orcamentos/<int:numero>/duplicar/",
     duplicar_orcamento_view,
     name="duplicar",
+    ),
+
+    path(
+    "orcamentos/<int:numero>/compartilhar/",
+    compartilhar_orcamento_view,
+    name="compartilhar",
+    ),
+
+    path(
+    "orcamentos/<int:numero>/pdf/baixar/",
+    baixar_pdf_orcamento,
+    name="baixar_pdf",
     ),
 ]

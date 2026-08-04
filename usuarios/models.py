@@ -25,7 +25,7 @@ class Usuario(AbstractUser):
 
     primeiro_acesso = models.BooleanField(
         "Primeiro acesso",
-        default=True,
+        default=False,
     )
 
     foto = models.ImageField(

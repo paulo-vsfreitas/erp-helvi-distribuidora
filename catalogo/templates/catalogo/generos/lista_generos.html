@@ -3,6 +3,7 @@
 {% block title %}Gêneros | ERP Helvi{% endblock %}
 
 {% block content %}
+<div class="hui-module-page hui-module-page--catalogo">
 
 {% url 'catalogo:novo_genero' as novo_genero_url %}
 
@@ -39,6 +40,7 @@
 </div>
 
 <div class="table-card">
+    <header class="hui-table-heading"><div><span class="hui-table-heading__eyebrow">Catálogo</span><h2>Gêneros cadastrados</h2><p>Mantenha a classificação comercial das armações organizada.</p></div><span class="hui-count-badge">{{ generos|length }} gêneros</span></header>
     <table class="table">
         <thead>
             <tr>
@@ -111,6 +113,8 @@
             {% endfor %}
         </tbody>
     </table>
+</div>
+
 </div>
 
 {% endblock %}

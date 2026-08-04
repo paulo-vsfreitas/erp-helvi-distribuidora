@@ -4,6 +4,8 @@
 
 {% block content %}
 
+<div class="hui-module-page hui-module-page--produtos">
+
 {% url 'produtos:lista_produtos' as lista_produtos_url %}
 
 {% include "components/layout/page_header.html" with titulo=titulo subtitulo="Cadastro completo da armação/produto." botao_url=lista_produtos_url botao_texto="Voltar" botao_icon="bi bi-arrow-left" %}
@@ -45,5 +47,7 @@
         {% include "produtos/tabs/historico.html" %}
     </section>
 {% endif %}
+
+</div>
 
 {% endblock %}

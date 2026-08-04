@@ -1,5 +1,6 @@
 .table-card{
     background: var(--white);
+    border:1px solid var(--border);
     border-radius: var(--radius);
     box-shadow: var(--shadow);
     overflow: hidden;
@@ -11,60 +12,28 @@
 }
 
 .table thead{
-    background:#faf8f3;
+    background:var(--surface-muted);
 }
 
 .table th{
-    padding:16px;
+    padding:14px 16px;
     text-align:left;
-    font-size:14px;
-    font-weight:600;
+    color:#667085;
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:.035em;
+    text-transform:uppercase;
     border-bottom:1px solid var(--border);
 }
 
 .table td{
-    padding:16px;
+    padding:14px 16px;
     border-bottom:1px solid #f3f3f3;
     vertical-align:middle;
 }
 
 .table tbody tr:hover{
-    background:#fffaf0;
-    transition:.2s;
-}
-
-.table-card{
-    background: var(--white);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    overflow: hidden;
-}
-
-.table{
-    width:100%;
-    border-collapse:collapse;
-}
-
-.table thead{
-    background:#faf8f3;
-}
-
-.table th{
-    padding:16px;
-    text-align:left;
-    font-size:14px;
-    font-weight:600;
-    border-bottom:1px solid var(--border);
-}
-
-.table td{
-    padding:16px;
-    border-bottom:1px solid #f3f3f3;
-    vertical-align:middle;
-}
-
-.table tbody tr:hover{
-    background:#fcfbf8;
+    background:#fffcf5;
 }
 
 .table-actions{

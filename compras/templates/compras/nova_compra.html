@@ -8,22 +8,14 @@
 {% endblock %}
 
 {% block content %}
-
-<div class="page-header">
-    <div>
-        <h1>Nova Compra</h1>
-        <p>Cadastre os dados da compra, produtos e valores.</p>
-    </div>
-
-    <a href="{% url 'compras:lista' %}" class="btn btn-outline-secondary">
-        Voltar
-    </a>
-</div>
+<div class="hui-module-page hui-module-page--compras hui-operation-form">
+{% url "compras:lista" as voltar_url %}
+{% include "components/layout/page_header.html" with titulo="Nova compra" subtitulo="Cadastre fornecedor, produtos e valores da operação." botao_url=voltar_url botao_texto="Voltar às compras" botao_icon="bi bi-arrow-left" %}
 
 <form id="form-compra" method="post" action="{% url 'compras:nova' %}" novalidate>
     {% csrf_token %}
 
-    <div class="row">
+    <div class="row g-4">
         <div class="col-lg-8">
             {% include "compras/components/dados_compra.html" %}
             {% include "compras/components/tabela_itens.html" %}
@@ -34,22 +26,22 @@
         </div>
     </div>
 
-      <div class="card mt-3">
-    <div style="margin-top: 20px; padding: 20px; background: #fff; border-radius: 12px;">
+    <div class="card mt-4">
+    <div class="card-body hui-form-actions">
         <a href="{% url 'compras:lista' %}" class="btn btn-outline-secondary">
             Cancelar
         </a>
 
         <button
-            type="button"
+            type="submit"
             class="btn btn-primary"
-            onclick="document.getElementById('form-compra').submit();"
         >
             Salvar Compra
         </button>
     </div>
 </div>
 </form>
+</div>
 
 {% endblock %}
 

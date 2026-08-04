@@ -1,69 +1,61 @@
-﻿# Backlog Oficial do ERP Helvi
+# Backlog Oficial do ERP Helvi
 
-## Prioridade alta
+Atualizado em 04/08/2026. Itens abaixo são evoluções ou atividades de produção;
+não representam falhas conhecidas nos fluxos 1.0 já homologados.
 
-### Framework Helvi
+## Antes da publicação 1.0
 
-- criar fonte única de formatação monetária;
-- disponibilizar filtro de template oficial;
-- migrar gradualmente `floatformat:2` e formatadores locais;
-- eliminar duplicações sem interromper módulos;
-- documentar componentes existentes.
+- backup completo de PostgreSQL e mídia;
+- teste documentado de restauração;
+- ambiente de homologação com configuração de produção;
+- SMTP real e teste de entrega com PDF;
+- domínio, certificado HTTPS e proxy;
+- armazenamento e política de retenção de mídia;
+- aceite dos perfis ADM, GER, VEN e FIN;
+- tag e notas finais da versão.
 
-### Comercial
+## Relatórios e gestão
 
-- homologação completa de Orçamento → Venda;
-- filtros e busca por número, cliente, documento, telefone, responsável e status;
-- validade padrão configurável;
-- destaque de orçamento vencido;
-- histórico de status;
-- envio real por WhatsApp e e-mail;
-- registrar compartilhamentos.
+- relatórios analíticos dedicados de clientes e produtos;
+- demonstrativo financeiro por período e categoria;
+- posição e giro de estoque com exportação;
+- desempenho de fornecedores e evolução de custos;
+- CSV/PDF e comparação entre períodos;
+- filtros salvos.
 
-### Vendas
-
-- homologação integral;
-- cancelamento com estorno de estoque e financeiro;
-- venda avulsa sem cliente;
-- comprovante/cupom;
-- revisão da ficha e listagem.
-
-## Prioridade média
-
-### Compras
-
-- cancelar compra recebida com estorno seguro;
-- concluir edição de itens;
-- histórico de entrada;
-- revisar compra sem itens com pagamentos;
-- homologação integral.
-
-### Estoque
+## Estoque e logística
 
 - locais de estoque;
-- transferências;
-- alertas de estoque mínimo;
-- relatório consolidado;
-- histórico detalhado de origem.
+- transferências entre locais;
+- endereçamento físico;
+- alertas configuráveis de mínimo;
+- contagem por coletor ou importação.
 
-### Financeiro
+## Comercial e relacionamento
 
-- relatório financeiro;
-- fluxo de caixa avançado;
-- projeções;
-- indicadores consolidados;
-- revisão de históricos.
-
-### Fornecedores
-
-- confirmar edição, ficha, pesquisa e homologação atual;
-- integração completa com compras e histórico.
+- integração oficial com provedor de WhatsApp, se contratada;
+- templates de mensagem configuráveis;
+- confirmação automática de entrega/leitura quando o provedor permitir;
+- validade padrão configurável por empresa;
+- lembretes de orçamento próximo do vencimento.
 
 ## Plataforma
 
 - pesquisa global;
-- auditoria;
-- testes automatizados prioritários;
-- revisão de performance;
-- backup e restauração;
-- preparação de produção.
+- paginação padronizada para grandes volumes;
+- tarefas assíncronas;
+- cache e revisão de consultas em alta escala;
+- monitoramento de erros e métricas;
+- trilha de auditoria administrativa ampliada;
+- API autenticada para integrações futuras.
+
+## Qualidade contínua
+
+- consolidar aliases históricos de componentes após mapear todos os includes;
+- migrar formatadores monetários locais restantes para `core.formatters`;
+- implementar ou remover conscientemente os scaffolds PDF vazios;
+- ampliar testes de fornecedores, estoque e configurações;
+- testes de concorrência em numeração comercial;
+- testes end-to-end dos quatro perfis;
+- teste automatizado de restauração de backup;
+- revisão periódica de dependências e segurança.

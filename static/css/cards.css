@@ -8,22 +8,21 @@
 .card {
     background: #fff;
     border-radius: 16px;
-    padding: 24px;
-    box-shadow: 0 4px 14px rgba(0,0,0,.08);
-    transition: .25s;
+    border:1px solid var(--border);
+    padding:0;
+    box-shadow:var(--shadow);
 }
 
-.card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 24px rgba(0,0,0,.12);
+.cards > .card {
+    padding:24px;
 }
 
-.card h3 {
+.card > h3 {
     margin: 0 0 10px;
     font-size: 22px;
 }
 
-.card p {
+.card > p {
     margin: 0;
     color: #666;
     line-height: 1.5;

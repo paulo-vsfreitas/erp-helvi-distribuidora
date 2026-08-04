@@ -3,8 +3,9 @@
 {% block title %}{{ ficha_titulo }} | ERP Helvi{% endblock %}
 
 {% block content %}
+<div class="hui-module-page hui-module-page--compras hui-detail-page">
 
-<div class="ficha-header">
+<div class="ficha-header hui-detail-header">
     <div class="ficha-header-top">
         <div class="ficha-title">
             <h1>{{ ficha_titulo }}</h1>
@@ -71,7 +72,7 @@
 </div>
 
 
-<div class="card mb-3">
+<div class="card mb-3 hui-detail-section">
     <div class="card-body">
         <div class="ficha-section-title">
             <h3>Dados gerais</h3>
@@ -113,7 +114,7 @@
 
 {% if compra.status == "cancelada" %}
 
-    <div class="card mb-3">
+    <div class="card mb-3 hui-detail-section hui-detail-section--danger">
         <div class="card-body">
 
             <div class="ficha-section-title">
@@ -158,7 +159,7 @@
 
 {% endif %}
 
-<div class="card mb-3">
+<div class="card mb-3 hui-detail-section hui-detail-section--table">
     <div class="card-body">
         <div class="ficha-section-title">
             <h3>Produtos da compra</h3>
@@ -216,7 +217,7 @@
 </div>
 
 
-<div class="card mb-3">
+<div class="card mb-3 hui-detail-section hui-detail-section--table">
     <div class="card-body">
         <div class="ficha-section-title">
             <h3>Histórico de entrada no estoque</h3>
@@ -286,7 +287,7 @@
 </div>
 
 
-<div class="card mb-3">
+<div class="card mb-3 hui-detail-section">
     <div class="card-body">
         <div class="ficha-section-title">
             <h3>Resumo financeiro</h3>
@@ -305,7 +306,7 @@
 </div>
 
 
-<div class="card mb-3">
+<div class="card mb-3 hui-detail-section">
     <div class="card-body">
         <div class="ficha-section-title">
             <h3>Registrar pagamento</h3>
@@ -386,7 +387,7 @@
     </div>
 </div>
 
-<div class="card">
+<div class="card hui-detail-section hui-detail-section--table">
     <div class="card-body">
         <div class="ficha-section-title">
             <h3>Histórico de pagamentos</h3>
@@ -460,6 +461,7 @@
             </p>
         {% endif %}
     </div>
+</div>
 </div>
 
 {% endblock %}

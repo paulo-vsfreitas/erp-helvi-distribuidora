@@ -4,7 +4,6 @@ from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
 
-from clientes.models import Cliente
 from produtos.models import Produto
 
 
@@ -195,7 +194,10 @@ class Orcamento(models.Model):
 
     @property
     def quantidade_pecas(self):
-        return sum(item.quantidade for item in self.itens.all())
+        return sum(
+            item.quantidade
+            for item in self.itens.all()
+        )
 
 
 class ItemOrcamento(models.Model):
@@ -266,4 +268,88 @@ class ItemOrcamento(models.Model):
         return (
             f"{self.orcamento.codigo} — "
             f"{self.produto} × {self.quantidade}"
+        )
+
+
+class CompartilhamentoOrcamento(models.Model):
+    class Canal(models.TextChoices):
+        WHATSAPP = "whatsapp", "WhatsApp"
+        EMAIL = "email", "E-mail"
+
+    class Resultado(models.TextChoices):
+        PREPARADO = "preparado", "Preparado"
+        ENVIADO = "enviado", "Enviado"
+        FALHA = "falha", "Falha"
+
+    orcamento = models.ForeignKey(
+        Orcamento,
+        on_delete=models.CASCADE,
+        related_name="compartilhamentos",
+        verbose_name="Orçamento",
+    )
+
+    canal = models.CharField(
+        max_length=20,
+        choices=Canal.choices,
+        verbose_name="Canal",
+    )
+
+    destinatario = models.CharField(
+        max_length=254,
+        verbose_name="Destinatário",
+    )
+
+    assunto = models.CharField(
+        max_length=200,
+        blank=True,
+        verbose_name="Assunto",
+    )
+
+    mensagem = models.TextField(
+        verbose_name="Mensagem",
+    )
+
+    resultado = models.CharField(
+        max_length=20,
+        choices=Resultado.choices,
+        verbose_name="Resultado",
+    )
+
+    detalhe = models.TextField(
+        blank=True,
+        verbose_name="Detalhe",
+    )
+
+    realizado_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="compartilhamentos_orcamento",
+        verbose_name="Realizado por",
+    )
+
+    realizado_em = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Realizado em",
+    )
+
+    class Meta:
+        verbose_name = "Compartilhamento de orçamento"
+        verbose_name_plural = "Compartilhamentos de orçamento"
+        ordering = ["-realizado_em", "-pk"]
+        indexes = [
+            models.Index(
+                fields=["orcamento", "canal"],
+                name="orc_comp_canal_idx",
+            ),
+            models.Index(
+                fields=["realizado_em"],
+                name="orc_comp_data_idx",
+            ),
+        ]
+
+    def __str__(self):
+        return (
+            f"{self.orcamento.codigo} - "
+            f"{self.get_canal_display()} - "
+            f"{self.get_resultado_display()}"
         )

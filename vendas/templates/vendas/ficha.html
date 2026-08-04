@@ -5,29 +5,11 @@ Venda nº {{ venda.numero|stringformat:"06d" }} | ERP Helvi
 {% endblock %}
 
 {% block content %}
+<div class="hui-module-page hui-module-page--vendas hui-detail-page">
+{% url "vendas:lista" as voltar_url %}
+{% include "components/layout/page_header.html" with titulo="Ficha da venda" subtitulo=venda botao_url=voltar_url botao_texto="Voltar às vendas" botao_icon="bi bi-arrow-left" %}
 
-<div class="page-header">
-    <div>
-        <h1>
-            Venda nº {{ venda.numero|stringformat:"06d" }}
-        </h1>
-
-        <p>
-            Consulte os dados, produtos e valores desta venda.
-        </p>
-    </div>
-
-    <div class="d-flex gap-2">
-        <a
-            href="{% url 'vendas:lista' %}"
-            class="btn btn-outline-secondary"
-        >
-            Voltar
-        </a>
-    </div>
-</div>
-
-<div class="card mb-3">
+<div class="card mb-3 hui-detail-hero">
     <div class="card-body">
         <div
             class="d-flex flex-wrap justify-content-between align-items-center gap-3"
@@ -77,10 +59,32 @@ Venda nº {{ venda.numero|stringformat:"06d" }} | ERP Helvi
     </div>
 </div>
 
+{% if venda.status == "cancelada" %}
+<div class="card mb-3 hui-detail-section">
+    <div class="card-body">
+        <h5 class="card-title mb-3">Cancelamento</h5>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <small class="text-muted d-block">Cancelada por</small>
+                <strong>{{ venda.cancelada_por|default:"Não informado" }}</strong>
+            </div>
+            <div class="col-md-4">
+                <small class="text-muted d-block">Data</small>
+                <strong>{{ venda.cancelada_em|date:"d/m/Y H:i" }}</strong>
+            </div>
+            <div class="col-md-4">
+                <small class="text-muted d-block">Motivo</small>
+                <strong>{{ venda.motivo_cancelamento }}</strong>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <div class="row">
     <div class="col-lg-8">
 
-        <div class="card mb-3">
+        <div class="card mb-3 hui-detail-section">
             <div class="card-body">
                 <h5 class="card-title mb-3">
                     Dados da venda
@@ -174,7 +178,7 @@ Venda nº {{ venda.numero|stringformat:"06d" }} | ERP Helvi
             </div>
         </div>
 
-        <div class="card mb-3">
+        <div class="card mb-3 hui-detail-section hui-detail-section--table">
             <div class="card-body">
                 <h5 class="card-title mb-3">
                     Produtos
@@ -250,7 +254,7 @@ Venda nº {{ venda.numero|stringformat:"06d" }} | ERP Helvi
 
     <div class="col-lg-4">
 
-        <div class="card mb-3">
+        <div class="card mb-3 hui-detail-section hui-purchase-summary">
             <div class="card-body">
                 <h5 class="card-title mb-3">
                     Resumo da venda
@@ -316,7 +320,8 @@ Venda nº {{ venda.numero|stringformat:"06d" }} | ERP Helvi
             </div>
         </div>
 
-        <div class="card mb-3">
+        {% if venda.status == "aberta" %}
+        <div class="card mb-3 hui-detail-section">
             <div class="card-body">
                 <h5 class="card-title mb-3">
                     Ações
@@ -341,48 +346,43 @@ Venda nº {{ venda.numero|stringformat:"06d" }} | ERP Helvi
                             </button>
                         </form>
 
-                        <button
-                            type="button"
-                            class="btn btn-outline-secondary"
-                            disabled
-                        >
-                            Registrar Pagamento
-                        </button>
-
-                        <button
-                            type="button"
-                            class="btn btn-outline-danger"
-                            disabled
-                        >
-                            Cancelar Venda
-                        </button>
                     {% endif %}
-
-                    <button
-                        type="button"
-                        class="btn btn-outline-secondary"
-                        disabled
-                    >
-                        Emitir PDF
-                    </button>
-
-                    <button
-                        type="button"
-                        class="btn btn-outline-secondary"
-                        disabled
-                    >
-                        Enviar pelo WhatsApp
-                    </button>
                 </div>
-
-                <small class="text-muted d-block mt-3">
-                    As ações serão liberadas conforme as integrações
-                    de estoque, financeiro e documentos forem concluídas.
-                </small>
             </div>
         </div>
+        {% endif %}
+
+        {% if venda.status != "cancelada" %}
+        <div class="card mb-3 hui-detail-section">
+            <div class="card-body">
+                <h5 class="card-title mb-3">Cancelar venda</h5>
+                <form
+                    method="post"
+                    action="{% url 'vendas:cancelar' venda.numero %}"
+                    onsubmit="return confirm('Deseja cancelar esta venda e estornar suas integrações?');"
+                >
+                    {% csrf_token %}
+                    <label for="motivo-cancelamento" class="form-label">
+                        Motivo do cancelamento
+                    </label>
+                    <textarea
+                        id="motivo-cancelamento"
+                        name="motivo"
+                        class="form-control mb-2"
+                        rows="3"
+                        minlength="5"
+                        required
+                    ></textarea>
+                    <button type="submit" class="btn btn-danger w-100">
+                        Cancelar venda
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
 
     </div>
+</div>
 </div>
 
 {% endblock %}

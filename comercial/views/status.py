@@ -1,29 +1,46 @@
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404, redirect
+from django.views.decorators.http import require_POST
 
 from comercial.models import Orcamento
-from comercial.services import alterar_status_orcamento
+from comercial.services import (
+    aprovar_orcamento,
+    cancelar_orcamento,
+    enviar_orcamento,
+    rejeitar_orcamento,
+)
+from usuarios.decorators import permissao_requerida
+from usuarios.permissoes import Modulo
 
 
-@login_required
+SERVICOS_STATUS = {
+    Orcamento.Status.ENVIADO: enviar_orcamento,
+    Orcamento.Status.APROVADO: aprovar_orcamento,
+    Orcamento.Status.REJEITADO: rejeitar_orcamento,
+    Orcamento.Status.CANCELADO: cancelar_orcamento,
+}
+
+
+@permissao_requerida(Modulo.VENDAS)
+@require_POST
 def alterar_status(request, numero, status):
-    if request.method != "POST":
-        return redirect("comercial:ficha", numero=numero)
-
     orcamento = get_object_or_404(
         Orcamento,
         numero=numero,
     )
 
     try:
-        alterar_status_orcamento(
-            orcamento,
-            status,
-        )
+        servico = SERVICOS_STATUS.get(status)
 
-    except ValueError as erro:
-        messages.error(request, str(erro))
+        if servico is None:
+            raise ValidationError("Status solicitado inválido.")
+
+        servico(orcamento)
+
+    except ValidationError as erro:
+        for mensagem in erro.messages:
+            messages.error(request, mensagem)
 
     else:
         messages.success(

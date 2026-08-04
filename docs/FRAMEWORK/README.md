@@ -1,44 +1,53 @@
-﻿# Framework Helvi
+# Framework Helvi
 
-O Framework Helvi é a camada transversal já utilizada pelo ERP para padronizar arquitetura, interface, documentos e recursos reutilizáveis.
+O Framework Helvi é a camada transversal do ERP. Ele padroniza interface,
+formatação, comunicação, PDFs e contratos de desenvolvimento sem absorver
+regras específicas de negócio.
 
-## Princípio
+## Componentes atuais
 
-Nenhum módulo deve reinventar algo que já exista no Framework.
+```text
+core/
+├── communication/          e-mail e preparação de canais
+├── pdf/                    geração de documentos ReportLab
+├── templates/
+│   ├── components/         componentes compartilhados e compatibilidade
+│   └── helvi_ui/           componentes canônicos recentes
+├── templatetags/moeda.py   filtro oficial de moeda
+├── formatters.py           formatação Python oficial
+└── management/commands/    auditoria e conciliação
 
-## Escopo
+static/helvi_ui/
+└── helvi-ui.css            tokens e estruturas visuais
+```
 
-O Framework pode fornecer:
+## Princípios
 
-- layout e identidade visual;
-- componentes estruturais;
-- KPIs, cards, tabelas e estados vazios;
-- fichas e resumos;
-- mensagens e modais;
-- formatação e template tags;
-- helpers JavaScript;
-- Framework PDF;
-- contratos e nomenclatura.
+- reutilizar antes de criar;
+- manter regra de negócio no módulo;
+- extrair abstrações somente após contrato estável;
+- não duplicar formatação ou componente visual;
+- preservar compatibilidade e migrar legados com testes;
+- documentar o componente canônico.
 
-Não deve absorver regras específicas de Compras, Vendas, Estoque, Comercial ou Financeiro.
+## Estado
 
-## Estado atual
+O Framework está aplicado nas 19 telas principais e nos fluxos públicos. Existem
+aliases e componentes históricos em `core/templates/components/`; eles não
+devem ser copiados nem ampliados sem confirmar qual versão é usada. Novos
+trabalhos devem preferir `core/templates/helvi_ui/` e os componentes canônicos
+citados em `COMPONENTES.md`.
 
-Já aplicado em diferentes níveis:
+Também existem formatadores locais legados em alguns services e um formatador
+interno no PDF de orçamento. Eles funcionam, mas devem convergir gradualmente
+para `core.formatters.formatar_moeda_br`.
 
-- arquitetura em camadas;
-- base autenticada e base pública;
-- fichas;
-- cards;
-- tabelas;
-- forms;
-- sidebar/topbar;
-- permissões;
-- autocompletes;
-- resumos sticky;
-- PDF;
-- services e helpers compartilhados.
+## O que não pertence ao Framework
 
-## Consolidação atual
+- cálculo de orçamento ou venda;
+- recebimento de compra;
+- baixa de estoque;
+- criação de contas e parcelas;
+- cancelamentos e transições de domínio.
 
-A prioridade é consolidar o que já existe, eliminar duplicações e registrar contratos oficiais antes de criar novas abstrações.
+Essas regras permanecem nos services de cada aplicação.

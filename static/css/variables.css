@@ -7,15 +7,15 @@
 
     --black:#111111;
 
-    --background:#F6F2EA;
+    --background:#F5F3EE;
 
     --white:#FFFFFF;
 
-    --border:#E5DED1;
+    --border:#E1E4E8;
 
-    --text:#222222;
+    --text:#18202C;
 
-    --text-light:#777777;
+    --text-light:#667085;
 
     /* Estados */
 
@@ -26,13 +26,18 @@
 
     /* Layout */
 
-    --sidebar-width:260px;
-    --topbar-height:70px;
+    --sidebar-width:250px;
+    --topbar-height:64px;
 
     --radius:16px;
 
     --transition:.25s;
 
-    --shadow:0 6px 20px rgba(0,0,0,.08);
+    --shadow:0 8px 26px rgba(16,24,40,.06);
+
+    --surface:#FFFFFF;
+    --surface-muted:#F8F9FB;
+    --ink:#18202C;
+    --gold-soft:#FFF5D6;
 
 }

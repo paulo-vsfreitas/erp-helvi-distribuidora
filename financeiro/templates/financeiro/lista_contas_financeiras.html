@@ -3,7 +3,7 @@
 {% block title %}Contas Financeiras | ERP Helvi{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
+<div class="hui-module-page hui-module-page--financeiro">
 
     {% url "financeiro:nova_conta_financeira" as nova_conta_url %}
 
@@ -11,7 +11,7 @@
     {% include "components/cards/dashboard_cards.html" with cards=cards %}
 
 
-    <div class="card shadow-sm border-0 mb-4">
+    <div class="card hui-entity-filters mb-4">
         <div class="card-body">
 
             <form method="get" class="row g-3 align-items-end">
@@ -101,7 +101,7 @@
         </div>
     </div>
 
-    <div class="card shadow-sm border-0">
+    <div class="card hui-entity-panel">
         <div class="card-body p-0">
 
             {% if contas %}

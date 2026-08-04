@@ -1,6 +1,7 @@
 from django.urls import path
 
 from vendas.views import (
+    cancelar_venda_view,
     ficha_venda,
     finalizar_venda_view,
     lista_vendas,
@@ -38,6 +39,11 @@ urlpatterns = [
         "<int:numero>/finalizar/",
         finalizar_venda_view,
         name="finalizar",
+    ),
+    path(
+        "<int:numero>/cancelar/",
+        cancelar_venda_view,
+        name="cancelar",
     ),
     path(
         "<int:numero>/",

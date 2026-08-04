@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render
 
-from fornecedores.models import Fornecedor
+from fornecedores.views.listagem import montar_contexto_listagem
 from usuarios.permissoes import Modulo, usuario_tem_permissao
 
 
@@ -14,18 +14,7 @@ def dashboard(request):
     ):
         raise PermissionDenied
 
-    context = {
-        "total_fornecedores": Fornecedor.objects.count(),
-        "fornecedores_ativos": Fornecedor.objects.filter(
-            ativo=True
-        ).count(),
-        "fornecedores_inativos": Fornecedor.objects.filter(
-            ativo=False
-        ).count(),
-        "ultimos_fornecedores": Fornecedor.objects.order_by(
-            "-criado_em"
-        )[:10],
-    }
+    context = montar_contexto_listagem(request)
 
     return render(
         request,

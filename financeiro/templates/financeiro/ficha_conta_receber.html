@@ -8,9 +8,9 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid ficha-financeira">
+<div class="hui-module-page hui-module-page--financeiro hui-detail-page ficha-financeira">
 
-    <div class="ficha-financeira-header mb-4">
+    <div class="ficha-financeira-header hui-detail-header mb-4">
         <a href="{% url 'financeiro:lista_contas_receber' %}"
            class="btn btn-outline-secondary btn-sm mb-3">
             <i class="bi bi-arrow-left me-1"></i>
@@ -423,39 +423,39 @@
                                                         </td>
 
                                                         <td class="text-center">
+                                                            {% with recebimentos=parcela.recebimentos.all %}
+                                                                <div class="d-flex flex-column align-items-center gap-2">
+                                                                    {% for recebimento in recebimentos %}
+                                                                        {% if recebimento.estornado %}
+                                                                            <span class="badge text-bg-light border text-muted">
+                                                                                Recebimento estornado
+                                                                            </span>
+                                                                        {% else %}
+                                                                            <a
+                                                                                href="{% url 'financeiro:estornar_recebimento' recebimento.pk %}"
+                                                                                class="btn btn-sm btn-outline-danger"
+                                                                            >
+                                                                                <i class="bi bi-arrow-counterclockwise me-1"></i>
+                                                                                Estornar recebimento
+                                                                            </a>
+                                                                        {% endif %}
+                                                                    {% endfor %}
 
-                                                            {% if parcela.status == "recebida" %}
-
-                                                                <button
-                                                                    type="button"
-                                                                    class="btn btn-sm btn-outline-success"
-                                                                    disabled
-                                                                >
-                                                                    <i class="bi bi-check-circle me-1"></i>
-                                                                    Recebida
-                                                                </button>
-
-                                                            {% elif parcela.status == "cancelada" %}
-
-                                                                <button
-                                                                    type="button"
-                                                                    class="btn btn-sm btn-outline-secondary"
-                                                                    disabled
-                                                                >
-                                                                    Cancelada
-                                                                </button>
-
-                                                            {% else %}
-
-                                                                <a
-                                                                    href="{% url 'financeiro:registrar_recebimento' parcela.pk %}"
-                                                                    class="btn btn-sm btn-success">
-                                                                    <i class="bi bi-cash-coin me-1"></i>
-                                                                    Registrar recebimento
-                                                                </a>
-
-                                                            {% endif %}
-
+                                                                    {% if parcela.status == "cancelada" %}
+                                                                        <button type="button" class="btn btn-sm btn-outline-secondary" disabled>
+                                                                            Cancelada
+                                                                        </button>
+                                                                    {% elif parcela.status != "recebida" %}
+                                                                        <a
+                                                                            href="{% url 'financeiro:registrar_recebimento' parcela.pk %}"
+                                                                            class="btn btn-sm btn-success"
+                                                                        >
+                                                                            <i class="bi bi-cash-coin me-1"></i>
+                                                                            Registrar recebimento
+                                                                        </a>
+                                                                    {% endif %}
+                                                                </div>
+                                                            {% endwith %}
                                                         </td>
 
                                                     </tr>
@@ -921,23 +921,6 @@
                                 </button>
                             {% endif %}
 
-                            {% if conta.status != "cancelada" and conta.status != "recebida" %}
-                                <button type="button"
-                                        class="btn btn-outline-primary"
-                                        disabled
-                                        title="A edição da conta será implementada posteriormente.">
-                                    <i class="bi bi-pencil-square me-1"></i>
-                                    Editar
-                                </button>
-
-                                <button type="button"
-                                        class="btn btn-outline-danger"
-                                        disabled
-                                        title="O cancelamento será implementado com suas regras financeiras.">
-                                    <i class="bi bi-x-octagon me-1"></i>
-                                    Cancelar
-                                </button>
-                            {% endif %}
                         </div>
                     </div>
                 </div>

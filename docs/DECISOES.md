@@ -1,64 +1,99 @@
-﻿# Decisões Permanentes do ERP Helvi
+# Decisões Permanentes do ERP Helvi
 
-## Produto e metodologia
+## Produto
 
-- Priorizar um sistema completo e utilizável antes de grandes refatorações.
-- Concluir e homologar os fluxos principais antes de avançar de módulo.
-- Iniciar novas conversas recuperando esta documentação e o estado mais recente.
-- Solicitar somente arquivos específicos quando a implementação atual precisar ser confirmada.
+- A versão 1.0 cobre a operação essencial de ponta a ponta.
+- Evoluções avançadas não devem comprometer fluxos já homologados.
+- Código, testes e documentação fazem parte da mesma entrega.
+- O status documentado deve refletir o código executável, não apenas intenção.
+
+## Metodologia
+
+- Verificar primeiro se a funcionalidade já existe.
+- Preservar alterações locais que não pertençam à tarefa.
+- Preferir mudanças pequenas, reversíveis e testadas.
+- Regras críticas ficam em services transacionais.
+- Funcionalidade só é concluída após validação técnica e visual proporcional.
 
 ## Interface
 
-- A ficha é a tela central de Produto, Cliente, Fornecedor, Compra, Orçamento e Venda.
+- Helvi UI é o padrão de todas as páginas internas.
+- Preto, dourado, branco e tons neutros formam a identidade visual.
+- Cabeçalhos de página ficam dentro do card/padrão oficial do framework.
+- O layout é fluido; reduzir zoom deve aumentar a área útil, não criar uma ilha
+  estreita centralizada.
+- A ficha é a tela central de Produto, Cliente, Fornecedor, Compra, Orçamento,
+  Venda e contas financeiras.
 - Telas públicas não herdam a base interna autenticada.
-- Resumos financeiros podem ser sticky quando isso melhora a conferência.
-- Ações principais devem permanecer próximas do resumo no fluxo de formulários longos.
-- Usar “Responsável” nas listagens para identificar quem realizou a operação, independentemente do perfil.
-- Componentes visuais devem seguir a identidade Helvi: preto, dourado, branco e tons neutros.
+- “Responsável” identifica quem realizou a operação na apresentação.
 
 ## Produtos e itens
 
-- O mesmo produto não pode aparecer duplicado em uma lista de itens.
-- Ao tentar adicioná-lo novamente, informar que já está incluído e orientar a alteração da quantidade/desconto na linha existente.
-- Autocompletes devem permitir busca por dados relevantes do domínio e, quando útil, exibir registros ativos ao focar o campo.
+- O mesmo produto não aparece duplicado na lista de itens.
+- Nova tentativa orienta a alterar quantidade ou desconto na linha existente.
+- Autocompletes pesquisam campos relevantes e retornam registros ativos.
+- Estoque, custo e preço não podem ficar negativos.
 
 ## Comercial
 
-Fluxo oficial de orçamento:
-
 ```text
 Cliente ou interessado
-→ Novo orçamento
-→ Produtos
-→ Salvar
-→ Visualizar
-→ PDF
-→ Enviar/compartilhar
-→ Aprovar ou rejeitar
-→ Converter em venda
+→ orçamento
+→ itens
+→ ficha/PDF
+→ compartilhamento/status
+→ aprovação ou rejeição
+→ conversão em venda
 ```
 
-- Orçamento pode ser criado para cliente cadastrado ou interessado avulso.
-- Conversão em venda reutiliza cliente, produtos, quantidades, descontos, frete e totais.
-- Conversão deve ser idempotente: não permitir conversão duplicada.
-- “Enviar” como alteração de status deve ser identificado como “Marcar como enviado” ou equivalente quando existir envio real por canal.
-- Orçamentos podem ser duplicados; a cópia nasce em rascunho, com nova numeração e responsável atual.
+- orçamento aceita cliente cadastrado ou interessado avulso;
+- edição preserva o documento e respeita os estados permitidos;
+- cópia nasce em rascunho, com novo número e responsável atual;
+- conversão é única e preserva dados, itens, frete, descontos e total;
+- “Valor orçado” representa carteira ativa: rascunho, enviado e aprovado;
+- rejeitado, cancelado e convertido não entram no valor orçado;
+- compartilhamentos registram canal, destinatário, resultado e usuário;
+- WhatsApp registra preparação; e-mail registra o resultado do backend.
 
 ## Vendas
 
-- Venda pode ocorrer sem cliente cadastrado, preservando dados básicos para comprovante.
-- Finalização integra estoque e financeiro.
-- Cancelamentos futuros devem estornar efeitos de forma segura e rastreável.
+- venda pode ocorrer sem cliente cadastrado;
+- venda originada de orçamento preserva o vínculo;
+- finalização baixa estoque e gera financeiro atomicamente;
+- finalização não pode ocorrer duas vezes;
+- pagamento à vista e a prazo atualiza status e valores coerentemente;
+- cancelamento exige motivo, devolve estoque e reverte/cancela o financeiro;
+- venda cancelada permanece disponível para auditoria.
 
 ## Compras e estoque
 
-- Receber compra atualiza estoque e custo, registra movimentação e impede duplicidade de entrada.
-- Transferências de estoque dependem da implementação de locais de estoque.
-- Compra recebida não deve ser editada de forma que comprometa o histórico.
+- recebimento atualiza estoque, custo e financeiro;
+- entrada de uma compra ocorre uma única vez;
+- compra recebida não pode ser editada de forma a corromper histórico;
+- cancelamento valida estoque disponível para o estorno;
+- rastreabilidade usa movimentações e origem;
+- múltiplos locais e transferências são evolução posterior à versão 1.0.
+
+## Financeiro
+
+- baixa e recebimento criam movimentos explícitos;
+- estorno nunca apaga a operação original;
+- estorno exige motivo, usuário e data;
+- o movimento inverso e o recálculo da parcela/conta são atômicos;
+- uma operação não pode ser estornada duas vezes;
+- ajustes manuais não substituem services operacionais existentes.
+
+## Usuários e permissões
+
+- perfis oficiais: ADM, GER, VEN e FIN;
+- permissões por módulo vêm de uma matriz central;
+- novos usuários cadastrados no ERP devem trocar a senha no primeiro acesso;
+- inativação é preferível à exclusão de usuário com histórico.
 
 ## Framework
 
-- O Framework Helvi já existe e deve ser consolidado, não recriado.
-- Nenhum módulo deve reinventar recurso transversal já disponível.
-- Abstrações devem nascer do uso real e da repetição comprovada.
-- Formatação monetária, documentos, telefone, datas, badges, KPIs e mensagens devem convergir para fontes únicas.
+- Framework Helvi e Helvi UI já existem e devem ser ampliados, não recriados.
+- Componentes transversais ficam no `core` ou `static/helvi_ui`.
+- Abstrações nascem de repetição real e contrato estável.
+- formatação monetária oficial fica em `core/formatters.py` e no filtro `moeda`.
+- não criar novos formatadores locais.

@@ -6,12 +6,18 @@ from .views import (
     inativar_usuario,
     lista_usuarios,
     novo_usuario,
+    primeiro_acesso,
     reativar_usuario,
 )
 
 app_name = "usuarios"
 
 urlpatterns = [
+    path(
+        "primeiro-acesso/",
+        primeiro_acesso,
+        name="primeiro_acesso",
+    ),
     path(
         "",
         lista_usuarios,

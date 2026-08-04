@@ -1,29 +1,6 @@
-{% extends 'core/base.html' %}
-
+{% extends "core/base.html" %}
 {% block title %}Inativar Marca | ERP Helvi{% endblock %}
-
 {% block content %}
-
-<h1 class="page-title">Inativar Marca</h1>
-<p class="page-subtitle">Confirme a inativação da marca.</p>
-
-<div class="card">
-    <p>
-        Deseja realmente inativar a marca
-        <strong>{{ marca.nome }}</strong>?
-    </p>
-
-    <form method="post" style="margin-top:20px;">
-        {% csrf_token %}
-
-        <a href="{% url 'catalogo:lista_marcas' %}" class="btn-gold">
-            Cancelar
-        </a>
-
-        <button type="submit" class="btn-gold">
-            Inativar
-        </button>
-    </form>
-</div>
-
+    {% url "catalogo:lista_marcas" as cancelar_url %}
+    {% include "components/states/confirmation_page.html" with titulo="Inativar marca" subtitulo="Revise os dados antes de continuar." pergunta="Deseja realmente inativar esta marca?" descricao="Ela deixará de ficar disponível em novos cadastros de produtos." objeto=marca.nome cancelar_url=cancelar_url tom="danger" icone="bi-slash-circle" botao_icone="bi-slash-circle" botao_texto="Inativar marca" %}
 {% endblock %}

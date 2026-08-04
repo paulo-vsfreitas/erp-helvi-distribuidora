@@ -12,6 +12,13 @@ def lista_compras(request):
     status = request.GET.get("status", "").strip()
     pagamento = request.GET.get("pagamento", "").strip()
 
+    status_validos = {valor for valor, _ in Compra.STATUS_CHOICES}
+    pagamentos_validos = {valor for valor, _ in Compra.STATUS_PAGAMENTO_CHOICES}
+    if status not in status_validos:
+        status = ""
+    if pagamento not in pagamentos_validos:
+        pagamento = ""
+
     compras = Compra.objects.all().order_by("-data_compra", "-numero")
 
     if busca:
@@ -49,8 +56,11 @@ def lista_compras(request):
             status=Compra.STATUS_RECEBIDA
         ).count(),
 
-        "pendentes": Compra.objects.exclude(
-            status=Compra.STATUS_RECEBIDA
+        "pendentes": Compra.objects.filter(
+            status__in=(
+                Compra.STATUS_EM_ABERTO,
+                Compra.STATUS_AGUARDANDO_ENTREGA,
+            )
         ).count(),
     }
 

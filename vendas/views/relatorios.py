@@ -60,6 +60,9 @@ def relatorio_vendas(request):
         request.GET.get("pagina"),
     )
 
+    parametros = request.GET.copy()
+    parametros.pop("pagina", None)
+
     return render(
         request,
         "vendas/relatorios/vendas.html",
@@ -71,5 +74,6 @@ def relatorio_vendas(request):
             "formas_pagamento": formas_pagamento,
             "status_pagamento": status_pagamento,
             "produtos_mais_vendidos": produtos_mais_vendidos,
+            "querystring": parametros.urlencode(),
         },
     )

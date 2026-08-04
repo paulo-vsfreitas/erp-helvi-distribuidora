@@ -1,39 +1,48 @@
-﻿# Formatadores do Framework Helvi
+# Formatadores do Framework Helvi
 
-## Estado encontrado
+Atualizado em 04/08/2026.
 
-Existem múltiplas implementações de `moeda()` e `formatar_moeda()` em Compras, Core/PDF, Financeiro e Fornecedores. Muitos templates usam:
+## Fonte oficial
+
+Python:
+
+```python
+from core.formatters import formatar_moeda_br
+
+formatar_moeda_br(2338.8)  # R$ 2.338,80
+```
+
+Template:
 
 ```django
-R$ {{ valor|floatformat:2 }}
+{% load moeda %}
+{{ valor|moeda }}
 ```
 
-Isso não aplica separador de milhar brasileiro.
+Arquivos:
 
-## Padrão alvo
-
-Deve existir:
-
-1. uma função Python pura e global para moeda;
-2. um filtro de template que reutiliza essa função;
-3. uso da mesma função no Framework PDF;
-4. migração gradual das implementações locais.
-
-Formato oficial:
-
-```text
-R$ 10.925,10
-```
+- `core/formatters.py`;
+- `core/templatetags/moeda.py`.
 
 ## Regras
 
 - valores monetários usam `Decimal`;
-- `None` deve resultar em zero quando apropriado;
-- não usar `locale` global dependente do sistema operacional;
-- não criar novos formatadores em módulos;
-- não substituir tudo de uma vez sem testes;
-- migrar módulo por módulo.
+- `None` resulta em zero quando apropriado ao componente;
+- não depender do `locale` do sistema operacional;
+- formato oficial: `R$ 10.925,10`;
+- services podem retornar `Decimal` e deixar a apresentação para template;
+- não criar novo `moeda()` ou `formatar_moeda()` local.
 
-## Pendência imediata
+## Estado de migração
 
-Consolidar o formatador em `core/utils/formatters.py` e disponibilizar filtro em `core/templatetags/helvi_format.py`.
+O formatador oficial e o filtro já estão em uso. Ainda existem wrappers e
+implementações anteriores em alguns services financeiros, indicadores e no PDF
+de orçamento. Eles produzem formato compatível, mas são dívida técnica.
+
+Migração segura:
+
+1. acrescentar testes do contexto/saída;
+2. substituir a implementação local por import do `core`;
+3. remover o helper somente quando não houver referências;
+4. revisar templates que ainda usam `R$ {{ valor|floatformat:2 }}`;
+5. homologar PDFs e telas afetadas.

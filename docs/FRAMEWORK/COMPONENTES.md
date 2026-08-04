@@ -1,70 +1,81 @@
-﻿# Componentes do Framework Helvi
+# Componentes do Framework Helvi
 
-## Componentes e padrões já utilizados
+## Layout
 
-### Layout
+- base autenticada: `core/templates/core/base.html`;
+- base pública: `core/templates/public/base_public.html`;
+- sidebar/topbar: componentes carregados pela base;
+- cabeçalho canônico de módulo:
+  `core/templates/components/layout/page_header.html`;
+- componentes Helvi UI: `core/templates/helvi_ui/`.
 
-- `core/base.html`;
-- sidebar;
-- topbar;
-- menu do usuário;
-- layout público independente.
+## Componentes Helvi UI
 
-### Fichas
+- `helvi_ui/page_header.html`;
+- `helvi_ui/section_card.html`;
+- `helvi_ui/empty_state.html`;
+- `helvi_ui/action_bar.html`.
 
-Estrutura central para cadastros e documentos:
+## Componentes compartilhados úteis
 
-- cabeçalho;
-- ações;
+- cards: `components/cards/`;
+- filtros: `components/filters/filter_card.html`;
+- ficha: `components/ficha/`;
+- tabelas: `components/tables/`;
+- estados: `components/states/`;
+- confirmações: `components/states/confirmation_page.html`;
+- modais: `components/modals/`;
+- paginação: `components/tables/pagination.html`.
+
+## Contratos visuais
+
+### Página de módulo
+
+```html
+<div class="hui-module-page hui-module-page--modulo">
+    {% include "components/layout/page_header.html" with titulo=titulo subtitulo=subtitulo %}
+    ...
+</div>
+```
+
+Não envolver com contêiner de largura máxima local.
+
+### Ficha
+
+Uma ficha pode reunir:
+
+- cabeçalho e ações;
 - indicadores;
 - dados gerais;
-- itens;
+- itens/parcelas;
 - resumo lateral;
-- histórico;
+- histórico e movimentações;
 - observações.
 
-### Dashboard e KPIs
+### Listagem
 
-Já existem cards e componentes de indicadores, incluindo:
+- cabeçalho com ação primária;
+- filtros dentro de card;
+- resumo do resultado;
+- tabela responsiva;
+- estado vazio;
+- ações por linha consistentes.
 
-```text
-core/templates/components/dashboard/kpi_cards.html
-```
+### Confirmação
 
-Contrato típico:
+A tela de confirmação mostra objeto, consequência e botões. A alteração real é
+feita por POST. Motivo é obrigatório em cancelamentos/estornos que exigem
+rastreabilidade.
 
-```python
-{
-    "titulo": "Faturamento",
-    "valor": "R$ 15.800,00",
-    "icone": "bi-cash-stack",
-    "subtitulo": "Vendas finalizadas no período",
-    "url": None,
-}
-```
+## Componentes legados
 
-### Tabelas e estados vazios
+Há arquivos de nomes semelhantes em `components/`, `components/ui/` e
+`components/cards/`. Eles permanecem por compatibilidade. Antes de removê-los:
 
-Padrões reutilizados para:
+1. localizar todos os `{% include %}`;
+2. escolher um contrato canônico;
+3. migrar módulo por módulo;
+4. homologar as 19 telas;
+5. remover somente arquivos sem uso comprovado.
 
-- cabeçalho;
-- linhas;
-- ações;
-- responsividade;
-- estado sem registros.
-
-### Autocomplete
-
-Aplicado em clientes e produtos, com busca assíncrona, resultados ativos, seleção e preenchimento de campos.
-
-### Resumo sticky
-
-Aplicado em formulários extensos para manter valores e ações principais visíveis.
-
-### Modais e mensagens
-
-Bootstrap é a base atual. A consolidação futura deve evitar implementações JS divergentes.
-
-## Regra de extração
-
-Componentes estruturais podem ser compartilhados desde cedo. Componentes específicos devem ser extraídos após repetição real e contrato estável.
+Não criar uma quarta variante.

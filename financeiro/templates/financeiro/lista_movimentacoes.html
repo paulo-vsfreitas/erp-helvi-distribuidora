@@ -3,10 +3,12 @@
 {% block title %}Fluxo de Caixa | ERP Helvi{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
+<div class="container-fluid hui-module-page hui-module-page--fluxo-caixa">
 
-    {% include "components/layout/page_header.html" with titulo="Fluxo de Caixa" subtitulo="Entradas, saídas e saldo acumulado das contas financeiras." %}
-
+    <header class="page-header hui-page-header">
+        <div><h1>Fluxo de caixa</h1><p>Acompanhe entradas, saídas e o saldo acumulado do período.</p></div>
+        <a href="{% url 'financeiro:dashboard' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Financeiro</a>
+    </header>
 
     <!-- FILTROS -->
     <div class="card shadow-sm border-0 mb-4">

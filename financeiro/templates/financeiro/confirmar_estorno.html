@@ -1,0 +1,83 @@
+{% extends "core/base.html" %}
+
+{% block title %}{{ titulo }} | ERP Helvi{% endblock %}
+
+{% block content %}
+<div class="hui-module-page hui-module-page--financeiro hui-form-page">
+    {% include "components/layout/page_header.html" with titulo=titulo subtitulo=subtitulo %}
+
+    <div class="row g-4">
+        <div class="col-12 col-xl-8">
+            <section class="card hui-form-section border-danger-subtle">
+                <div class="card-body p-4">
+                    <div class="d-flex gap-3 align-items-start mb-4">
+                        <span class="rounded-circle bg-danger-subtle text-danger d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px;">
+                            <i class="bi bi-arrow-counterclockwise fs-4"></i>
+                        </span>
+                        <div>
+                            <h2 class="h5 mb-1">Confirme o estorno</h2>
+                            <p class="text-muted mb-0">
+                                A operação original será preservada e uma movimentação inversa será registrada no fluxo de caixa.
+                            </p>
+                        </div>
+                    </div>
+
+                    {% if ja_estornado %}
+                        <div class="alert alert-warning mb-0">
+                            Esta operação já foi estornada e não pode ser processada novamente.
+                        </div>
+                    {% else %}
+                        <form method="post" novalidate>
+                            {% csrf_token %}
+                            <label for="id_motivo" class="form-label fw-semibold">Motivo do estorno</label>
+                            <textarea
+                                id="id_motivo"
+                                name="motivo"
+                                class="form-control"
+                                rows="4"
+                                minlength="5"
+                                maxlength="500"
+                                required
+                                placeholder="Explique por que esta operação precisa ser estornada."
+                            >{{ request.POST.motivo }}</textarea>
+                            <div class="form-text">Informe pelo menos 5 caracteres. O motivo ficará registrado no histórico.</div>
+
+                            <div class="hui-form-actions">
+                                <a href="{{ cancelar_url }}" class="btn btn-outline-secondary">Cancelar</a>
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="bi bi-arrow-counterclockwise me-1"></i>
+                                    Confirmar estorno
+                                </button>
+                            </div>
+                        </form>
+                    {% endif %}
+                </div>
+            </section>
+        </div>
+
+        <div class="col-12 col-xl-4">
+            <aside class="card hui-detail-section">
+                <div class="card-body p-4">
+                    <h2 class="h5 mb-3">Resumo da operação</h2>
+                    <div class="py-2 border-bottom">
+                        <span class="text-muted small d-block">Tipo</span>
+                        <strong>{% if tipo == "baixa" %}Baixa a pagar{% else %}Recebimento{% endif %}</strong>
+                    </div>
+                    <div class="py-2 border-bottom">
+                        <span class="text-muted small d-block">Conta financeira</span>
+                        <strong>{{ conta_financeira }}</strong>
+                    </div>
+                    <div class="py-2 border-bottom">
+                        <span class="text-muted small d-block">Data original</span>
+                        <strong>{{ data_operacao|date:"d/m/Y" }}</strong>
+                    </div>
+                    <div class="pt-3">
+                        <span class="text-muted small d-block">Valor movimentado</span>
+                        <strong class="fs-4">R$ {{ valor|floatformat:2 }}</strong>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+</div>
+{% endblock %}

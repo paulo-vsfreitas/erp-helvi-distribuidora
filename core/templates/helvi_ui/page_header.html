@@ -1,0 +1,13 @@
+<header class="page-header hui-page-header">
+    <div>
+        {% if eyebrow %}<span class="hui-page-header__eyebrow">{{ eyebrow }}</span>{% endif %}
+        <h1>{{ title }}</h1>
+        {% if subtitle %}<p>{{ subtitle }}</p>{% endif %}
+    </div>
+    {% if action_url %}
+        <a href="{{ action_url }}" class="btn btn-primary hui-page-header__action">
+            {% if action_icon %}<i class="{{ action_icon }}"></i>{% endif %}
+            {{ action_label }}
+        </a>
+    {% endif %}
+</header>

@@ -1,50 +1,6 @@
 {% extends "core/base.html" %}
-
-{% block title %}Reativar Marca{% endblock %}
-
+{% block title %}Reativar Marca | ERP Helvi{% endblock %}
 {% block content %}
-
-<h1 class="page-title">Reativar Marca</h1>
-
-<p class="page-subtitle">
-    Deseja reativar esta marca?
-</p>
-
-<div class="form-card">
-
-    <p>
-        A marca
-        <strong>{{ marca.nome }}</strong>
-        voltará a ficar disponível para uso.
-    </p>
-
-    <form method="post">
-
-        {% csrf_token %}
-
-        <div class="form-actions">
-
-            <a href="{% url 'catalogo:lista_marcas' %}"
-               class="btn btn-secondary">
-
-                Cancelar
-
-            </a>
-
-            <button
-                type="submit"
-                class="btn btn-primary">
-
-                <i class="bi bi-check-circle"></i>
-
-                Reativar
-
-            </button>
-
-        </div>
-
-    </form>
-
-</div>
-
+    {% url "catalogo:lista_marcas" as cancelar_url %}
+    {% include "components/states/confirmation_page.html" with titulo="Reativar marca" subtitulo="Revise os dados antes de continuar." pergunta="Deseja reativar esta marca?" descricao="Ela voltará a ficar disponível nos cadastros de produtos." objeto=marca.nome cancelar_url=cancelar_url tom="success" icone="bi-check-circle" botao_icone="bi-check-circle" botao_texto="Reativar marca" %}
 {% endblock %}

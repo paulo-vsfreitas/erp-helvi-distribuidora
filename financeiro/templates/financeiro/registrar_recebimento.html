@@ -3,8 +3,9 @@
 {% block title %}Registrar Recebimento | ERP Helvi{% endblock %}
 
 {% block content %}
+<div class="hui-module-page hui-module-page--financeiro hui-form-page">
 
-<div class="ficha-header">
+<div class="ficha-header hui-detail-header">
     <div class="ficha-header-top">
         <div class="ficha-title">
             <h1>{{ ficha_titulo }}</h1>
@@ -62,7 +63,7 @@
 
     {% csrf_token %}
 
-    <div class="table-card">
+    <div class="table-card hui-form-section">
 
         <div class="table-card-header">
             Dados do Recebimento
@@ -115,7 +116,8 @@
                 </div>
 
             </div>
-                            <div class="form-group form-group-full">
+
+            <div class="form-group form-group-full">
                     {{ form.observacao.label_tag }}
                     {{ form.observacao }}
                     {{ form.observacao.errors }}
@@ -125,12 +127,10 @@
 
         </div>
 
-    </div>
-
 </form>
 
 
-<div class="table-card mt-4">
+<div class="table-card hui-detail-section mt-4">
 
     <div class="table-card-header">
         Resumo da Parcela
@@ -199,6 +199,7 @@
 
     </div>
 
+</div>
 </div>
 
 {% endblock %}

@@ -1,0 +1,11 @@
+<section class="hui-card{% if class_name %} {{ class_name }}{% endif %}">
+    {% if title or subtitle %}
+        <header class="hui-card__header">
+            {% if title %}<h2>{{ title }}</h2>{% endif %}
+            {% if subtitle %}<p>{{ subtitle }}</p>{% endif %}
+        </header>
+    {% endif %}
+    <div class="hui-card__body">
+        {{ content }}
+    </div>
+</section>

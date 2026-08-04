@@ -351,6 +351,16 @@ def processar_pagamento_venda(
         or Decimal("0.00")
     )
 
+    pagamento_imediato = (
+        venda.forma_pagamento
+        in FORMAS_RECEBIMENTO_IMEDIATO
+        and valor_entrada <= 0
+    )
+
+    if pagamento_imediato:
+        quantidade_parcelas = 1
+        primeiro_vencimento = timezone.localdate()
+
     conta = gerar_conta_receber_venda(
         venda=venda,
         usuario=usuario,
@@ -359,18 +369,12 @@ def processar_pagamento_venda(
         valor_entrada=valor_entrada,
     )
 
-    pagamento_imediato = (
-        venda.forma_pagamento
-        in FORMAS_RECEBIMENTO_IMEDIATO
-        and valor_entrada <= 0
-    )
-
     possui_entrada = valor_entrada > 0
 
     if not pagamento_imediato and not possui_entrada:
         venda.valor_recebido = Decimal("0.00")
         venda.valor_troco = Decimal("0.00")
-        venda.status_pagamento = Venda.PAGAMENTO_PAGO
+        venda.status_pagamento = Venda.PAGAMENTO_PENDENTE
 
         venda.save(
             update_fields=[

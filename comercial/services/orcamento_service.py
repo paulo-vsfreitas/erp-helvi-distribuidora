@@ -333,6 +333,67 @@ def criar_orcamento(*, dados, itens, vendedor):
         orcamento_bloqueado
     )
 
+
+@transaction.atomic
+def editar_orcamento(*, orcamento, dados, itens):
+    """Atualiza dados e itens de um orçamento ainda editável."""
+
+    _validar_orcamento_persistido(orcamento)
+    itens_normalizados = _normalizar_itens(itens)
+
+    orcamento = (
+        Orcamento.objects
+        .select_for_update()
+        .get(pk=orcamento.pk)
+    )
+
+    if orcamento.status not in {
+        Orcamento.Status.RASCUNHO,
+        Orcamento.Status.REJEITADO,
+    }:
+        raise ValidationError(
+            "Somente orçamentos em rascunho ou rejeitados podem ser editados."
+        )
+
+    campos = [
+        "cliente",
+        "cliente_nome",
+        "cliente_documento",
+        "cliente_telefone",
+        "cliente_email",
+        "data_validade",
+        "desconto",
+        "frete",
+        "condicoes_comerciais",
+        "observacoes",
+    ]
+
+    for campo in campos:
+        setattr(orcamento, campo, dados.get(campo))
+
+    orcamento.save(
+        update_fields=[*campos, "atualizado_em"]
+    )
+
+    ItemOrcamento.objects.filter(
+        orcamento=orcamento
+    ).delete()
+    ItemOrcamento.objects.bulk_create(
+        [
+            ItemOrcamento(
+                orcamento=orcamento,
+                produto=item["produto"],
+                quantidade=item["quantidade"],
+                valor_unitario=item["valor_unitario"],
+                desconto=item["desconto"],
+                total=item["total"],
+            )
+            for item in itens_normalizados
+        ]
+    )
+
+    return _recalcular_totais_bloqueado(orcamento)
+
 @transaction.atomic
 def recalcular_totais(orcamento):
     """

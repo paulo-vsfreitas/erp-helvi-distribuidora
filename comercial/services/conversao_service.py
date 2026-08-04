@@ -1,38 +1,80 @@
+from decimal import Decimal
+
+from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils import timezone
 
 from comercial.models import Orcamento
+from comercial.services.orcamento_service import recalcular_totais
 from vendas.models import ItemVenda, Venda
+from vendas.services.numero_service import gerar_proximo_numero_venda
 
 
 @transaction.atomic
-def converter_orcamento_em_venda(orcamento):
-    if orcamento.status != Orcamento.Status.APROVADO:
-        raise ValueError(
-            "Somente orçamentos aprovados podem ser convertidos."
+def converter_orcamento_em_venda(orcamento, *, usuario):
+    if not usuario or not usuario.is_authenticated:
+        raise ValidationError(
+            "Não foi possível identificar o usuário responsável."
         )
 
+    orcamento_id = (
+        orcamento.pk
+        if isinstance(orcamento, Orcamento)
+        else orcamento
+    )
+
+    orcamento = (
+        Orcamento.objects
+        .select_for_update()
+        .get(pk=orcamento_id)
+    )
+
     if orcamento.venda_gerada_id:
-        raise ValueError(
+        raise ValidationError(
             "Este orçamento já foi convertido em venda."
         )
 
+    if orcamento.status != Orcamento.Status.APROVADO:
+        raise ValidationError(
+            "Somente orçamentos aprovados podem ser convertidos."
+        )
+
     if not orcamento.cliente_id:
-        raise ValueError(
+        raise ValidationError(
             "Para converter o orçamento em venda, selecione um cliente "
             "cadastrado antes da conversão."
         )
 
-    if not orcamento.itens.exists():
-        raise ValueError(
+    orcamento = recalcular_totais(orcamento)
+
+    itens_orcamento = list(
+        orcamento.itens
+        .select_for_update()
+        .select_related("produto")
+        .order_by("pk")
+    )
+
+    if not itens_orcamento:
+        raise ValidationError(
             "Não é possível converter um orçamento sem itens."
         )
 
+    desconto_itens = sum(
+        (item.desconto for item in itens_orcamento),
+        Decimal("0.00"),
+    )
+
     venda = Venda.objects.create(
+        numero=gerar_proximo_numero_venda(),
         cliente=orcamento.cliente,
-        desconto=orcamento.desconto,
+        subtotal=orcamento.subtotal,
+        desconto=(orcamento.desconto or Decimal("0.00")) + desconto_itens,
+        frete=orcamento.frete,
+        total=orcamento.total,
         observacoes=orcamento.observacoes,
-        status="aberta",
+        status=Venda.STATUS_EM_ABERTO,
+        status_pagamento=Venda.PAGAMENTO_PENDENTE,
+        criada_por=usuario,
     )
 
     itens_venda = [
@@ -41,8 +83,10 @@ def converter_orcamento_em_venda(orcamento):
             produto=item.produto,
             quantidade=item.quantidade,
             preco_unitario=item.valor_unitario,
+            desconto=item.desconto,
+            total=item.total,
         )
-        for item in orcamento.itens.select_related("produto")
+        for item in itens_orcamento
     ]
 
     ItemVenda.objects.bulk_create(itens_venda)

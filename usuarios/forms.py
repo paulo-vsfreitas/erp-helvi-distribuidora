@@ -5,16 +5,72 @@ from django.contrib.auth import get_user_model
 Usuario = get_user_model()
 
 
+def aplicar_estilos_formulario_usuario(form):
+    configuracoes = {
+        "username": {
+            "class": "form-control",
+            "placeholder": "Nome usado para entrar no sistema",
+            "autocomplete": "username",
+        },
+        "first_name": {
+            "class": "form-control",
+            "placeholder": "Nome",
+            "autocomplete": "given-name",
+        },
+        "last_name": {
+            "class": "form-control",
+            "placeholder": "Sobrenome",
+            "autocomplete": "family-name",
+        },
+        "email": {
+            "class": "form-control",
+            "placeholder": "usuario@empresa.com",
+            "autocomplete": "email",
+        },
+        "telefone": {
+            "class": "form-control",
+            "placeholder": "(00) 00000-0000",
+            "autocomplete": "tel",
+        },
+        "perfil": {
+            "class": "form-select",
+        },
+        "foto": {
+            "class": "hui-user-photo-input visually-hidden",
+            "accept": "image/png,image/jpeg,image/webp",
+        },
+        "is_active": {
+            "class": "hui-user-switch-input visually-hidden",
+            "role": "switch",
+        },
+    }
+
+    for nome, atributos in configuracoes.items():
+        form.fields[nome].widget.attrs.update(atributos)
+
+
 class UsuarioForm(forms.ModelForm):
     senha = forms.CharField(
         label="Senha",
-        widget=forms.PasswordInput,
+        widget=forms.PasswordInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": "Digite uma senha segura",
+                "autocomplete": "new-password",
+            },
+        ),
         required=True,
     )
 
     confirmar_senha = forms.CharField(
         label="Confirmar senha",
-        widget=forms.PasswordInput,
+        widget=forms.PasswordInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": "Repita a senha",
+                "autocomplete": "new-password",
+            },
+        ),
         required=True,
     )
 
@@ -30,6 +86,14 @@ class UsuarioForm(forms.ModelForm):
             "foto",
             "is_active",
         ]
+
+        widgets = {
+            "foto": forms.FileInput,
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        aplicar_estilos_formulario_usuario(self)
 
     def clean(self):
         cleaned_data = super().clean()
@@ -49,6 +113,7 @@ class UsuarioForm(forms.ModelForm):
         usuario = super().save(commit=False)
 
         usuario.set_password(self.cleaned_data["senha"])
+        usuario.primeiro_acesso = True
 
         if usuario.perfil in (
             Usuario.Perfil.ADMINISTRADOR,
@@ -67,14 +132,26 @@ class UsuarioForm(forms.ModelForm):
 class UsuarioUpdateForm(forms.ModelForm):
     senha = forms.CharField(
         label="Nova senha",
-        widget=forms.PasswordInput,
+        widget=forms.PasswordInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": "Digite a nova senha",
+                "autocomplete": "new-password",
+            },
+        ),
         required=False,
         help_text="Preencha apenas se quiser alterar a senha.",
     )
 
     confirmar_senha = forms.CharField(
         label="Confirmar nova senha",
-        widget=forms.PasswordInput,
+        widget=forms.PasswordInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": "Repita a nova senha",
+                "autocomplete": "new-password",
+            },
+        ),
         required=False,
     )
 
@@ -90,6 +167,14 @@ class UsuarioUpdateForm(forms.ModelForm):
             "foto",
             "is_active",
         ]
+
+        widgets = {
+            "foto": forms.FileInput,
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        aplicar_estilos_formulario_usuario(self)
 
     def clean(self):
         cleaned_data = super().clean()
@@ -112,6 +197,7 @@ class UsuarioUpdateForm(forms.ModelForm):
         senha = self.cleaned_data.get("senha")
         if senha:
             usuario.set_password(senha)
+            usuario.primeiro_acesso = True
 
         if usuario.perfil in (
             Usuario.Perfil.ADMINISTRADOR,

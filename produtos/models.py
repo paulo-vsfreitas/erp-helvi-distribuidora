@@ -114,6 +114,24 @@ class Produto(models.Model):
         verbose_name = "Produto / Armação"
         verbose_name_plural = "Produtos / Armações"
         ordering = ["modelo"]
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(preco_custo__gte=0),
+                name="produto_preco_custo_nao_negativo",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(preco_venda__gte=0),
+                name="produto_preco_venda_nao_negativo",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(estoque_atual__gte=0),
+                name="produto_estoque_atual_nao_negativo",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(estoque_minimo__gte=0),
+                name="produto_estoque_minimo_nao_negativo",
+            ),
+        ]
 
     def __str__(self):
         return f"{self.codigo} - {self.modelo}"

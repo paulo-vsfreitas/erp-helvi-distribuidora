@@ -3,6 +3,7 @@
 {% block title %}Tipos de Armação | ERP Helvi{% endblock %}
 
 {% block content %}
+<div class="hui-module-page hui-module-page--catalogo">
 
 {% url 'catalogo:novo_tipo_armacao' as novo_tipo_armacao_url %}
 
@@ -39,6 +40,7 @@
 </div>
 
 <div class="table-card">
+    <header class="hui-table-heading"><div><span class="hui-table-heading__eyebrow">Catálogo</span><h2>Tipos de armação</h2><p>Padronize materiais e construções usados nos produtos.</p></div><span class="hui-count-badge">{{ tipos_armacao|length }} tipos</span></header>
     <table class="table">
         <thead>
             <tr>
@@ -100,6 +102,8 @@
             {% endfor %}
         </tbody>
     </table>
+</div>
+
 </div>
 
 {% endblock %}

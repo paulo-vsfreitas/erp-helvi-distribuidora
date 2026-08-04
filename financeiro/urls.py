@@ -28,6 +28,10 @@ from financeiro.views.contas_receber import (
 )
 from financeiro.views.dashboard import dashboard_financeiro
 from financeiro.views.recebimentos import registrar_recebimento_view
+from financeiro.views.estornos import (
+    estornar_baixa_view,
+    estornar_recebimento_view,
+)
 
 from financeiro.views.movimentacoes import (
     lista_movimentacoes,
@@ -156,6 +160,16 @@ urlpatterns = [
         "parcelas/<int:parcela_id>/registrar-baixa/",
         registrar_baixa_view,
         name="registrar_baixa",
+    ),
+    path(
+        "baixas/<int:baixa_id>/estornar/",
+        estornar_baixa_view,
+        name="estornar_baixa",
+    ),
+    path(
+        "recebimentos/<int:recebimento_id>/estornar/",
+        estornar_recebimento_view,
+        name="estornar_recebimento",
     ),
 
 ]

@@ -6,13 +6,18 @@ from .orcamento_service import (
     aprovar_orcamento,
     cancelar_orcamento,
     criar_orcamento,
+    editar_orcamento,
     enviar_orcamento,
     recalcular_totais,
     rejeitar_orcamento,
 )
 
-from .status_service import alterar_status_orcamento
-
+from .compartilhamento_service import (
+    compartilhar_orcamento,
+    gerar_assunto_email,
+    gerar_mensagem_email,
+    gerar_mensagem_whatsapp,
+)
 
 __all__ = [
     "aprovar_orcamento",
@@ -20,8 +25,12 @@ __all__ = [
     "buscar_produtos_para_orcamento",
     "cancelar_orcamento",
     "criar_orcamento",
+    "editar_orcamento",
     "enviar_orcamento",
     "recalcular_totais",
     "rejeitar_orcamento",
-    "alterar_status_orcamento",
+    "compartilhar_orcamento",
+    "gerar_assunto_email",
+    "gerar_mensagem_whatsapp",
+    "gerar_mensagem_email",
 ]

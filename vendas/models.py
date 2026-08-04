@@ -208,6 +208,34 @@ class Venda(models.Model):
         verbose_name = "Venda"
         verbose_name_plural = "Vendas"
         ordering = ["-data_venda", "-id"]
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(subtotal__gte=0),
+                name="venda_subtotal_nao_negativo",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(desconto__gte=0),
+                name="venda_desconto_nao_negativo",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(frete__gte=0),
+                name="venda_frete_nao_negativo",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(total__gte=0),
+                name="venda_total_nao_negativo",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(valor_recebido__gte=0),
+                name="venda_recebido_nao_negativo",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(
+                    valor_recebido__lte=models.F("total"),
+                ),
+                name="venda_recebido_ate_total",
+            ),
+        ]
 
     def __str__(self):
         identificador = self.numero or self.pk

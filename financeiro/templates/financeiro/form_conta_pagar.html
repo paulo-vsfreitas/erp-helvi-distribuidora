@@ -4,7 +4,7 @@
 
 {% block content %}
 
-<div class="container-fluid">
+<div class="hui-module-page hui-module-page--financeiro hui-form-page">
 
     {% include "components/layout/page_header.html" with titulo=titulo subtitulo=subtitulo %}
 
@@ -18,7 +18,7 @@
         </a>
     </div>
 
-    <div class="card shadow-sm border-0">
+    <div class="card hui-form-section">
 
         <div class="card-body p-4">
 
@@ -278,7 +278,7 @@
 
                 </div>
 
-                <div class="d-flex justify-content-end gap-2 mt-4 pt-4 border-top">
+                <div class="hui-form-actions">
 
                     <a
                         href="{% url 'financeiro:lista_contas_pagar' %}"

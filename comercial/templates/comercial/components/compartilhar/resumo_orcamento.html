@@ -1,0 +1,76 @@
+
+<div class="card border-0 bg-light mb-4">
+
+    <div class="card-body py-3">
+
+        <div class="row">
+
+            <div class="col-md-6">
+
+                <small class="text-muted d-block">
+                    Orçamento
+                </small>
+
+                <strong>{{ orcamento.codigo }}</strong>
+
+            </div>
+
+            <div class="col-md-6">
+
+                <small class="text-muted d-block">
+                    Cliente
+                </small>
+
+                <strong>
+                    {{ orcamento.cliente_nome|default:"Consumidor Final" }}
+                </strong>
+
+            </div>
+
+        </div>
+
+        <hr>
+
+        <div class="row">
+
+            <div class="col">
+
+                <small class="text-muted d-block">
+                    Valor
+                </small>
+
+                <strong class="text-success">
+                    R$ {{ orcamento.total|floatformat:2 }}
+                </strong>
+
+            </div>
+
+            <div class="col">
+
+                <small class="text-muted d-block">
+                    Validade
+                </small>
+
+                <strong>
+                    {{ orcamento.data_validade|date:"d/m/Y" }}
+                </strong>
+
+            </div>
+
+            <div class="col">
+
+                <small class="text-muted d-block">
+                    Itens
+                </small>
+
+                <strong>
+                    {{ orcamento.itens.count }}
+                </strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

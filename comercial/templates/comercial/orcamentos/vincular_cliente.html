@@ -12,18 +12,21 @@
 
 {% block content %}
 
-<div class="vincular-cliente-page">
+<div class="vincular-cliente-page hui-module-page hui-module-page--orcamentos hui-form-page">
+
+    {% url "comercial:ficha" numero=orcamento.numero as voltar_url %}
+    {% include "components/layout/page_header.html" with titulo="Vincular cliente" subtitulo="Selecione o cliente que será associado ao orçamento." botao_url=voltar_url botao_texto="Voltar ao orçamento" botao_icon="bi bi-arrow-left" %}
 
     <section class="vincular-cliente-card">
 
-        <header class="vincular-cliente-header">
+        <header class="vincular-cliente-header hui-detail-hero">
 
             <div class="vincular-cliente-header-icon">
                 <i class="bi bi-person-check"></i>
             </div>
 
             <div>
-                <h1>Vincular Cliente</h1>
+                <h2>Orçamento {{ orcamento.codigo }}</h2>
 
                 <p>
                     Selecione um cliente cadastrado para concluir a conversão

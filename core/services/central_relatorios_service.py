@@ -28,6 +28,7 @@ def _criar_relatorio(
     icone,
     nome_url=None,
     status=STATUS_DESENVOLVIMENTO,
+    acao="Abrir relatório",
 ):
     url = _resolver_url(nome_url)
 
@@ -41,6 +42,7 @@ def _criar_relatorio(
         "url": url,
         "status": status,
         "disponivel": bool(url),
+        "acao": acao,
     }
 
 
@@ -70,6 +72,8 @@ def _montar_secoes():
                         "da carteira de clientes."
                     ),
                     icone="bi-people",
+                    nome_url="lista_clientes",
+                    acao="Abrir clientes",
                 ),
                 _criar_relatorio(
                     titulo="Relatório de Produtos",
@@ -78,6 +82,8 @@ def _montar_secoes():
                         "coleção e categoria."
                     ),
                     icone="bi-eyeglasses",
+                    nome_url="produtos:lista_produtos",
+                    acao="Abrir produtos",
                 ),
             ],
         },
@@ -96,6 +102,8 @@ def _montar_secoes():
                         "e resultado do período."
                     ),
                     icone="bi-pie-chart",
+                    nome_url="financeiro:dashboard",
+                    acao="Abrir financeiro",
                 ),
                 _criar_relatorio(
                     titulo="Contas a Receber",
@@ -104,6 +112,8 @@ def _montar_secoes():
                         "e próximos vencimentos."
                     ),
                     icone="bi-arrow-down-circle",
+                    nome_url="financeiro:lista_contas_receber",
+                    acao="Abrir contas a receber",
                 ),
                 _criar_relatorio(
                     titulo="Contas a Pagar",
@@ -112,6 +122,8 @@ def _montar_secoes():
                         "e vencimentos."
                     ),
                     icone="bi-arrow-up-circle",
+                    nome_url="financeiro:lista_contas_pagar",
+                    acao="Abrir contas a pagar",
                 ),
                 _criar_relatorio(
                     titulo="Fluxo de Caixa",
@@ -120,6 +132,8 @@ def _montar_secoes():
                         "da empresa."
                     ),
                     icone="bi-activity",
+                    nome_url="financeiro:lista_movimentacoes",
+                    acao="Abrir fluxo de caixa",
                 ),
             ],
         },
@@ -138,6 +152,8 @@ def _montar_secoes():
                         "e valor financeiro armazenado."
                     ),
                     icone="bi-boxes",
+                    nome_url="estoque:dashboard_estoque",
+                    acao="Abrir posição",
                 ),
                 _criar_relatorio(
                     titulo="Movimentações de Estoque",
@@ -146,6 +162,8 @@ def _montar_secoes():
                         "e vendas no período."
                     ),
                     icone="bi-arrow-left-right",
+                    nome_url="estoque:lista_movimentacoes",
+                    acao="Abrir movimentações",
                 ),
                 _criar_relatorio(
                     titulo="Giro de Produtos",
@@ -154,6 +172,8 @@ def _montar_secoes():
                         "ou sem movimentação."
                     ),
                     icone="bi-arrow-repeat",
+                    nome_url="produtos:lista_produtos",
+                    acao="Analisar produtos",
                 ),
             ],
         },
@@ -172,6 +192,8 @@ def _montar_secoes():
                         "e situação das entregas."
                     ),
                     icone="bi-bag-check",
+                    nome_url="compras:lista",
+                    acao="Abrir compras",
                 ),
                 _criar_relatorio(
                     titulo="Desempenho de Fornecedores",
@@ -180,6 +202,8 @@ def _montar_secoes():
                         "e relacionamento com fornecedores."
                     ),
                     icone="bi-building",
+                    nome_url="fornecedores:dashboard",
+                    acao="Abrir fornecedores",
                 ),
                 _criar_relatorio(
                     titulo="Evolução de Custos",
@@ -188,6 +212,8 @@ def _montar_secoes():
                         "nos preços dos produtos."
                     ),
                     icone="bi-graph-up",
+                    nome_url="compras:lista",
+                    acao="Analisar compras",
                 ),
             ],
         },

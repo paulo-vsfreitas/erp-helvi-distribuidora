@@ -13,23 +13,9 @@
 {% endblock %}
 
 {% block content %}
-
-<div class="page-header">
-    <div>
-        <h1>Editar Compra #{{ compra.numero }}</h1>
-
-        <p>
-            Atualize os dados, produtos e valores da compra.
-        </p>
-    </div>
-
-    <a
-        href="{% url 'compras:ficha' compra.pk %}"
-        class="btn btn-outline-secondary"
-    >
-        Voltar para a ficha
-    </a>
-</div>
+<div class="hui-module-page hui-module-page--compras hui-operation-form">
+{% url "compras:ficha" compra.pk as voltar_url %}
+{% include "components/layout/page_header.html" with titulo="Editar compra" subtitulo=compra botao_url=voltar_url botao_texto="Voltar à ficha" botao_icon="bi bi-arrow-left" %}
 
 <form
     id="form-compra"
@@ -47,7 +33,7 @@
         </div>
     {% endif %}
 
-    <div class="row">
+    <div class="row g-4">
         <div class="col-lg-8">
 
             {% include "compras/components/dados_compra.html" %}
@@ -96,6 +82,7 @@
         </div>
     </div>
 </form>
+</div>
 
 {% endblock %}
 

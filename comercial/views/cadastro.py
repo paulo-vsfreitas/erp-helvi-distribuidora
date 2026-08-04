@@ -1,14 +1,19 @@
 import json
 
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
+from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import redirect, render, get_object_or_404
 
 from comercial.forms import OrcamentoForm
-from comercial.services import criar_orcamento
+from comercial.services import (
+    criar_orcamento,
+    editar_orcamento as editar_orcamento_service,
+)
 
 from comercial.models import Orcamento
+from usuarios.decorators import permissao_requerida
+from usuarios.permissoes import Modulo
 
 
 def _extrair_itens(request):
@@ -81,7 +86,33 @@ def _adicionar_erros_ao_form(form, erro):
         form.add_error(None, mensagem_erro)
 
 
-@login_required
+def _serializar_itens(orcamento):
+    itens = []
+
+    for item in orcamento.itens.select_related(
+        "produto",
+        "produto__marca",
+    ):
+        itens.append(
+            {
+                "produto_id": item.produto_id,
+                "codigo": item.produto.codigo,
+                "descricao": item.produto.modelo,
+                "marca": (
+                    item.produto.marca.nome
+                    if item.produto.marca
+                    else ""
+                ),
+                "quantidade": item.quantidade,
+                "valor_unitario": item.valor_unitario,
+                "desconto": item.desconto,
+            }
+        )
+
+    return json.dumps(itens, cls=DjangoJSONEncoder)
+
+
+@permissao_requerida(Modulo.VENDAS)
 def cadastrar_orcamento(request):
     if request.method == "POST":
         form = OrcamentoForm(request.POST)
@@ -130,7 +161,7 @@ def cadastrar_orcamento(request):
         contexto,
     )
 
-@login_required
+@permissao_requerida(Modulo.VENDAS)
 def editar_orcamento(request, numero):
     orcamento = get_object_or_404(
         Orcamento,
@@ -138,16 +169,42 @@ def editar_orcamento(request, numero):
     )
 
     if request.method == "POST":
-        # vamos implementar no próximo passo
-        pass
+        form = OrcamentoForm(
+            request.POST,
+            instance=orcamento,
+        )
 
-    form = OrcamentoForm(instance=orcamento)
+        if form.is_valid():
+            try:
+                itens = _extrair_itens(request)
+                orcamento = editar_orcamento_service(
+                    orcamento=orcamento,
+                    dados=form.cleaned_data,
+                    itens=itens,
+                )
+            except ValidationError as erro:
+                _adicionar_erros_ao_form(form, erro)
+            else:
+                messages.success(
+                    request,
+                    f"Orçamento {orcamento.codigo} atualizado com sucesso.",
+                )
+                return redirect(
+                    "comercial:ficha",
+                    numero=orcamento.numero,
+                )
+    else:
+        form = OrcamentoForm(instance=orcamento)
 
     contexto = {
         "form": form,
         "orcamento": orcamento,
         "modo_edicao": True,
-        "itens_json": "[]",
+        "itens_json": (
+            request.POST.get("itens_json", "[]")
+            if request.method == "POST"
+            else _serializar_itens(orcamento)
+        ),
     }
 
     return render(

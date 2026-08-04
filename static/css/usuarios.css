@@ -1,0 +1,466 @@
+.hui-user-page {
+    padding-bottom: 0.25rem;
+}
+
+.hui-user-form {
+    min-width: 0;
+}
+
+.hui-user-form-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.75fr) minmax(310px, 0.72fr);
+    align-items: start;
+    gap: 1.25rem;
+}
+
+.hui-user-form-stack {
+    display: grid;
+    min-width: 0;
+    gap: 1.25rem;
+}
+
+.hui-user-card {
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid var(--hui-border);
+    border-top: 3px solid var(--hui-gold);
+    border-radius: var(--hui-radius);
+    background: var(--hui-surface);
+    box-shadow: var(--hui-shadow);
+}
+
+.hui-user-card__header {
+    display: flex;
+    min-height: 72px;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--hui-border);
+    background: linear-gradient(100deg, #fff 0%, #fffdf7 100%);
+}
+
+.hui-user-card__icon {
+    display: grid;
+    width: 2.5rem;
+    height: 2.5rem;
+    flex: 0 0 2.5rem;
+    place-items: center;
+    border-radius: 11px;
+    color: var(--hui-gold-dark);
+    background: var(--hui-gold-soft);
+    font-size: 1.05rem;
+}
+
+.hui-user-card__header h2 {
+    margin: 0;
+    color: var(--hui-ink);
+    font-size: 1rem;
+    font-weight: 780;
+}
+
+.hui-user-card__header p {
+    margin: 0.2rem 0 0;
+    color: var(--hui-muted);
+    font-size: 0.78rem;
+}
+
+.hui-user-card__body {
+    padding: clamp(1.1rem, 2vw, 1.4rem);
+}
+
+.hui-user-identity {
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr);
+    align-items: stretch;
+    gap: 1.35rem;
+}
+
+.hui-user-photo-panel {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    padding: 1.1rem;
+    border: 1px dashed #d8dde4;
+    border-radius: 14px;
+    background: #fafbfc;
+    text-align: center;
+}
+
+.hui-user-photo-label {
+    margin-bottom: 0.85rem;
+    color: #344054;
+    font-size: 0.78rem;
+    font-weight: 750;
+}
+
+.hui-user-avatar {
+    display: grid;
+    width: 88px;
+    height: 88px;
+    margin-bottom: 0.9rem;
+    place-items: center;
+    overflow: hidden;
+    border: 4px solid #fff;
+    border-radius: 50%;
+    color: #75580a;
+    background: linear-gradient(145deg, #f8e9a7, #d3ad2b);
+    box-shadow: 0 5px 16px rgba(23, 32, 51, 0.13);
+    font-size: 1.9rem;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+}
+
+.hui-user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.hui-user-avatar i {
+    font-size: 2rem;
+}
+
+.hui-user-photo-button {
+    min-height: 38px !important;
+    padding: 0.45rem 0.75rem;
+    font-size: 0.76rem;
+}
+
+.hui-user-photo-panel small {
+    margin-top: 0.65rem;
+    color: var(--hui-muted);
+    font-size: 0.68rem;
+    line-height: 1.4;
+}
+
+.hui-user-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: start;
+    gap: 1rem;
+}
+
+.hui-user-field {
+    min-width: 0;
+}
+
+.hui-user-field--full {
+    grid-column: 1 / -1;
+}
+
+.hui-user-field > label,
+.hui-user-photo-panel > label {
+    display: block;
+}
+
+.hui-user-field > label span {
+    color: var(--hui-danger);
+}
+
+.hui-user-form :is(.form-control, .form-select) {
+    width: 100%;
+    min-height: 43px;
+}
+
+.hui-user-password-control {
+    position: relative;
+}
+
+.hui-user-password-control .form-control {
+    padding-right: 2.8rem;
+}
+
+.hui-password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 0.45rem;
+    display: grid;
+    width: 2rem;
+    height: 2rem;
+    place-items: center;
+    border: 0;
+    border-radius: 7px;
+    color: #7a8493;
+    background: transparent;
+    transform: translateY(-50%);
+}
+
+.hui-password-toggle:hover,
+.hui-password-toggle:focus-visible {
+    color: var(--hui-gold-dark);
+    background: var(--hui-gold-soft);
+    outline: none;
+}
+
+.hui-user-password-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    margin-top: 1rem;
+    padding: 0.8rem 0.9rem;
+    border-radius: 10px;
+    color: #6a5312;
+    background: var(--hui-gold-soft);
+    font-size: 0.76rem;
+    line-height: 1.45;
+}
+
+.hui-user-permissions-card {
+    position: sticky;
+    top: 5.25rem;
+}
+
+.hui-user-status-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1.25rem;
+    padding: 1.1rem 0;
+    border-top: 1px solid #edf0f3;
+    border-bottom: 1px solid #edf0f3;
+}
+
+.hui-user-status-row strong,
+.hui-user-status-row small {
+    display: block;
+}
+
+.hui-user-status-row strong {
+    color: var(--hui-ink);
+    font-size: 0.82rem;
+}
+
+.hui-user-status-row small {
+    margin-top: 0.25rem;
+    color: var(--hui-muted);
+    font-size: 0.7rem;
+}
+
+.hui-user-status-control {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.7rem;
+}
+
+.hui-user-switch {
+    position: relative;
+    display: inline-flex !important;
+    margin: 0 !important;
+    cursor: pointer;
+}
+
+.hui-user-switch__track {
+    position: relative;
+    display: block;
+    width: 42px;
+    height: 24px;
+    border-radius: 999px;
+    background: #c7ccd4;
+    transition: background 0.2s ease;
+}
+
+.hui-user-switch__track::after {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    content: "";
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18);
+    transition: transform 0.2s ease;
+}
+
+.hui-user-switch-input:checked + .hui-user-switch__track {
+    background: #1e9b69;
+}
+
+.hui-user-switch-input:checked + .hui-user-switch__track::after {
+    transform: translateX(18px);
+}
+
+.hui-user-switch-input:focus-visible + .hui-user-switch__track {
+    outline: 3px solid rgba(200, 164, 47, 0.25);
+    outline-offset: 2px;
+}
+
+.hui-user-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.45rem 0.65rem;
+    border-radius: 999px;
+    color: var(--hui-success);
+    background: #e7f7f0;
+    font-size: 0.7rem;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.hui-user-status-badge.is-inactive {
+    color: #667085;
+    background: #f0f2f5;
+}
+
+.hui-user-permissions-summary {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-top: 1.1rem;
+    padding: 1rem;
+    border: 1px solid var(--hui-border);
+    border-radius: 11px;
+    background: #fafbfc;
+}
+
+.hui-user-permissions-summary__icon {
+    display: grid;
+    width: 2.65rem;
+    height: 2.65rem;
+    flex: 0 0 2.65rem;
+    place-items: center;
+    border-radius: 12px;
+    color: var(--hui-gold-dark);
+    background: var(--hui-gold-soft);
+    font-size: 1.05rem;
+}
+
+.hui-user-permissions-summary strong {
+    color: var(--hui-ink);
+    font-size: 0.78rem;
+}
+
+.hui-user-permissions-summary p {
+    margin: 0.2rem 0 0;
+    color: var(--hui-muted);
+    font-size: 0.72rem;
+    line-height: 1.45;
+}
+
+.hui-user-form .errorlist {
+    margin: 0.4rem 0 0;
+}
+
+.hui-user-form .errorlist li {
+    font-size: 0.74rem;
+}
+
+.hui-user-action-bar {
+    position: sticky;
+    z-index: 20;
+    bottom: 1rem;
+    display: flex;
+    min-height: 70px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1.25rem;
+    padding: 0.85rem 1.1rem;
+    border: 1px solid var(--hui-border);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 -8px 28px rgba(16, 24, 40, 0.08);
+    backdrop-filter: blur(12px);
+}
+
+.hui-user-action-note {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: var(--hui-muted);
+    font-size: 0.76rem;
+}
+
+.hui-user-action-note i {
+    color: var(--hui-success);
+    font-size: 1rem;
+}
+
+.hui-user-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+@media (max-width: 1499.98px) {
+    .hui-user-form-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .hui-user-permissions-card {
+        position: static;
+    }
+}
+
+@media (max-width: 1199.98px) {
+    .hui-user-form-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .hui-user-identity {
+        grid-template-columns: 150px minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 991.98px) {
+    .hui-user-page .hui-page-header {
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .hui-user-identity {
+        grid-template-columns: 1fr;
+    }
+
+    .hui-user-photo-panel {
+        min-height: 230px;
+    }
+
+    .hui-user-fields {
+        grid-template-columns: 1fr;
+    }
+
+    .hui-user-field--full {
+        grid-column: auto;
+    }
+
+    .hui-user-action-bar,
+    .hui-user-status-row {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .hui-user-status-control {
+        justify-content: space-between;
+    }
+
+    .hui-user-action-note {
+        align-items: flex-start;
+    }
+
+    .hui-user-actions {
+        flex-direction: column-reverse;
+    }
+
+    .hui-user-actions .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 479.98px) {
+    .hui-user-card__header {
+        align-items: flex-start;
+    }
+
+    .hui-user-status-control {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}

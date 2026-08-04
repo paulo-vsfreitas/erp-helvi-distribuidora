@@ -1,4 +1,4 @@
-<div class="card shadow-sm border-0">
+<div class="card hui-form-section">
     <div class="card-header">
         <h5 class="mb-0">Dados da Compra</h5>
     </div>
@@ -43,8 +43,8 @@
                 </p>
             </div>
 
-            <div class="col-12 d-flex gap-3 flex-wrap">
-                <div style="width: 220px;">
+            <div class="col-md-4">
+                <div>
                     {{ form.data_compra.label_tag }}
                     {{ form.data_compra }}
 
@@ -55,7 +55,9 @@
                     {% endfor %}
                 </div>
 
-                <div style="width: 220px;">
+            </div>
+            <div class="col-md-4">
+                <div>
                     {{ form.previsao_entrega.label_tag }}
                     {{ form.previsao_entrega }}
 
@@ -66,7 +68,9 @@
                     {% endfor %}
                 </div>
 
-                <div style="width: 180px;">
+            </div>
+            <div class="col-md-4">
+                <div>
                     {{ form.frete.label_tag }}
                     {{ form.frete }}
 

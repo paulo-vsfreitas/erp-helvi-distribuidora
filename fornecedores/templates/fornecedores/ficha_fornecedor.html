@@ -3,11 +3,12 @@
 {% block title %}{{ ficha_titulo }} | ERP Helvi{% endblock %}
 
 {% block content %}
+<div class="hui-module-page hui-module-page--fornecedores hui-detail-page">
 
 {% include "components/ficha/header.html" with ficha_titulo=ficha_titulo ficha_subtitulo=ficha_subtitulo ficha_resumo=ficha_resumo ficha_acoes=ficha_acoes %}
 
 
-<div class="card mb-3">
+<div class="card mb-3 hui-detail-section">
     <div class="card-body">
 
         <div class="ficha-section-title">
@@ -30,7 +31,7 @@
 </div>
 
 
-<div class="card mb-3">
+<div class="card mb-3 hui-detail-section">
     <div class="card-body">
 
         <div class="ficha-section-title">
@@ -44,7 +45,7 @@
 </div>
 
 
-<div class="card mb-3">
+<div class="card mb-3 hui-detail-section">
     <div class="card-body">
 
         <div class="ficha-section-title">
@@ -58,7 +59,7 @@
 </div>
 
 
-<div class="card mb-3">
+<div class="card mb-3 hui-detail-section">
     <div class="card-body">
 
         <div class="ficha-section-title">
@@ -72,7 +73,7 @@
 </div>
 
 
-<div class="card mb-3">
+<div class="card mb-3 hui-detail-section">
     <div class="card-body">
 
         <div class="ficha-section-title">
@@ -89,7 +90,7 @@
 </div>
 
 
-<div class="card">
+<div class="card hui-detail-section hui-detail-section--table">
     <div class="card-body">
 
         <div class="ficha-section-title">
@@ -209,6 +210,7 @@
         {% endif %}
 
     </div>
+</div>
 </div>
 
 {% endblock %}

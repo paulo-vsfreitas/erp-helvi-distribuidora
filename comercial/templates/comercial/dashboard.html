@@ -10,18 +10,19 @@
 {% block extra_css %}
 <link
     rel="stylesheet"
-    href="{% static 'css/comercial.css' %}?v=4.0.9"
+    href="{% static 'css/comercial.css' %}?v=4.0.10"
 >
 {% endblock %}
 
 {% block content %}
 
-<div class="comercial-dashboard">
+<div class="comercial-dashboard hui-module-page hui-module-page--orcamentos">
 
     <!-- CABEÇALHO -->
-    <header class="comercial-dashboard-header">
+    <header class="hui-page-header">
 
-        <div>
+        <div class="hui-page-header__content">
+            <span class="hui-page-header__eyebrow">Gestão comercial</span>
             <h1>Comercial</h1>
 
             <p>
@@ -31,7 +32,7 @@
 
         <a
             href="{% url 'comercial:novo' %}"
-            class="btn btn-primary comercial-novo-orcamento"
+            class="btn btn-primary hui-page-header__action"
         >
             <i class="bi bi-plus-lg"></i>
             Novo Orçamento
@@ -42,7 +43,10 @@
     <!-- INDICADORES -->
     <section class="comercial-kpis">
 
-        <article class="comercial-kpi-card">
+        <a
+            href="{% url 'comercial:dashboard' %}"
+            class="comercial-kpi-card comercial-kpi-link{% if not filtro_status %} comercial-kpi-active{% endif %}"
+        >
 
             <div class="comercial-kpi-icon">
                 <i class="bi bi-file-earmark-text"></i>
@@ -53,9 +57,12 @@
                 <strong>{{ total_orcamentos }}</strong>
             </div>
 
-        </article>
+        </a>
 
-        <article class="comercial-kpi-card">
+        <a
+            href="{% url 'comercial:dashboard' %}?status=rascunho"
+            class="comercial-kpi-card comercial-kpi-link{% if filtro_status == 'rascunho' %} comercial-kpi-active{% endif %}"
+        >
 
             <div class="comercial-kpi-icon">
                 <i class="bi bi-clipboard"></i>
@@ -66,9 +73,12 @@
                 <strong>{{ total_rascunhos }}</strong>
             </div>
 
-        </article>
+        </a>
 
-        <article class="comercial-kpi-card">
+        <a
+            href="{% url 'comercial:dashboard' %}?status=aprovado"
+            class="comercial-kpi-card comercial-kpi-link{% if filtro_status == 'aprovado' %} comercial-kpi-active{% endif %}"
+        >
 
             <div class="comercial-kpi-icon comercial-kpi-icon-circle">
                 <i class="bi bi-check-lg"></i>
@@ -79,7 +89,7 @@
                 <strong>{{ total_aprovados }}</strong>
             </div>
 
-        </article>
+        </a>
 
         <article class="comercial-kpi-card">
 
@@ -91,7 +101,7 @@
                 <span>Valor orçado</span>
 
                 <strong class="comercial-kpi-money">
-                    R$ {{ valor_total|floatformat:2 }}
+                    R$ {{ valor_total|floatformat:"2g" }}
                 </strong>
             </div>
 
@@ -99,11 +109,55 @@
 
     </section>
 
+    <form method="get" class="hui-budget-filters">
+        <div class="hui-budget-filters__heading">
+            <div>
+                <span class="hui-table-heading__eyebrow">Pesquisa avançada</span>
+                <h2>Filtrar orçamentos</h2>
+            </div>
+            {% if filtros_ativos %}
+                <a href="{% url 'comercial:dashboard' %}" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-x-lg"></i> Limpar filtros
+                </a>
+            {% endif %}
+        </div>
+        <div class="hui-budget-filters__grid">
+            <div class="hui-budget-filter hui-budget-filter--search">
+                <label for="filtro-busca">Número ou cliente</label>
+                <div class="position-relative">
+                    <i class="bi bi-search"></i>
+                    <input id="filtro-busca" name="busca" value="{{ busca }}" class="form-control" placeholder="Ex.: ORC-000123 ou nome do cliente">
+                </div>
+            </div>
+            <div class="hui-budget-filter">
+                <label for="filtro-status">Status</label>
+                <select id="filtro-status" name="status" class="form-select">
+                    <option value="">Todos os status</option>
+                    {% for valor, rotulo in status_opcoes %}
+                        <option value="{{ valor }}"{% if filtro_status == valor %} selected{% endif %}>{{ rotulo }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="hui-budget-filter">
+                <label for="filtro-inicio">Emissão inicial</label>
+                <input id="filtro-inicio" type="date" name="data_inicio" value="{{ data_inicio }}" class="form-control">
+            </div>
+            <div class="hui-budget-filter">
+                <label for="filtro-fim">Emissão final</label>
+                <input id="filtro-fim" type="date" name="data_fim" value="{{ data_fim }}" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-primary hui-budget-filters__submit">
+                <i class="bi bi-funnel"></i> Aplicar filtros
+            </button>
+        </div>
+    </form>
+
     <!-- ORÇAMENTOS RECENTES -->
     <section class="comercial-list-card">
 
         <div class="comercial-list-header">
-            <h2>Orçamentos recentes</h2>
+            <div><span class="hui-table-heading__eyebrow">Resultados</span><h2>{{ titulo_lista }}</h2></div>
+            <span class="hui-count-badge">{{ orcamentos|length }} encontrados</span>
         </div>
 
         {% if orcamentos %}
@@ -254,10 +308,10 @@
                     <i class="bi bi-file-earmark-text"></i>
                 </div>
 
-                <h3>Nenhum orçamento cadastrado</h3>
+                <h3>Nenhum orçamento encontrado</h3>
 
                 <p>
-                    Crie o primeiro orçamento comercial da Helvi.
+                    {% if filtros_ativos %}Altere ou limpe os filtros para consultar outros registros.{% else %}Crie o primeiro orçamento comercial da Helvi.{% endif %}
                 </p>
 
                 <a

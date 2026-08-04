@@ -1,0 +1,1472 @@
+/* Helvi UI 1.0 — design system do ERP Helvi. */
+.helvi-ui {
+    --hui-gold: #c8a42f;
+    --hui-gold-dark: #94700c;
+    --hui-gold-soft: #fff7dc;
+    --hui-ink: #18202c;
+    --hui-muted: #667085;
+    --hui-border: #e1e5ea;
+    --hui-surface: #ffffff;
+    --hui-surface-muted: #f8f9fb;
+    --hui-danger: #b42318;
+    --hui-success: #16794b;
+    --hui-radius: 16px;
+    --hui-shadow: 0 8px 28px rgba(16, 24, 40, 0.065);
+    color: var(--hui-ink);
+}
+
+.hui-module-page {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    margin: 0;
+}
+
+.hui-module-page :is(.container, .container-sm, .container-md, .container-lg, .container-xl, .container-xxl) {
+    width: 100%;
+    max-width: none;
+}
+
+.hui-page-header {
+    position: relative;
+}
+
+.hui-page-header__eyebrow,
+.hui-table-heading__eyebrow {
+    display: block;
+    margin-bottom: 0.28rem;
+    color: var(--hui-gold-dark);
+    font-size: 0.67rem;
+    font-weight: 820;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.hui-page-header h1 {
+    margin: 0;
+    color: var(--hui-ink);
+    font-size: clamp(1.7rem, 2.4vw, 2.2rem);
+    font-weight: 780;
+    letter-spacing: -0.04em;
+}
+
+.hui-page-header p {
+    margin: 0.38rem 0 0;
+    color: var(--hui-muted);
+    font-size: 0.9rem;
+}
+
+.hui-page-header__action {
+    position: relative;
+    z-index: 2;
+    flex-shrink: 0;
+}
+
+.hui-module-page > :is(.hui-page-header, .page-header, .ficha-header),
+.hui-module-page > form > :is(.hui-page-header, .page-header, .ficha-header),
+.hui-module-page > .container-fluid > :is(.hui-page-header, .page-header) {
+    display: flex;
+    min-height: 118px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    padding: 1.35rem 1.5rem 1.35rem 1.75rem;
+    border: 1px solid var(--hui-border);
+    border-left: 5px solid var(--hui-gold);
+    border-radius: var(--hui-radius);
+    background: linear-gradient(110deg, #fff 0%, #fffdf6 100%);
+    box-shadow: var(--hui-shadow);
+}
+
+.hui-module-page > :is(.hui-page-header, .page-header, .ficha-header)::after,
+.hui-module-page > form > :is(.hui-page-header, .page-header, .ficha-header)::after,
+.hui-module-page > .container-fluid > :is(.hui-page-header, .page-header)::after {
+    position: absolute;
+    top: 0.85rem;
+    right: 1rem;
+    width: 52px;
+    height: 52px;
+    content: "";
+    border: 8px solid rgba(200, 164, 47, 0.08);
+    border-radius: 50%;
+}
+
+.hui-module-page > :is(.table-card, .hui-card),
+.hui-module-page > form > :is(.table-card, .hui-card) {
+    border-top: 3px solid var(--hui-gold);
+}
+
+.hui-filter-bar {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+    padding: 1rem;
+    border: 1px solid var(--hui-border);
+    border-radius: 13px;
+    background: #fff;
+    box-shadow: 0 4px 16px rgba(16, 24, 40, 0.04);
+}
+
+.hui-filter-bar__search {
+    position: relative;
+    flex: 1;
+}
+
+.hui-filter-bar__search > i {
+    position: absolute;
+    z-index: 2;
+    top: 50%;
+    left: 0.9rem;
+    color: #98a2b3;
+    transform: translateY(-50%);
+}
+
+.hui-filter-bar__search .form-control {
+    padding-left: 2.6rem;
+}
+
+.hui-entity-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(285px, 1fr));
+    gap: 1rem;
+}
+
+.hui-entity-card {
+    display: flex;
+    min-height: 265px;
+    flex-direction: column;
+    padding: 1.25rem;
+    border: 1px solid var(--hui-border);
+    border-radius: var(--hui-radius);
+    background: #fff;
+    box-shadow: var(--hui-shadow);
+    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hui-entity-card:hover {
+    border-color: rgba(200, 164, 47, 0.6);
+    box-shadow: 0 12px 30px rgba(16, 24, 40, 0.09);
+    transform: translateY(-2px);
+}
+
+.hui-entity-card__heading {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 1rem;
+}
+
+.hui-entity-card__icon {
+    display: inline-flex;
+    width: 2.75rem;
+    height: 2.75rem;
+    flex: 0 0 2.75rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    color: var(--hui-gold-dark);
+    background: var(--hui-gold-soft);
+    font-size: 1.2rem;
+}
+
+.hui-entity-card h2 {
+    margin: 0;
+    color: var(--hui-ink);
+    font-size: 1rem;
+    font-weight: 760;
+}
+
+.hui-entity-card p {
+    margin: 0.15rem 0 0;
+    color: var(--hui-muted);
+    font-size: 0.82rem;
+}
+
+.hui-entity-card__details {
+    margin: 0;
+}
+
+.hui-entity-card__details > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.45rem 0;
+    border-bottom: 1px solid #f0f1f3;
+}
+
+.hui-entity-card__details dt {
+    color: var(--hui-muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.hui-entity-card__details dd {
+    margin: 0;
+    color: var(--hui-ink);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-align: right;
+}
+
+.hui-entity-card__actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: auto;
+    padding-top: 1rem;
+}
+
+.hui-empty-state {
+    grid-column: 1 / -1;
+    padding: 3rem 1.5rem;
+    border: 1px dashed #d7dce3;
+    border-radius: var(--hui-radius);
+    color: var(--hui-muted);
+    background: #fbfcfd;
+    text-align: center;
+}
+
+.hui-empty-state > i {
+    color: var(--hui-gold-dark);
+    font-size: 2rem;
+}
+
+.hui-empty-state h2 {
+    margin: 0.8rem 0 0.25rem;
+    color: var(--hui-ink);
+    font-size: 1.05rem;
+}
+
+.hui-form-card {
+    width: 100%;
+    max-width: none;
+    padding: clamp(1.2rem, 2.5vw, 2rem);
+    border: 1px solid var(--hui-border);
+    border-radius: var(--hui-radius);
+    background: #fff;
+    box-shadow: var(--hui-shadow);
+}
+
+.helvi-ui :is(.form-card, .vincular-cliente-page) {
+    width: 100%;
+    max-width: none;
+}
+
+.helvi-ui :is(.table-responsive, .table-card, .hui-card) {
+    min-width: 0;
+}
+
+.helvi-ui .row {
+    max-width: none;
+}
+
+.hui-form-grid > p {
+    margin-bottom: 1rem;
+}
+
+.hui-form-grid > p > label {
+    display: block;
+}
+
+.hui-form-grid > p > :is(input, select, textarea) {
+    display: block;
+    width: 100%;
+    min-height: 43px;
+    padding: 0.65rem 0.8rem;
+    border: 1px solid #d7dce2;
+    border-radius: 9px;
+}
+
+.hui-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.65rem;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--hui-border);
+}
+
+.hui-stat-card {
+    overflow: hidden;
+    border: 1px solid var(--hui-border) !important;
+    border-top: 3px solid var(--hui-gold) !important;
+    box-shadow: var(--hui-shadow) !important;
+}
+
+.hui-stat-card {
+    display: flex;
+    min-height: 112px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.25rem;
+    border-top: 3px solid var(--hui-gold) !important;
+    background: #fff;
+}
+
+.hui-stat-card__label {
+    display: block;
+    margin-bottom: 0.45rem;
+    color: var(--hui-muted);
+    font-size: 0.7rem;
+    font-weight: 720;
+    letter-spacing: 0.045em;
+    text-transform: uppercase;
+}
+
+.hui-stat-card__value {
+    display: block;
+    color: var(--hui-ink);
+    font-size: clamp(1.35rem, 2vw, 1.8rem);
+    line-height: 1.1;
+}
+
+.hui-stat-card__icon {
+    display: inline-flex;
+    width: 3rem;
+    height: 3rem;
+    flex: 0 0 3rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 13px;
+    color: var(--hui-gold-dark);
+    background: var(--hui-gold-soft);
+    font-size: 1.35rem;
+}
+
+.hui-stat-card__icon--success { color: #16794b; background: #e8f7ef; }
+.hui-stat-card__icon--danger { color: #b42318; background: #fff0ee; }
+.hui-stat-card__icon--info { color: #176b87; background: #eaf7fb; }
+
+.hui-table-heading {
+    display: flex;
+    min-height: 88px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.1rem 1.25rem;
+    border-bottom: 1px solid var(--hui-border);
+    background: linear-gradient(100deg, #fff 0%, #fffdf7 100%);
+}
+
+.hui-table-heading h2 {
+    margin: 0;
+    color: var(--hui-ink);
+    font-size: 1.02rem;
+    font-weight: 760;
+}
+
+.hui-table-heading p {
+    margin: 0.22rem 0 0;
+    color: var(--hui-muted);
+    font-size: 0.8rem;
+}
+
+.hui-count-badge {
+    flex-shrink: 0;
+    padding: 0.45rem 0.7rem;
+    border: 1px solid #eadca9;
+    border-radius: 999px;
+    color: #765a0a;
+    background: var(--hui-gold-soft);
+    font-size: 0.74rem;
+    font-weight: 750;
+}
+
+.hui-budget-filters {
+    margin-bottom: 1.25rem;
+    padding: 1.2rem;
+    border: 1px solid var(--hui-border);
+    border-left: 4px solid var(--hui-gold);
+    border-radius: var(--hui-radius);
+    background: #fff;
+    box-shadow: var(--hui-shadow);
+}
+
+.hui-budget-filters__heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.hui-budget-filters__heading h2 {
+    margin: 0;
+    color: var(--hui-ink);
+    font-size: 1rem;
+    font-weight: 760;
+}
+
+.hui-budget-filters__grid {
+    display: grid;
+    grid-template-columns: minmax(240px, 2fr) minmax(170px, 1fr) minmax(150px, .8fr) minmax(150px, .8fr) auto;
+    align-items: end;
+    gap: .8rem;
+}
+
+.hui-budget-filter label {
+    display: block;
+}
+
+.hui-budget-filter--search .position-relative > i {
+    position: absolute;
+    z-index: 2;
+    top: 50%;
+    left: .85rem;
+    color: #98a2b3;
+    transform: translateY(-50%);
+}
+
+.hui-budget-filter--search .form-control {
+    padding-left: 2.45rem;
+}
+
+.hui-budget-filters__submit {
+    white-space: nowrap;
+}
+
+.hui-module-page--orcamentos .comercial-list-card {
+    border-top: 3px solid var(--hui-gold);
+}
+
+.hui-module-page--orcamentos .comercial-list-header {
+    min-height: 82px;
+    padding: 1rem 1.25rem;
+    background: linear-gradient(100deg, #fff 0%, #fffdf7 100%);
+}
+
+@media (max-width: 1199.98px) {
+    .hui-budget-filters__grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .hui-budget-filters__submit {
+        width: 100%;
+    }
+}
+
+.hui-summary-card {
+    border-top: 4px solid var(--hui-gold) !important;
+}
+
+.hui-module-page--financeiro .card,
+.hui-module-page--fluxo-caixa .card,
+.hui-module-page--estoque .card {
+    border: 1px solid var(--hui-border) !important;
+    box-shadow: var(--hui-shadow) !important;
+}
+
+.hui-module-page--financeiro > .page-header,
+.hui-module-page--financeiro > .container-fluid > .page-header {
+    border-left-color: #16794b;
+}
+
+.hui-module-page--financeiro .row > [class*="col-"] > .card,
+.hui-module-page--fluxo-caixa .row > [class*="col-"] > .card,
+.hui-module-page--estoque .row > [class*="col-"] > .card {
+    position: relative;
+    overflow: hidden;
+}
+
+.hui-module-page--financeiro .row > [class*="col-"] > .card::before,
+.hui-module-page--fluxo-caixa .row > [class*="col-"] > .card::before,
+.hui-module-page--estoque .row > [class*="col-"] > .card::before {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 3px;
+    content: "";
+    background: linear-gradient(90deg, var(--hui-gold), #ead778);
+}
+
+.hui-module-page--catalogo .search-form,
+.hui-module-page--produtos .search-form,
+.hui-module-page--usuarios .search-form {
+    border-left: 4px solid var(--hui-gold);
+}
+
+.hui-module-page--catalogo .table-card,
+.hui-module-page--produtos .table-card,
+.hui-module-page--usuarios .table-card {
+    border-top: 3px solid var(--hui-gold);
+}
+
+.hui-module-page--usuarios,
+.hui-module-page--usuarios .hui-users-panel,
+.hui-module-page--usuarios .table,
+.hui-module-page--usuarios .table-responsive {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+}
+
+.hui-module-page--usuarios .hui-users-panel {
+    overflow-x: auto;
+}
+
+.hui-module-page--usuarios .hui-table-heading {
+    position: sticky;
+    left: 0;
+}
+
+.hui-module-page--catalogo .list-summary,
+.hui-module-page--produtos .list-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 0 0 0.75rem;
+    padding: 0.2rem 0.25rem;
+}
+
+.hui-operation-form .orcamento-content > .hui-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.hui-operation-form .table-card-header {
+    padding-left: 3.7rem;
+}
+
+.hui-operation-form .orcamento-content > .hui-card:nth-child(1) .table-card-header::before,
+.hui-operation-form .orcamento-content > .hui-card:nth-child(2) .table-card-header::before,
+.hui-operation-form .orcamento-content > .hui-card:nth-child(3) .table-card-header::before {
+    position: absolute;
+    left: 1.25rem;
+    display: inline-flex;
+    width: 2rem;
+    height: 2rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    color: #fff;
+    background: var(--hui-gold-dark);
+    font-size: 0.8rem;
+    font-weight: 800;
+}
+
+.hui-operation-form .orcamento-content > .hui-card:nth-child(1) .table-card-header::before { content: "1"; }
+.hui-operation-form .orcamento-content > .hui-card:nth-child(2) .table-card-header::before { content: "2"; }
+.hui-operation-form .orcamento-content > .hui-card:nth-child(3) .table-card-header::before { content: "3"; }
+
+.hui-module-page--financeiro .card-header,
+.hui-module-page--fluxo-caixa .card-header {
+    padding: 1.15rem 1.35rem !important;
+    border-bottom: 1px solid var(--hui-border) !important;
+    background: #fff !important;
+}
+
+.hui-module-page--relatorios .relatorios-hero {
+    border: 1px solid var(--hui-border);
+    border-left: 5px solid var(--hui-gold);
+    border-radius: var(--hui-radius);
+    background: linear-gradient(120deg, #18202c 0%, #263140 100%);
+    box-shadow: 0 12px 30px rgba(16, 24, 40, 0.14);
+}
+
+.hui-module-page--relatorios .relatorios-hero h1,
+.hui-module-page--relatorios .relatorios-hero h2 {
+    color: #fff;
+}
+
+.hui-module-page--relatorios .relatorios-hero p {
+    color: #d0d5dd;
+}
+
+.hui-module-page--relatorios .relatorios-eyebrow {
+    color: #f0d77b;
+}
+
+.hui-module-page--relatorios .relatorios-hero-icon {
+    border-color: rgba(240, 215, 123, 0.35);
+    color: #f0d77b;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.hui-module-page--relatorios .relatorios-kpi {
+    border-top: 3px solid var(--hui-gold);
+}
+
+.hui-module-page--relatorios .relatorio-card {
+    border-color: var(--hui-border);
+    border-radius: var(--hui-radius);
+    box-shadow: var(--hui-shadow);
+}
+
+@media (max-width: 767.98px) {
+    .hui-budget-filters__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hui-budget-filters__heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .hui-module-page > :is(.hui-page-header, .page-header, .ficha-header),
+    .hui-module-page > form > :is(.hui-page-header, .page-header, .ficha-header),
+    .hui-module-page > .container-fluid > :is(.hui-page-header, .page-header) {
+        min-height: 0;
+        align-items: stretch;
+        padding: 1.15rem;
+    }
+
+    .hui-filter-bar {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .hui-form-actions {
+        align-items: stretch;
+        flex-direction: column-reverse;
+    }
+
+    .hui-form-actions .btn {
+        width: 100%;
+    }
+}
+
+/* Cabeçalhos existentes e novos. */
+.helvi-ui :is(
+    .page-header,
+    .ficha-header,
+    .configuracoes-header,
+    .relatorios-header,
+    .financeiro-header,
+    .estoque-header,
+    .dashboard-header
+) {
+    position: relative;
+    margin-bottom: 1.6rem;
+    padding: 0 0 0.15rem;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.helvi-ui :is(
+    .page-header,
+    .ficha-header,
+    .configuracoes-header,
+    .relatorios-header,
+    .financeiro-header,
+    .estoque-header,
+    .dashboard-header
+) h1::before {
+    display: block;
+    margin-bottom: 0.3rem;
+    color: var(--hui-gold-dark);
+    content: "ERP HELVI";
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.13em;
+}
+
+.helvi-ui :is(
+    .page-header,
+    .ficha-header,
+    .configuracoes-header,
+    .relatorios-header,
+    .financeiro-header,
+    .estoque-header,
+    .dashboard-header
+) h1 {
+    margin: 0;
+    color: var(--hui-ink);
+    font-size: clamp(1.7rem, 2.4vw, 2.25rem);
+    font-weight: 760;
+    letter-spacing: -0.04em;
+}
+
+.helvi-ui :is(
+    .page-header,
+    .ficha-header,
+    .configuracoes-header,
+    .relatorios-header,
+    .financeiro-header,
+    .estoque-header,
+    .dashboard-header
+) p {
+    margin: 0.4rem 0 0;
+    color: var(--hui-muted);
+    font-size: 0.92rem;
+}
+
+/* Superfícies: compatibilidade com os módulos atuais. */
+.helvi-ui :is(
+    .card,
+    .table-card,
+    .form-card,
+    .configuracoes-card,
+    .financeiro-card,
+    .estoque-card,
+    .relatorio-card,
+    .dashboard-card,
+    .section-card,
+    .hui-card
+) {
+    border: 1px solid var(--hui-border);
+    border-radius: var(--hui-radius);
+    background: var(--hui-surface);
+    box-shadow: var(--hui-shadow);
+}
+
+.helvi-ui :is(.card-body, .table-card__body, .hui-card__body) {
+    padding: clamp(1.1rem, 2vw, 1.6rem);
+}
+
+.helvi-ui :is(
+    .table-card-header,
+    .table-card__header,
+    .configuracoes-card-header,
+    .financeiro-card-header,
+    .hui-card__header
+) {
+    min-height: 68px;
+    padding: 1rem 1.35rem;
+    border-bottom: 1px solid var(--hui-border);
+    border-radius: var(--hui-radius) var(--hui-radius) 0 0;
+    color: var(--hui-ink);
+    background: linear-gradient(180deg, #fff, #fdfdfd);
+    font-size: 1rem;
+    font-weight: 740;
+}
+
+.helvi-ui :is(
+    .configuracoes-card-header,
+    .financeiro-card-header,
+    .hui-card__header
+) h2 {
+    margin: 0;
+    color: var(--hui-ink);
+    font-size: 1.02rem;
+    font-weight: 750;
+}
+
+.helvi-ui :is(
+    .configuracoes-card-header,
+    .financeiro-card-header,
+    .hui-card__header
+) p {
+    margin: 0.2rem 0 0;
+    color: var(--hui-muted);
+    font-size: 0.82rem;
+    font-weight: 400;
+}
+
+.helvi-ui :is(
+    .configuracoes-card-body,
+    .financeiro-card-body,
+    .orcamento-form-card-body
+) {
+    padding: clamp(1.1rem, 2vw, 1.55rem);
+}
+
+/* Formulários. */
+.helvi-ui :is(label, .form-label) {
+    margin-bottom: 0.42rem;
+    color: #344054;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.helvi-ui :is(.form-control, .form-select, input, select, textarea) {
+    border-color: #d7dce2;
+    border-radius: 9px;
+}
+
+.helvi-ui :is(.form-control, .form-select) {
+    min-height: 43px;
+    background-color: #fff;
+}
+
+.helvi-ui :is(.form-control, .form-select):focus {
+    border-color: var(--hui-gold);
+    box-shadow: 0 0 0 0.22rem rgba(200, 164, 47, 0.15);
+}
+
+.helvi-ui textarea.form-control {
+    min-height: 96px;
+}
+
+.helvi-ui :is(.search-form, .filter-card, .filtros-card) {
+    margin-bottom: 1.25rem;
+    padding: 1rem;
+    border: 1px solid var(--hui-border);
+    border-radius: 13px;
+    background: var(--hui-surface);
+    box-shadow: 0 4px 16px rgba(16, 24, 40, 0.04);
+}
+
+/* Botões. */
+.helvi-ui .btn {
+    min-height: 42px;
+    border-radius: 9px;
+    font-weight: 680;
+}
+
+.helvi-ui .btn-primary,
+.helvi-ui :is(.configuracoes-save, .hui-button--primary) {
+    border-color: var(--hui-gold);
+    color: #17130a;
+    background: var(--hui-gold);
+    box-shadow: 0 5px 12px rgba(148, 112, 12, 0.16);
+}
+
+.helvi-ui .btn-primary:hover,
+.helvi-ui :is(.configuracoes-save, .hui-button--primary):hover {
+    border-color: var(--hui-gold-dark);
+    color: #fff;
+    background: var(--hui-gold-dark);
+}
+
+/* Tabelas e listas. */
+.helvi-ui .table-card {
+    overflow: hidden;
+}
+
+.helvi-ui .table {
+    margin-bottom: 0;
+}
+
+.helvi-ui .table thead {
+    background: var(--hui-surface-muted);
+}
+
+.helvi-ui .table thead th {
+    padding: 0.82rem 1rem;
+    border-bottom: 1px solid var(--hui-border);
+    color: var(--hui-muted);
+    font-size: 0.7rem;
+    font-weight: 780;
+    letter-spacing: 0.045em;
+    text-transform: uppercase;
+}
+
+.helvi-ui .table tbody td {
+    padding: 0.9rem 1rem;
+    border-color: #edf0f3;
+}
+
+.helvi-ui .table tbody tr:hover > * {
+    background: #fffcf4;
+}
+
+.helvi-ui .table a:not(.btn) {
+    color: #7f610c;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+/* Indicadores. */
+.helvi-ui :is(
+    .indicator-card,
+    .stat-card,
+    .dashboard-stat-card,
+    .financeiro-indicador,
+    .estoque-indicador,
+    .hui-stat
+) {
+    border: 1px solid var(--hui-border);
+    border-radius: var(--hui-radius);
+    background: #fff;
+    box-shadow: var(--hui-shadow);
+}
+
+.helvi-ui :is(.indicator-card__icon, .stat-card__icon, .hui-stat__icon) {
+    color: var(--hui-gold-dark);
+    background: var(--hui-gold-soft);
+}
+
+/* Badges e estados. */
+.helvi-ui :is(.badge, [class*="status-"]) {
+    border-radius: 999px;
+    padding: 0.42rem 0.65rem;
+    font-weight: 700;
+}
+
+.helvi-ui :is(.empty-state, .relatorios-empty, .hui-empty) {
+    min-height: 220px;
+    padding: 2.75rem 1.5rem;
+    border: 1px dashed #d9dee5;
+    border-radius: var(--hui-radius);
+    color: var(--hui-muted);
+    background: #fbfcfd;
+    text-align: center;
+}
+
+/* Barras de ação. */
+.helvi-ui :is(
+    .form-actions,
+    .action-bar,
+    .configuracoes-actions,
+    .orcamento-acoes-laterais,
+    .hui-actions
+) {
+    gap: 0.65rem;
+}
+
+.helvi-ui .hui-actions--sticky {
+    position: sticky;
+    z-index: 20;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 1rem 1.2rem;
+    border: 1px solid var(--hui-border);
+    border-radius: 14px 14px 0 0;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 -8px 28px rgba(16, 24, 40, 0.08);
+    backdrop-filter: blur(12px);
+}
+
+@media (max-width: 767.98px) {
+    .helvi-ui :is(
+        .page-header,
+        .ficha-header,
+        .configuracoes-header,
+        .relatorios-header,
+        .financeiro-header,
+        .estoque-header,
+        .dashboard-header
+    ) {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .helvi-ui :is(.page-header, .ficha-header) .btn {
+        width: 100%;
+    }
+
+    .helvi-ui .table-card {
+        overflow-x: auto;
+    }
+}
+
+/* Listagens operacionais ------------------------------------------------ */
+.hui-module-page--compras {
+    width: 100%;
+}
+
+.hui-entity-kpis {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.hui-entity-kpi {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-width: 0;
+    min-height: 118px;
+    padding: 1.2rem;
+    background: #fff;
+    border: 1px solid #e1e5eb;
+    border-top: 3px solid var(--hui-gold, #d3aa24);
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(24, 32, 47, .06);
+}
+
+.hui-entity-kpi__icon {
+    display: grid;
+    place-items: center;
+    flex: 0 0 46px;
+    width: 46px;
+    height: 46px;
+    color: #9a7310;
+    background: #fff7dc;
+    border-radius: 12px;
+    font-size: 1.25rem;
+}
+
+.hui-entity-kpi--success .hui-entity-kpi__icon {
+    color: #087f5b;
+    background: #e6f7ef;
+}
+
+.hui-entity-kpi--warning .hui-entity-kpi__icon {
+    color: #b36b00;
+    background: #fff1d6;
+}
+
+.hui-entity-kpi--muted .hui-entity-kpi__icon {
+    color: #667085;
+    background: #f0f2f5;
+}
+
+.hui-entity-kpi div { min-width: 0; }
+.hui-entity-kpi div > span,
+.hui-entity-kpi small {
+    display: block;
+    color: #667085;
+}
+.hui-entity-kpi div > span {
+    margin-bottom: .2rem;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+.hui-entity-kpi strong {
+    display: block;
+    color: #172033;
+    font-size: clamp(1.3rem, 1.5vw, 1.75rem);
+    line-height: 1.15;
+    white-space: nowrap;
+}
+.hui-entity-kpi small { margin-top: .3rem; font-size: .75rem; }
+
+.hui-entity-filters {
+    margin-bottom: 1rem;
+    padding: 1.2rem;
+    background: #fff;
+    border: 1px solid #e1e5eb;
+    border-left: 3px solid var(--hui-gold, #d3aa24);
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(24, 32, 47, .05);
+}
+
+.hui-entity-filters__heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+.hui-entity-filters__heading h2 { margin: .15rem 0 0; font-size: 1.05rem; }
+.hui-entity-filters__grid {
+    display: grid;
+    grid-template-columns: minmax(280px, 2fr) minmax(180px, 1fr) minmax(180px, 1fr) auto;
+    align-items: end;
+    gap: .85rem;
+}
+.hui-entity-filter label {
+    display: block;
+    margin-bottom: .4rem;
+    color: #344054;
+    font-size: .78rem;
+    font-weight: 700;
+}
+.hui-entity-filter--search i {
+    position: absolute;
+    top: 50%;
+    left: .9rem;
+    z-index: 2;
+    color: #98a2b3;
+    transform: translateY(-50%);
+}
+.hui-entity-filter--search input { padding-left: 2.5rem; }
+.hui-entity-filters__grid > .btn { min-height: 44px; white-space: nowrap; }
+
+.hui-entity-panel {
+    padding: 0;
+    overflow: hidden;
+    border-top: 3px solid var(--hui-gold, #d3aa24);
+}
+.hui-entity-panel .hui-table-heading { padding: 1.2rem 1.25rem; }
+.hui-entity-panel .table-responsive { border-top: 1px solid #e7eaf0; }
+.hui-entity-table { margin: 0; }
+.hui-entity-table th:first-child,
+.hui-entity-table td:first-child { padding-left: 1.25rem; }
+.hui-entity-table th:last-child,
+.hui-entity-table td:last-child { padding-right: 1.25rem; }
+.hui-document-number { color: #8c6910; font-weight: 800; text-decoration: none; }
+.hui-document-number:hover { color: #5f470a; text-decoration: underline; }
+.hui-table-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    color: #667085;
+    border-top: 1px solid #e7eaf0;
+    font-size: .82rem;
+}
+
+@media (max-width: 1199.98px) {
+    .hui-entity-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .hui-entity-filters__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 575.98px) {
+    .hui-entity-kpis,
+    .hui-entity-filters__grid { grid-template-columns: 1fr; }
+    .hui-entity-filters__heading,
+    .hui-table-pagination { align-items: stretch; flex-direction: column; }
+    .hui-entity-kpi { min-height: 104px; }
+}
+
+/* Estruturas compartilhadas: formulários, fichas e confirmações ---------- */
+.hui-form-page,
+.hui-detail-page,
+.hui-report-page {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+}
+
+.hui-form-section,
+.hui-detail-section {
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid var(--hui-border) !important;
+    border-top: 3px solid var(--hui-gold) !important;
+    border-radius: var(--hui-radius) !important;
+    background: var(--hui-surface);
+    box-shadow: var(--hui-shadow) !important;
+}
+
+.hui-detail-section--direct {
+    padding: clamp(1.1rem, 2vw, 1.5rem);
+}
+
+.card.hui-entity-filters > .card-body,
+.card.hui-entity-panel > .card-body.p-0 {
+    padding: 0;
+}
+
+.hui-module-page > .hui-detail-header,
+.hui-module-page > form > .hui-detail-header {
+    position: relative;
+    display: flex;
+    min-height: 118px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    padding: 1.35rem 1.5rem 1.35rem 1.75rem;
+    border: 1px solid var(--hui-border);
+    border-left: 5px solid var(--hui-gold);
+    border-radius: var(--hui-radius);
+    background: linear-gradient(110deg, #fff 0%, #fffdf6 100%);
+    box-shadow: var(--hui-shadow);
+}
+
+.hui-module-page > .hui-detail-header::after,
+.hui-module-page > form > .hui-detail-header::after {
+    position: absolute;
+    top: .85rem;
+    right: 1rem;
+    width: 52px;
+    height: 52px;
+    content: "";
+    border: 8px solid rgba(200, 164, 47, .08);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.hui-detail-header > *,
+.hui-detail-hero > * {
+    position: relative;
+    z-index: 1;
+}
+
+.hui-detail-hero {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    margin-bottom: 1.25rem;
+    padding: clamp(1.15rem, 2vw, 1.55rem);
+    overflow: hidden;
+    border: 1px solid var(--hui-border);
+    border-left: 5px solid var(--hui-gold);
+    border-radius: var(--hui-radius);
+    background: linear-gradient(110deg, #fff 0%, #fffdf6 100%);
+    box-shadow: var(--hui-shadow);
+}
+
+.hui-detail-hero__identity {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 1rem;
+}
+
+.hui-detail-hero__icon {
+    display: grid;
+    width: 54px;
+    height: 54px;
+    flex: 0 0 54px;
+    place-items: center;
+    border: 1px solid #eadca9;
+    border-radius: 15px;
+    color: var(--hui-gold-dark);
+    background: var(--hui-gold-soft);
+    font-size: 1.45rem;
+}
+
+.hui-detail-hero h1,
+.hui-detail-hero h2 {
+    margin: 0;
+    color: var(--hui-ink);
+    font-size: clamp(1.45rem, 2vw, 1.9rem);
+    font-weight: 780;
+    letter-spacing: -.035em;
+}
+
+.hui-detail-hero p {
+    margin: .35rem 0 0;
+    color: var(--hui-muted);
+}
+
+.hui-detail-hero__actions {
+    display: flex;
+    flex: 0 0 auto;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: .65rem;
+}
+
+.hui-detail-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(280px, .8fr);
+    align-items: start;
+    gap: 1.25rem;
+}
+
+.hui-detail-layout > * {
+    min-width: 0;
+}
+
+.hui-detail-media {
+    display: grid;
+    min-height: 230px;
+    place-items: center;
+    overflow: hidden;
+    border: 1px solid var(--hui-border);
+    border-radius: 13px;
+    background: var(--hui-surface-muted);
+}
+
+.hui-product-photo {
+    display: block;
+    width: 100%;
+    max-height: 330px;
+    object-fit: contain;
+}
+
+.hui-product-photo--empty {
+    display: grid;
+    gap: .55rem;
+    place-items: center;
+    color: var(--hui-muted);
+    text-align: center;
+}
+
+.hui-product-photo--empty i {
+    color: var(--hui-gold-dark);
+    font-size: 2.2rem;
+}
+
+.hui-image-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.hui-table-thumbnail {
+    width: 58px;
+    height: 58px;
+    object-fit: cover;
+    border: 1px solid var(--hui-border);
+    border-radius: 9px;
+}
+
+.hui-detail-note {
+    margin: 0;
+    padding: 1rem;
+    border-left: 3px solid var(--hui-gold);
+    border-radius: 0 10px 10px 0;
+    color: var(--hui-muted);
+    background: var(--hui-gold-soft);
+    line-height: 1.55;
+}
+
+.hui-confirmation-page {
+    display: grid;
+    min-height: min(520px, calc(100vh - 180px));
+    place-items: center;
+}
+
+.hui-confirmation-card {
+    width: min(100%, 700px);
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    border: 1px solid var(--hui-border);
+    border-top: 4px solid var(--hui-gold);
+    border-radius: var(--hui-radius);
+    background: #fff;
+    box-shadow: var(--hui-shadow);
+    text-align: center;
+}
+
+.hui-confirmation-card__icon {
+    display: grid;
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 1rem;
+    place-items: center;
+    border-radius: 18px;
+    color: var(--hui-gold-dark);
+    background: var(--hui-gold-soft);
+    font-size: 1.65rem;
+}
+
+.hui-confirmation-card h1 {
+    margin: 0;
+    font-size: clamp(1.45rem, 2.4vw, 1.9rem);
+}
+
+.hui-confirmation-card p {
+    max-width: 520px;
+    margin: .65rem auto 0;
+    color: var(--hui-muted);
+    line-height: 1.55;
+}
+
+.hui-confirmation-card__actions {
+    display: flex;
+    justify-content: center;
+    gap: .65rem;
+    margin-top: 1.5rem;
+}
+
+.hui-purchase-summary {
+    display: grid;
+    gap: .65rem;
+}
+
+.hui-summary-line,
+.hui-summary-total {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.hui-summary-line {
+    padding-bottom: .65rem;
+    border-bottom: 1px solid #edf0f3;
+    color: var(--hui-muted);
+}
+
+.hui-summary-total {
+    padding-top: .25rem;
+    color: var(--hui-ink);
+    font-size: 1.08rem;
+}
+
+.hui-form-actions--panel {
+    margin-top: 1.25rem;
+    padding: 1rem 1.2rem;
+    border: 1px solid var(--hui-border);
+    border-radius: 13px;
+    background: #fff;
+    box-shadow: 0 6px 20px rgba(16, 24, 40, .05);
+}
+
+.hui-quantity-input {
+    width: 86px;
+    min-width: 70px;
+}
+
+@media (max-width: 991.98px) {
+    .hui-detail-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .hui-module-page > .hui-detail-header,
+    .hui-module-page > form > .hui-detail-header,
+    .hui-detail-hero {
+        min-height: 0;
+        align-items: stretch;
+        flex-direction: column;
+        padding: 1.15rem;
+    }
+
+    .hui-detail-hero__actions,
+    .hui-confirmation-card__actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .hui-detail-hero__actions .btn,
+    .hui-confirmation-card__actions .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .hui-detail-hero__identity {
+        align-items: flex-start;
+    }
+
+    .hui-image-gallery {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Card de título oficial. Mantido no fim para prevalecer sobre legados. */
+.helvi-ui .hui-module-page > .hui-page-header {
+    position: relative;
+    display: flex;
+    width: 100%;
+    min-height: 118px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    padding: 1.35rem 1.5rem 1.35rem 1.75rem;
+    overflow: hidden;
+    border: 1px solid var(--hui-border);
+    border-left: 5px solid var(--hui-gold);
+    border-radius: var(--hui-radius);
+    background: linear-gradient(110deg, #fff 0%, #fffdf6 100%);
+    box-shadow: var(--hui-shadow);
+}
+
+.helvi-ui .hui-module-page > .hui-page-header > * {
+    position: relative;
+    z-index: 1;
+}
+
+.helvi-ui .hui-module-page > .hui-page-header::after {
+    position: absolute;
+    z-index: 0;
+    top: .85rem;
+    right: 1rem;
+    display: block;
+    width: 52px;
+    height: 52px;
+    content: "";
+    border: 8px solid rgba(200, 164, 47, .08);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.helvi-ui .hui-page-header:has(.hui-page-header__eyebrow) h1::before {
+    display: none;
+}
+
+@media (max-width: 767.98px) {
+    .helvi-ui .hui-module-page > .hui-page-header {
+        min-height: 0;
+        align-items: stretch;
+        flex-direction: column;
+        padding: 1.15rem;
+    }
+
+    .helvi-ui .hui-module-page > .hui-page-header .btn {
+        width: 100%;
+    }
+}

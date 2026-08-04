@@ -1,10 +1,7 @@
-from django.db.models import F, Q, Sum
-from django.urls import reverse
+from django.db.models import F, Sum
 
 from estoque.models import MovimentacaoEstoque
 from produtos.models import Produto
-from django.core.exceptions import ValidationError
-from django.db import transaction
 
 
 def listar_movimentacoes_estoque(
@@ -103,37 +100,4 @@ def obter_acoes_dashboard():
             "cor": "outline-secondary",
             "url": "/estoque/inventarios/",
         },
-        {
-            "titulo": "Transferência (Em breve)",
-            "icone": "bi-arrow-left-right",
-            "url": "#",
-        },
     ]
-
-
-@transaction.atomic
-def ajustar_estoque(produto, quantidade_correta, usuario, motivo="", observacao=""):
-    estoque_atual = produto.estoque_atual or 0
-    diferenca = quantidade_correta - estoque_atual
-
-    if diferenca == 0:
-        raise ValidationError("A quantidade informada é igual ao estoque atual.")
-
-    if diferenca > 0:
-        tipo = MovimentacaoEstoque.TipoMovimentacao.ENTRADA
-        quantidade = diferenca
-    else:
-        tipo = MovimentacaoEstoque.TipoMovimentacao.SAIDA
-        quantidade = abs(diferenca)
-
-    MovimentacaoEstoque.objects.create(
-        produto=produto,
-        tipo=tipo,
-        quantidade=quantidade,
-        usuario=usuario,
-        motivo=motivo,
-        observacao=observacao,
-    )
-
-    produto.estoque_atual = quantidade_correta
-    produto.save(update_fields=["estoque_atual"])

@@ -1,31 +1,6 @@
 {% extends "core/base.html" %}
-
-{% block title %}Reativar Gênero{% endblock %}
-
+{% block title %}Reativar Gênero | ERP Helvi{% endblock %}
 {% block content %}
-
-{% include "components/layout/page_header.html" with titulo="Reativar Gênero" subtitulo="Confirme a reativação do gênero." %}
-
-<div class="form-card">
-    <p>
-        Deseja realmente reativar o gênero
-        <strong>{{ genero.nome }}</strong>?
-    </p>
-
-    <form method="post">
-        {% csrf_token %}
-
-        <div class="form-actions">
-            <a href="{% url 'catalogo:lista_generos' %}" class="btn btn-secondary">
-                Cancelar
-            </a>
-
-            <button type="submit" class="btn btn-success">
-                <i class="bi bi-check-circle"></i>
-                Reativar
-            </button>
-        </div>
-    </form>
-</div>
-
+    {% url "catalogo:lista_generos" as cancelar_url %}
+    {% include "components/states/confirmation_page.html" with titulo="Reativar gênero" subtitulo="Revise os dados antes de continuar." pergunta="Deseja reativar este gênero?" descricao="Ele voltará a ficar disponível nos cadastros de produtos." objeto=genero.nome cancelar_url=cancelar_url tom="success" icone="bi-check-circle" botao_icone="bi-check-circle" botao_texto="Reativar gênero" %}
 {% endblock %}

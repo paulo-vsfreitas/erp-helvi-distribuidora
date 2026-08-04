@@ -3,34 +3,11 @@
 {% block title %}Relatório de Vendas | ERP Helvi{% endblock %}
 
 {% block content %}
+<div class="hui-module-page hui-module-page--vendas hui-report-page">
+{% url "vendas:lista" as voltar_url %}
+{% include "components/layout/page_header.html" with titulo="Relatório de vendas" subtitulo="Analise desempenho comercial, recebimentos e produtos vendidos." botao_url=voltar_url botao_texto="Voltar às vendas" botao_icon="bi bi-arrow-left" %}
 
-<div class="page-header">
-    <div>
-        <h1>Relatório de Vendas</h1>
-        <p>
-            Analise o desempenho comercial, os recebimentos
-            e os produtos vendidos.
-        </p>
-    </div>
-
-    <div class="d-flex gap-2">
-        <a
-            href="{% url 'vendas:lista' %}"
-            class="btn btn-outline-secondary"
-        >
-            Voltar
-        </a>
-
-        <a
-            href="{% url 'vendas:nova' %}"
-            class="btn btn-primary"
-        >
-            Nova Venda
-        </a>
-    </div>
-</div>
-
-<div class="card mb-4">
+<div class="card mb-4 hui-entity-filters">
     <div class="card-body">
         <form method="get">
             {% if form.non_field_errors %}
@@ -97,7 +74,7 @@
                 </div>
             </div>
 
-            <div class="d-flex justify-content-end gap-2 mt-3">
+            <div class="hui-form-actions">
                 <a
                     href="{% url 'vendas:relatorio' %}"
                     class="btn btn-outline-secondary"
@@ -118,7 +95,7 @@
 
 {% include "components/dashboard/kpi_cards.html" with kpis=kpis %}
 
-<div class="card mb-4">
+<div class="card mb-4 hui-entity-panel">
     <div class="card-header">
         <strong>Vendas encontradas</strong>
     </div>
@@ -317,7 +294,7 @@
                 <li class="page-item">
                     <a
                         class="page-link"
-                        href="?pagina={{ pagina.previous_page_number }}"
+                        href="?{% if querystring %}{{ querystring }}&{% endif %}pagina={{ pagina.previous_page_number }}"
                     >
                         Anterior
                     </a>
@@ -335,7 +312,7 @@
                 <li class="page-item">
                     <a
                         class="page-link"
-                        href="?pagina={{ pagina.next_page_number }}"
+                        href="?{% if querystring %}{{ querystring }}&{% endif %}pagina={{ pagina.next_page_number }}"
                     >
                         Próxima
                     </a>
@@ -344,5 +321,6 @@
         </ul>
     </nav>
 {% endif %}
+</div>
 
 {% endblock %}

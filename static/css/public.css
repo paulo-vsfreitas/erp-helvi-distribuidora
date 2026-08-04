@@ -78,6 +78,18 @@ body {
     line-height: 1.4;
 }
 
+.auth-alert-info {
+    color: #176b87;
+    background: #eaf7fb;
+}
+
+.auth-field-error {
+    margin-top: 7px;
+    color: var(--helvi-error-text);
+    font-size: 13px;
+    line-height: 1.4;
+}
+
 .auth-form {
     display: flex;
     flex-direction: column;
@@ -139,6 +151,13 @@ body {
 .auth-button:hover {
     background: var(--helvi-primary-dark);
     transform: translateY(-1px);
+}
+
+.auth-button-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
 }
 
 .auth-forgot {

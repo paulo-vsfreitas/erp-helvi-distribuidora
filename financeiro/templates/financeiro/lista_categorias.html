@@ -3,13 +3,13 @@
 {% block title %}Categorias Financeiras | ERP Helvi{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
+<div class="hui-module-page hui-module-page--financeiro">
 
     {% url "financeiro:nova_categoria" as nova_categoria_url %}
 
     {% include "components/layout/page_header.html" with titulo="Categorias financeiras" subtitulo="Classifique receitas e despesas utilizadas nas rotinas financeiras." botao_url=nova_categoria_url botao_texto="Nova categoria" botao_icon="bi bi-plus-circle" %}
 
-    <div class="card shadow-sm border-0 mb-4">
+    <div class="card hui-entity-filters mb-4">
         <div class="card-body">
 
             <form method="get" class="row g-3 align-items-end">
@@ -99,7 +99,7 @@
         </div>
     </div>
 
-    <div class="card shadow-sm border-0">
+    <div class="card hui-entity-panel">
         <div class="card-body p-0">
 
             {% if categorias %}

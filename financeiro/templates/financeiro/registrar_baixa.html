@@ -4,9 +4,9 @@
 
 {% block content %}
 
-<div class="container-fluid">
+<div class="hui-module-page hui-module-page--financeiro hui-form-page">
 
-<div class="mb-4">
+<div class="hui-detail-header mb-4">
     <a
         href="{% url 'financeiro:ficha_conta_pagar' conta.pk %}"
         class="btn btn-outline-secondary btn-sm mb-3"
@@ -26,7 +26,7 @@
 <div class="row g-4">
 
     <div class="col-12 col-xl-8">
-        <div class="card shadow-sm border-0">
+        <div class="card hui-form-section">
             <div class="card-body p-4">
 
                 <form method="post" novalidate>
@@ -180,7 +180,7 @@
 
                     </div>
 
-                    <div class="d-flex justify-content-end gap-2 mt-4">
+                    <div class="hui-form-actions">
                         <a
                             href="{% url 'financeiro:ficha_conta_pagar' conta.pk %}"
                             class="btn btn-outline-secondary"
@@ -204,7 +204,7 @@
     </div>
 
     <div class="col-12 col-xl-4">
-        <div class="card shadow-sm border-0">
+        <div class="card hui-detail-section">
             <div class="card-body p-4">
 
                 <h5 class="mb-3">Resumo da parcela</h5>

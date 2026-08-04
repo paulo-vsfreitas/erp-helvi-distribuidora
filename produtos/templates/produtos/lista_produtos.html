@@ -4,6 +4,8 @@
 
 {% block content %}
 
+<div class="hui-module-page hui-module-page--produtos">
+
 {% url 'produtos:novo_produto' as novo_produto_url %}
 
 {% include "components/layout/page_header.html" with titulo="Produtos" subtitulo="Gerencie as armações cadastradas no ERP Helvi." botao_url=novo_produto_url botao_texto="Novo Produto" botao_icon="bi bi-plus-circle" %}
@@ -68,6 +70,10 @@
 </div>
 
 <div class="table-card">
+    <header class="hui-table-heading">
+        <div><span class="hui-table-heading__eyebrow">Catálogo</span><h2>Produtos cadastrados</h2><p>Consulte estoque, preço e situação de cada armação.</p></div>
+        <span class="hui-count-badge">{{ produtos|length }} produtos</span>
+    </header>
     <table class="table">
         <thead>
             <tr>
@@ -173,15 +179,21 @@
                         </a>
 
                         {% if produto.ativo %}
-                            <a href="{% url 'produtos:inativar_produto' produto.id %}" class="action-link action-danger">
-                                <i class="bi bi-slash-circle"></i>
-                                Inativar
-                            </a>
+                            <form method="post" action="{% url 'produtos:inativar_produto' produto.id %}" class="action-form">
+                                {% csrf_token %}
+                                <button type="submit" class="action-link action-danger">
+                                    <i class="bi bi-slash-circle"></i>
+                                    Inativar
+                                </button>
+                            </form>
                         {% else %}
-                            <a href="{% url 'produtos:reativar_produto' produto.id %}" class="action-link action-edit">
-                                <i class="bi bi-check-circle"></i>
-                                Reativar
-                            </a>
+                            <form method="post" action="{% url 'produtos:reativar_produto' produto.id %}" class="action-form">
+                                {% csrf_token %}
+                                <button type="submit" class="action-link action-edit">
+                                    <i class="bi bi-check-circle"></i>
+                                    Reativar
+                                </button>
+                            </form>
                         {% endif %}
                     </td>
                 </tr>
@@ -194,6 +206,8 @@
             {% endfor %}
         </tbody>
     </table>
+</div>
+
 </div>
 
 {% endblock %}

@@ -1,0 +1,159 @@
+<div class="modal fade"
+     id="modalWhatsapp"
+     tabindex="-1"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+
+                    <i class="bi bi-whatsapp text-success me-2"></i>
+
+                    Compartilhar via WhatsApp
+
+                </h5>
+
+                <button
+                    class="btn-close"
+                    data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+            <div class="modal-body">
+
+                {% include "comercial/components/compartilhar/resumo_orcamento.html" %}
+
+                <div class="mb-3">
+
+                    <label class="form-label">
+                        Telefone
+                    </label>
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="whatsappTelefone"
+                        value="{{ orcamento.cliente_telefone }}">
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label class="form-label">
+                        Mensagem
+                    </label>
+
+                    <textarea
+                        class="form-control"
+                        rows="8"
+                        id="whatsappMensagem">Olá {{ orcamento.cliente_nome }},
+
+                        Segue o orçamento {{ orcamento.codigo }}.
+
+                        Valor total: R$ {{ orcamento.total }}
+
+                        Qualquer dúvida estou à disposição.
+
+                        Equipe Helvi.
+                    </textarea>
+
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+
+                        <small class="text-muted">
+                            A mensagem pode ser editada antes do envio.
+                        </small>
+
+                        <small
+                            id="contadorMensagem"
+                            class="text-muted fw-semibold">
+
+                            0 caracteres
+
+                        </small>
+
+                    </div>
+
+                </div>
+
+                <div class="form-check">
+                    <input
+                        checked
+                        class="form-check-input"
+                        type="checkbox"
+                        id="abrirPdf"
+                        data-download-url="{% url 'comercial:baixar_pdf' orcamento.numero %}"
+                    >
+
+                    <label
+                        class="form-check-label"
+                        for="abrirPdf"
+                    >
+                        Baixar o PDF para anexar no WhatsApp
+                    </label>
+                </div>
+
+                <div class="form-text">
+                    O WhatsApp não permite anexar arquivos automaticamente.
+                    O PDF será salvo na pasta Downloads.
+                </div>
+
+            </div>
+
+            <div class="modal-footer justify-content-between">
+
+                <button
+                    type="button"
+                    id="btnCopiarMensagem"
+                    class="btn btn-outline-secondary">
+
+                    <i class="bi bi-clipboard"></i>
+
+                    Copiar mensagem
+
+                </button>
+
+                <button
+                    type="button"
+                    id="btnRestaurarMensagem"
+                    class="btn btn-outline-warning ms-2">
+
+                    <i class="bi bi-arrow-counterclockwise"></i>
+
+                    Restaurar padrão
+
+                </button>
+
+                <div>
+
+                    <button
+                        class="btn btn-outline-secondary"
+                        data-bs-dismiss="modal">
+
+                        Cancelar
+
+                    </button>
+
+                    <button
+                        id="btnWhatsapp"
+                        class="btn btn-success">
+
+                        <i class="bi bi-whatsapp"></i>
+
+                        Abrir WhatsApp Web
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

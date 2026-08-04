@@ -4,7 +4,7 @@
 {% block title %}{{ titulo }} | ERP Helvi{% endblock %}
 
 {% block content %}
-
+<div class="hui-module-page hui-module-page--fornecedores hui-form-page">
 
 {% include "components/ui/page_header.html" with titulo=titulo subtitulo=subtitulo %}
 
@@ -19,7 +19,7 @@
         </div>
     {% endif %}
 
-    <div class="table-card mb-4">
+    <div class="table-card mb-4 hui-form-section">
         <div class="table-card__header">
             <div>
                 <h2>Identificação</h2>
@@ -82,7 +82,7 @@
         </div>
     </div>
 
-    <div class="table-card mb-4">
+    <div class="table-card mb-4 hui-form-section">
         <div class="table-card__header">
             <div>
                 <h2>Contato</h2>
@@ -137,7 +137,7 @@
         </div>
     </div>
 
-    <div class="table-card mb-4">
+    <div class="table-card mb-4 hui-form-section">
         <div class="table-card__header">
             <div>
                 <h2>Endereço</h2>
@@ -208,7 +208,7 @@
         </div>
     </div>
 
-    <div class="table-card mb-4">
+    <div class="table-card mb-4 hui-form-section">
         <div class="table-card__header">
             <div>
                 <h2>Condições comerciais</h2>
@@ -268,7 +268,7 @@
             Cancelar
         </a>
 
-    '    <button type="submit" class="btn btn-primary">
+        <button type="submit" class="btn btn-primary">
             <i class="bi bi-check-lg"></i>
 
             {% if fornecedor %}
@@ -276,10 +276,11 @@
             {% else %}
                 Salvar fornecedor
             {% endif %}
-        </button>'
+        </button>
     </div>
 
 </form>
+</div>
 
 {% endblock %}
 

@@ -1,5 +1,10 @@
 .sidebar{
+    position:sticky;
+    top:0;
     width:var(--sidebar-width);
+    height:100vh;
+    flex:0 0 var(--sidebar-width);
+    overflow-y:auto;
     background:var(--black);
     color:var(--white);
     padding:25px 20px;
@@ -18,12 +23,14 @@
 }
 
 .menu a{
-    display:block;
-    color:var(--white);
+    display:flex;
+    align-items:center;
+    gap:.75rem;
+    color:#d5d7da;
     text-decoration:none;
     padding:13px 15px;
     border-radius:10px;
-    margin-bottom:8px;
+    margin-bottom:4px;
     transition:var(--transition);
 }
 
@@ -45,4 +52,15 @@
     opacity: .65;
     cursor: not-allowed;
     pointer-events: none;
+}
+
+.menu a i{
+    width:1.15rem;
+    color:#d9b84d;
+    font-size:1rem;
+    text-align:center;
+}
+
+.menu a:hover i{
+    color:var(--black);
 }

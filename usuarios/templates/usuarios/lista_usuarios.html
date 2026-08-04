@@ -5,14 +5,14 @@
 {% endblock %}
 
 {% block content %}
+<div class="hui-module-page hui-module-page--usuarios">
 
     {% url "usuarios:novo_usuario" as novo_usuario_url %}
 
     {% include "components/layout/page_header.html" with titulo="Usuários" subtitulo="Gerencie os usuários do ERP Helvi." botao_url=novo_usuario_url botao_texto="Novo Usuário" botao_icon="bi bi-plus-circle" %}
 
-    <form method="get" class="card search-form">
-
-       <div class="table-card">
+    <section class="table-card hui-users-panel">
+    <header class="hui-table-heading"><div><span class="hui-table-heading__eyebrow">Acesso e segurança</span><h2>Equipe cadastrada</h2><p>Gerencie perfis, contatos e situação dos acessos.</p></div><span class="hui-count-badge">{{ usuarios|length }} usuários</span></header>
     <table class="table">
         <thead>
             <tr>
@@ -85,15 +85,21 @@
                         </a>
 
                         {% if usuario.is_active %}
-                            <a href="{% url 'usuarios:inativar_usuario' usuario.id %}" class="action-link action-danger">
-                                <i class="bi bi-slash-circle"></i>
-                                Inativar
-                            </a>
+                            <form method="post" action="{% url 'usuarios:inativar_usuario' usuario.id %}" class="action-form">
+                                {% csrf_token %}
+                                <button type="submit" class="action-link action-danger">
+                                    <i class="bi bi-slash-circle"></i>
+                                    Inativar
+                                </button>
+                            </form>
                         {% else %}
-                            <a href="{% url 'usuarios:reativar_usuario' usuario.id %}" class="action-link action-edit">
-                                <i class="bi bi-check-circle"></i>
-                                 Reativar
-                            </a>
+                            <form method="post" action="{% url 'usuarios:reativar_usuario' usuario.id %}" class="action-form">
+                                {% csrf_token %}
+                                <button type="submit" class="action-link action-edit">
+                                    <i class="bi bi-check-circle"></i>
+                                    Reativar
+                                </button>
+                            </form>
                         {% endif %}
                     </td>
                 </tr>
@@ -106,7 +112,7 @@
             {% endfor %}
         </tbody>
     </table>
+    </section>
 </div>
-    </form>
 
 {% endblock %}

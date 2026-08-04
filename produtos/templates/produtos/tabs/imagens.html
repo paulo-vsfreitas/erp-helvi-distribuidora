@@ -78,10 +78,13 @@
                     <td>{{ imagem.data_cadastro|date:"d/m/Y" }}</td>
 
                     <td class="table-actions">
-                        <a href="{% url 'produtos:excluir_imagem_produto' imagem.id %}" class="action-link action-danger">
-                            <i class="bi bi-trash"></i>
-                            Excluir
-                        </a>
+                        <form method="post" action="{% url 'produtos:excluir_imagem_produto' imagem.id %}" class="action-form">
+                            {% csrf_token %}
+                            <button type="submit" class="action-link action-danger">
+                                <i class="bi bi-trash"></i>
+                                Excluir
+                            </button>
+                        </form>
                     </td>
                 </tr>
             {% empty %}

@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.http import require_POST
 
 from produtos.forms import ImagemProdutoForm, ProdutoForm
 from produtos.models import ImagemProduto, Produto
@@ -123,20 +124,22 @@ def editar_produto(request, produto_id):
 
 
 @login_required
+@require_POST
 def inativar_produto(request, produto_id):
     produto = get_object_or_404(Produto, pk=produto_id)
     produto.ativo = False
-    produto.save()
+    produto.save(update_fields=["ativo"])
 
     messages.success(request, "Produto inativado com sucesso.")
     return redirect("produtos:lista_produtos")
 
 
 @login_required
+@require_POST
 def reativar_produto(request, produto_id):
     produto = get_object_or_404(Produto, pk=produto_id)
     produto.ativo = True
-    produto.save()
+    produto.save(update_fields=["ativo"])
 
     messages.success(request, "Produto reativado com sucesso.")
     return redirect("produtos:lista_produtos")
@@ -173,6 +176,7 @@ def galeria_produto(request, produto_id):
 
 
 @login_required
+@require_POST
 def excluir_imagem_produto(request, imagem_id):
     imagem = get_object_or_404(ImagemProduto, pk=imagem_id)
     produto = imagem.produto

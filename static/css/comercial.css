@@ -1301,3 +1301,157 @@
         min-height: 105px;
     }
 }
+
+/* ==========================================================
+   FILTROS DO DASHBOARD COMERCIAL
+   ========================================================== */
+
+.comercial-kpi-link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.comercial-kpi-link:hover,
+.comercial-kpi-link:focus-visible {
+    color: inherit;
+    text-decoration: none;
+    transform: translateY(-2px);
+}
+
+.comercial-kpi-link:focus-visible,
+.comercial-kpi-active {
+    outline: 3px solid rgba(200, 164, 47, 0.35);
+    border-color: #c8a42f;
+}
+
+/* ==========================================================
+   TIMELINE DO ORÇAMENTO
+   ========================================================== */
+
+.orcamento-timeline {
+    position: relative;
+    padding-left: 0.25rem;
+}
+
+.orcamento-timeline::before {
+    position: absolute;
+    top: 26px;
+    bottom: 26px;
+    left: 23px;
+    width: 3px;
+    content: "";
+    border-radius: 999px;
+    background: #d8dde5;
+}
+
+.orcamento-timeline-item {
+    position: relative;
+    display: flex;
+    gap: 1rem;
+    padding-bottom: 1.25rem;
+}
+
+.orcamento-timeline-item:last-child {
+    padding-bottom: 0;
+}
+
+.orcamento-timeline-icon {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex: 0 0 48px;
+    width: 48px;
+    height: 48px;
+    align-items: center;
+    justify-content: center;
+    border: 4px solid #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 3px 10px rgba(17, 24, 39, 0.14);
+    font-size: 1.1rem;
+}
+
+.orcamento-timeline-content {
+    min-width: 0;
+    flex: 1;
+    padding: 1rem 1.15rem;
+    border: 1px solid #dde2e9;
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 4px 14px rgba(17, 24, 39, 0.06);
+}
+
+.orcamento-timeline-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.4rem;
+}
+
+.orcamento-timeline-header strong {
+    color: #111827;
+    font-size: 0.98rem;
+    font-weight: 700;
+}
+
+.orcamento-timeline-header time {
+    flex-shrink: 0;
+    color: #4b5563;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.orcamento-timeline-content p {
+    margin: 0;
+    color: #374151;
+    font-size: 0.9rem;
+    line-height: 1.55;
+}
+
+.timeline-evento-primary {
+    color: #1d4ed8;
+    background: #dbeafe;
+}
+
+.timeline-evento-info {
+    color: #0369a1;
+    background: #dff3ff;
+}
+
+.timeline-evento-success {
+    color: #15803d;
+    background: #dcfce7;
+}
+
+.timeline-evento-danger {
+    color: #b91c1c;
+    background: #fee2e2;
+}
+
+.timeline-evento-dark {
+    color: #1f2937;
+    background: #e5e7eb;
+}
+
+.orcamento-timeline-item:hover
+.orcamento-timeline-content {
+    border-color: #c8a42f;
+    box-shadow: 0 6px 18px rgba(17, 24, 39, 0.1);
+    transform: translateY(-1px);
+    transition: 0.2s ease;
+}
+
+@media (max-width: 767.98px) {
+    .orcamento-timeline-header {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .orcamento-timeline-header time {
+        flex-shrink: 1;
+    }
+
+    .orcamento-timeline-content {
+        padding: 0.9rem;
+    }
+}

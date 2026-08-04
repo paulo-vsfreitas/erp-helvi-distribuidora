@@ -640,11 +640,20 @@ def obter_dados_ficha_conta_receber(conta_id):
 
         historicos_exibicao.append(historico)
 
-    valor_movimentado = (
-        movimentacoes
-        .filter(estornada=False)
-        .aggregate(total=Sum("valor"))["total"]
-        or Decimal("0.00")
+    totais_movimentados = movimentacoes.filter(estornada=False).aggregate(
+        entradas=Sum(
+            "valor",
+            filter=Q(tipo=MovimentacaoFinanceira.TIPO_ENTRADA),
+        ),
+        estornos=Sum(
+            "valor",
+            filter=Q(tipo=MovimentacaoFinanceira.TIPO_ESTORNO_ENTRADA),
+        ),
+    )
+    valor_movimentado = max(
+        (totais_movimentados["entradas"] or Decimal("0.00"))
+        - (totais_movimentados["estornos"] or Decimal("0.00")),
+        Decimal("0.00"),
     )
 
     cards = [

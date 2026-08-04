@@ -3,17 +3,17 @@
 {% block title %}Estoque | ERP Helvi{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
+<div class="container-fluid hui-module-page hui-module-page--estoque">
 
-    <div class="mb-4">
-        <h2 class="mb-1">Estoque</h2>
-        <p class="text-muted mb-0">Painel operacional do módulo de estoque.</p>
-    </div>
+    <header class="page-header hui-page-header">
+        <div><h1>Estoque</h1><p>Painel operacional, saldos e movimentações de produtos.</p></div>
+        <a href="{% url 'estoque:lista_movimentacoes' %}" class="btn btn-outline-secondary"><i class="bi bi-list-ul"></i> Movimentações</a>
+    </header>
 
     <div class="row mb-4">
         {% for card in cards %}
         <div class="col-md-3">
-            <div class="card shadow-sm border-0">
+            <div class="card hui-stat-card h-100">
                 <div class="card-body">
                     <div class="text-muted small">{{ card.titulo }}</div>
                     <h3 class="mb-0">{{ card.valor }}</h3>
@@ -23,7 +23,7 @@
         {% endfor %}
     </div>
 
-    <div class="card shadow-sm border-0 mb-4">
+    <div class="card hui-card mb-4">
         <div class="card-body">
             <h5 class="mb-3">Ações rápidas</h5>
 
@@ -43,7 +43,7 @@
         </div>
     </div>
 
-    <div class="card shadow-sm border-0">
+    <div class="card hui-card">
         <div class="card-body">
             <h5 class="mb-3">Últimas movimentações</h5>
 
