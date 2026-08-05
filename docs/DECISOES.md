@@ -87,8 +87,15 @@ Cliente ou interessado
 
 - perfis oficiais: ADM, GER, VEN e FIN;
 - permissões por módulo vêm de uma matriz central;
+- ações sensíveis possuem autorização granular no backend, além da visibilidade
+  dos botões na interface;
+- Vendedor consulta Estoque, Produtos e Catálogo, sem alterar seus registros;
+- cancelamento de venda pode ser solicitado por qualquer perfil, mas exige
+  credenciais válidas de Administrador e registra solicitante e autorizador;
 - novos usuários cadastrados no ERP devem trocar a senha no primeiro acesso;
 - inativação é preferível à exclusão de usuário com histórico.
+- autenticação limita tentativas repetidas sem revelar se uma conta existe;
+- auditoria de login nunca armazena senhas e seus eventos são somente leitura.
 
 ## Framework
 

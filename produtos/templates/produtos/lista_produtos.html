@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-{% load moeda %}
+{% load moeda permissoes_tags %}
 
 {% block title %}Produtos | ERP Helvi{% endblock %}
 
@@ -8,8 +8,13 @@
 <div class="hui-module-page hui-module-page--produtos">
 
 {% url 'produtos:novo_produto' as novo_produto_url %}
+{% pode_executar request.user "produtos.gerenciar" as pode_gerenciar_produtos %}
 
+{% if pode_gerenciar_produtos %}
 {% include "components/layout/page_header.html" with titulo="Produtos" subtitulo="Gerencie as armações cadastradas no ERP Helvi." botao_url=novo_produto_url botao_texto="Novo Produto" botao_icon="bi bi-plus-circle" %}
+{% else %}
+{% include "components/layout/page_header.html" with titulo="Produtos" subtitulo="Consulte as armações cadastradas no ERP Helvi." %}
+{% endif %}
 
 <form method="get" class="card search-form">
     <label for="busca">
@@ -161,7 +166,7 @@
                             Ficha
                         </a>
 
-                        <a href="{% url 'produtos:editar_produto' produto.id %}" class="btn btn-sm btn-outline-secondary">
+                        {% if pode_gerenciar_produtos %}<a href="{% url 'produtos:editar_produto' produto.id %}" class="btn btn-sm btn-outline-secondary">
                             <i class="bi bi-pencil-square"></i>
                             Editar
                         </a>
@@ -182,7 +187,7 @@
                                     Reativar
                                 </button>
                             </form>
-                        {% endif %}
+                        {% endif %}{% endif %}
                     </td>
                 </tr>
             {% empty %}

@@ -29,6 +29,9 @@ Cliente cadastrado ou interessado avulso
 - ficha e PDF;
 - PDF institucional no mesmo padrão da venda, com logo, dados da empresa e do
   cliente, vendedor, validade, entrega, cores, totais, observações e assinaturas;
+- resumo quantitativo no PDF com produtos distintos, itens/variações e peças;
+- cabeçalho institucional compartilhado distribui contatos e redes sociais sem
+  cortar identificadores longos;
 - duplicação;
 - status rascunho, enviado, aprovado, rejeitado, cancelado e convertido;
 - histórico de compartilhamentos;

@@ -210,6 +210,10 @@ class Orcamento(models.Model):
         return self.itens.count()
 
     @property
+    def quantidade_produtos(self):
+        return len({item.produto_id for item in self.itens.all()})
+
+    @property
     def quantidade_pecas(self):
         return sum(
             item.quantidade

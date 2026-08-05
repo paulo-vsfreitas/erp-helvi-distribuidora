@@ -4,7 +4,12 @@ from configuracoes.services.empresa_service import obter_empresa
 from core.pdf import colors
 
 
-def draw_footer(canvas, doc):
+def draw_footer(
+    canvas,
+    doc,
+    *,
+    exibir_data_emissao=True,
+):
     """
     Desenha o rodapé institucional em todas as páginas do PDF.
     """
@@ -40,15 +45,16 @@ def draw_footer(canvas, doc):
         f"Documento emitido automaticamente pelo ERP Helvi | {nome_empresa}",
     )
 
-    emitido_em = timezone.localtime().strftime(
-        "%d/%m/%Y às %H:%M"
-    )
+    if exibir_data_emissao:
+        emitido_em = timezone.localtime().strftime(
+            "%d/%m/%Y às %H:%M"
+        )
 
-    canvas.drawCentredString(
-        largura_pagina / 2,
-        9,
-        emitido_em,
-    )
+        canvas.drawCentredString(
+            largura_pagina / 2,
+            9,
+            emitido_em,
+        )
 
     canvas.drawRightString(
         margem_direita,

@@ -1,11 +1,17 @@
 from pathlib import Path
+from html import escape
 
 from django.conf import settings
 from reportlab.graphics.shapes import Circle, Drawing, Rect, String
 from reportlab.lib import colors
+from reportlab.lib.units import mm
 from reportlab.platypus import Image, Paragraph, Table, TableStyle
 
 from core.pdf.styles import TEXT
+
+
+LARGURA_CANAIS = 136 * mm
+LARGURA_COLUNA = LARGURA_CANAIS / 2
 
 
 def _whatsapp_icon():
@@ -44,17 +50,35 @@ def build_social_channels(empresa):
         return None
 
     celulas = []
-    larguras = []
     for icone, texto in canais:
-        celulas.extend([icone, Paragraph(texto, TEXT)])
-        larguras.extend([17, 100])
+        canal = Table(
+            [[icone, Paragraph(escape(texto), TEXT)]],
+            colWidths=[17, LARGURA_COLUNA - 23],
+        )
+        canal.setStyle(TableStyle([
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ("LEFTPADDING", (0, 0), (-1, -1), 0),
+            ("RIGHTPADDING", (0, 0), (0, 0), 6),
+            ("RIGHTPADDING", (1, 0), (1, 0), 4),
+            ("TOPPADDING", (0, 0), (-1, -1), 0),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
+        ]))
+        celulas.append(canal)
 
-    tabela = Table([celulas], colWidths=larguras, hAlign="LEFT")
+    linhas = [celulas[i:i + 2] for i in range(0, len(celulas), 2)]
+    if len(linhas[-1]) == 1:
+        linhas[-1].append("")
+
+    tabela = Table(
+        linhas,
+        colWidths=[LARGURA_COLUNA, LARGURA_COLUNA],
+        hAlign="LEFT",
+    )
     tabela.setStyle(TableStyle([
         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
         ("LEFTPADDING", (0, 0), (-1, -1), 0),
-        ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 0),
         ("TOPPADDING", (0, 0), (-1, -1), 1),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 1),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 2),
     ]))
     return tabela

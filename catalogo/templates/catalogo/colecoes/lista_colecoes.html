@@ -1,4 +1,5 @@
 {% extends 'core/base.html' %}
+{% load permissoes_tags %}
 
 {% block title %}Coleções | ERP Helvi{% endblock %}
 
@@ -6,8 +7,13 @@
 <div class="hui-module-page hui-module-page--catalogo">
 
 {% url 'catalogo:nova_colecao' as nova_colecao_url %}
+{% pode_executar request.user "catalogo.gerenciar" as pode_gerenciar_catalogo %}
 
+{% if pode_gerenciar_catalogo %}
 {% include "components/layout/page_header.html" with titulo="Coleções" subtitulo="Gerencie as coleções das armações cadastradas no ERP Helvi." botao_url=nova_colecao_url botao_texto="Nova Coleção" botao_icon="bi bi-plus-circle" %}
+{% else %}
+{% include "components/layout/page_header.html" with titulo="Coleções" subtitulo="Consulte as coleções cadastradas no ERP Helvi." %}
+{% endif %}
 
 <form method="get" class="card search-form">
     <label for="busca">
@@ -82,6 +88,7 @@
                     </td>
 
                     <td class="table-actions">
+                        {% if pode_gerenciar_catalogo %}
                         <a href="{% url 'catalogo:editar_colecao' colecao.id %}" class="action-link action-edit">
                             <i class="bi bi-pencil-square"></i>
                             Editar
@@ -98,6 +105,7 @@
                                 Reativar
                             </a>
                         {% endif %}
+                        {% else %}<span class="text-muted">Somente consulta</span>{% endif %}
                     </td>
                 </tr>
             {% empty %}

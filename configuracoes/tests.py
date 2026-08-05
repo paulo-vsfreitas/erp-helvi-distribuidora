@@ -15,6 +15,7 @@ from configuracoes.services import (
     CONTEXTO_EXEMPLO_MENSAGEM,
     renderizar_modelo_mensagem,
 )
+from core.pdf.elements.social import build_social_channels
 
 
 class ModelosMensagemTests(TestCase):
@@ -27,6 +28,21 @@ class ModelosMensagemTests(TestCase):
         )
         self.assertTrue(empresa.exibir_instagram_pdf)
         self.assertFalse(empresa.exibir_facebook_pdf)
+
+    def test_canais_longos_sao_distribuidos_em_duas_colunas(self):
+        empresa = Empresa(
+            whatsapp="(11) 98013-2471",
+            instagram="@helvi.distribuidoradearmacoes",
+            facebook="facebook.com/helvidistribuidora",
+            exibir_whatsapp_pdf=True,
+            exibir_instagram_pdf=True,
+            exibir_facebook_pdf=True,
+        )
+
+        tabela = build_social_channels(empresa)
+
+        self.assertEqual(len(tabela._cellvalues), 2)
+        self.assertEqual(len(tabela._cellvalues[0]), 2)
 
     def test_nova_empresa_recebe_modelos_padrao_aprovados(self):
         empresa = Empresa()

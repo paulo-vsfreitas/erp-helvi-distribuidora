@@ -97,15 +97,19 @@ Venda nº {{ venda.numero|stringformat:"06d" }} | ERP Helvi
     <div class="card-body">
         <h5 class="card-title mb-3">Cancelamento</h5>
         <div class="row g-3">
-            <div class="col-md-4">
-                <small class="text-muted d-block">Cancelada por</small>
+            <div class="col-md-3">
+                <small class="text-muted d-block">Solicitada por</small>
                 <strong>{{ venda.cancelada_por|default:"Não informado" }}</strong>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
+                <small class="text-muted d-block">Autorizada por</small>
+                <strong>{{ venda.cancelamento_autorizado_por|default:"Não informado" }}</strong>
+            </div>
+            <div class="col-md-3">
                 <small class="text-muted d-block">Data</small>
                 <strong>{{ venda.cancelada_em|date:"d/m/Y H:i" }}</strong>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <small class="text-muted d-block">Motivo</small>
                 <strong>{{ venda.motivo_cancelamento }}</strong>
             </div>
@@ -440,6 +444,28 @@ Venda nº {{ venda.numero|stringformat:"06d" }} | ERP Helvi
                     onsubmit="return confirm('Deseja cancelar esta venda e estornar suas integrações?');"
                 >
                     {% csrf_token %}
+                    <label for="administrador-cancelamento" class="form-label">
+                        Usuário administrador
+                    </label>
+                    <input
+                        id="administrador-cancelamento"
+                        type="text"
+                        name="administrador_usuario"
+                        class="form-control mb-2"
+                        autocomplete="username"
+                        required
+                    >
+                    <label for="senha-administrador-cancelamento" class="form-label">
+                        Senha do administrador
+                    </label>
+                    <input
+                        id="senha-administrador-cancelamento"
+                        type="password"
+                        name="administrador_senha"
+                        class="form-control mb-2"
+                        autocomplete="current-password"
+                        required
+                    >
                     <label for="motivo-cancelamento" class="form-label">
                         Motivo do cancelamento
                     </label>

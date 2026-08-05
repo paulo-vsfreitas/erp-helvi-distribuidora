@@ -3,6 +3,7 @@ from django.urls import path, include
 from django.contrib.auth import views as auth_views
 from django.conf import settings
 from django.conf.urls.static import static
+from usuarios.forms_login import LoginSeguroForm
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -10,7 +11,8 @@ urlpatterns = [
     path(
         "senha/login/",
         auth_views.LoginView.as_view(
-            template_name="core/login.html"
+            template_name="core/login.html",
+            authentication_form=LoginSeguroForm,
         ),
         name="login",
     ),

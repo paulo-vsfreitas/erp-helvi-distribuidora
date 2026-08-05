@@ -15,6 +15,7 @@ def ficha_venda(request, numero):
             "criada_por",
             "finalizada_por",
             "cancelada_por",
+            "cancelamento_autorizado_por",
         )
         .prefetch_related(
             "itens__produto",

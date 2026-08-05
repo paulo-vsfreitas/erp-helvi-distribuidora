@@ -29,7 +29,7 @@ Venda direta ou orçamento convertido
 - finalização integrada;
 - baixa de estoque;
 - Conta a Receber e movimentação financeira;
-- cancelamento por POST com motivo;
+- cancelamento por POST com motivo e credenciais de Administrador;
 - devolução de estoque e reversão/cancelamento financeiro;
 - relatório de vendas;
 - constraints monetárias;
@@ -40,6 +40,9 @@ Venda direta ou orçamento convertido
 - PDF institucional com logo configurada, dados completos da empresa e do
   cliente, vendedor, entrega, pagamento, itens, fechamento financeiro,
   observações, assinaturas, paginação e rodapé;
+- resumo quantitativo no PDF com produtos distintos, itens/variações e peças;
+- contatos e redes sociais do cabeçalho usam grade compartilhada de duas
+  colunas, preservando identificadores longos sem cortes;
 - edição completa de vendas em aberto pela ficha, incluindo cliente, entrega,
   itens, variação de cor, quantidades, preços, descontos e frete.
 - seleção da cor diretamente no card de resultado do produto, permitindo repetir
@@ -60,6 +63,8 @@ Venda direta ou orçamento convertido
 - venda originada de orçamento mantém o vínculo;
 - cancelamento não apaga a venda;
 - cancelamento registra responsável, data e motivo;
+- qualquer perfil pode solicitar o cancelamento, mas a execução exige usuário
+  e senha válidos de Administrador e registra solicitante e autorizador;
 - venda cancelada não pode provocar novo estorno.
 - somente vendas em aberto, ainda sem baixa de estoque ou geração financeira,
   podem ser editadas.

@@ -13,6 +13,7 @@ from financeiro.models import (
     RecebimentoConta,
 )
 from produtos.models import Produto, VariacaoCor
+from core.pdf.documents.venda import VendaPDF
 from vendas.services.cancelamento_service import cancelar_venda
 from vendas.services.finalizacao_service import finalizar_venda
 from vendas.services.processamento_pagamento_service import (
@@ -116,6 +117,15 @@ class ListaVendasTests(TestCase):
         self.assertTrue(pdf_response.content.startswith(b"%PDF"))
 
     def test_venda_em_aberto_possui_resumo_pdf(self):
+        documento = VendaPDF(Venda.objects.get(numero=2))
+        self.assertFalse(documento.pdf.exibir_data_emissao)
+
+        documento._resumo_quantidades()
+        resumo = documento.pdf.story[-1]._content[2]
+        self.assertEqual(resumo._cellvalues[0][0].text, "PRODUTOS")
+        self.assertEqual(resumo._cellvalues[0][1].text, "ITENS / VARIAÇÕES")
+        self.assertEqual(resumo._cellvalues[0][2].text, "PEÇAS")
+
         response = self.client.get(reverse("vendas:pdf", args=[2]))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response["Content-Type"], "application/pdf")
@@ -380,7 +390,7 @@ class AlteracaoVendedorVendaTests(TestCase):
             {"vendedor": self.novo_vendedor.pk},
         )
 
-        self.assertRedirects(response, reverse("vendas:ficha", args=[801]))
+        self.assertEqual(response.status_code, 403)
         self.venda.refresh_from_db()
         self.assertEqual(self.venda.criada_por, self.vendedor)
 
@@ -450,6 +460,11 @@ class CancelamentoVendaTests(TestCase):
             username="cancelamento-venda",
             password="senha-segura",
         )
+        cls.administrador = get_user_model().objects.create_user(
+            username="administrador-cancelamento",
+            password="senha-administrador",
+            perfil="ADM",
+        )
         cls.cliente = Cliente.objects.create(
             razao_social="Cliente Cancelamento Ltda",
             nome_fantasia="Cliente Cancelamento",
@@ -491,6 +506,7 @@ class CancelamentoVendaTests(TestCase):
         cancelar_venda(
             venda=venda,
             usuario=self.usuario,
+            autorizado_por=self.administrador,
             motivo="Venda lançada incorretamente",
         )
 
@@ -502,6 +518,11 @@ class CancelamentoVendaTests(TestCase):
         )
 
         self.assertEqual(venda.status, Venda.STATUS_CANCELADA)
+        self.assertEqual(venda.cancelada_por, self.usuario)
+        self.assertEqual(
+            venda.cancelamento_autorizado_por,
+            self.administrador,
+        )
         self.assertFalse(venda.estoque_baixado)
         self.assertEqual(self.produto.estoque_atual, 10)
         self.assertEqual(conta.status, ContaReceber.STATUS_CANCELADA)
@@ -556,6 +577,7 @@ class CancelamentoVendaTests(TestCase):
         cancelar_venda(
             venda=venda,
             usuario=self.usuario,
+            autorizado_por=self.administrador,
             motivo="Cancelamento solicitado pelo cliente",
         )
 
@@ -579,6 +601,58 @@ class CancelamentoVendaTests(TestCase):
         self.assertEqual(response.status_code, 405)
         venda.refresh_from_db()
         self.assertEqual(venda.status, Venda.STATUS_EM_ABERTO)
+
+    def test_cancelamento_por_vendedor_exige_credencial_administrativa(self):
+        venda = self._criar_venda(
+            numero=505,
+            forma_pagamento=Venda.FORMA_PRAZO,
+        )
+        self.client.force_login(self.usuario)
+
+        response = self.client.post(
+            reverse("vendas:cancelar", args=[venda.numero]),
+            {
+                "administrador_usuario": self.administrador.username,
+                "administrador_senha": "senha-incorreta",
+                "motivo": "Solicitação do cliente",
+            },
+        )
+
+        self.assertRedirects(
+            response,
+            reverse("vendas:ficha", args=[venda.numero]),
+        )
+        venda.refresh_from_db()
+        self.assertEqual(venda.status, Venda.STATUS_EM_ABERTO)
+        self.assertIsNone(venda.cancelada_por)
+
+    def test_vendedor_cancela_com_autorizacao_administrativa(self):
+        venda = self._criar_venda(
+            numero=506,
+            forma_pagamento=Venda.FORMA_PRAZO,
+        )
+        self.client.force_login(self.usuario)
+
+        response = self.client.post(
+            reverse("vendas:cancelar", args=[venda.numero]),
+            {
+                "administrador_usuario": self.administrador.username,
+                "administrador_senha": "senha-administrador",
+                "motivo": "Solicitação confirmada pelo cliente",
+            },
+        )
+
+        self.assertRedirects(
+            response,
+            reverse("vendas:ficha", args=[venda.numero]),
+        )
+        venda.refresh_from_db()
+        self.assertEqual(venda.status, Venda.STATUS_CANCELADA)
+        self.assertEqual(venda.cancelada_por, self.usuario)
+        self.assertEqual(
+            venda.cancelamento_autorizado_por,
+            self.administrador,
+        )
 
 
 class FichaVendaApresentacaoTests(TestCase):

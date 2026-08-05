@@ -213,6 +213,14 @@ class Venda(models.Model):
         null=True,
     )
 
+    cancelamento_autorizado_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="vendas_cancelamento_autorizado",
+        blank=True,
+        null=True,
+    )
+
     cancelada_em = models.DateTimeField(
         blank=True,
         null=True,

@@ -1,4 +1,5 @@
 from io import BytesIO
+from functools import partial
 
 from reportlab.lib.pagesizes import A4
 from reportlab.platypus import SimpleDocTemplate
@@ -30,9 +31,11 @@ class HelviPDF:
         self,
         title="Documento",
         pagesize=A4,
+        exibir_data_emissao=True,
     ):
         self.title = title
         self.pagesize = pagesize
+        self.exibir_data_emissao = exibir_data_emissao
 
         self.buffer = BytesIO()
 
@@ -49,10 +52,15 @@ class HelviPDF:
             title=self.title,
         )
 
+        rodape = partial(
+            draw_footer,
+            exibir_data_emissao=self.exibir_data_emissao,
+        )
+
         doc.build(
             self.story,
-            onFirstPage=draw_footer,
-            onLaterPages=draw_footer,
+            onFirstPage=rodape,
+            onLaterPages=rodape,
         )
 
         pdf = self.buffer.getvalue()

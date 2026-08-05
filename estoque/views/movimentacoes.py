@@ -8,6 +8,7 @@ from estoque.services import (
     obter_acoes_dashboard,
     obter_resumo_estoque,
 )
+from usuarios.permissoes import Acao, usuario_pode_executar
 
 
 @login_required
@@ -28,7 +29,11 @@ def lista_movimentacoes(request):
         "tipos_movimentacao": MovimentacaoEstoque.TIPO_CHOICES,
 
         "cards": obter_cards_dashboard(),
-        "acoes": obter_acoes_dashboard(),
+        "acoes": (
+            obter_acoes_dashboard()
+            if usuario_pode_executar(request.user, Acao.MOVIMENTAR_ESTOQUE)
+            else []
+        ),
 
         **obter_resumo_estoque(),
     }

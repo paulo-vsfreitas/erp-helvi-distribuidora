@@ -2,6 +2,21 @@
 
 ## 05/08/2026 — Edição de vendas em aberto
 
+- PDFs de vendas e orçamentos agora exibem produtos distintos, itens/variações
+  e total de peças.
+- adicionada autorização granular de ações no backend: Vendedor consulta
+  Estoque, Produtos e Catálogo, sem cadastrar, editar, inativar ou movimentar;
+- tentativas de executar ações proibidas por URL direta retornam acesso negado;
+- cancelamentos podem ser solicitados por qualquer perfil, mas exigem usuário e
+  senha de Administrador e registram solicitante e autorizador separadamente;
+- login passa a bloquear por 15 minutos após cinco falhas na mesma combinação
+  de usuário e IP, mantendo auditoria de sucessos, falhas e bloqueios;
+- sessão padrão corrigida para 30 minutos sem atividade.
+- cabeçalho dos PDFs redistribui WhatsApp, Instagram e Facebook em uma grade
+  responsiva de duas colunas, evitando cortes em identificadores longos.
+- expiração de sessão e páginas com CSRF antigo deixam de exibir a tela técnica
+  403: o sistema renova o login ou recarrega a página com aviso seguro.
+
 - incluído botão **Editar venda** na ficha das vendas em aberto;
 - formulário de edição carrega cliente, entrega, itens e variações de cor já selecionadas;
 - recálculo seguro de subtotal, descontos, frete e total ao salvar;
@@ -26,6 +41,8 @@
 - site institucional movido para o rodapé dos PDFs; WhatsApp e Instagram agora
   aparecem com ícones vetoriais e os documentos exibem o último horário atualizado.
 - cabeçalho evita repetir razão social quando ela é igual ao nome fantasia.
+- PDFs de vendas e orçamentos exibem apenas a data própria do documento, sem
+  horário, última atualização ou data/hora de geração.
 
 ## 04/08/2026 — Relatórios analíticos dedicados
 

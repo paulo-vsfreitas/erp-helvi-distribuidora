@@ -46,6 +46,8 @@ CSRF_TRUSTED_ORIGINS = os.getenv(
     "http://localhost:8000,http://127.0.0.1:8000"
 ).split(",")
 
+CSRF_FAILURE_VIEW = "core.security.csrf_failure"
+
 
 # Application definition
 
@@ -190,6 +192,21 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'login'
+
+# Sessão expira após 30 minutos sem atividade.
+SESSION_COOKIE_AGE = int(
+    os.getenv("SESSION_COOKIE_AGE", "1800")
+)
+
+# Renova o prazo a cada requisição realizada pelo usuário.
+SESSION_SAVE_EVERY_REQUEST = True
+
+# Encerra a sessão também quando o navegador é fechado.
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# Proteção contra tentativas repetidas de autenticação.
+LOGIN_MAX_TENTATIVAS = int(os.getenv("LOGIN_MAX_TENTATIVAS", "5"))
+LOGIN_BLOQUEIO_SEGUNDOS = int(os.getenv("LOGIN_BLOQUEIO_SEGUNDOS", "900"))
 
 AUTH_USER_MODEL = "usuarios.Usuario"
 

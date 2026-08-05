@@ -295,7 +295,19 @@ class EdicaoOrcamentoTests(TestCase):
         self.assertEqual(itens[0]["produto_id"], self.produto.pk)
 
     def test_pdf_orcamento_usa_layout_institucional_completo(self):
-        conteudo = OrcamentoPDF(self.orcamento).build()
+        documento = OrcamentoPDF(self.orcamento)
+        self.assertFalse(documento.pdf.exibir_data_emissao)
+
+        documento._resumo_quantidades()
+        resumo = documento.pdf.story[-1]._content[2]
+        self.assertEqual(resumo._cellvalues[0][0].text, "PRODUTOS")
+        self.assertEqual(resumo._cellvalues[0][1].text, "ITENS / VARIAÇÕES")
+        self.assertEqual(resumo._cellvalues[0][2].text, "PEÇAS")
+        self.assertEqual(self.orcamento.quantidade_produtos, 1)
+        self.assertEqual(self.orcamento.quantidade_itens, 1)
+        self.assertEqual(self.orcamento.quantidade_pecas, 1)
+
+        conteudo = documento.build()
 
         self.assertTrue(conteudo.startswith(b"%PDF"))
         self.assertGreater(len(conteudo), 1000)

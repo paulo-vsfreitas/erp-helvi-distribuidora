@@ -6,7 +6,7 @@ Atualizado em **05/08/2026**.
 
 O ERP Helvi está em **release candidate 1.0**. Os fluxos essenciais funcionam de
 ponta a ponta, as telas principais compartilham o Helvi UI, as integrações
-críticas possuem auditoria e o pacote automatizado possui 110 testes aprovados.
+críticas possuem auditoria e o pacote automatizado possui 124 testes aprovados.
 
 O código está pronto para a homologação de aceitação e para a preparação do
 ambiente definitivo. Publicação em produção ainda exige backup, configuração
@@ -16,10 +16,12 @@ A Central de Configurações permite manter os dados institucionais, WhatsApp,
 Instagram, Facebook, os canais exibidos nos PDFs e os modelos
 padrão de WhatsApp e e-mail usados no compartilhamento de orçamentos. O editor
 insere variáveis de forma guiada e mostra uma prévia com dados de exemplo.
+Os PDFs de vendas e orçamentos apresentam também o resumo de produtos distintos,
+itens/variações e peças.
 
 ## Validação registrada
 
-- `python manage.py test --keepdb`: **110 testes aprovados**;
+- `python manage.py test --keepdb`: **124 testes aprovados**;
 - `python manage.py check`: nenhum problema;
 - `python manage.py makemigrations --check --dry-run`: nenhuma mudança;
 - `python manage.py auditar_integracoes`: zero divergências;
@@ -59,7 +61,13 @@ insere variáveis de forma guiada e mostra uma prévia com dados de exemplo.
 - produtos e valores financeiros não podem ficar negativos pelas regras atuais;
 - o custo do item é preservado na finalização da venda para manter o lucro
   histórico estável mesmo após alterações no cadastro do produto;
-- o middleware aplica a matriz central de permissões por módulo;
+- o middleware aplica matrizes centrais por módulo e por ação sensível;
+- Vendedor consulta Estoque, Produtos e Catálogo sem conseguir alterá-los por
+  botões ou URLs diretas;
+- cancelamento de venda exige credencial administrativa e audita separadamente
+  o solicitante e o Administrador autorizador;
+- cinco falhas de login por usuário e IP bloqueiam novas tentativas por 15
+  minutos, com auditoria de sucessos, falhas e bloqueios;
 - novos usuários criados pelo ERP passam pelo fluxo de primeiro acesso.
 
 ## Limitações conhecidas que não bloqueiam a versão 1.0

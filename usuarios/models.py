@@ -72,3 +72,58 @@ class Usuario(AbstractUser):
         return self.perfil == self.Perfil.FINANCEIRO
     def __str__(self):
         return self.get_full_name() or self.username
+
+
+class ControleTentativaLogin(models.Model):
+    username = models.CharField(max_length=150)
+    endereco_ip = models.GenericIPAddressField()
+    falhas = models.PositiveSmallIntegerField(default=0)
+    bloqueado_ate = models.DateTimeField(blank=True, null=True)
+    ultima_tentativa = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["username", "endereco_ip"],
+                name="login_controle_usuario_ip_unico",
+            ),
+        ]
+        indexes = [
+            models.Index(
+                fields=["bloqueado_ate"],
+                name="login_bloqueado_ate_idx",
+            ),
+        ]
+
+
+class EventoLogin(models.Model):
+    SUCESSO = "sucesso"
+    FALHA = "falha"
+    BLOQUEADO = "bloqueado"
+    RESULTADOS = [
+        (SUCESSO, "Sucesso"),
+        (FALHA, "Falha"),
+        (BLOQUEADO, "Bloqueado"),
+    ]
+
+    username = models.CharField(max_length=150, db_index=True)
+    endereco_ip = models.GenericIPAddressField()
+    resultado = models.CharField(max_length=10, choices=RESULTADOS)
+    usuario = models.ForeignKey(
+        "usuarios.Usuario",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="eventos_login",
+    )
+    user_agent = models.CharField(max_length=300, blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ["-criado_em", "-id"]
+        indexes = [
+            models.Index(
+                fields=["endereco_ip", "criado_em"],
+                name="login_ip_criado_idx",
+            ),
+        ]

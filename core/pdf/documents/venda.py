@@ -9,6 +9,7 @@ from configuracoes.services.empresa_service import obter_empresa
 from core.formatters import formatar_moeda_br
 from core.pdf import HelviPDF
 from core.pdf import colors as helvi_colors
+from core.pdf.elements.quantities import resumo_quantidades
 from core.pdf.styles import LABEL, RIGHT, SUBTITLE, TEXT
 from vendas.models import Venda
 
@@ -21,7 +22,10 @@ class VendaPDF:
     def __init__(self, venda):
         self.venda = venda
         self.empresa = obter_empresa()
-        self.pdf = HelviPDF(title=f"Resumo da venda {venda.numero:06d}")
+        self.pdf = HelviPDF(
+            title=f"Resumo da venda {venda.numero:06d}",
+            exibir_data_emissao=False,
+        )
 
     def build(self):
         self.pdf.add_header()
@@ -29,6 +33,7 @@ class VendaPDF:
         self._cliente()
         self._entrega()
         self._itens()
+        self._resumo_quantidades()
         self._fechamento()
         self._observacoes()
         self._assinaturas()
@@ -48,7 +53,6 @@ class VendaPDF:
             Venda.STATUS_CANCELADA: helvi_colors.DANGER,
         }.get(self.venda.status, helvi_colors.WARNING)
         data_venda_local = timezone.localtime(self.venda.data_venda)
-        atualizado_em = timezone.localtime()
         dados = [[
             Paragraph(
                 f"<font size='17'><b>RESUMO DO PEDIDO</b></font><br/>"
@@ -57,8 +61,7 @@ class VendaPDF:
             ),
             Paragraph(
                 f"<b>{escape(self.venda.get_status_display().upper())}</b><br/>"
-                f"Venda: {data_venda_local:%d/%m/%Y às %H:%M}<br/>"
-                f"<font size='8'>Atualizado: {atualizado_em:%d/%m/%Y %H:%M}</font>",
+                f"Venda: {data_venda_local:%d/%m/%Y}",
                 RIGHT,
             ),
         ], [
@@ -162,6 +165,13 @@ class VendaPDF:
                 estilos.append(("BACKGROUND", (0, indice), (-1, indice), helvi_colors.GRAY_100))
         tabela.setStyle(TableStyle(estilos))
         self.pdf.story.extend([tabela, Spacer(1, 7 * mm)])
+
+    def _resumo_quantidades(self):
+        self.pdf.story.append(resumo_quantidades(
+            produtos=self.venda.quantidade_produtos,
+            itens=self.venda.quantidade_itens,
+            pecas=self.venda.quantidade_pecas,
+        ))
 
     def _fechamento(self):
         resumo = Table([

@@ -13,6 +13,16 @@ class Modulo:
     COMPRAS = "compras"
 
 
+class Acao:
+    """Permissões para operações sensíveis dentro de um módulo."""
+
+    GERENCIAR_CATALOGO = "catalogo.gerenciar"
+    GERENCIAR_PRODUTOS = "produtos.gerenciar"
+    MOVIMENTAR_ESTOQUE = "estoque.movimentar"
+    GERENCIAR_INVENTARIO = "estoque.gerenciar_inventario"
+    ALTERAR_VENDEDOR = "vendas.alterar_vendedor"
+
+
 PERFIS = {
     "ADM": {
         "nome": "Administrador",
@@ -69,6 +79,28 @@ PERFIS = {
 }
 
 
+ACOES_POR_PERFIL = {
+    "ADM": {
+        Acao.GERENCIAR_CATALOGO,
+        Acao.GERENCIAR_PRODUTOS,
+        Acao.MOVIMENTAR_ESTOQUE,
+        Acao.GERENCIAR_INVENTARIO,
+        Acao.ALTERAR_VENDEDOR,
+    },
+    "GER": {
+        Acao.GERENCIAR_CATALOGO,
+        Acao.GERENCIAR_PRODUTOS,
+        Acao.MOVIMENTAR_ESTOQUE,
+        Acao.GERENCIAR_INVENTARIO,
+        Acao.ALTERAR_VENDEDOR,
+    },
+    "VEN": set(),
+    "FIN": {
+        Acao.ALTERAR_VENDEDOR,
+    },
+}
+
+
 def usuario_tem_permissao(usuario, modulo):
     if not usuario or not usuario.is_authenticated:
         return False
@@ -82,3 +114,13 @@ def usuario_tem_permissao(usuario, modulo):
         return False
 
     return modulo in perfil["permissoes"]
+
+
+def usuario_pode_executar(usuario, acao):
+    if not usuario or not usuario.is_authenticated:
+        return False
+
+    if usuario.is_superuser:
+        return True
+
+    return acao in ACOES_POR_PERFIL.get(usuario.perfil, set())

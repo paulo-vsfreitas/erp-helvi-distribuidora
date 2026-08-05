@@ -1,9 +1,10 @@
 from django.contrib.auth import get_user_model
 from django.template.loader import get_template
-from django.test import SimpleTestCase, TestCase
+from django.test import Client, SimpleTestCase, TestCase
 from django.urls import reverse
 
 from core.services.central_relatorios_service import montar_central_relatorios
+from produtos.models import Produto
 
 
 class HelviUITemplateTests(SimpleTestCase):
@@ -139,6 +140,72 @@ class HelviUITemplateTests(SimpleTestCase):
             with self.subTest(template=template_name):
                 source = get_template(template_name).template.source
                 self.assertIn("hui-page-header", source)
+
+
+class CSRFExperienceTests(TestCase):
+    def setUp(self):
+        self.client = Client(enforce_csrf_checks=True)
+
+    def test_login_expirado_reabre_formulario_e_preserva_destino(self):
+        resposta = self.client.post(
+            reverse("login"),
+            {
+                "username": "usuario",
+                "password": "senha",
+                "next": "/vendas/1/pdf/",
+                "csrfmiddlewaretoken": "token-expirado",
+            },
+        )
+
+        self.assertRedirects(
+            resposta,
+            f'{reverse("login")}?next=%2Fvendas%2F1%2Fpdf%2F',
+            fetch_redirect_response=False,
+        )
+        resposta_login = self.client.get(resposta.url)
+        self.assertContains(
+            resposta_login,
+            "Sua sessão expirou. Entre novamente para continuar.",
+        )
+
+    def test_pagina_interna_desatualizada_recarrega_sem_executar_post(self):
+        Usuario = get_user_model()
+        gerente = Usuario.objects.create_user(
+            username="csrf-gerente",
+            password="senha-segura",
+            perfil=Usuario.Perfil.GERENTE,
+        )
+        produto = Produto.objects.create(modelo="Produto protegido")
+        self.client.force_login(gerente)
+
+        resposta = self.client.post(
+            reverse("produtos:inativar_produto", args=[produto.pk]),
+            {"csrfmiddlewaretoken": "token-expirado"},
+            HTTP_REFERER="http://testserver/produtos/",
+        )
+
+        self.assertRedirects(
+            resposta,
+            reverse("produtos:lista_produtos"),
+        )
+        produto.refresh_from_db()
+        self.assertTrue(produto.ativo)
+
+    def test_destino_externo_e_descartado(self):
+        resposta = self.client.post(
+            reverse("login"),
+            {
+                "username": "usuario",
+                "password": "senha",
+                "next": "https://site-malicioso.example/roubo",
+                "csrfmiddlewaretoken": "token-expirado",
+            },
+        )
+
+        self.assertRedirects(
+            resposta,
+            f'{reverse("login")}?next=%2F',
+        )
 
 
 class CentralRelatoriosTests(SimpleTestCase):

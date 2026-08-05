@@ -1,9 +1,11 @@
 {% extends "core/base.html" %}
+{% load permissoes_tags %}
 
 {% block title %}{{ produto }} | ERP Helvi{% endblock %}
 
 {% block content %}
 <div class="hui-module-page hui-module-page--produtos hui-detail-page">
+    {% pode_executar request.user "produtos.gerenciar" as pode_gerenciar_produtos %}
     {% url "produtos:lista_produtos" as lista_produtos_url %}
     {% include "components/layout/page_header.html" with titulo="Ficha do produto" subtitulo=produto botao_url=lista_produtos_url botao_texto="Voltar aos produtos" botao_icon="bi bi-arrow-left" %}
 
@@ -18,8 +20,10 @@
         </div>
         <div class="hui-detail-hero__actions">
             {% if produto.ativo %}<span class="badge bg-success"><i class="bi bi-check-circle"></i> Ativo</span>{% else %}<span class="badge bg-danger"><i class="bi bi-x-circle"></i> Inativo</span>{% endif %}
-            <a href="{% url 'produtos:editar_produto' produto.id %}" class="btn btn-primary"><i class="bi bi-pencil-square"></i> Editar dados</a>
-            <a href="{% url 'produtos:galeria_produto' produto.id %}" class="btn btn-outline-secondary"><i class="bi bi-images"></i> Imagens</a>
+            {% if pode_gerenciar_produtos %}
+                <a href="{% url 'produtos:editar_produto' produto.id %}" class="btn btn-primary"><i class="bi bi-pencil-square"></i> Editar dados</a>
+                <a href="{% url 'produtos:galeria_produto' produto.id %}" class="btn btn-outline-secondary"><i class="bi bi-images"></i> Imagens</a>
+            {% endif %}
         </div>
     </section>
 

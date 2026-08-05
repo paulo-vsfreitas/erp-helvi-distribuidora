@@ -1,8 +1,12 @@
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
+from django.utils import timezone
+
+from datetime import timedelta
 
 from usuarios.forms import UsuarioForm
+from usuarios.models import ControleTentativaLogin, EventoLogin
 
 
 class FormularioUsuarioTests(TestCase):
@@ -128,6 +132,11 @@ class PermissoesModulosTests(TestCase):
             password="senha-segura",
             perfil=Usuario.Perfil.FINANCEIRO,
         )
+        cls.gerente = Usuario.objects.create_user(
+            username="permissao-gerente",
+            password="senha-segura",
+            perfil=Usuario.Perfil.GERENTE,
+        )
 
     def test_vendedor_nao_acessa_financeiro_por_url_direta(self):
         self.client.force_login(self.vendedor)
@@ -137,6 +146,51 @@ class PermissoesModulosTests(TestCase):
         )
 
         self.assertRedirects(response, reverse("dashboard"))
+
+    def test_vendedor_consulta_produtos_mas_nao_cadastra_por_url(self):
+        self.client.force_login(self.vendedor)
+
+        consulta = self.client.get(reverse("produtos:lista_produtos"))
+        cadastro = self.client.get(reverse("produtos:novo_produto"))
+
+        self.assertEqual(consulta.status_code, 200)
+        self.assertEqual(cadastro.status_code, 403)
+
+    def test_vendedor_consulta_estoque_mas_nao_movimenta_por_url(self):
+        self.client.force_login(self.vendedor)
+
+        consulta = self.client.get(reverse("estoque:lista_movimentacoes"))
+        entrada = self.client.get(reverse("estoque:nova_entrada"))
+        inventario = self.client.get(reverse("estoque:novo_inventario"))
+
+        self.assertEqual(consulta.status_code, 200)
+        self.assertEqual(entrada.status_code, 403)
+        self.assertEqual(inventario.status_code, 403)
+
+    def test_vendedor_consulta_catalogo_mas_nao_edita_por_url(self):
+        self.client.force_login(self.vendedor)
+
+        consulta = self.client.get(reverse("catalogo:lista_marcas"))
+        cadastro = self.client.get(reverse("catalogo:nova_marca"))
+
+        self.assertEqual(consulta.status_code, 200)
+        self.assertEqual(cadastro.status_code, 403)
+
+    def test_gerente_pode_executar_acoes_operacionais(self):
+        self.client.force_login(self.gerente)
+
+        self.assertEqual(
+            self.client.get(reverse("produtos:novo_produto")).status_code,
+            200,
+        )
+        self.assertEqual(
+            self.client.get(reverse("estoque:nova_entrada")).status_code,
+            200,
+        )
+        self.assertEqual(
+            self.client.get(reverse("catalogo:nova_marca")).status_code,
+            200,
+        )
 
     def test_rota_de_modulo_sem_decorator_exige_login(self):
         response = self.client.get(
@@ -250,6 +304,94 @@ class AcoesUsuarioTests(TestCase):
         self.usuario.refresh_from_db()
         self.assertFalse(self.usuario.is_active)
 
+
+@override_settings(LOGIN_MAX_TENTATIVAS=5, LOGIN_BLOQUEIO_SEGUNDOS=900)
+class SegurancaLoginTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.usuario = get_user_model().objects.create_user(
+            username="login-protegido",
+            password="senha-correta-segura",
+            perfil="VEN",
+        )
+
+    def _login(self, senha, *, ip="192.0.2.10"):
+        return self.client.post(
+            reverse("login"),
+            {
+                "username": self.usuario.username,
+                "password": senha,
+            },
+            REMOTE_ADDR=ip,
+            HTTP_USER_AGENT="Navegador de teste",
+        )
+
+    def test_bloqueia_depois_de_cinco_falhas_no_mesmo_usuario_e_ip(self):
+        for _ in range(5):
+            resposta = self._login("senha-incorreta")
+            self.assertEqual(resposta.status_code, 200)
+
+        controle = ControleTentativaLogin.objects.get(
+            username=self.usuario.username,
+            endereco_ip="192.0.2.10",
+        )
+        self.assertEqual(controle.falhas, 5)
+        self.assertGreater(controle.bloqueado_ate, timezone.now())
+
+        resposta = self._login("senha-correta-segura")
+        self.assertEqual(resposta.status_code, 200)
+        self.assertNotIn("_auth_user_id", self.client.session)
+        self.assertEqual(
+            EventoLogin.objects.filter(
+                resultado=EventoLogin.BLOQUEADO
+            ).count(),
+            1,
+        )
+
+    def test_bloqueio_nao_revela_se_usuario_ou_senha_estao_incorretos(self):
+        resposta = self.client.post(
+            reverse("login"),
+            {"username": "usuario-inexistente", "password": "qualquer"},
+            REMOTE_ADDR="192.0.2.20",
+        )
+
+        self.assertContains(
+            resposta,
+            "Usuário ou senha inválidos. Verifique os dados e tente novamente.",
+        )
+
+    def test_outro_ip_nao_herda_o_bloqueio(self):
+        for _ in range(5):
+            self._login("senha-incorreta", ip="192.0.2.30")
+
+        resposta = self._login("senha-correta-segura", ip="192.0.2.31")
+
+        self.assertRedirects(resposta, reverse("dashboard"))
+
+    def test_login_correto_apos_expiracao_zerar_contador(self):
+        for _ in range(5):
+            self._login("senha-incorreta", ip="192.0.2.40")
+
+        ControleTentativaLogin.objects.filter(
+            username=self.usuario.username,
+            endereco_ip="192.0.2.40",
+        ).update(bloqueado_ate=timezone.now() - timedelta(seconds=1))
+
+        resposta = self._login("senha-correta-segura", ip="192.0.2.40")
+
+        self.assertRedirects(resposta, reverse("dashboard"))
+        controle = ControleTentativaLogin.objects.get(
+            username=self.usuario.username,
+            endereco_ip="192.0.2.40",
+        )
+        self.assertEqual(controle.falhas, 0)
+        self.assertIsNone(controle.bloqueado_ate)
+        self.assertTrue(
+            EventoLogin.objects.filter(
+                resultado=EventoLogin.SUCESSO,
+                usuario=self.usuario,
+            ).exists()
+        )
 
 class PrimeiroAcessoTests(TestCase):
     @classmethod

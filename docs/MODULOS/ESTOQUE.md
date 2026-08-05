@@ -20,6 +20,8 @@ integrações com Compras e Vendas.
 - alerta operacional de estoque mínimo no dashboard;
 - bloqueio de saldo negativo;
 - telas padronizadas com Helvi UI.
+- Vendedor possui acesso somente de consulta; entradas, saídas, ajustes e
+  gestão de inventários são restritos a Administrador e Gerente no backend.
 
 ## Regras
 

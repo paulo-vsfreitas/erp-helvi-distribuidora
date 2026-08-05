@@ -1,4 +1,5 @@
 {% extends 'core/base.html' %}
+{% load permissoes_tags %}
 
 {% block title %}Tipos de Armação | ERP Helvi{% endblock %}
 
@@ -6,8 +7,13 @@
 <div class="hui-module-page hui-module-page--catalogo">
 
 {% url 'catalogo:novo_tipo_armacao' as novo_tipo_armacao_url %}
+{% pode_executar request.user "catalogo.gerenciar" as pode_gerenciar_catalogo %}
 
+{% if pode_gerenciar_catalogo %}
 {% include "components/layout/page_header.html" with titulo="Tipos de Armação" subtitulo="Gerencie os tipos de armação cadastrados no ERP Helvi." botao_url=novo_tipo_armacao_url botao_texto="Novo Tipo" botao_icon="bi bi-plus-circle" %}
+{% else %}
+{% include "components/layout/page_header.html" with titulo="Tipos de Armação" subtitulo="Consulte os tipos de armação cadastrados no ERP Helvi." %}
+{% endif %}
 
 <form method="get" class="card search-form">
     <label for="busca">
@@ -75,6 +81,7 @@
                     <td>{{ tipo.data_cadastro|date:"d/m/Y" }}</td>
 
                     <td class="table-actions">
+                        {% if pode_gerenciar_catalogo %}
                         <a href="{% url 'catalogo:editar_tipo_armacao' tipo.id %}" class="action-link action-edit">
                             <i class="bi bi-pencil-square"></i>
                             Editar
@@ -91,6 +98,7 @@
                                 Reativar
                             </a>
                         {% endif %}
+                        {% else %}<span class="text-muted">Somente consulta</span>{% endif %}
                     </td>
                 </tr>
             {% empty %}

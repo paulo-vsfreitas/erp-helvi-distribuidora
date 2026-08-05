@@ -17,12 +17,25 @@ from vendas.models import Venda
 
 
 @transaction.atomic
-def cancelar_venda(*, venda, usuario, motivo):
+def cancelar_venda(*, venda, usuario, autorizado_por, motivo):
     """Cancela a venda e reverte estoque e financeiro atomicamente."""
 
     if not usuario or not usuario.is_authenticated:
         raise ValidationError(
             "Não foi possível identificar o usuário responsável."
+        )
+
+    if not autorizado_por or not autorizado_por.is_authenticated or not (
+        autorizado_por.is_superuser
+        or autorizado_por.perfil == "ADM"
+    ):
+        raise ValidationError(
+            "O cancelamento exige autorização de um administrador ativo."
+        )
+
+    if not autorizado_por.is_active:
+        raise ValidationError(
+            "O administrador informado está inativo."
         )
 
     motivo = (motivo or "").strip()
@@ -53,6 +66,7 @@ def cancelar_venda(*, venda, usuario, motivo):
     _cancelar_financeiro(
         venda=venda,
         usuario=usuario,
+        autorizado_por=autorizado_por,
         motivo=motivo,
     )
 
@@ -62,6 +76,7 @@ def cancelar_venda(*, venda, usuario, motivo):
     venda.valor_troco = Decimal("0.00")
     venda.estoque_baixado = False
     venda.cancelada_por = usuario
+    venda.cancelamento_autorizado_por = autorizado_por
     venda.cancelada_em = timezone.now()
     venda.motivo_cancelamento = motivo
     venda.save(
@@ -72,6 +87,7 @@ def cancelar_venda(*, venda, usuario, motivo):
             "valor_troco",
             "estoque_baixado",
             "cancelada_por",
+            "cancelamento_autorizado_por",
             "cancelada_em",
             "motivo_cancelamento",
         ]
@@ -132,7 +148,7 @@ def _estornar_estoque(*, venda, usuario, motivo):
         )
 
 
-def _cancelar_financeiro(*, venda, usuario, motivo):
+def _cancelar_financeiro(*, venda, usuario, autorizado_por, motivo):
     conta = (
         ContaReceber.objects
         .select_for_update()
@@ -215,6 +231,8 @@ def _cancelar_financeiro(*, venda, usuario, motivo):
             "venda_numero": venda.numero,
             "motivo": motivo,
             "recebimentos_estornados": len(recebimentos),
+            "solicitado_por_id": usuario.pk,
+            "autorizado_por_id": autorizado_por.pk,
         },
         usuario=usuario,
     )

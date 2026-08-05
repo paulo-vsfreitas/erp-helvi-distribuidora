@@ -8,10 +8,9 @@ from reportlab.platypus import (
 )
 
 from reportlab.lib import colors as reportlab_colors
-from django.utils import timezone
-
 from core.pdf import HelviPDF
 from core.pdf import colors as helvi_colors
+from core.pdf.elements.quantities import resumo_quantidades
 from core.pdf.styles import SUBTITLE, TEXT
 
 
@@ -29,6 +28,7 @@ class OrcamentoPDF:
         self.orcamento = orcamento
         self.pdf = HelviPDF(
             title=f"Orçamento {orcamento.codigo}",
+            exibir_data_emissao=False,
         )
 
     def build(self):
@@ -37,6 +37,7 @@ class OrcamentoPDF:
         self._cliente()
         self._entrega()
         self._itens()
+        self._resumo_quantidades()
         self._financeiro()
         self._informacoes_comerciais()
         self._assinaturas()
@@ -61,7 +62,6 @@ class OrcamentoPDF:
         dados = [
             [Paragraph(f"<b>Status:</b> {self.orcamento.get_status_display()}", TEXT), Paragraph(f"<b>Vendedor:</b> {vendedor}", TEXT)],
             [Paragraph(f"<b>Emissão:</b> {self.orcamento.data_emissao:%d/%m/%Y}", TEXT), Paragraph(f"<b>Validade:</b> {self.orcamento.data_validade:%d/%m/%Y}", TEXT)],
-            [Paragraph(f"<b>Atualizado:</b> {timezone.localtime():%d/%m/%Y %H:%M}", TEXT), ""],
         ]
 
         tabela = Table(
@@ -287,6 +287,13 @@ class OrcamentoPDF:
 
         self.pdf.story.append(tabela)
         self.pdf.story.append(Spacer(1, 6 * mm))
+
+    def _resumo_quantidades(self):
+        self.pdf.story.append(resumo_quantidades(
+            produtos=self.orcamento.quantidade_produtos,
+            itens=self.orcamento.quantidade_itens,
+            pecas=self.orcamento.quantidade_pecas,
+        ))
 
     def _financeiro(self):
         itens = list(

@@ -15,6 +15,7 @@ class AcoesProdutoTests(TestCase):
         cls.usuario = get_user_model().objects.create_user(
             username="produto-acoes",
             password="senha-segura",
+            perfil="GER",
         )
         cls.produto = Produto.objects.create(
             codigo="ACAO-001",
@@ -80,6 +81,7 @@ class CamposOpcionaisProdutoTests(TestCase):
         cls.usuario = get_user_model().objects.create_user(
             username="produto-campos-opcionais",
             password="senha-segura",
+            perfil="GER",
         )
 
     def setUp(self):

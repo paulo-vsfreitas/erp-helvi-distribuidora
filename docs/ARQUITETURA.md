@@ -152,9 +152,14 @@ aplicação, não bibliotecas genéricas.
 - perfis ADM, GER, VEN e FIN;
 - matriz central em `usuarios/permissoes.py`;
 - aplicação por `PermissaoModuloMiddleware`;
+- matriz adicional por ação para impedir operações sensíveis por URL direta;
+- autorização registra separadamente solicitante e autorizador quando uma
+  credencial administrativa é exigida;
 - primeiro acesso força definição de senha pessoal;
 - CSRF ativo e ações destrutivas por POST;
 - produção exige HTTPS, cookies seguros, HSTS e `DEBUG=False`.
+- tentativas de login são limitadas por usuário e IP, persistidas para auditoria
+  e configuradas por variáveis de ambiente.
 
 ## Interface
 
