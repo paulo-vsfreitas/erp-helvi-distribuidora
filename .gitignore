@@ -28,6 +28,7 @@ Thumbs.db
 
 # Cache do Django
 *.sqlite3-journal
+staticfiles/
 
 # Backups do PostgreSQL
 backups/

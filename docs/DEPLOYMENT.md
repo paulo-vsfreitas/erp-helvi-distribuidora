@@ -101,6 +101,14 @@ Um backup nunca testado não atende ao critério da versão 1.0.
 - usuários e permissões;
 - relatório de vendas e Central de Relatórios.
 
+## Homologação gratuita no Render
+
+O arquivo `render.yaml` descreve o serviço de homologação conectado à branch
+`chore/ambiente-homologacao`. Credenciais do Supabase são cadastradas como
+variáveis secretas no painel e nunca entram no Git. O plano gratuito pode
+hibernar por inatividade e possui sistema de arquivos efêmero; por isso, uploads
+de homologação são descartáveis até a adoção de armazenamento externo.
+
 ## Rollback
 
 - interromper novas operações;

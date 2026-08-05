@@ -13,6 +13,8 @@ ambiente definitivo. Publicação em produção ainda exige backup, configuraç�
 de infraestrutura, SMTP real, HTTPS e plano de restauração.
 O projeto já suporta configuração isolada de homologação, com banco próprio,
 aviso visual permanente, e-mail em modo seguro e PDFs identificados.
+Há também uma especificação de implantação gratuita no Render, ligada à branch
+de homologação e com segredos fornecidos apenas pelo painel da hospedagem.
 
 A Central de Configurações permite manter os dados institucionais, WhatsApp,
 Instagram, Facebook, os canais exibidos nos PDFs e os modelos
