@@ -1,6 +1,6 @@
 # Módulo Comercial — Orçamentos
 
-Atualizado em 04/08/2026.
+Atualizado em 05/08/2026.
 
 ## Fluxo
 
@@ -23,10 +23,12 @@ Cliente cadastrado ou interessado avulso
 - busca e filtros por dados do documento;
 - cliente cadastrado ou interessado avulso;
 - autocomplete de clientes e produtos;
-- prevenção de produto duplicado;
+- prevenção da combinação duplicada de produto e cor;
 - cálculo e resumo financeiro;
 - criação e edição;
 - ficha e PDF;
+- PDF institucional no mesmo padrão da venda, com logo, dados da empresa e do
+  cliente, vendedor, validade, entrega, cores, totais, observações e assinaturas;
 - duplicação;
 - status rascunho, enviado, aprovado, rejeitado, cancelado e convertido;
 - histórico de compartilhamentos;
@@ -36,6 +38,11 @@ Cliente cadastrado ou interessado avulso
 - conversão idempotente em venda;
 - formatação monetária brasileira;
 - testes de regra, filtros, comunicação e conversão.
+- modalidade de entrega, endereço e frete;
+- seleção de variação de cor por item.
+- busca em cards ampliados, com cores disponíveis clicáveis no próprio resultado;
+- mesmo produto permitido em cores diferentes e produto sem cor identificado
+  como **Sem variação**.
 
 ## Valor orçado
 

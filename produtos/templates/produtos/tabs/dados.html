@@ -64,14 +64,6 @@
             </div>
 
             <div class="form-group">
-                <label for="{{ form.cores_disponiveis.id_for_label }}">
-                    Cores Disponíveis
-                </label>
-                {{ form.cores_disponiveis }}
-                {{ form.cores_disponiveis.errors }}
-            </div>
-
-            <div class="form-group">
                 <label for="{{ form.preco_custo.id_for_label }}">
                     Preço de Custo
                 </label>
@@ -129,6 +121,51 @@
             {{ form.ativo.errors }}
         </div>
 
+        <section class="table-card mt-4 mb-4">
+            <div class="table-card-header d-flex justify-content-between align-items-center">
+                <span>Variações de cor</span>
+                <button type="button" id="adicionar-cor" class="btn btn-secondary btn-sm"{% if sem_variacao_cor %} disabled{% endif %}>
+                    <i class="bi bi-plus-circle"></i> Adicionar cor
+                </button>
+            </div>
+            <div class="p-3">
+                <div class="form-check form-switch mb-2">
+                    <input type="checkbox" class="form-check-input" id="sem-variacao-cor" name="sem_variacao_cor"{% if sem_variacao_cor %} checked{% endif %}{% if tem_variacoes_cor %} disabled{% endif %}>
+                    <label class="form-check-label fw-semibold" for="sem-variacao-cor">Produto sem variação de cor</label>
+                </div>
+                {% if tem_variacoes_cor %}
+                    <div class="form-text mb-3">Este produto já possui cores cadastradas. Remova cada variação individualmente antes de mudar para produto sem cor.</div>
+                {% else %}
+                    <div class="form-text mb-3">Marque esta opção quando não for necessário controlar estoque por cor.</div>
+                {% endif %}
+                <div id="campos-variacoes-cor"{% if sem_variacao_cor %} style="display:none"{% endif %}>
+                <p class="text-muted">Cadastre cada cor separadamente. O estoque total será a soma das variações.</p>
+                {{ cores_formset.management_form }}
+                {% for erro in cores_formset.non_form_errors %}<div class="alert alert-danger">{{ erro }}</div>{% endfor %}
+                <div id="cores-formset">
+                    {% for cor_form in cores_formset %}
+                    <div class="row g-3 align-items-end border rounded p-3 mb-2 cor-form">
+                        {{ cor_form.id }}
+                        <div class="col-md-4"><label>Nome/descrição</label>{{ cor_form.nome }}{{ cor_form.nome.errors }}</div>
+                        <div class="col-md-3"><label>Código da cor</label>{{ cor_form.codigo }}{{ cor_form.codigo.errors }}</div>
+                        <div class="col-md-3"><label>Estoque</label>{{ cor_form.estoque }}{{ cor_form.estoque.errors }}</div>
+                        <div class="col-md-2">{{ cor_form.DELETE.as_hidden }}<button type="button" class="btn btn-outline-danger remover-cor">Remover</button></div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <template id="cor-vazia">
+                    <div class="row g-3 align-items-end border rounded p-3 mb-2 cor-form">
+                        {{ cores_formset.empty_form.id }}
+                        <div class="col-md-4"><label>Nome/descrição</label>{{ cores_formset.empty_form.nome }}</div>
+                        <div class="col-md-3"><label>Código da cor</label>{{ cores_formset.empty_form.codigo }}</div>
+                        <div class="col-md-3"><label>Estoque</label>{{ cores_formset.empty_form.estoque }}</div>
+                        <div class="col-md-2">{{ cores_formset.empty_form.DELETE.as_hidden }}<button type="button" class="btn btn-outline-danger remover-cor">Remover</button></div>
+                    </div>
+                </template>
+                </div>
+            </div>
+        </section>
+
         <div class="form-actions">
             <button
                 type="submit"
@@ -149,3 +186,44 @@
     </form>
 
 </div>
+
+<script>
+(function () {
+    const container = document.getElementById('cores-formset');
+    const total = document.getElementById('id_cores-TOTAL_FORMS');
+    const semVariacao = document.getElementById('sem-variacao-cor');
+    const camposVariacoes = document.getElementById('campos-variacoes-cor');
+    const adicionarCor = document.getElementById('adicionar-cor');
+
+    function alternarVariacoes() {
+        const ocultar = semVariacao.checked;
+        camposVariacoes.style.display = ocultar ? 'none' : '';
+        adicionarCor.disabled = ocultar;
+        if (ocultar) {
+            container.querySelectorAll('.cor-form').forEach(function (linha) {
+                const id = linha.querySelector('input[name$="-id"]');
+                if (id && id.value) return;
+                linha.querySelectorAll('input:not([name$="-DELETE"]), select, textarea').forEach(function (campo) {
+                    campo.value = '';
+                });
+            });
+        }
+    }
+
+    semVariacao.addEventListener('change', alternarVariacoes);
+    adicionarCor.addEventListener('click', function () {
+        const html = document.getElementById('cor-vazia').innerHTML.replaceAll('__prefix__', total.value);
+        container.insertAdjacentHTML('beforeend', html);
+        total.value = Number(total.value) + 1;
+    });
+    container.addEventListener('click', function (event) {
+        if (!event.target.classList.contains('remover-cor')) return;
+        const linha = event.target.closest('.cor-form');
+        const excluir = linha.querySelector('input[name$="-DELETE"]');
+        const id = linha.querySelector('input[name$="-id"]');
+        if (id && id.value) { excluir.value = 'on'; linha.style.display = 'none'; }
+        else { linha.remove(); }
+    });
+    alternarVariacoes();
+})();
+</script>

@@ -1,9 +1,15 @@
 from django.contrib import admin
-from .models import Produto
+from .models import Produto, VariacaoCor
+
+
+class VariacaoCorInline(admin.TabularInline):
+    model = VariacaoCor
+    extra = 0
 
 
 @admin.register(Produto)
 class ProdutoAdmin(admin.ModelAdmin):
+    inlines = [VariacaoCorInline]
     list_display = (
         'codigo',
         'modelo',

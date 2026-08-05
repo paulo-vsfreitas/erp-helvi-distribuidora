@@ -2,8 +2,10 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Q, Sum
 from django.shortcuts import render
+from django.contrib.auth import get_user_model
 
 from vendas.models import Venda
+from vendas.services.cadastro_service import pode_editar_vendedor
 
 
 @login_required
@@ -51,6 +53,20 @@ def lista_vendas(request):
 
     vendas_finalizadas = Venda.objects.filter(status=Venda.STATUS_FINALIZADA)
 
+    Usuario = get_user_model()
+    vendedores = (
+        Usuario.objects.filter(
+            is_active=True,
+            perfil__in=[
+                Usuario.Perfil.ADMINISTRADOR,
+                Usuario.Perfil.GERENTE,
+                Usuario.Perfil.VENDEDOR,
+            ],
+        ).order_by("first_name", "username")
+        if pode_editar_vendedor(request.user)
+        else []
+    )
+
     return render(
         request,
         "vendas/lista.html",
@@ -71,5 +87,7 @@ def lista_vendas(request):
                 "total"
             ]
             or 0,
+            "pode_editar_vendedor": pode_editar_vendedor(request.user),
+            "vendedores": vendedores,
         },
     )

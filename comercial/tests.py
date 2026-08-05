@@ -28,6 +28,7 @@ from comercial.services.conversao_service import (
 from produtos.models import Produto
 from usuarios.models import Usuario
 from vendas.models import Venda
+from core.pdf.documents.orcamento import OrcamentoPDF
 
 
 class DashboardComercialTests(TestCase):
@@ -292,6 +293,12 @@ class EdicaoOrcamentoTests(TestCase):
         itens = json.loads(response.context["itens_json"])
         self.assertEqual(len(itens), 1)
         self.assertEqual(itens[0]["produto_id"], self.produto.pk)
+
+    def test_pdf_orcamento_usa_layout_institucional_completo(self):
+        conteudo = OrcamentoPDF(self.orcamento).build()
+
+        self.assertTrue(conteudo.startswith(b"%PDF"))
+        self.assertGreater(len(conteudo), 1000)
 
     def test_edicao_atualiza_dados_itens_e_totais(self):
         response = self.client.post(

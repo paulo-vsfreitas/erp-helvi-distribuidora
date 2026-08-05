@@ -12,7 +12,7 @@ from financeiro.models import (
     ParcelaReceber,
     RecebimentoConta,
 )
-from produtos.models import Produto
+from produtos.models import Produto, VariacaoCor
 from vendas.models import Venda
 
 
@@ -91,6 +91,12 @@ def _estornar_estoque(*, venda, usuario, motivo):
             .filter(pk__in=produto_ids)
         )
     }
+    variacoes = {
+        cor.pk: cor
+        for cor in VariacaoCor.objects.select_for_update().filter(
+            pk__in=[item.variacao_cor_id for item in itens if item.variacao_cor_id]
+        )
+    }
 
     if len(produtos) != len(set(produto_ids)):
         raise ValidationError(
@@ -99,6 +105,10 @@ def _estornar_estoque(*, venda, usuario, motivo):
 
     for item in itens:
         produto = produtos[item.produto_id]
+        if item.variacao_cor_id:
+            cor = variacoes[item.variacao_cor_id]
+            cor.estoque += item.quantidade
+            cor.save(update_fields=["estoque"])
         saldo_anterior = produto.estoque_atual or 0
         saldo_atual = saldo_anterior + item.quantidade
 
@@ -107,6 +117,7 @@ def _estornar_estoque(*, venda, usuario, motivo):
 
         MovimentacaoEstoque.objects.create(
             produto=produto,
+            variacao_cor_id=item.variacao_cor_id,
             tipo="cancelamento_venda",
             quantidade=item.quantidade,
             saldo_anterior=saldo_anterior,

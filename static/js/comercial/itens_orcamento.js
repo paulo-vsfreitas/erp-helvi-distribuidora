@@ -37,6 +37,8 @@
                         || item.produto_nome
                         || "",
                     marca: item.marca || "",
+                    variacoes: item.variacoes || [],
+                    variacao_cor_id: Number(item.variacao_cor_id || 0) || null,
                     quantidade: this.normalizarQuantidade(item.quantidade),
                     valor_unitario: this.normalizarDecimal(
                         item.valor_unitario
@@ -52,6 +54,7 @@
 
         adicionarProduto(produto) {
             const produtoId = Number(produto.id);
+            const variacaoCorId = Number(produto.variacao_cor_id || 0) || null;
 
             if (!produtoId) {
                 return {
@@ -60,18 +63,20 @@
                 };
             }
 
-            const existente = this.itens.find(
-                (item) => item.produto_id === produtoId
-            );
+            if ((produto.variacoes || []).length && !variacaoCorId) {
+                return {sucesso: false, mensagem: "Selecione uma cor disponível para este produto."};
+            }
+
+            const existente = this.obterItem(produtoId, variacaoCorId);
 
             if (existente) {
-                this.destacarProdutoExistente(produtoId);
+                this.destacarProdutoExistente(produtoId, variacaoCorId);
 
                 return {
                     sucesso: false,
                     mensagem:
-                        "Este produto já foi adicionado ao orçamento. " +
-                        "Altere a quantidade ou o desconto diretamente na lista.",
+                        "Esta combinação de produto e cor já foi adicionada. " +
+                        "Altere a quantidade diretamente na lista ou escolha outra cor.",
                 };
             }
 
@@ -80,6 +85,8 @@
                 codigo: produto.codigo || "",
                 descricao: this.montarDescricao(produto),
                 marca: produto.marca || "",
+                variacoes: produto.variacoes || [],
+                variacao_cor_id: variacaoCorId,
                 quantidade: 1,
                 valor_unitario: this.normalizarDecimal(produto.preco_venda),
                 desconto: 0,
@@ -103,9 +110,9 @@
             return partes.join(" • ");
         }
 
-        destacarProdutoExistente(produtoId) {
+        destacarProdutoExistente(produtoId, variacaoCorId = null) {
             const linha = this.corpoTabela.querySelector(
-                `tr[data-produto-id="${produtoId}"]`
+                `tr[data-chave-item="${produtoId}:${variacaoCorId || ""}"]`
             );
 
             if (!linha) {
@@ -135,35 +142,17 @@
             }
         }
 
-        atualizarQuantidade(produtoId, valor) {
-            const item = this.obterItem(produtoId);
-
-            if (!item) {
-                return;
-            }
-
+        atualizarQuantidade(item, valor) {
             item.quantidade = this.normalizarQuantidade(valor);
             this.atualizar();
         }
 
-        atualizarValorUnitario(produtoId, valor) {
-            const item = this.obterItem(produtoId);
-
-            if (!item) {
-                return;
-            }
-
+        atualizarValorUnitario(item, valor) {
             item.valor_unitario = this.normalizarDecimal(valor);
             this.atualizar();
         }
 
-        atualizarDesconto(produtoId, valor) {
-            const item = this.obterItem(produtoId);
-
-            if (!item) {
-                return;
-            }
-
+        atualizarDesconto(item, valor) {
             item.desconto = Math.max(
                 0,
                 this.normalizarDecimal(valor)
@@ -178,17 +167,18 @@
             this.atualizar();
         }
 
-        removerProduto(produtoId) {
+        removerProduto(itemRemovido) {
             this.itens = this.itens.filter(
-                (item) => item.produto_id !== Number(produtoId)
+                (item) => item !== itemRemovido
             );
 
             this.atualizar();
         }
 
-        obterItem(produtoId) {
+        obterItem(produtoId, variacaoCorId = null) {
             return this.itens.find(
                 (item) => item.produto_id === Number(produtoId)
+                    && (item.variacao_cor_id || null) === (Number(variacaoCorId || 0) || null)
             );
         }
 
@@ -217,7 +207,7 @@
                 this.corpoTabela.innerHTML = `
                     <tr id="estado-vazio">
                         <td
-                            colspan="7"
+                            colspan="8"
                             class="text-center text-muted py-4"
                         >
                             Nenhum produto adicionado.
@@ -234,6 +224,7 @@
                 const totalItem = this.calcularTotalItem(item);
 
                 linha.dataset.produtoId = item.produto_id;
+                linha.dataset.chaveItem = `${item.produto_id}:${item.variacao_cor_id || ""}`;
 
                 linha.innerHTML = `
                     <td>
@@ -250,6 +241,13 @@
                                     : ""
                             }
                         </div>
+                    </td>
+
+                    <td>
+                        <select class="form-select form-select-sm item-variacao-cor" ${item.variacoes.length ? "required" : "disabled"}>
+                            <option value="">${item.variacoes.length ? "Selecione" : "Sem variação"}</option>
+                            ${item.variacoes.map((cor) => `<option value="${cor.id}" ${Number(item.variacao_cor_id) === Number(cor.id) ? "selected" : ""}>${this.escaparHtml(cor.nome)} (${this.escaparHtml(cor.codigo)}) · estoque ${cor.estoque}</option>`).join("")}
+                        </select>
                     </td>
 
                     <td>
@@ -297,44 +295,62 @@
                     </td>
                 `;
 
-                this.registrarEventosLinha(linha, item.produto_id);
+                this.registrarEventosLinha(linha, item);
                 this.corpoTabela.appendChild(linha);
             });
 
             this.sincronizarJson();
         }
 
-        registrarEventosLinha(linha, produtoId) {
+        registrarEventosLinha(linha, item) {
             const quantidade = linha.querySelector(".item-quantidade");
             const valorUnitario = linha.querySelector(
                 ".item-valor-unitario"
             );
             const desconto = linha.querySelector(".item-desconto");
+            const variacao = linha.querySelector(".item-variacao-cor");
             const remover = linha.querySelector(".item-remover");
 
             quantidade.addEventListener("change", () => {
-                this.atualizarQuantidade(produtoId, quantidade.value);
+                this.atualizarQuantidade(item, quantidade.value);
             });
 
             valorUnitario.addEventListener("change", () => {
                 this.atualizarValorUnitario(
-                    produtoId,
+                    item,
                     valorUnitario.value
                 );
             });
 
             desconto.addEventListener("change", () => {
-                this.atualizarDesconto(produtoId, desconto.value);
+                this.atualizarDesconto(item, desconto.value);
+            });
+
+            variacao.addEventListener("change", () => {
+                const novaVariacao = Number(variacao.value || 0) || null;
+                const duplicado = this.itens.find((outro) =>
+                    outro !== item
+                    && outro.produto_id === item.produto_id
+                    && (outro.variacao_cor_id || null) === novaVariacao
+                );
+                if (duplicado) {
+                    variacao.value = item.variacao_cor_id || "";
+                    window.alert("Esta combinação de produto e cor já foi adicionada.");
+                    return;
+                }
+                item.variacao_cor_id = novaVariacao;
+                this.sincronizarJson();
             });
 
             remover.addEventListener("click", () => {
-                this.removerProduto(produtoId);
+                this.removerProduto(item);
             });
         }
 
         sincronizarJson() {
             const itensParaEnvio = this.itens.map((item) => ({
                 produto_id: item.produto_id,
+                variacao_cor_id: item.variacao_cor_id,
                 quantidade: item.quantidade,
                 valor_unitario: this.formatarDecimalEnvio(
                     item.valor_unitario

@@ -4,10 +4,13 @@ from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
 
-from produtos.models import Produto
+from produtos.models import Produto, VariacaoCor
 
 
 class Orcamento(models.Model):
+    class TipoEntrega(models.TextChoices):
+        RETIRADA = "retirada", "Retirada"
+        ENVIO = "envio", "Envio / entrega"
     class Status(models.TextChoices):
         RASCUNHO = "rascunho", "Rascunho"
         ENVIADO = "enviado", "Enviado"
@@ -98,6 +101,20 @@ class Orcamento(models.Model):
         validators=[MinValueValidator(Decimal("0.00"))],
         verbose_name="Frete",
     )
+
+    tipo_entrega = models.CharField(
+        max_length=10,
+        choices=TipoEntrega.choices,
+        default=TipoEntrega.RETIRADA,
+        verbose_name="Forma de entrega",
+    )
+    entrega_cep = models.CharField(max_length=9, blank=True)
+    entrega_logradouro = models.CharField(max_length=200, blank=True)
+    entrega_numero = models.CharField(max_length=20, blank=True)
+    entrega_complemento = models.CharField(max_length=100, blank=True)
+    entrega_bairro = models.CharField(max_length=100, blank=True)
+    entrega_cidade = models.CharField(max_length=100, blank=True)
+    entrega_estado = models.CharField(max_length=2, blank=True)
 
     total = models.DecimalField(
         max_digits=12,
@@ -215,6 +232,15 @@ class ItemOrcamento(models.Model):
         verbose_name="Produto",
     )
 
+    variacao_cor = models.ForeignKey(
+        VariacaoCor,
+        on_delete=models.PROTECT,
+        related_name="itens_orcamento",
+        null=True,
+        blank=True,
+        verbose_name="Variação de cor",
+    )
+
     quantidade = models.PositiveIntegerField(
         validators=[MinValueValidator(1)],
         verbose_name="Quantidade",
@@ -259,8 +285,8 @@ class ItemOrcamento(models.Model):
         ordering = ["id"]
         constraints = [
             models.UniqueConstraint(
-                fields=["orcamento", "produto"],
-                name="orcamento_produto_unico",
+                fields=["orcamento", "produto", "variacao_cor"],
+                name="orcamento_produto_cor_unico",
             ),
         ]
 

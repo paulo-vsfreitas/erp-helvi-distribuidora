@@ -31,6 +31,11 @@ Atualizado em 04/08/2026.
 - prevenção de estorno duplicado;
 - dashboard e próximos vencimentos;
 - fluxo de caixa com entradas, saídas e estornos.
+- fluxo de caixa com período mensal padrão e saldo anterior sem duplicar os
+  movimentos exibidos;
+- análise de lucro e margem por período e por venda finalizada;
+- receita dos produtos, custo histórico das mercadorias, lucro bruto, margem,
+  quantidade vendida e frete discriminado.
 
 ## Regras críticas
 
@@ -53,9 +58,11 @@ Atualizado em 04/08/2026.
 
 ## Relatórios
 
-O dashboard e as listas fornecem a visão operacional da versão 1.0. Relatórios
-analíticos por período, categoria, projeção e exportação permanecem no backlog
-pós-1.0.
+O dashboard e as listas fornecem a visão operacional da versão 1.0. A página
+**Financeiro → Lucro e Margem** apresenta a rentabilidade comercial com o custo
+unitário preservado na finalização da venda. Esse indicador é lucro bruto; uma
+apuração líquida contábil depende do lançamento completo de impostos, taxas,
+despesas operacionais e custos logísticos.
 
 ## Manutenção
 

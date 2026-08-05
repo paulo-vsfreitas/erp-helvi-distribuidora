@@ -70,7 +70,10 @@
                                 <td>{% if venda.numero %}<a href="{% url 'vendas:ficha' venda.numero %}" class="hui-document-number">#{{ venda.numero|stringformat:"06d" }}</a>{% else %}<span class="text-danger">Sem número</span>{% endif %}</td>
                                 <td><strong>{% if venda.cliente %}{{ venda.cliente }}{% else %}Consumidor Final{% endif %}</strong>{% if venda.cliente and venda.cliente.razao_social != venda.cliente.nome_fantasia %}<small class="d-block text-muted">{{ venda.cliente.razao_social }}</small>{% endif %}</td>
                                 <td class="text-nowrap">{{ venda.data_venda|date:"d/m/Y H:i" }}</td>
-                                <td>{% if venda.finalizada_por %}{{ venda.finalizada_por.get_full_name|default:venda.finalizada_por }}{% elif venda.criada_por %}{{ venda.criada_por.get_full_name|default:venda.criada_por }}{% else %}<span class="text-muted">Não informado</span>{% endif %}</td>
+                                <td>
+                                    {% if venda.criada_por %}{{ venda.criada_por.get_full_name|default:venda.criada_por }}{% else %}<span class="text-muted">Não informado</span>{% endif %}
+                                    {% if pode_editar_vendedor and venda.numero %}<a href="{% url 'vendas:ficha' venda.numero %}#alterar-vendedor" class="d-block small">Alterar vendedor</a>{% endif %}
+                                </td>
                                 <td>{% if venda.status == "finalizada" %}<span class="badge bg-success">Finalizada</span>{% elif venda.status == "cancelada" %}<span class="badge bg-danger">Cancelada</span>{% else %}<span class="badge bg-primary">Em aberto</span>{% endif %}</td>
                                 <td>{% if venda.status_pagamento == "pago" %}<span class="badge bg-success">Pago</span>{% elif venda.status_pagamento == "parcial" %}<span class="badge bg-warning text-dark">Parcial</span>{% else %}<span class="badge bg-secondary">Pendente</span>{% endif %}</td>
                                 <td class="text-end text-nowrap"><strong>R$ {{ venda.total|floatformat:"2g" }}</strong></td>

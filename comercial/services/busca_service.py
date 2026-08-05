@@ -53,6 +53,7 @@ def buscar_produtos_para_orcamento(termo):
             "genero",
             "tipo_armacao",
         )
+        .prefetch_related("variacoes_cor")
         .order_by(
             "codigo",
             "modelo",

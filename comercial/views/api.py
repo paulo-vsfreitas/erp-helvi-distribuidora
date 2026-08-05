@@ -29,6 +29,11 @@ def api_buscar_clientes(request):
             "email": cliente.email or "",
             "cidade": cliente.cidade or "",
             "estado": cliente.estado or "",
+            "cep": cliente.cep or "",
+            "logradouro": cliente.logradouro or cliente.endereco or "",
+            "numero": cliente.numero or "",
+            "complemento": cliente.complemento or "",
+            "bairro": cliente.bairro or "",
             "limite_credito": str(
                 cliente.limite_credito
             ),
@@ -58,11 +63,11 @@ def api_buscar_produtos(request):
     dados = [
         {
             "id": produto.id,
-            "codigo": produto.codigo,
+            "codigo": produto.codigo or "",
             "codigo_fornecedor": (
                 produto.codigo_fornecedor or ""
             ),
-            "modelo": produto.modelo,
+            "modelo": produto.modelo or "",
             "marca": (
                 produto.marca.nome
                 if produto.marca
@@ -90,6 +95,15 @@ def api_buscar_produtos(request):
             "preco_venda": str(
                 produto.preco_venda
             ),
+            "variacoes": [
+                {
+                    "id": cor.pk,
+                    "nome": cor.nome or cor.codigo,
+                    "codigo": cor.codigo,
+                    "estoque": cor.estoque,
+                }
+                for cor in produto.variacoes_cor.all()
+            ],
         }
         for produto in produtos
     ]

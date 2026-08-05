@@ -1,6 +1,6 @@
 # Módulo Vendas
 
-Atualizado em 04/08/2026.
+Atualizado em 05/08/2026.
 
 ## Fluxo
 
@@ -34,6 +34,22 @@ Venda direta ou orçamento convertido
 - relatório de vendas;
 - constraints monetárias;
 - testes de finalização, pagamento, integração e cancelamento.
+- modalidade e endereço de entrega, com frete somente para envio;
+- variação de cor por item e baixa do estoque específico;
+- resumo do pedido em PDF também para vendas em aberto;
+- PDF institucional com logo configurada, dados completos da empresa e do
+  cliente, vendedor, entrega, pagamento, itens, fechamento financeiro,
+  observações, assinaturas, paginação e rodapé;
+- edição completa de vendas em aberto pela ficha, incluindo cliente, entrega,
+  itens, variação de cor, quantidades, preços, descontos e frete.
+- seleção da cor diretamente no card de resultado do produto, permitindo repetir
+  o mesmo produto quando a variação for diferente;
+- alteração do vendedor pela listagem para administradores e gerentes, sem
+  reprocessar as integrações da venda.
+- correção do vendedor pela ficha, inclusive após conclusão, autorizada pela
+  senha de Administrador, Gerente ou Financeiro;
+- compartilhamento do PDF pelo recurso nativo do dispositivo, com fallback de
+  download e abertura do WhatsApp.
 
 ## Regras críticas
 
@@ -45,6 +61,10 @@ Venda direta ou orçamento convertido
 - cancelamento não apaga a venda;
 - cancelamento registra responsável, data e motivo;
 - venda cancelada não pode provocar novo estorno.
+- somente vendas em aberto, ainda sem baixa de estoque ou geração financeira,
+  podem ser editadas.
+- a troca isolada do vendedor é permitida aos perfis Administrador, Gerente e
+  Financeiro mediante confirmação da própria senha, inclusive em vendas finalizadas.
 
 ## Arquivos principais
 
@@ -73,3 +93,6 @@ Qualquer alteração em total, pagamento ou status exige testes conjuntos de:
 - exportações adicionais;
 - rankings e comparação de períodos;
 - integrações fiscais, se definidas pela operação.
+- a ficha diferencia produto, código ERP e variação de cor, inclusive quando o
+  produto não possui código ou não trabalha com cores;
+- o resumo da ficha separa produtos distintos, itens/variações e peças;

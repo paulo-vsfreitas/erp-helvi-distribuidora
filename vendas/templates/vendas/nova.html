@@ -1,7 +1,7 @@
 {% extends "core/base.html" %}
 {% load static %}
 
-{% block title %}Nova Venda | ERP Helvi{% endblock %}
+{% block title %}{% if modo_edicao %}Editar Venda nº {{ venda.numero }}{% else %}Nova Venda{% endif %} | ERP Helvi{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/vendas.css' %}?v=1.0.0">
@@ -14,8 +14,8 @@
 <div class="page-header venda-page-header hui-page-header">
     <div>
         <span class="hui-page-header__eyebrow">Operação comercial</span>
-        <h1>Nova venda</h1>
-        <p>Registre os itens, combine o pagamento e revise antes de concluir.</p>
+        <h1>{% if modo_edicao %}Editar venda nº {{ venda.numero }}{% else %}Nova venda{% endif %}</h1>
+        <p>{% if modo_edicao %}Atualize cliente, entrega, produtos e valores da venda em aberto.{% else %}Registre os itens, combine o pagamento e revise antes de concluir.{% endif %}</p>
     </div>
 
     <a href="{% url 'vendas:lista' %}" class="btn btn-outline-secondary">
@@ -56,7 +56,7 @@
                             value="cadastrado"
                             id="tipo-cliente-cadastrado"
                             class="form-check-input"
-                            {% if request.POST.tipo_cliente != "consumidor_final" %}
+                            {% if request.POST.tipo_cliente != "consumidor_final" and not modo_edicao or modo_edicao and venda.cliente_id and request.POST.tipo_cliente != "consumidor_final" %}
                                 checked
                             {% endif %}
                         >
@@ -76,7 +76,7 @@
                             value="consumidor_final"
                             id="tipo-consumidor-final"
                             class="form-check-input"
-                            {% if request.POST.tipo_cliente == "consumidor_final" %}
+                            {% if request.POST.tipo_cliente == "consumidor_final" or modo_edicao and not venda.cliente_id and not request.POST %}
                                 checked
                             {% endif %}
                         >
@@ -92,6 +92,17 @@
             </div>
 
             <div class="row g-3">
+                {% if pode_editar_vendedor %}
+                <div class="col-md-6">
+                    <label for="id_vendedor" class="form-label">Vendedor responsável</label>
+                    <select id="id_vendedor" name="vendedor" class="form-select" required>
+                        {% for vendedor in vendedores %}
+                            <option value="{{ vendedor.pk }}"{% if vendedor.pk == vendedor_selecionado_id|add:"0" %} selected{% endif %}>{{ vendedor.get_full_name|default:vendedor.username }} — {{ vendedor.get_perfil_display }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="form-text">Disponível somente para administradores e gerentes.</div>
+                </div>
+                {% endif %}
                 <div
                     class="col-12"
                     id="campo-cliente"
@@ -108,9 +119,19 @@
                 </div>
 
                 <div class="col-md-6">
-                    <label class="form-label">Frete</label>
-                    {{ form.frete }}
-                    {{ form.frete.errors }}
+                    <label class="form-label">Forma de entrega</label>
+                    {{ form.tipo_entrega }}
+                </div>
+
+                <div id="dados-entrega" class="col-12 row g-3 m-0 p-0">
+                    <div class="col-md-3"><label class="form-label">CEP</label>{{ form.entrega_cep }}{{ form.entrega_cep.errors }}</div>
+                    <div class="col-md-6"><label class="form-label">Logradouro</label>{{ form.entrega_logradouro }}{{ form.entrega_logradouro.errors }}</div>
+                    <div class="col-md-3"><label class="form-label">Número</label>{{ form.entrega_numero }}{{ form.entrega_numero.errors }}</div>
+                    <div class="col-md-4"><label class="form-label">Complemento</label>{{ form.entrega_complemento }}</div>
+                    <div class="col-md-3"><label class="form-label">Bairro</label>{{ form.entrega_bairro }}</div>
+                    <div class="col-md-3"><label class="form-label">Cidade</label>{{ form.entrega_cidade }}{{ form.entrega_cidade.errors }}</div>
+                    <div class="col-md-2"><label class="form-label">UF</label>{{ form.entrega_estado }}{{ form.entrega_estado.errors }}</div>
+                    <div class="col-md-4"><label class="form-label">Valor do frete</label>{{ form.frete }}{{ form.frete.errors }}</div>
                 </div>
 
                 <div class="col-12">
@@ -154,6 +175,7 @@
                                     <th style="min-width: 360px;">
                                         Produto
                                     </th>
+                                    <th style="min-width: 180px;">Cor</th>
                                     <th style="width: 100px;">
                                         Qtde.
                                     </th>
@@ -528,9 +550,10 @@
                 class="btn btn-outline-primary"
             >
                 <i class="bi bi-floppy"></i>
-                Salvar em aberto
+                {% if modo_edicao %}Salvar alterações{% else %}Salvar em aberto{% endif %}
             </button>
 
+            {% if not modo_edicao %}
             <button
                 type="submit"
                 name="acao"
@@ -540,6 +563,7 @@
                 <i class="bi bi-check2-circle"></i>
                 Finalizar Venda
             </button>
+            {% endif %}
         </div>
     </div>
 </form>
@@ -570,6 +594,13 @@
 
                 <small class="produto-selecionado text-muted"></small>
             </div>
+        </td>
+
+        <td>
+            <input type="hidden" name="variacao_cor_id[]" class="variacao-cor-id" value="">
+            <select class="form-select variacao-cor" disabled>
+                <option value="">Sem variação</option>
+            </select>
         </td>
 
         <td>
@@ -629,6 +660,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const descontoGeral = document.getElementById("id_desconto");
     const frete = document.getElementById("id_frete");
+    const tipoEntrega = document.getElementById("id_tipo_entrega");
+    const dadosEntrega = document.getElementById("dados-entrega");
 
     const valorEntregue =
     document.getElementById("valor-entregue");
@@ -676,14 +709,47 @@ document.addEventListener("DOMContentLoaded", function () {
         );
     }
 
-    function adicionarItem() {
-        corpo.appendChild(
-            template.content.cloneNode(true)
-        );
+    function alternarEntrega() {
+        const envio = tipoEntrega.value === "envio";
+        dadosEntrega.style.display = envio ? "flex" : "none";
+        frete.disabled = !envio;
+        if (!envio) frete.value = "0,00";
+        atualizarTotais();
     }
 
-    function produtosJaAdicionados(linhaIgnorada = null) {
-        const produtos = new Set();
+    function adicionarItem(item = null) {
+        corpo.appendChild(template.content.cloneNode(true));
+        const linhas = corpo.querySelectorAll(".linha-item");
+        const linha = linhas[linhas.length - 1];
+        if (!item) return linha;
+
+        linha.querySelector(".produto-id").value = item.produto_id;
+        linha.querySelector(".produto-busca").value = item.descricao || "";
+        linha.querySelector(".quantidade").value = item.quantidade || 1;
+        linha.querySelector(".preco-unitario").value = numero(item.preco_unitario).toFixed(2).replace(".", ",");
+        linha.querySelector(".desconto-item").value = numero(item.desconto).toFixed(2).replace(".", ",");
+        linha.querySelector(".produto-selecionado").textContent = "Estoque disponível: " + (item.estoque || 0);
+        const seletor = linha.querySelector(".variacao-cor");
+        const variacaoId = linha.querySelector(".variacao-cor-id");
+        const variacoes = item.variacoes || [];
+        seletor.innerHTML = variacoes.length
+            ? '<option value="">Selecione a cor</option>'
+            : '<option value="">Sem variação</option>';
+        variacoes.forEach(function (cor) {
+            const opcao = document.createElement("option");
+            opcao.value = cor.id;
+            opcao.textContent = `${cor.nome} (${cor.codigo}) · estoque ${cor.estoque}`;
+            opcao.selected = Number(cor.id) === Number(item.variacao_cor_id);
+            seletor.appendChild(opcao);
+        });
+        seletor.disabled = !variacoes.length;
+        seletor.required = Boolean(variacoes.length);
+        variacaoId.value = item.variacao_cor_id || "";
+        return linha;
+    }
+
+    function combinacoesJaAdicionadas(linhaIgnorada = null) {
+        const combinacoes = new Set();
 
         corpo.querySelectorAll(".linha-item").forEach(function (linha) {
             if (linha === linhaIgnorada) {
@@ -692,19 +758,26 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const produtoId =
                 linha.querySelector(".produto-id").value;
+            const variacaoId =
+                linha.querySelector(".variacao-cor-id").value || "";
 
             if (produtoId) {
-                produtos.add(String(produtoId));
+                combinacoes.add(`${produtoId}:${variacaoId}`);
             }
         });
 
-        return produtos;
+        return combinacoes;
     }
 
     function limparSelecaoProduto(linha) {
         linha.querySelector(".produto-id").value = "";
         linha.querySelector(".preco-unitario").value = "";
         linha.querySelector(".produto-selecionado").textContent = "";
+        const seletorCor = linha.querySelector(".variacao-cor");
+        linha.querySelector(".variacao-cor-id").value = "";
+        seletorCor.innerHTML = '<option value="">Sem variação</option>';
+        seletorCor.disabled = true;
+        seletorCor.required = false;
         atualizarTotais();
     }
 
@@ -877,8 +950,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
             }
 
-            const adicionados =
-                produtosJaAdicionados(linha);
+            const adicionados = combinacoesJaAdicionadas(linha);
 
             dados.resultados.forEach(function (produto) {
                 const partes = [
@@ -890,22 +962,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 const descricao = partes.join(" — ");
 
-                const repetido = adicionados.has(
-                    String(produto.id)
-                );
-
-                const botao = document.createElement("button");
-
-                botao.type = "button";
-                botao.className =
-                    "list-group-item list-group-item-action resultado-produto";
-
-                botao.dataset.id = produto.id;
-                botao.dataset.preco = produto.preco;
-                botao.dataset.estoque = produto.estoque;
-                botao.dataset.descricao = descricao;
-
-                botao.innerHTML = `
+                const variacoes = produto.variacoes || [];
+                const card = document.createElement("div");
+                card.className = "list-group-item resultado-produto-card";
+                card.innerHTML = `
                     <div class="d-flex justify-content-between gap-3">
                         <strong>${descricao}</strong>
                         <span>${moeda(numero(produto.preco))}</span>
@@ -915,15 +975,31 @@ document.addEventListener("DOMContentLoaded", function () {
                         Estoque: ${produto.estoque}
                         ${produto.genero ? " · " + produto.genero : ""}
                         ${produto.tipo_armacao ? " · " + produto.tipo_armacao : ""}
-                        ${repetido ? " · Produto já adicionado" : ""}
                     </small>
+                    <div class="resultado-cores d-flex flex-wrap gap-2 mt-2"></div>
                 `;
-
-                if (repetido) {
-                    botao.disabled = true;
-                }
-
-                resultados.appendChild(botao);
+                const cores = card.querySelector(".resultado-cores");
+                const opcoes = variacoes.length ? variacoes : [{id: "", nome: "Sem variação", codigo: "", estoque: produto.estoque}];
+                opcoes.forEach(function (cor) {
+                    const botao = document.createElement("button");
+                    const chave = `${produto.id}:${cor.id || ""}`;
+                    const repetido = adicionados.has(chave);
+                    botao.type = "button";
+                    botao.className = repetido
+                        ? "btn btn-sm btn-outline-secondary resultado-produto"
+                        : "btn btn-sm btn-outline-primary resultado-produto";
+                    botao.dataset.id = produto.id;
+                    botao.dataset.preco = produto.preco;
+                    botao.dataset.estoque = cor.estoque;
+                    botao.dataset.descricao = descricao;
+                    botao.dataset.variacoes = JSON.stringify(variacoes);
+                    botao.dataset.variacaoId = cor.id || "";
+                    botao.textContent = `${cor.nome}${cor.codigo ? " (" + cor.codigo + ")" : ""} · estoque ${cor.estoque}`;
+                    botao.disabled = repetido;
+                    botao.title = repetido ? "Esta cor já foi adicionada" : "Selecionar esta cor";
+                    cores.appendChild(botao);
+                });
+                resultados.appendChild(card);
             });
         } catch (erro) {
             resultados.innerHTML = `
@@ -1003,10 +1079,11 @@ document.addEventListener("DOMContentLoaded", function () {
         const linha = resultado.closest(".linha-item");
         const produtoId = String(resultado.dataset.id);
 
-        if (produtosJaAdicionados(linha).has(produtoId)) {
+        const variacaoSelecionada = resultado.dataset.variacaoId || "";
+        if (combinacoesJaAdicionadas(linha).has(`${produtoId}:${variacaoSelecionada}`)) {
             alert(
-                "Produto já adicionado. " +
-                "Altere somente a quantidade do item existente."
+                "Esta combinação de produto e cor já foi adicionada. " +
+                "Altere a quantidade do item existente ou escolha outra cor."
             );
             return;
         }
@@ -1026,10 +1103,34 @@ document.addEventListener("DOMContentLoaded", function () {
             "Estoque disponível: " +
             resultado.dataset.estoque;
 
+        const seletorCor = linha.querySelector(".variacao-cor");
+        const campoVariacaoCor = linha.querySelector(".variacao-cor-id");
+        const variacoes = JSON.parse(resultado.dataset.variacoes || "[]");
+        seletorCor.innerHTML = variacoes.length
+            ? '<option value="">Selecione a cor</option>'
+            : '<option value="">Sem variação</option>';
+        variacoes.forEach(function (cor) {
+            const opcao = document.createElement("option");
+            opcao.value = cor.id;
+            opcao.textContent = `${cor.nome} (${cor.codigo}) · estoque ${cor.estoque}`;
+            seletorCor.appendChild(opcao);
+        });
+        seletorCor.value = variacaoSelecionada;
+        campoVariacaoCor.value = variacaoSelecionada;
+        seletorCor.disabled = !variacoes.length;
+        seletorCor.required = Boolean(variacoes.length);
+
         linha.querySelector(".produto-resultados").style.display =
             "none";
 
         atualizarTotais();
+    });
+
+    corpo.addEventListener("change", function (evento) {
+        const seletorCor = evento.target.closest(".variacao-cor");
+        if (!seletorCor) return;
+        const linha = seletorCor.closest(".linha-item");
+        linha.querySelector(".variacao-cor-id").value = seletorCor.value || "";
     });
 
     document.addEventListener("click", function (evento) {
@@ -1048,6 +1149,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     descontoGeral.addEventListener("input", atualizarTotais);
     frete.addEventListener("input", atualizarTotais);
+    tipoEntrega.addEventListener("change", alternarEntrega);
 
     document
         .querySelectorAll('input[name="tipo_cliente"]')
@@ -1129,9 +1231,15 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    adicionarItem();
+    const itensIniciais = JSON.parse("{{ itens_json|default:'[]'|escapejs }}");
+    if (itensIniciais.length) {
+        itensIniciais.forEach(adicionarItem);
+    } else {
+        adicionarItem();
+    }
     alternarCliente();
     alternarCondicaoPagamento();
+    alternarEntrega();
     atualizarTotais();
 });
 </script>

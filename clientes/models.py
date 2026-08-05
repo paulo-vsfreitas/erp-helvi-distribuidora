@@ -14,6 +14,11 @@ class Cliente(models.Model):
     cidade = models.CharField(max_length=100, blank=True, null=True)
     estado = models.CharField(max_length=2, blank=True, null=True)
     endereco = models.CharField(max_length=250, blank=True, null=True)
+    cep = models.CharField(max_length=9, blank=True, null=True)
+    logradouro = models.CharField(max_length=200, blank=True, null=True)
+    numero = models.CharField(max_length=20, blank=True, null=True)
+    complemento = models.CharField(max_length=100, blank=True, null=True)
+    bairro = models.CharField(max_length=100, blank=True, null=True)
 
     limite_credito = models.DecimalField(
         max_digits=10,

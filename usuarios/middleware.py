@@ -67,6 +67,15 @@ class PermissaoModuloMiddleware:
                 settings.LOGIN_URL,
             )
 
+        # O Financeiro pode consultar uma venda específica e corrigir seu
+        # vendedor mediante senha, sem receber acesso ao restante do módulo.
+        if (
+            request.user.perfil == "FIN"
+            and resolver_match.namespace == "vendas"
+            and resolver_match.url_name in {"ficha", "alterar_vendedor", "pdf"}
+        ):
+            return None
+
         if usuario_tem_permissao(
             request.user,
             modulo,

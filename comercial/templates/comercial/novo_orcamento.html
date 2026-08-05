@@ -286,6 +286,7 @@
                                 <tr>
                                     <th>Código</th>
                                     <th>Produto</th>
+                                    <th>Cor</th>
                                     <th>Qtd.</th>
                                     <th>Unitário</th>
                                     <th>Desc.</th>
@@ -298,7 +299,7 @@
 
                                 <tr id="estado-vazio">
                                     <td
-                                        colspan="7"
+                                        colspan="8"
                                         class="text-center text-muted"
                                     >
                                         Nenhum produto adicionado.
@@ -331,6 +332,8 @@
                 <div class="orcamento-form-card-body">
 
                     <div class="orcamento-grid-financeiro">
+
+                        <div class="orcamento-field"><label>Forma de entrega</label>{{ form.tipo_entrega }}</div>
 
                         <div class="orcamento-field">
 
@@ -368,6 +371,16 @@
 
                         </div>
 
+                    </div>
+
+                    <div id="orcamento-dados-entrega" class="row g-3 mb-4">
+                        <div class="col-md-3"><label>CEP</label>{{ form.entrega_cep }}{{ form.entrega_cep.errors }}</div>
+                        <div class="col-md-6"><label>Logradouro</label>{{ form.entrega_logradouro }}{{ form.entrega_logradouro.errors }}</div>
+                        <div class="col-md-3"><label>Número</label>{{ form.entrega_numero }}{{ form.entrega_numero.errors }}</div>
+                        <div class="col-md-4"><label>Complemento</label>{{ form.entrega_complemento }}</div>
+                        <div class="col-md-3"><label>Bairro</label>{{ form.entrega_bairro }}</div>
+                        <div class="col-md-3"><label>Cidade</label>{{ form.entrega_cidade }}{{ form.entrega_cidade.errors }}</div>
+                        <div class="col-md-2"><label>UF</label>{{ form.entrega_estado }}{{ form.entrega_estado.errors }}</div>
                     </div>
 
                     <div class="orcamento-field">
@@ -515,5 +528,21 @@
 <script src="{% static 'js/comercial/itens_orcamento.js' %}?v=3"></script>
 <script src="{% static 'js/comercial/resumo_financeiro.js' %}?v=2"></script>
 <script src="{% static 'js/comercial/novo_orcamento.js' %}?v=5"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const tipo = document.getElementById("id_tipo_entrega");
+    const dados = document.getElementById("orcamento-dados-entrega");
+    const frete = document.getElementById("id_frete");
+    function alternarEntrega() {
+        const envio = tipo.value === "envio";
+        dados.style.display = envio ? "flex" : "none";
+        frete.disabled = !envio;
+        if (!envio) frete.value = "0,00";
+        frete.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+    tipo.addEventListener("change", alternarEntrega);
+    alternarEntrega();
+});
+</script>
 
 {% endblock %}

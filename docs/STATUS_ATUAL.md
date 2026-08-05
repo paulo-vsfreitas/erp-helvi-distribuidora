@@ -1,24 +1,25 @@
 # Status Atual do ERP Helvi
 
-Atualizado em **04/08/2026**.
+Atualizado em **05/08/2026**.
 
 ## Resumo executivo
 
 O ERP Helvi está em **release candidate 1.0**. Os fluxos essenciais funcionam de
 ponta a ponta, as telas principais compartilham o Helvi UI, as integrações
-críticas possuem auditoria e o pacote automatizado possui 73 testes aprovados.
+críticas possuem auditoria e o pacote automatizado possui 110 testes aprovados.
 
 O código está pronto para a homologação de aceitação e para a preparação do
 ambiente definitivo. Publicação em produção ainda exige backup, configuração
 de infraestrutura, SMTP real, HTTPS e plano de restauração.
 
-A Central de Configurações permite manter os dados institucionais e os modelos
+A Central de Configurações permite manter os dados institucionais, WhatsApp,
+Instagram, Facebook, os canais exibidos nos PDFs e os modelos
 padrão de WhatsApp e e-mail usados no compartilhamento de orçamentos. O editor
 insere variáveis de forma guiada e mostra uma prévia com dados de exemplo.
 
 ## Validação registrada
 
-- `python manage.py test --keepdb`: **73 testes aprovados**;
+- `python manage.py test --keepdb`: **110 testes aprovados**;
 - `python manage.py check`: nenhum problema;
 - `python manage.py makemigrations --check --dry-run`: nenhuma mudança;
 - `python manage.py auditar_integracoes`: zero divergências;
@@ -34,14 +35,14 @@ insere variáveis de forma guiada e mostra uma prévia com dados de exemplo.
 |---|---|---|
 | Autenticação e usuários | Concluído | perfis, primeiro acesso, edição, ativação e proteção por módulo |
 | Catálogo | Concluído | marcas, coleções, gêneros e tipos de armação |
-| Produtos | Concluído | ficha, imagens, preços, estoque e filtros |
+| Produtos | Concluído | ficha, imagens, preços, estoque, filtros e identificação opcional |
 | Clientes / Óticas | Concluído | cadastro, edição, pesquisa e vínculo comercial |
 | Fornecedores | Concluído | dashboard, filtros, ficha e vínculo com compras |
 | Estoque | Concluído no escopo 1.0 | entradas, saídas, ajustes, inventários e rastreio |
 | Compras | Concluído | criação, edição, recebimento, estoque, custo, financeiro, cancelamento e PDF |
-| Financeiro | Concluído no escopo 1.0 | contas, parcelas, baixas, recebimentos, estornos e fluxo |
+| Financeiro | Concluído no escopo 1.0 | contas, parcelas, baixas, recebimentos, estornos, fluxo e rentabilidade comercial |
 | Comercial | Concluído | orçamento, edição, filtros, PDF, compartilhamento, status e conversão |
-| Vendas | Concluído | venda direta, orçamento, pagamento, estoque, financeiro e cancelamento |
+| Vendas | Concluído | venda direta, edição em aberto, orçamento, pagamento, estoque, financeiro e cancelamento |
 | Relatórios | Concluído no escopo 1.0 | 13 análises com filtros, KPIs, CSV e impressão; 6 PDFs oficiais |
 | Configurações | Funcional | dados institucionais e modelos de comunicação com variáveis validadas |
 
@@ -56,6 +57,8 @@ insere variáveis de forma guiada e mostra uma prévia com dados de exemplo.
 - estorno manual de baixa ou recebimento exige motivo e gera movimento inverso;
 - operações destrutivas relevantes são processadas por `POST`;
 - produtos e valores financeiros não podem ficar negativos pelas regras atuais;
+- o custo do item é preservado na finalização da venda para manter o lucro
+  histórico estável mesmo após alterações no cadastro do produto;
 - o middleware aplica a matriz central de permissões por módulo;
 - novos usuários criados pelo ERP passam pelo fluxo de primeiro acesso.
 

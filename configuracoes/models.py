@@ -103,6 +103,13 @@ class Empresa(models.Model):
         verbose_name="Site",
     )
 
+    instagram = models.CharField(max_length=150, blank=True, verbose_name="Instagram")
+    facebook = models.CharField(max_length=200, blank=True, verbose_name="Facebook")
+    exibir_whatsapp_pdf = models.BooleanField(default=True, verbose_name="Exibir WhatsApp nos PDFs")
+    exibir_instagram_pdf = models.BooleanField(default=False, verbose_name="Exibir Instagram nos PDFs")
+    exibir_facebook_pdf = models.BooleanField(default=False, verbose_name="Exibir Facebook nos PDFs")
+    exibir_site_pdf = models.BooleanField(default=True, verbose_name="Exibir site nos PDFs")
+
     cep = models.CharField(
         max_length=9,
         blank=True,

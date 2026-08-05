@@ -3,7 +3,7 @@ from django.db import transaction
 from django.utils import timezone
 
 from estoque.models import MovimentacaoEstoque
-from produtos.models import Produto
+from produtos.models import Produto, VariacaoCor
 from vendas.models import Venda
 from vendas.services.processamento_pagamento_service import (
     processar_pagamento_venda,
@@ -53,6 +53,12 @@ def finalizar_venda(
             .filter(pk__in=produto_ids)
         )
     }
+    variacoes = {
+        cor.pk: cor
+        for cor in VariacaoCor.objects.select_for_update().filter(
+            pk__in=[item.variacao_cor_id for item in itens if item.variacao_cor_id]
+        )
+    }
 
     erros_estoque = []
 
@@ -65,7 +71,10 @@ def finalizar_venda(
             )
             continue
 
-        estoque_atual = produto.estoque_atual or 0
+        estoque_atual = (
+            variacoes[item.variacao_cor_id].estoque
+            if item.variacao_cor_id else produto.estoque_atual or 0
+        )
 
         if estoque_atual < item.quantidade:
             erros_estoque.append(
@@ -86,6 +95,17 @@ def finalizar_venda(
         for item in itens:
             produto = produtos[item.produto_id]
 
+            # O custo definitivo pertence ao momento da finalização. Depois
+            # disso, alterações no cadastro do produto não mudam o histórico.
+            if item.custo_unitario != produto.preco_custo:
+                item.custo_unitario = produto.preco_custo
+                item.save(update_fields=["custo_unitario"])
+
+            if item.variacao_cor_id:
+                cor = variacoes[item.variacao_cor_id]
+                cor.estoque -= item.quantidade
+                cor.save(update_fields=["estoque"])
+
             saldo_anterior = produto.estoque_atual or 0
             saldo_atual = (
                 saldo_anterior - item.quantidade
@@ -93,6 +113,7 @@ def finalizar_venda(
 
             MovimentacaoEstoque.objects.create(
                 produto=produto,
+                variacao_cor_id=item.variacao_cor_id,
                 tipo="venda",
                 quantidade=item.quantidade,
                 saldo_anterior=saldo_anterior,

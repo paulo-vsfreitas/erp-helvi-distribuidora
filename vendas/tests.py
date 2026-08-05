@@ -12,7 +12,7 @@ from financeiro.models import (
     ParcelaReceber,
     RecebimentoConta,
 )
-from produtos.models import Produto
+from produtos.models import Produto, VariacaoCor
 from vendas.services.cancelamento_service import cancelar_venda
 from vendas.services.finalizacao_service import finalizar_venda
 from vendas.services.processamento_pagamento_service import (
@@ -115,6 +115,28 @@ class ListaVendasTests(TestCase):
         self.assertEqual(pdf_response["Content-Type"], "application/pdf")
         self.assertTrue(pdf_response.content.startswith(b"%PDF"))
 
+    def test_venda_em_aberto_possui_resumo_pdf(self):
+        response = self.client.get(reverse("vendas:pdf", args=[2]))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "application/pdf")
+        self.assertTrue(response.content.startswith(b"%PDF"))
+
+    def test_venda_em_aberto_exibe_botao_editar(self):
+        response = self.client.get(reverse("vendas:ficha", args=[2]))
+
+        self.assertContains(response, reverse("vendas:editar", args=[2]))
+
+    def test_api_produtos_retorna_variacoes_de_cor(self):
+        produto = Produto.objects.create(
+            codigo="COR-API", modelo="Produto com cor",
+            preco_venda=Decimal("50.00"), estoque_atual=4,
+        )
+        cor = VariacaoCor.objects.create(
+            produto=produto, nome="Azul", codigo="AZ", estoque=4,
+        )
+        response = self.client.get(reverse("vendas:api_produtos"), {"q": "COR-API"})
+        self.assertEqual(response.json()["resultados"][0]["variacoes"][0]["id"], cor.pk)
+
     def test_relatorio_permite_configurar_paginacao_e_indica_filtros(self):
         response = self.client.get(
             reverse("vendas:relatorio"),
@@ -124,6 +146,262 @@ class ListaVendasTests(TestCase):
         self.assertEqual(response.context["pagina"].paginator.per_page, 50)
         self.assertEqual(response.context["filtros_ativos"], 1)
         self.assertContains(response, "filtro ativo")
+
+
+class EdicaoVendaEmAbertoTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.usuario = get_user_model().objects.create_user(
+            username="edicao-venda",
+            password="senha-segura",
+        )
+        cls.cliente = Cliente.objects.create(
+            razao_social="Cliente Edição Ltda",
+            nome_fantasia="Cliente Edição",
+            cnpj="44.444.444/0001-44",
+        )
+        cls.produto = Produto.objects.create(
+            codigo="EDIT-001",
+            modelo="Produto Editável",
+            preco_venda=Decimal("60.00"),
+            estoque_atual=8,
+        )
+        cls.cor = VariacaoCor.objects.create(
+            produto=cls.produto,
+            nome="Dourado",
+            codigo="DOU",
+            estoque=8,
+        )
+
+    def setUp(self):
+        self.client.force_login(self.usuario)
+        self.venda = Venda.objects.create(
+            numero=701,
+            cliente=self.cliente,
+            subtotal=Decimal("60.00"),
+            total=Decimal("60.00"),
+            criada_por=self.usuario,
+        )
+        ItemVenda.objects.create(
+            venda=self.venda,
+            produto=self.produto,
+            variacao_cor=self.cor,
+            quantidade=1,
+            preco_unitario=Decimal("60.00"),
+            total=Decimal("60.00"),
+        )
+
+    def test_tela_carrega_dados_e_variacao_da_venda(self):
+        response = self.client.get(reverse("vendas:editar", args=[self.venda.numero]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["modo_edicao"])
+        self.assertContains(response, "Editar venda nº 701")
+        self.assertIn(f'"produto_id": {self.produto.pk}', response.context["itens_json"])
+        self.assertIn(f'"variacao_cor_id": {self.cor.pk}', response.context["itens_json"])
+
+    def test_atualiza_itens_totais_e_entrega_sem_processar_integracoes(self):
+        response = self.client.post(
+            reverse("vendas:editar", args=[self.venda.numero]),
+            {
+                "tipo_cliente": "cadastrado",
+                "cliente": str(self.cliente.pk),
+                "forma_pagamento": "",
+                "conta_financeira": "",
+                "desconto": "5,00",
+                "frete": "10,00",
+                "tipo_entrega": Venda.ENTREGA_ENVIO,
+                "entrega_cep": "01001-000",
+                "entrega_logradouro": "Praça da Sé",
+                "entrega_numero": "100",
+                "entrega_complemento": "",
+                "entrega_bairro": "Sé",
+                "entrega_cidade": "São Paulo",
+                "entrega_estado": "SP",
+                "observacoes": "Venda revisada",
+                "produto_id[]": [str(self.produto.pk)],
+                "variacao_cor_id[]": [str(self.cor.pk)],
+                "quantidade[]": ["2"],
+                "preco_unitario[]": ["60,00"],
+                "desconto_item[]": ["5,00"],
+                "acao": "salvar",
+            },
+        )
+
+        self.assertEqual(
+            response.status_code,
+            302,
+            response.context["form"].errors.as_json() if response.context else "",
+        )
+        self.assertEqual(
+            response.status_code,
+            302,
+            response.context["form"].errors.as_json() if response.context else "",
+        )
+        self.assertRedirects(response, reverse("vendas:ficha", args=[701]))
+        self.venda.refresh_from_db()
+        item = self.venda.itens.get()
+        self.assertEqual(self.venda.subtotal, Decimal("120.00"))
+        self.assertEqual(self.venda.desconto, Decimal("10.00"))
+        self.assertEqual(self.venda.frete, Decimal("10.00"))
+        self.assertEqual(self.venda.total, Decimal("120.00"))
+        self.assertEqual(self.venda.status, Venda.STATUS_EM_ABERTO)
+        self.assertFalse(self.venda.estoque_baixado)
+        self.assertFalse(self.venda.financeiro_gerado)
+        self.assertEqual(item.quantidade, 2)
+        self.assertEqual(item.variacao_cor, self.cor)
+        self.assertEqual(item.total, Decimal("115.00"))
+
+    def test_nao_permite_editar_venda_finalizada(self):
+        self.venda.status = Venda.STATUS_FINALIZADA
+        self.venda.save(update_fields=["status"])
+
+        response = self.client.get(reverse("vendas:editar", args=[self.venda.numero]))
+
+        self.assertRedirects(response, reverse("vendas:ficha", args=[701]))
+
+    def test_permite_mesmo_produto_com_cores_diferentes(self):
+        outra_cor = VariacaoCor.objects.create(
+            produto=self.produto,
+            nome="Preto",
+            codigo="PTO",
+            estoque=4,
+        )
+        response = self.client.post(
+            reverse("vendas:editar", args=[self.venda.numero]),
+            {
+                "tipo_cliente": "cadastrado",
+                "cliente": str(self.cliente.pk),
+                "desconto": "0,00",
+                "frete": "0,00",
+                "tipo_entrega": Venda.ENTREGA_RETIRADA,
+                "produto_id[]": [str(self.produto.pk), str(self.produto.pk)],
+                "variacao_cor_id[]": [str(self.cor.pk), str(outra_cor.pk)],
+                "quantidade[]": ["1", "2"],
+                "preco_unitario[]": ["60,00", "60,00"],
+                "desconto_item[]": ["0,00", "0,00"],
+            },
+        )
+
+        self.assertEqual(
+            response.status_code,
+            302,
+            response.context["form"].errors.as_json() if response.context else "",
+        )
+        self.assertRedirects(response, reverse("vendas:ficha", args=[701]))
+        self.assertEqual(self.venda.itens.count(), 2)
+        self.assertSetEqual(
+            set(self.venda.itens.values_list("variacao_cor_id", flat=True)),
+            {self.cor.pk, outra_cor.pk},
+        )
+
+    def test_mantem_alinhamento_entre_produto_sem_cor_e_produto_com_cor(self):
+        produto_sem_cor = Produto.objects.create(
+            codigo="SEM-COR",
+            modelo="Produto sem variação",
+            preco_venda=Decimal("30.00"),
+            estoque_atual=5,
+        )
+        response = self.client.post(
+            reverse("vendas:editar", args=[self.venda.numero]),
+            {
+                "tipo_cliente": "cadastrado",
+                "cliente": str(self.cliente.pk),
+                "desconto": "0,00",
+                "frete": "0,00",
+                "tipo_entrega": Venda.ENTREGA_RETIRADA,
+                "produto_id[]": [str(produto_sem_cor.pk), str(self.produto.pk)],
+                "variacao_cor_id[]": ["", str(self.cor.pk)],
+                "quantidade[]": ["1", "1"],
+                "preco_unitario[]": ["30,00", "60,00"],
+                "desconto_item[]": ["0,00", "0,00"],
+            },
+        )
+
+        self.assertRedirects(response, reverse("vendas:ficha", args=[701]))
+        self.assertIsNone(
+            self.venda.itens.get(produto=produto_sem_cor).variacao_cor_id
+        )
+        self.assertEqual(
+            self.venda.itens.get(produto=self.produto).variacao_cor_id,
+            self.cor.pk,
+        )
+
+
+class AlteracaoVendedorVendaTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        Usuario = get_user_model()
+        cls.gerente = Usuario.objects.create_user(
+            username="gerente-vendas",
+            password="senha-segura",
+            perfil=Usuario.Perfil.GERENTE,
+        )
+        cls.vendedor = Usuario.objects.create_user(
+            username="vendedor-original",
+            password="senha-segura",
+            perfil=Usuario.Perfil.VENDEDOR,
+        )
+        cls.novo_vendedor = Usuario.objects.create_user(
+            username="novo-vendedor",
+            password="senha-segura",
+            perfil=Usuario.Perfil.VENDEDOR,
+        )
+        cls.financeiro = Usuario.objects.create_user(
+            username="financeiro-vendas",
+            password="senha-financeiro",
+            perfil=Usuario.Perfil.FINANCEIRO,
+        )
+        cls.venda = Venda.objects.create(
+            numero=801,
+            status=Venda.STATUS_FINALIZADA,
+            criada_por=cls.vendedor,
+            total=Decimal("80.00"),
+        )
+
+    def test_gerente_altera_vendedor_com_senha_mesmo_finalizada(self):
+        self.client.force_login(self.gerente)
+        lista = self.client.get(reverse("vendas:lista"))
+        self.assertContains(lista, "#alterar-vendedor")
+
+        response = self.client.post(
+            reverse("vendas:alterar_vendedor", args=[801]),
+            {"vendedor": self.novo_vendedor.pk, "senha_autorizacao": "senha-segura"},
+        )
+
+        self.assertRedirects(response, reverse("vendas:ficha", args=[801]))
+        self.venda.refresh_from_db()
+        self.assertEqual(self.venda.criada_por, self.novo_vendedor)
+
+    def test_vendedor_comum_nao_altera_responsavel(self):
+        self.client.force_login(self.vendedor)
+        response = self.client.post(
+            reverse("vendas:alterar_vendedor", args=[801]),
+            {"vendedor": self.novo_vendedor.pk},
+        )
+
+        self.assertRedirects(response, reverse("vendas:ficha", args=[801]))
+        self.venda.refresh_from_db()
+        self.assertEqual(self.venda.criada_por, self.vendedor)
+
+    def test_financeiro_pode_alterar_vendedor_com_a_propria_senha(self):
+        self.client.force_login(self.financeiro)
+        response = self.client.post(
+            reverse("vendas:alterar_vendedor", args=[801]),
+            {"vendedor": self.novo_vendedor.pk, "senha_autorizacao": "senha-financeiro"},
+        )
+        self.assertRedirects(response, reverse("vendas:ficha", args=[801]))
+        self.venda.refresh_from_db()
+        self.assertEqual(self.venda.criada_por, self.novo_vendedor)
+
+    def test_senha_incorreta_nao_altera_vendedor(self):
+        self.client.force_login(self.gerente)
+        self.client.post(
+            reverse("vendas:alterar_vendedor", args=[801]),
+            {"vendedor": self.novo_vendedor.pk, "senha_autorizacao": "incorreta"},
+        )
+        self.venda.refresh_from_db()
+        self.assertEqual(self.venda.criada_por, self.vendedor)
 
 
 class ProcessamentoPagamentoVendaTests(TestCase):
@@ -239,6 +517,23 @@ class CancelamentoVendaTests(TestCase):
             ).exists()
         )
 
+    def test_finalizacao_preserva_custo_unitario_do_produto(self):
+        self.produto.preco_custo = Decimal("22.00")
+        self.produto.save(update_fields=["preco_custo"])
+        venda = self._criar_venda(
+            numero=504,
+            forma_pagamento=Venda.FORMA_PRAZO,
+        )
+
+        finalizar_venda(venda_id=venda.pk, usuario=self.usuario)
+        item = venda.itens.get()
+        self.assertEqual(item.custo_unitario, Decimal("22.00"))
+
+        self.produto.preco_custo = Decimal("99.00")
+        self.produto.save(update_fields=["preco_custo"])
+        item.refresh_from_db()
+        self.assertEqual(item.custo_unitario, Decimal("22.00"))
+
     def test_cancelamento_estorna_recebimento_e_movimento_financeiro(self):
         conta_financeira = ContaFinanceira.objects.create(
             nome="Conta cancelamento",
@@ -284,3 +579,75 @@ class CancelamentoVendaTests(TestCase):
         self.assertEqual(response.status_code, 405)
         venda.refresh_from_db()
         self.assertEqual(venda.status, Venda.STATUS_EM_ABERTO)
+
+
+class FichaVendaApresentacaoTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.usuario = get_user_model().objects.create_user(
+            username="ficha-venda", password="senha-segura"
+        )
+        cls.cliente = Cliente.objects.create(
+            razao_social="Ótica Teste Ltda",
+            nome_fantasia="Ótica Teste",
+            cnpj="44.444.444/0001-44",
+            responsavel="Maria Responsável",
+            whatsapp="(35) 99999-0000",
+            email="cliente@otica.test",
+        )
+        cls.produto_com_cor = Produto.objects.create(
+            modelo="Produto colorido", preco_custo=Decimal("20.00"),
+            preco_venda=Decimal("50.00"), estoque_atual=5,
+        )
+        cls.cor = VariacaoCor.objects.create(
+            produto=cls.produto_com_cor, nome="Azul", codigo="AZ", estoque=2,
+        )
+        cls.produto_sem_cor = Produto.objects.create(
+            modelo="Produto sem cor", preco_custo=Decimal("10.00"),
+            preco_venda=Decimal("25.00"), estoque_atual=5,
+        )
+        cls.venda = Venda.objects.create(
+            numero=7001, subtotal=Decimal("100.00"), total=Decimal("100.00"),
+            cliente=cls.cliente, criada_por=cls.usuario,
+        )
+        ItemVenda.objects.create(
+            venda=cls.venda, produto=cls.produto_com_cor, variacao_cor=cls.cor,
+            quantidade=1, preco_unitario=Decimal("50.00"), total=Decimal("50.00"),
+        )
+        ItemVenda.objects.create(
+            venda=cls.venda, produto=cls.produto_sem_cor,
+            quantidade=2, preco_unitario=Decimal("25.00"), total=Decimal("50.00"),
+        )
+
+    def test_ficha_exibe_produto_e_cor_nas_colunas_corretas(self):
+        self.client.force_login(self.usuario)
+        resposta = self.client.get(reverse("vendas:ficha", args=[self.venda.numero]))
+        conteudo = resposta.content.decode()
+
+        self.assertEqual(resposta.status_code, 200)
+        self.assertLess(conteudo.index("Produto colorido"), conteudo.index("Azul (AZ)"))
+        self.assertContains(resposta, "Sem variação")
+        self.assertContains(resposta, "Não informado")
+        self.assertNotContains(resposta, ">None<")
+
+    def test_resumo_separa_produtos_itens_e_pecas(self):
+        self.client.force_login(self.usuario)
+        resposta = self.client.get(reverse("vendas:ficha", args=[self.venda.numero]))
+        venda = resposta.context["venda"]
+
+        self.assertEqual(venda.quantidade_produtos, 2)
+        self.assertEqual(venda.quantidade_itens, 2)
+        self.assertEqual(venda.quantidade_pecas, 3)
+        self.assertContains(resposta, "Itens / variações")
+
+    def test_cabecalho_exibe_contatos_e_nao_repete_acao_pdf(self):
+        self.client.force_login(self.usuario)
+        resposta = self.client.get(reverse("vendas:ficha", args=[self.venda.numero]))
+
+        self.assertContains(resposta, "44.444.444/0001-44")
+        self.assertContains(resposta, "Maria Responsável")
+        self.assertContains(resposta, "(35) 99999-0000")
+        self.assertContains(resposta, "cliente@otica.test")
+        self.assertNotContains(resposta, ">Resumo em PDF<")
+        self.assertContains(resposta, "Abrir resumo em PDF")
+        self.assertContains(resposta, "css/vendas.css?v=1.1.0")

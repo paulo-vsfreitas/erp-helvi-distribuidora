@@ -427,6 +427,7 @@
                             <tr>
                                 <th>Código</th>
                                 <th>Produto</th>
+                                <th>Cor</th>
                                 <th class="text-center">Qtd.</th>
                                 <th class="text-end">Unitário</th>
                                 <th class="text-end">Desconto</th>
@@ -446,6 +447,8 @@
                                             {{ item.produto.codigo }}
                                         </strong>
                                     </td>
+
+                                    <td>{{ item.variacao_cor|default:"Sem variação" }}</td>
 
                                     <td>
 
@@ -488,7 +491,7 @@
                                 <tr>
 
                                     <td
-                                        colspan="6"
+                                        colspan="7"
                                         class="text-center text-muted py-5"
                                     >
                                         Nenhum produto registrado.
@@ -518,6 +521,13 @@
             </div>
 
             <div class="table-card-body">
+
+                <div class="ficha-text-block mb-4">
+
+                    <span>Entrega</span>
+                    <div><strong>{{ orcamento.get_tipo_entrega_display }}</strong>{% if orcamento.tipo_entrega == "envio" %}<br>{{ orcamento.entrega_logradouro }}, {{ orcamento.entrega_numero }}{% if orcamento.entrega_complemento %} · {{ orcamento.entrega_complemento }}{% endif %} — {{ orcamento.entrega_bairro }}, {{ orcamento.entrega_cidade }}/{{ orcamento.entrega_estado }} · {{ orcamento.entrega_cep }}{% endif %}</div>
+
+                </div>
 
                 <div class="ficha-text-block mb-4">
 

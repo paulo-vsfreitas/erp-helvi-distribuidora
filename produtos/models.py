@@ -8,6 +8,8 @@ class Produto(models.Model):
     codigo = models.CharField(
         max_length=50,
         unique=True,
+        blank=True,
+        null=True,
         verbose_name="Código",
     )
 
@@ -21,6 +23,7 @@ class Produto(models.Model):
 
     modelo = models.CharField(
         max_length=100,
+        blank=True,
     )
 
     marca = models.ForeignKey(
@@ -134,7 +137,10 @@ class Produto(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.codigo} - {self.modelo}"
+        identificacao = " - ".join(
+            valor for valor in (self.codigo, self.modelo) if valor
+        )
+        return identificacao or f"Produto #{self.pk or 'novo'}"
 
     @property
     def lucro_unitario(self):
@@ -146,6 +152,35 @@ class Produto(models.Model):
             return 0
 
         return (self.lucro_unitario / self.preco_custo) * 100
+
+
+class VariacaoCor(models.Model):
+    produto = models.ForeignKey(
+        Produto, on_delete=models.CASCADE, related_name="variacoes_cor"
+    )
+    nome = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name="Cor",
+    )
+    codigo = models.CharField(max_length=50, verbose_name="Código da cor")
+    estoque = models.PositiveIntegerField(default=0, verbose_name="Estoque")
+
+    class Meta:
+        verbose_name = "Variação de cor"
+        verbose_name_plural = "Variações de cor"
+        ordering = ["nome", "codigo"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["produto", "codigo"],
+                name="produto_codigo_cor_unico",
+            )
+        ]
+
+    def __str__(self):
+        if self.nome:
+            return f"{self.nome} ({self.codigo})"
+        return self.codigo
 
 
 class ImagemProduto(models.Model):

@@ -17,11 +17,11 @@ def api_buscar_produtos(request):
     dados = [
         {
             "id": produto.id,
-            "codigo": produto.codigo,
+            "codigo": produto.codigo or "",
             "codigo_fornecedor": (
                 produto.codigo_fornecedor or ""
             ),
-            "modelo": produto.modelo,
+            "modelo": produto.modelo or "",
             "marca": (
                 produto.marca.nome
                 if produto.marca

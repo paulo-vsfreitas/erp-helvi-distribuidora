@@ -5,7 +5,7 @@ from django.db import transaction
 from django.utils import timezone
 
 from comercial.models import ItemOrcamento, Orcamento
-from produtos.models import Produto
+from produtos.models import Produto, VariacaoCor
 
 
 
@@ -64,7 +64,7 @@ def _normalizar_itens(itens):
 
     itens_normalizados = []
     produtos_ids = []
-    produtos_repetidos = set()
+    itens_repetidos = set()
 
     for indice, item in enumerate(itens, start=1):
         if not isinstance(item, dict):
@@ -85,10 +85,15 @@ def _normalizar_itens(itens):
                 }
             )
 
-        if produto_id in produtos_ids:
-            produtos_repetidos.add(produto_id)
-
         produtos_ids.append(produto_id)
+        variacao_cor_id = item.get("variacao_cor_id") or None
+        try:
+            variacao_cor_id = int(variacao_cor_id) if variacao_cor_id else None
+        except (TypeError, ValueError):
+            raise ValidationError({"itens": f"Selecione uma cor válida no item {indice}."})
+        chave_item = (produto_id, variacao_cor_id)
+        if chave_item in {(x["produto_id"], x.get("variacao_cor_id")) for x in itens_normalizados}:
+            itens_repetidos.add(chave_item)
 
         quantidade = _converter_quantidade(
             item.get("quantidade")
@@ -139,6 +144,7 @@ def _normalizar_itens(itens):
         itens_normalizados.append(
             {
                 "produto_id": produto_id,
+                "variacao_cor_id": variacao_cor_id,
                 "quantidade": quantidade,
                 "valor_unitario": valor_unitario,
                 "desconto": desconto,
@@ -146,12 +152,11 @@ def _normalizar_itens(itens):
             }
         )
 
-    if produtos_repetidos:
+    if itens_repetidos:
         raise ValidationError(
             {
                 "itens": (
-                    "Um mesmo produto não pode ser adicionado "
-                    "mais de uma vez ao orçamento."
+                    "Uma mesma combinação de produto e cor não pode ser adicionada mais de uma vez."
                 )
             }
         )
@@ -181,6 +186,19 @@ def _normalizar_itens(itens):
 
     for item in itens_normalizados:
         item["produto"] = produtos[item["produto_id"]]
+        if item["variacao_cor_id"]:
+            try:
+                item["variacao_cor"] = VariacaoCor.objects.get(
+                    pk=item["variacao_cor_id"], produto_id=item["produto_id"]
+                )
+            except VariacaoCor.DoesNotExist:
+                raise ValidationError({"itens": "A variação selecionada não pertence ao produto."})
+        else:
+            if item["produto"].variacoes_cor.exists():
+                raise ValidationError({
+                    "itens": f"Selecione a cor do produto {item['produto']}."
+                })
+            item["variacao_cor"] = None
 
     return itens_normalizados
 
@@ -302,6 +320,14 @@ def criar_orcamento(*, dados, itens, vendedor):
         data_validade=dados["data_validade"],
         desconto=dados.get("desconto", Decimal("0.00")),
         frete=dados.get("frete", Decimal("0.00")),
+        tipo_entrega=dados.get("tipo_entrega", Orcamento.TipoEntrega.RETIRADA),
+        entrega_cep=dados.get("entrega_cep", ""),
+        entrega_logradouro=dados.get("entrega_logradouro", ""),
+        entrega_numero=dados.get("entrega_numero", ""),
+        entrega_complemento=dados.get("entrega_complemento", ""),
+        entrega_bairro=dados.get("entrega_bairro", ""),
+        entrega_cidade=dados.get("entrega_cidade", ""),
+        entrega_estado=dados.get("entrega_estado", ""),
         condicoes_comerciais=dados.get(
             "condicoes_comerciais",
             "",
@@ -364,6 +390,14 @@ def editar_orcamento(*, orcamento, dados, itens):
         "data_validade",
         "desconto",
         "frete",
+        "tipo_entrega",
+        "entrega_cep",
+        "entrega_logradouro",
+        "entrega_numero",
+        "entrega_complemento",
+        "entrega_bairro",
+        "entrega_cidade",
+        "entrega_estado",
         "condicoes_comerciais",
         "observacoes",
     ]
@@ -383,6 +417,7 @@ def editar_orcamento(*, orcamento, dados, itens):
             ItemOrcamento(
                 orcamento=orcamento,
                 produto=item["produto"],
+                variacao_cor=item["variacao_cor"],
                 quantidade=item["quantidade"],
                 valor_unitario=item["valor_unitario"],
                 desconto=item["desconto"],

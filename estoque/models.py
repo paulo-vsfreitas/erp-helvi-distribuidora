@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.db import models
 
-from produtos.models import Produto
+from produtos.models import Produto, VariacaoCor
 
 
 class MovimentacaoEstoque(models.Model):
@@ -22,6 +22,14 @@ class MovimentacaoEstoque(models.Model):
         Produto,
         on_delete=models.PROTECT,
         related_name="movimentacoes_estoque",
+    )
+
+    variacao_cor = models.ForeignKey(
+        VariacaoCor,
+        on_delete=models.PROTECT,
+        related_name="movimentacoes_estoque",
+        null=True,
+        blank=True,
     )
 
     tipo = models.CharField(

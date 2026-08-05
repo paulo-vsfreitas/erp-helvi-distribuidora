@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from django.db.models import Q, Sum
+from django.utils import timezone
 
 from financeiro.forms.fluxo_caixa import (
     FluxoCaixaFiltroForm,
@@ -106,13 +107,14 @@ def _obter_saldo_anterior(
             )
         )
 
-        if data_inicial:
-            movimentacoes_anteriores = (
-                movimentacoes_anteriores
-                .filter(
-                    data_movimentacao__lt=data_inicial,
-                )
-            )
+        if not data_inicial:
+            saldo_anterior += saldo_conta
+            continue
+
+        movimentacoes_anteriores = (
+            movimentacoes_anteriores
+            .filter(data_movimentacao__lt=data_inicial)
+        )
 
         entradas = _somar_movimentacoes(
             movimentacoes_anteriores,
@@ -135,7 +137,15 @@ def obter_fluxo_caixa(parametros):
     Filtra as movimentações e monta o fluxo de caixa
     com saldo acumulado.
     """
-    form = FluxoCaixaFiltroForm(parametros or None)
+    if not parametros:
+        hoje = timezone.localdate()
+        parametros = {
+            "data_inicial": hoje.replace(day=1).isoformat(),
+            "data_final": hoje.isoformat(),
+            "status": FluxoCaixaFiltroForm.STATUS_VALIDAS,
+        }
+
+    form = FluxoCaixaFiltroForm(parametros)
 
     movimentacoes = (
         MovimentacaoFinanceira.objects

@@ -1,4 +1,5 @@
 {% extends 'core/base.html' %}
+{% load moeda %}
 
 {% block title %}Produtos | ERP Helvi{% endblock %}
 
@@ -74,7 +75,8 @@
         <div><span class="hui-table-heading__eyebrow">Catálogo</span><h2>Produtos cadastrados</h2><p>Consulte estoque, preço e situação de cada armação.</p></div>
         <span class="hui-count-badge">{{ produtos|length }} produtos</span>
     </header>
-    <table class="table">
+    <div class="table-responsive">
+    <table class="table align-middle hui-entity-table">
         <thead>
             <tr>
                 <th>Foto</th>
@@ -97,7 +99,7 @@
                             <a href="{% url 'produtos:ficha_produto' produto.id %}">
                                 <img
                                     src="{{ produto.foto.url }}"
-                                    alt="{{ produto.modelo }}"
+                                    alt="{{ produto.modelo|default:'Produto sem modelo' }}"
                                     style="width:60px; height:60px; object-fit:cover; border-radius:10px; border:1px solid #ddd; cursor:pointer;"
                                 >
                             </a>
@@ -110,7 +112,7 @@
 
                     <td>
                         <a href="{% url 'produtos:ficha_produto' produto.id %}" class="action-link action-edit">
-                            <strong>{{ produto.codigo }}</strong>
+                            <strong>{{ produto.codigo|default:"Não informado" }}</strong>
                         </a>
                     </td>
                     <td>
@@ -123,35 +125,21 @@
                         {% endif %}
                     </td>
 
-                    <td>
-                        {% if produto.fornecedor %}
-                            <a
-                                href="{% url 'fornecedores:ficha' produto.fornecedor.pk %}"
-                                class="action-link action-edit"
-                            >
-                                {{ produto.fornecedor.nome_fantasia|default:produto.fornecedor.razao_social }}
-                            </a>
-                        {% else %}
-                            <span class="text-muted">
-                                Não informado
-                            </span>
-                        {% endif %}
-                    </td>
+                    <td>{{ produto.modelo|default:"Não informado" }}</td>
+                    <td>{{ produto.marca|default:"Não informado" }}</td>
 
-                    <td>{{ produto.modelo }}</td>
-                    <td>{{ produto.marca|default:"-" }}</td>
-
-                    <td>
+                    <td class="text-nowrap">
+                        <strong>{{ produto.estoque_atual }}</strong>
                         {% if produto.estoque_atual == 0 %}
-                            <span class="badge badge-danger">Esgotado</span>
+                            <small class="d-block text-danger">Esgotado</small>
                         {% elif produto.estoque_atual <= produto.estoque_minimo %}
-                            <span class="badge badge-warning">{{ produto.estoque_atual }}</span>
+                            <small class="d-block text-warning">Estoque baixo</small>
                         {% else %}
-                            <span class="badge badge-success">{{ produto.estoque_atual }}</span>
+                            <small class="d-block text-success">Disponível</small>
                         {% endif %}
                     </td>
 
-                    <td>R$ {{ produto.preco_venda }}</td>
+                    <td class="text-nowrap"><strong>{{ produto.preco_venda|moeda }}</strong></td>
 
                     <td>
                         {% if produto.ativo %}
@@ -167,13 +155,13 @@
                         {% endif %}
                     </td>
 
-                    <td class="table-actions">
-                        <a href="{% url 'produtos:ficha_produto' produto.id %}" class="action-link action-edit">
+                    <td class="table-actions text-nowrap">
+                        <a href="{% url 'produtos:ficha_produto' produto.id %}" class="btn btn-sm btn-outline-secondary">
                             <i class="bi bi-eye"></i>
                             Ficha
                         </a>
 
-                        <a href="{% url 'produtos:editar_produto' produto.id %}" class="action-link action-edit">
+                        <a href="{% url 'produtos:editar_produto' produto.id %}" class="btn btn-sm btn-outline-secondary">
                             <i class="bi bi-pencil-square"></i>
                             Editar
                         </a>
@@ -181,7 +169,7 @@
                         {% if produto.ativo %}
                             <form method="post" action="{% url 'produtos:inativar_produto' produto.id %}" class="action-form">
                                 {% csrf_token %}
-                                <button type="submit" class="action-link action-danger">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
                                     <i class="bi bi-slash-circle"></i>
                                     Inativar
                                 </button>
@@ -189,7 +177,7 @@
                         {% else %}
                             <form method="post" action="{% url 'produtos:reativar_produto' produto.id %}" class="action-form">
                                 {% csrf_token %}
-                                <button type="submit" class="action-link action-edit">
+                                <button type="submit" class="btn btn-sm btn-outline-success">
                                     <i class="bi bi-check-circle"></i>
                                     Reativar
                                 </button>
@@ -206,6 +194,7 @@
             {% endfor %}
         </tbody>
     </table>
+    </div>
 </div>
 
 </div>

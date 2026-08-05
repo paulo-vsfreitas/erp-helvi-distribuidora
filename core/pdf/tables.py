@@ -58,8 +58,8 @@ def build_products_table(itens):
 
         dados.append(
             [
-                Paragraph(str(item.produto.codigo), LEFT),
-                Paragraph(item.produto.modelo, LEFT),
+                Paragraph(item.produto.codigo or "Não informado", LEFT),
+                Paragraph(item.produto.modelo or "Não informado", LEFT),
                 Paragraph(str(item.quantidade), CENTER),
                 Paragraph(moeda(item.custo_unitario), RIGHT),
                 Paragraph(moeda(item.desconto), RIGHT),

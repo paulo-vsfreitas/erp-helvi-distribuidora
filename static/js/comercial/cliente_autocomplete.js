@@ -366,6 +366,20 @@
             if (email) {
                 email.value = cliente.email || "";
             }
+
+            const mapaEntrega = {
+                id_entrega_cep: "cep",
+                id_entrega_logradouro: "logradouro",
+                id_entrega_numero: "numero",
+                id_entrega_complemento: "complemento",
+                id_entrega_bairro: "bairro",
+                id_entrega_cidade: "cidade",
+                id_entrega_estado: "estado",
+            };
+            Object.entries(mapaEntrega).forEach(([id, chave]) => {
+                const campo = document.getElementById(id);
+                if (campo && !campo.value) campo.value = cliente[chave] || "";
+            });
         }
 
         mostrarResumo(cliente) {

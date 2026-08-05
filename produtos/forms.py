@@ -1,11 +1,17 @@
 from django.db.models import Q
 from django import forms
+from django.forms import BaseInlineFormSet, inlineformset_factory
 
-from .models import ImagemProduto, Produto
+from .models import ImagemProduto, Produto, VariacaoCor
 
 
 
 class ProdutoForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for nome_campo in ("codigo", "modelo", "marca", "colecao"):
+            self.fields[nome_campo].required = False
+
     class Meta:
         model = Produto
         fields = [
@@ -16,7 +22,6 @@ class ProdutoForm(forms.ModelForm):
             "colecao",
             "genero",
             "tipo_armacao",
-            "cores_disponiveis",
             "preco_custo",
             "preco_venda",
             "estoque_atual",
@@ -47,10 +52,6 @@ class ProdutoForm(forms.ModelForm):
             "colecao": forms.Select(attrs={"class": "form-select"}),
             "genero": forms.Select(attrs={"class": "form-select"}),
             "tipo_armacao": forms.Select(attrs={"class": "form-select"}),
-            "cores_disponiveis": forms.TextInput(attrs={
-                "class": "form-control",
-                "placeholder": "Ex: Preto, Dourado, Transparente",
-            }),
             "preco_custo": forms.NumberInput(attrs={
                 "class": "form-control",
                 "step": "0.01",
@@ -89,7 +90,6 @@ class ProdutoForm(forms.ModelForm):
             "colecao": "Coleção",
             "genero": "Gênero",
             "tipo_armacao": "Tipo de Armação",
-            "cores_disponiveis": "Cores Disponíveis",
             "preco_custo": "Preço de Custo",
             "preco_venda": "Preço de Venda",
             "estoque_atual": "Estoque Atual",
@@ -135,7 +135,7 @@ class ProdutoForm(forms.ModelForm):
         if codigo:
             codigo = codigo.strip().upper()
 
-        return codigo
+        return codigo or None
 
     def clean_codigo_fornecedor(self):
         codigo_fornecedor = self.cleaned_data.get(
@@ -215,3 +215,40 @@ class ImagemProdutoForm(forms.ModelForm):
             "descricao": "Descrição",
             "principal": "Imagem principal",
         }
+
+
+class VariacaoCorForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["nome"].required = False
+
+    class Meta:
+        model = VariacaoCor
+        fields = ["nome", "codigo", "estoque"]
+        widgets = {
+            "nome": forms.TextInput(attrs={"class": "form-control", "placeholder": "Ex: Preto fosco"}),
+            "codigo": forms.TextInput(attrs={"class": "form-control", "placeholder": "Ex: PT01"}),
+            "estoque": forms.NumberInput(attrs={"class": "form-control", "min": 0}),
+        }
+
+    def clean_codigo(self):
+        return (self.cleaned_data.get("codigo") or "").strip().upper()
+
+
+class BaseVariacaoCorFormSet(BaseInlineFormSet):
+    def clean(self):
+        codigos = set()
+        for form in self.forms:
+            if not hasattr(form, "cleaned_data") or form.cleaned_data.get("DELETE"):
+                continue
+            codigo = form.cleaned_data.get("codigo")
+            if codigo and codigo in codigos:
+                form.add_error("codigo", "Este código de cor já foi informado para o produto.")
+            codigos.add(codigo)
+        super().clean()
+
+
+VariacaoCorFormSet = inlineformset_factory(
+    Produto, VariacaoCor, form=VariacaoCorForm,
+    formset=BaseVariacaoCorFormSet, extra=1, can_delete=True,
+)

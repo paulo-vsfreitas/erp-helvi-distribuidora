@@ -92,17 +92,23 @@ def _serializar_itens(orcamento):
     for item in orcamento.itens.select_related(
         "produto",
         "produto__marca",
+        "variacao_cor",
     ):
         itens.append(
             {
                 "produto_id": item.produto_id,
-                "codigo": item.produto.codigo,
-                "descricao": item.produto.modelo,
+                "codigo": item.produto.codigo or "",
+                "descricao": item.produto.modelo or "",
                 "marca": (
                     item.produto.marca.nome
                     if item.produto.marca
                     else ""
                 ),
+                "variacao_cor_id": item.variacao_cor_id,
+                "variacoes": [
+                    {"id": cor.pk, "nome": cor.nome or cor.codigo, "codigo": cor.codigo, "estoque": cor.estoque}
+                    for cor in item.produto.variacoes_cor.all()
+                ],
                 "quantidade": item.quantidade,
                 "valor_unitario": item.valor_unitario,
                 "desconto": item.desconto,

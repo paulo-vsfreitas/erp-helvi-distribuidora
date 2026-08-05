@@ -177,9 +177,13 @@ class ClienteForm(forms.ModelForm):
             "telefone",
             "whatsapp",
             "email",
+            "cep",
+            "logradouro",
+            "numero",
+            "complemento",
+            "bairro",
             "cidade",
             "estado",
-            "endereco",
             "limite_credito",
             "condicao_pagamento",
             "observacoes",
@@ -246,16 +250,32 @@ class ClienteForm(forms.ModelForm):
                     "autocomplete": "email",
                 }
             ),
+            "cep": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "00000-000",
+                    "data-mask": "cep",
+                    "data-cep-autocomplete": "true",
+                    "data-logradouro-target": "id_logradouro",
+                    "data-bairro-target": "id_bairro",
+                    "data-cidade-target": "id_cidade",
+                    "data-estado-target": "id_estado",
+                    "data-complemento-target": "id_complemento",
+                    "data-numero-target": "id_numero",
+                }
+            ),
+            "logradouro": forms.TextInput(
+                attrs={"class": "form-control", "autocomplete": "address-line1"}
+            ),
+            "numero": forms.TextInput(
+                attrs={"class": "form-control", "autocomplete": "address-line2"}
+            ),
+            "complemento": forms.TextInput(attrs={"class": "form-control"}),
+            "bairro": forms.TextInput(attrs={"class": "form-control"}),
             "cidade": forms.TextInput(
                 attrs={
                     "class": "form-control",
                     "autocomplete": "address-level2",
-                }
-            ),
-            "endereco": forms.TextInput(
-                attrs={
-                    "class": "form-control",
-                    "autocomplete": "street-address",
                 }
             ),
             "limite_credito": forms.NumberInput(

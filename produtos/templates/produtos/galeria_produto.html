@@ -8,7 +8,7 @@
     {% include "components/layout/page_header.html" with titulo="Galeria de imagens" subtitulo=produto botao_url=ficha_produto_url botao_texto="Voltar à ficha" botao_icon="bi bi-arrow-left" %}
 
     <section class="table-card hui-form-section mb-4">
-        <header class="hui-table-heading"><div><span class="hui-table-heading__eyebrow">Nova imagem</span><h2>{{ produto.codigo }} — {{ produto.modelo }}</h2><p>Adicione imagens e escolha a foto principal do produto.</p></div></header>
+        <header class="hui-table-heading"><div><span class="hui-table-heading__eyebrow">Nova imagem</span><h2>{{ produto }}</h2><p>Adicione imagens e escolha a foto principal do produto.</p></div></header>
         <div class="table-card__body">
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}

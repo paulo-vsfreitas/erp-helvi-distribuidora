@@ -1,6 +1,6 @@
 {% extends "core/base.html" %}
 
-{% block title %}{{ produto.codigo }} - {{ produto.modelo }} | ERP Helvi{% endblock %}
+{% block title %}{{ produto }} | ERP Helvi{% endblock %}
 
 {% block content %}
 <div class="hui-module-page hui-module-page--produtos hui-detail-page">
@@ -11,8 +11,8 @@
         <div class="hui-detail-hero__identity">
             <span class="hui-detail-hero__icon"><i class="bi bi-eyeglasses"></i></span>
             <div>
-                <span class="hui-table-heading__eyebrow">{{ produto.codigo }}</span>
-                <h2>{{ produto.modelo }}</h2>
+                <span class="hui-table-heading__eyebrow">{{ produto.codigo|default:"Código não informado" }}</span>
+                <h2>{{ produto.modelo|default:"Produto sem modelo" }}</h2>
                 {% if produto.codigo_fornecedor %}<p>Código do fornecedor: <strong>{{ produto.codigo_fornecedor }}</strong></p>{% endif %}
             </div>
         </div>
@@ -35,9 +35,9 @@
             <div>
                 <div class="ficha-section-title"><h3>Informações gerais</h3><p>Identificação comercial e classificação da armação.</p></div>
                 <div class="ficha-grid">
-                    <div class="ficha-info-item"><span>Código ERP</span><strong>{{ produto.codigo }}</strong></div>
+                    <div class="ficha-info-item"><span>Código ERP</span><strong>{{ produto.codigo|default:"Não informado" }}</strong></div>
                     <div class="ficha-info-item"><span>Código do fornecedor</span><strong>{{ produto.codigo_fornecedor|default:"Não informado" }}</strong></div>
-                    <div class="ficha-info-item"><span>Modelo</span><strong>{{ produto.modelo }}</strong></div>
+                    <div class="ficha-info-item"><span>Modelo</span><strong>{{ produto.modelo|default:"Não informado" }}</strong></div>
                     <div class="ficha-info-item"><span>Marca</span><strong>{{ produto.marca|default:"Não informado" }}</strong></div>
                     <div class="ficha-info-item"><span>Coleção</span><strong>{{ produto.colecao|default:"Não informado" }}</strong></div>
                     <div class="ficha-info-item"><span>Gênero</span><strong>{{ produto.genero|default:"Não informado" }}</strong></div>

@@ -41,6 +41,11 @@ Esses registros alimentam o cadastro e os filtros de produtos.
 
 ## Produtos
 
+- opção explícita **Produto sem variação de cor** no cadastro e na edição;
+- produtos sem cor utilizam o estoque geral e aparecem como “Sem variação” nas operações;
+- produtos com cores existentes exigem a remoção individual das variações antes
+  de voltar ao controle sem cor, evitando perda acidental de estoque.
+
 Aplicação: `produtos`.
 
 - código ERP e código de fornecedor;
@@ -51,6 +56,8 @@ Aplicação: `produtos`.
 - ativação/inativação;
 - constraints contra valores negativos;
 - integração com compras, vendas, estoque e relatórios.
+- código, modelo, marca e coleção opcionais no cadastro e na edição;
+- nome/descrição opcional nas variações de cor.
 
 Alterações de saldo devem passar pelos services de estoque. Não ajuste
 `estoque_atual` diretamente em views ou templates.
@@ -65,6 +72,8 @@ Aplicação: `clientes`.
 - pesquisa e filtros;
 - integração com orçamento, venda e Contas a Receber;
 - suporte a venda/orçamento avulso sem obrigar o cadastro.
+- endereço estruturado com CEP, logradouro, número, complemento, bairro,
+  cidade e UF, usando o autocomplete de CEP compartilhado do ERP.
 
 ## Configurações
 

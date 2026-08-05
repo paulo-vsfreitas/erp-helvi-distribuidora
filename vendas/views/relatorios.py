@@ -79,7 +79,7 @@ def relatorio_vendas(request):
             "kpis": kpis,
             "linhas": [
                 {"valores": [
-                    f"#{venda.numero:06d}", venda.data_venda.strftime("%d/%m/%Y %H:%M"),
+                    f"#{venda.numero:06d}", timezone.localtime(venda.data_venda).strftime("%d/%m/%Y %H:%M"),
                     str(venda.cliente or "Consumidor Final"),
                     str(venda.finalizada_por or venda.criada_por or "—"),
                     venda.get_forma_pagamento_display() or "—",

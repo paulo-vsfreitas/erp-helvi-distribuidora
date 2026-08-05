@@ -51,6 +51,7 @@ def converter_orcamento_em_venda(orcamento, *, usuario):
         orcamento.itens
         .select_for_update()
         .select_related("produto")
+        .prefetch_related("variacao_cor")
         .order_by("pk")
     )
 
@@ -70,6 +71,14 @@ def converter_orcamento_em_venda(orcamento, *, usuario):
         subtotal=orcamento.subtotal,
         desconto=(orcamento.desconto or Decimal("0.00")) + desconto_itens,
         frete=orcamento.frete,
+        tipo_entrega=orcamento.tipo_entrega,
+        entrega_cep=orcamento.entrega_cep,
+        entrega_logradouro=orcamento.entrega_logradouro,
+        entrega_numero=orcamento.entrega_numero,
+        entrega_complemento=orcamento.entrega_complemento,
+        entrega_bairro=orcamento.entrega_bairro,
+        entrega_cidade=orcamento.entrega_cidade,
+        entrega_estado=orcamento.entrega_estado,
         total=orcamento.total,
         observacoes=orcamento.observacoes,
         status=Venda.STATUS_EM_ABERTO,
@@ -81,8 +90,10 @@ def converter_orcamento_em_venda(orcamento, *, usuario):
         ItemVenda(
             venda=venda,
             produto=item.produto,
+            variacao_cor=item.variacao_cor,
             quantidade=item.quantidade,
             preco_unitario=item.valor_unitario,
+            custo_unitario=item.produto.preco_custo,
             desconto=item.desconto,
             total=item.total,
         )

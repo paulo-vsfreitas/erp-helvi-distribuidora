@@ -1,4 +1,3 @@
-from reportlab.graphics.shapes import Drawing, Line
 from reportlab.lib.units import mm
 from reportlab.platypus import (
     KeepTogether,
@@ -9,6 +8,7 @@ from reportlab.platypus import (
 )
 
 from reportlab.lib import colors as reportlab_colors
+from django.utils import timezone
 
 from core.pdf import HelviPDF
 from core.pdf import colors as helvi_colors
@@ -35,9 +35,11 @@ class OrcamentoPDF:
         self._header()
         self._dados()
         self._cliente()
+        self._entrega()
         self._itens()
         self._financeiro()
         self._informacoes_comerciais()
+        self._assinaturas()
 
         return self.pdf.build()
 
@@ -57,28 +59,14 @@ class OrcamentoPDF:
         )
 
         dados = [
-            [
-                "Subtotal bruto dos itens",
-                moeda(self.orcamento.subtotal),
-            ],
-
-            [
-                "(-) Desconto geral",
-                moeda(self.orcamento.desconto),
-            ],
-            [
-                "(+) Frete",
-                moeda(self.orcamento.frete),
-            ],
-            [
-                "TOTAL",
-                moeda(self.orcamento.total),
-            ],
+            [Paragraph(f"<b>Status:</b> {self.orcamento.get_status_display()}", TEXT), Paragraph(f"<b>Vendedor:</b> {vendedor}", TEXT)],
+            [Paragraph(f"<b>Emissão:</b> {self.orcamento.data_emissao:%d/%m/%Y}", TEXT), Paragraph(f"<b>Validade:</b> {self.orcamento.data_validade:%d/%m/%Y}", TEXT)],
+            [Paragraph(f"<b>Atualizado:</b> {timezone.localtime():%d/%m/%Y %H:%M}", TEXT), ""],
         ]
 
         tabela = Table(
             dados,
-            colWidths=[160, 100],
+            colWidths=[255, 255],
         )
 
         tabela.setStyle(
@@ -93,6 +81,29 @@ class OrcamentoPDF:
 
         self.pdf.story.append(tabela)
         self.pdf.story.append(Spacer(1, 5 * mm))
+
+    def _entrega(self):
+        self._section("ENTREGA")
+        if self.orcamento.tipo_entrega == "envio":
+            endereco = ", ".join(filter(None, [
+                self.orcamento.entrega_logradouro, self.orcamento.entrega_numero,
+                self.orcamento.entrega_complemento, self.orcamento.entrega_bairro,
+                self.orcamento.entrega_cidade, self.orcamento.entrega_estado,
+                self.orcamento.entrega_cep,
+            ]))
+        else:
+            endereco = "Retirada no estabelecimento"
+        tabela = Table([[
+            Paragraph(f"<b>Modalidade:</b> {self.orcamento.get_tipo_entrega_display()}", TEXT),
+            Paragraph(f"<b>Endereço:</b> {endereco or '-'}", TEXT),
+        ]], colWidths=[150, 360])
+        tabela.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, -1), reportlab_colors.HexColor("#FFF9E9")),
+            ("BOX", (0, 0), (-1, -1), 0.5, helvi_colors.HELVI_GOLD),
+            ("VALIGN", (0, 0), (-1, -1), "TOP"),
+            ("PADDING", (0, 0), (-1, -1), 7),
+        ]))
+        self.pdf.story.extend([tabela, Spacer(1, 5 * mm)])
 
     def _cliente(self):
         self._section("CLIENTE OU INTERESSADO")
@@ -160,6 +171,7 @@ class OrcamentoPDF:
             [
                 "Código",
                 "Produto",
+                "Cor",
                 "Qtd.",
                 "Unitário",
                 "Desconto",
@@ -171,15 +183,16 @@ class OrcamentoPDF:
             "produto",
             "produto__marca",
         ):
-            produto = item.produto.modelo
+            produto = item.produto.modelo or "Produto sem modelo"
 
             if item.produto.marca:
                 produto += f" | {item.produto.marca.nome}"
 
             dados.append(
                 [
-                    Paragraph(str(item.produto.codigo), TEXT),
+                    Paragraph(item.produto.codigo or "Não informado", TEXT),
                     Paragraph(produto, TEXT),
+                    Paragraph(str(item.variacao_cor or "Sem variação"), TEXT),
                     Paragraph(str(item.quantidade), TEXT),
                     Paragraph(moeda(item.valor_unitario), TEXT),
                     Paragraph(moeda(item.desconto), TEXT),
@@ -190,10 +203,11 @@ class OrcamentoPDF:
         tabela = Table(
             dados,
             colWidths=[
-                55,
-                180,
-                40,
-                80,
+                50,
+                130,
+                65,
+                35,
+                70,
                 75,
                 80,
             ],
@@ -275,8 +289,6 @@ class OrcamentoPDF:
         self.pdf.story.append(Spacer(1, 6 * mm))
 
     def _financeiro(self):
-        self._section("RESUMO FINANCEIRO")
-
         itens = list(
             self.orcamento.itens.all()
         )
@@ -370,11 +382,11 @@ class OrcamentoPDF:
             )
         )
 
-        self.pdf.story.append(
-            KeepTogether(
-                [tabela]
-            )
-        )
+        self.pdf.story.append(KeepTogether([
+            Paragraph("RESUMO FINANCEIRO", SUBTITLE),
+            Spacer(1, 1 * mm),
+            tabela,
+        ]))
 
         self.pdf.story.append(
             Spacer(
@@ -437,6 +449,18 @@ class OrcamentoPDF:
             self.pdf.story.append(caixa)
             self.pdf.story.append(Spacer(1, 5 * mm))
 
+    def _assinaturas(self):
+        tabela = Table([
+            ["", ""],
+            [Paragraph("Cliente / responsável", TEXT), Paragraph("Helvi Distribuidora", TEXT)],
+        ], colWidths=[220, 220], hAlign="CENTER")
+        tabela.setStyle(TableStyle([
+            ("LINEABOVE", (0, 1), (-1, 1), 0.5, helvi_colors.GRAY_700),
+            ("ALIGN", (0, 1), (-1, 1), "CENTER"),
+            ("TOPPADDING", (0, 0), (-1, 0), 22),
+        ]))
+        self.pdf.story.extend([Spacer(1, 10 * mm), KeepTogether(tabela)])
+
     def _section(self, titulo):
         self.pdf.story.append(
             Paragraph(
@@ -444,17 +468,4 @@ class OrcamentoPDF:
                 SUBTITLE,
             )
         )
-
-        desenho = Drawing(500, 1)
-
-        desenho.add(
-            Line(
-                0,
-                0,
-                500,
-                0,
-            )
-        )
-
-        self.pdf.story.append(desenho)
-        self.pdf.story.append(Spacer(1, 3 * mm))
+        self.pdf.story.append(Spacer(1, 1 * mm))

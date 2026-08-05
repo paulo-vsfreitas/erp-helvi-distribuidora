@@ -1,4 +1,9 @@
 {% extends "core/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/vendas.css' %}?v=1.1.0">
+{% endblock %}
 
 {% block title %}
 Venda nº {{ venda.numero|stringformat:"06d" }} | ERP Helvi
@@ -9,55 +14,83 @@ Venda nº {{ venda.numero|stringformat:"06d" }} | ERP Helvi
 {% url "vendas:lista" as voltar_url %}
 {% include "components/layout/page_header.html" with titulo="Ficha da venda" subtitulo=venda botao_url=voltar_url botao_texto="Voltar às vendas" botao_icon="bi bi-arrow-left" %}
 
-<div class="card mb-3 hui-detail-hero">
-    <div class="card-body">
-        <div
-            class="d-flex flex-wrap justify-content-between align-items-center gap-3"
-        >
-            <div>
-                <small class="text-muted">Cliente</small>
+<section class="hui-detail-hero venda-detail-hero" aria-labelledby="cliente-venda-titulo">
+    <div class="hui-detail-hero__identity">
+        <div class="hui-detail-hero__icon" aria-hidden="true">
+            <i class="bi {% if venda.cliente %}bi-building{% else %}bi-person{% endif %}"></i>
+        </div>
+        <div class="venda-detail-client">
+            <span class="venda-detail-eyebrow">Cliente da venda</span>
+            <h2 id="cliente-venda-titulo">
+                {% if venda.cliente %}
+                    {{ venda.cliente }}
+                {% else %}
+                    Consumidor Final
+                {% endif %}
+            </h2>
 
-                <h4 class="mb-0">
-                    {% if venda.cliente %}
-                        {{ venda.cliente }}
-                    {% else %}
-                        Consumidor Final
+            {% if venda.cliente %}
+                <div class="venda-detail-meta">
+                    {% if venda.cliente.cnpj %}
+                        <span><i class="bi bi-card-text"></i>{{ venda.cliente.cnpj }}</span>
                     {% endif %}
-                </h4>
-            </div>
+                    {% if venda.cliente.responsavel %}
+                        <span><i class="bi bi-person-badge"></i>{{ venda.cliente.responsavel }}</span>
+                    {% endif %}
+                    {% if venda.cliente.whatsapp or venda.cliente.telefone %}
+                        <span><i class="bi bi-whatsapp"></i>{{ venda.cliente.whatsapp|default:venda.cliente.telefone }}</span>
+                    {% endif %}
+                    {% if venda.cliente.email %}
+                        <span><i class="bi bi-envelope"></i>{{ venda.cliente.email }}</span>
+                    {% endif %}
+                </div>
+            {% else %}
+                <p>Venda sem vínculo com cliente cadastrado.</p>
+            {% endif %}
+        </div>
+    </div>
 
-            <div class="d-flex flex-wrap gap-2">
+    <div class="venda-detail-status" aria-label="Situação da venda">
+        <div class="venda-detail-number">
+            <small>Venda</small>
+            <strong>nº {{ venda.numero|stringformat:"06d" }}</strong>
+        </div>
+        <div class="venda-detail-status-group">
+            <div class="venda-detail-status-item">
+                <small class="venda-detail-status-label">Situação</small>
                 {% if venda.status == "aberta" %}
-                    <span class="badge bg-warning text-dark">
+                    <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split"></i>
                         {{ venda.get_status_display }}
                     </span>
                 {% elif venda.status == "finalizada" %}
-                    <span class="badge bg-success">
+                    <span class="badge bg-success"><i class="bi bi-check-circle"></i>
                         {{ venda.get_status_display }}
                     </span>
                 {% else %}
-                    <span class="badge bg-danger">
+                    <span class="badge bg-danger"><i class="bi bi-x-circle"></i>
                         {{ venda.get_status_display }}
                     </span>
                 {% endif %}
-
+            </div>
+            <div class="venda-detail-status-item">
+                <small class="venda-detail-status-label">Pagamento</small>
                 {% if venda.status_pagamento == "pago" %}
-                    <span class="badge bg-success">
+                    <span class="badge bg-success"><i class="bi bi-cash-coin"></i>
                         {{ venda.get_status_pagamento_display }}
                     </span>
                 {% elif venda.status_pagamento == "parcial" %}
-                    <span class="badge bg-info text-dark">
+                    <span class="badge bg-info text-dark"><i class="bi bi-pie-chart"></i>
                         {{ venda.get_status_pagamento_display }}
                     </span>
                 {% else %}
-                    <span class="badge bg-secondary">
+                    <span class="badge bg-secondary"><i class="bi bi-clock"></i>
                         {{ venda.get_status_pagamento_display }}
                     </span>
                 {% endif %}
             </div>
         </div>
     </div>
-</div>
+</section>
 
 {% if venda.status == "cancelada" %}
 <div class="card mb-3 hui-detail-section">
@@ -91,18 +124,12 @@ Venda nº {{ venda.numero|stringformat:"06d" }} | ERP Helvi
                 </h5>
 
                 <div class="row g-3">
-                    <div class="col-md-6">
-                        <small class="text-muted d-block">
-                            Cliente
-                        </small>
-
-                        <strong>
-                            {% if venda.cliente %}
-                                {{ venda.cliente }}
-                            {% else %}
-                                Consumidor Final
-                            {% endif %}
-                        </strong>
+                    <div class="col-12">
+                        <small class="text-muted d-block">Entrega</small>
+                        <strong>{{ venda.get_tipo_entrega_display }}</strong>
+                        {% if venda.tipo_entrega == "envio" %}
+                            <div>{{ venda.entrega_logradouro }}, {{ venda.entrega_numero }}{% if venda.entrega_complemento %} · {{ venda.entrega_complemento }}{% endif %} — {{ venda.entrega_bairro }}, {{ venda.entrega_cidade }}/{{ venda.entrega_estado }} · {{ venda.entrega_cep }}</div>
+                        {% endif %}
                     </div>
 
                     <div class="col-md-3">
@@ -185,11 +212,12 @@ Venda nº {{ venda.numero|stringformat:"06d" }} | ERP Helvi
                 </h5>
 
                 <div class="table-responsive">
-                    <table class="table align-middle">
+                    <table class="table align-middle venda-ficha-items-table">
                         <thead>
                             <tr>
-                                <th>Código</th>
+                                <th>Código ERP</th>
                                 <th>Produto</th>
+                                <th>Cor</th>
                                 <th class="text-center">Qtde.</th>
                                 <th class="text-end">Unitário</th>
                                 <th class="text-end">Desconto</th>
@@ -200,19 +228,38 @@ Venda nº {{ venda.numero|stringformat:"06d" }} | ERP Helvi
                         <tbody>
                             {% for item in venda.itens.all %}
                                 <tr>
-                                    <td>
-                                        {{ item.produto.codigo }}
+                                    <td class="venda-ficha-codigo">
+                                        {% if item.produto.codigo %}
+                                            <span class="venda-ficha-code-badge">{{ item.produto.codigo }}</span>
+                                        {% else %}
+                                            <span class="text-muted">Não informado</span>
+                                        {% endif %}
                                     </td>
 
-                                    <td>
+                                    <td class="venda-ficha-produto">
                                         <strong>
-                                            {{ item.produto.modelo }}
+                                            {{ item.produto.modelo|default:"Produto sem descrição" }}
                                         </strong>
 
                                         {% if item.produto.marca %}
                                             <small class="text-muted d-block">
                                                 {{ item.produto.marca.nome }}
                                             </small>
+                                        {% endif %}
+                                        {% if item.produto.codigo_fornecedor %}
+                                            <small class="text-muted d-block">
+                                                Cód. fornecedor: {{ item.produto.codigo_fornecedor }}
+                                            </small>
+                                        {% endif %}
+                                    </td>
+
+                                    <td class="venda-ficha-cor">
+                                        {% if item.variacao_cor %}
+                                            <span class="venda-ficha-color-badge">
+                                                {{ item.variacao_cor }}
+                                            </span>
+                                        {% else %}
+                                            <span class="text-muted">Sem variação</span>
                                         {% endif %}
                                     </td>
 
@@ -237,7 +284,7 @@ Venda nº {{ venda.numero|stringformat:"06d" }} | ERP Helvi
                             {% empty %}
                                 <tr>
                                     <td
-                                        colspan="6"
+                                        colspan="7"
                                         class="text-center py-4"
                                     >
                                         Nenhum produto cadastrado.
@@ -262,6 +309,11 @@ Venda nº {{ venda.numero|stringformat:"06d" }} | ERP Helvi
 
                 <div class="d-flex justify-content-between mb-2">
                     <span>Produtos</span>
+                    <strong>{{ venda.quantidade_produtos }}</strong>
+                </div>
+
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Itens / variações</span>
                     <strong>{{ venda.quantidade_itens }}</strong>
                 </div>
 
@@ -320,7 +372,6 @@ Venda nº {{ venda.numero|stringformat:"06d" }} | ERP Helvi
             </div>
         </div>
 
-        {% if venda.status == "aberta" %}
         <div class="card mb-3 hui-detail-section">
             <div class="card-body">
                 <h5 class="card-title mb-3">
@@ -328,7 +379,16 @@ Venda nº {{ venda.numero|stringformat:"06d" }} | ERP Helvi
                 </h5>
 
                 <div class="d-grid gap-2">
+                    <a href="{% url 'vendas:pdf' venda.numero %}" target="_blank" class="btn btn-outline-danger w-100">
+                        <i class="bi bi-file-earmark-pdf"></i> Abrir resumo em PDF
+                    </a>
+                    <button type="button" id="compartilhar-venda-pdf" class="btn btn-outline-success w-100" data-pdf-url="{% url 'vendas:pdf' venda.numero %}" data-numero="{{ venda.numero }}" data-cliente="{% if venda.cliente %}{{ venda.cliente }}{% else %}Cliente{% endif %}">
+                        <i class="bi bi-share"></i> Compartilhar com o cliente
+                    </button>
                     {% if venda.status == "aberta" %}
+                        <a href="{% url 'vendas:editar' venda.numero %}" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-pencil-square"></i> Editar venda
+                        </a>
                         <form
                             method="post"
                             action="{% url 'vendas:finalizar' venda.numero %}"
@@ -348,6 +408,24 @@ Venda nº {{ venda.numero|stringformat:"06d" }} | ERP Helvi
 
                     {% endif %}
                 </div>
+            </div>
+        </div>
+
+        {% if pode_editar_vendedor %}
+        <div class="card mb-3 hui-detail-section" id="alterar-vendedor">
+            <div class="card-body">
+                <h5 class="card-title mb-2">Alterar vendedor</h5>
+                <p class="text-muted small">Disponível para Administrador, Gerente e Financeiro, inclusive após a conclusão.</p>
+                <form method="post" action="{% url 'vendas:alterar_vendedor' venda.numero %}">
+                    {% csrf_token %}
+                    <label class="form-label" for="vendedor-responsavel">Vendedor responsável</label>
+                    <select id="vendedor-responsavel" name="vendedor" class="form-select mb-2" required>
+                        {% for vendedor in vendedores %}<option value="{{ vendedor.pk }}"{% if venda.criada_por_id == vendedor.pk %} selected{% endif %}>{{ vendedor.get_full_name|default:vendedor.username }} — {{ vendedor.get_perfil_display }}</option>{% endfor %}
+                    </select>
+                    <label class="form-label" for="senha-autorizacao-vendedor">Sua senha para autorizar</label>
+                    <input id="senha-autorizacao-vendedor" type="password" name="senha_autorizacao" class="form-control mb-2" autocomplete="current-password" required>
+                    <button type="submit" class="btn btn-primary w-100"><i class="bi bi-shield-check"></i> Confirmar alteração</button>
+                </form>
             </div>
         </div>
         {% endif %}
@@ -385,4 +463,27 @@ Venda nº {{ venda.numero|stringformat:"06d" }} | ERP Helvi
 </div>
 </div>
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById("compartilhar-venda-pdf")?.addEventListener("click", async function () {
+    const botao = this;
+    try {
+        const resposta = await fetch(botao.dataset.pdfUrl);
+        if (!resposta.ok) throw new Error();
+        const arquivo = new File([await resposta.blob()], `venda-${String(botao.dataset.numero).padStart(6, "0")}.pdf`, {type: "application/pdf"});
+        if (navigator.canShare?.({files: [arquivo]})) {
+            await navigator.share({title: `Resumo da venda nº ${botao.dataset.numero}`, text: `Olá, ${botao.dataset.cliente}! Segue o resumo do seu pedido.`, files: [arquivo]});
+            return;
+        }
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(arquivo); link.download = arquivo.name; link.click();
+        URL.revokeObjectURL(link.href);
+        window.open(`https://wa.me/?text=${encodeURIComponent("Olá! O resumo da sua venda foi baixado e está pronto para envio.")}`, "_blank");
+    } catch (erro) {
+        window.open(botao.dataset.pdfUrl, "_blank");
+    }
+});
+</script>
 {% endblock %}

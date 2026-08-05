@@ -27,6 +27,12 @@ class EmpresaForm(forms.ModelForm):
             "whatsapp",
             "email",
             "site",
+            "instagram",
+            "facebook",
+            "exibir_whatsapp_pdf",
+            "exibir_instagram_pdf",
+            "exibir_facebook_pdf",
+            "exibir_site_pdf",
             "cep",
             "logradouro",
             "numero",
@@ -114,6 +120,12 @@ class EmpresaForm(forms.ModelForm):
                     "autocomplete": "url",
                 }
             ),
+            "instagram": forms.TextInput(attrs={"class": "form-control", "placeholder": "@helvidistribuidora"}),
+            "facebook": forms.TextInput(attrs={"class": "form-control", "placeholder": "facebook.com/helvidistribuidora"}),
+            "exibir_whatsapp_pdf": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+            "exibir_instagram_pdf": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+            "exibir_facebook_pdf": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+            "exibir_site_pdf": forms.CheckboxInput(attrs={"class": "form-check-input"}),
             "cep": forms.TextInput(
                 attrs={
                     "class": "form-control",

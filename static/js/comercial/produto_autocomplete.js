@@ -265,29 +265,15 @@
             }
 
             produtos.forEach((produto, indice) => {
-                const item = document.createElement("button");
+                const item = document.createElement("div");
 
                 const gerenciadorItens =
                     window.HelviComercial?.itensOrcamento;
 
-                const itemExistente =
-                    gerenciadorItens?.obterItem(produto.id);
-
-                const jaAdicionado = Boolean(itemExistente);
-
-                item.type = "button";
                 item.id = `produto-opcao-${indice}`;
                 item.className = "autocomplete-item";
                 item.setAttribute("role", "option");
                 item.setAttribute("aria-selected", "false");
-
-                if (jaAdicionado) {
-                    item.classList.add(
-                        "autocomplete-item-adicionado"
-                    );
-
-                    item.setAttribute("aria-disabled", "true");
-                }
 
                 const codigo = this.escaparHtml(
                     produto.codigo || ""
@@ -313,8 +299,7 @@
                     produto.preco_venda || 0
                 );
 
-                const quantidadeAtual =
-                    Number(itemExistente?.quantidade || 0);
+                const variacoes = produto.variacoes || [];
 
                 item.innerHTML = `
                     <div class="cliente-resultado-icon">
@@ -330,23 +315,6 @@
                             </strong>
 
                             <div class="produto-resultado-direita">
-
-                                ${
-                                    jaAdicionado
-                                        ? `
-                                            <span class="produto-ja-adicionado-badge">
-                                                <i class="bi bi-check-circle-fill"></i>
-                                                Já adicionado
-                                                ${
-                                                    quantidadeAtual
-                                                        ? `(${quantidadeAtual})`
-                                                        : ""
-                                                }
-                                            </span>
-                                        `
-                                        : ""
-                                }
-
                                 <strong>
                                     ${preco}
                                 </strong>
@@ -380,23 +348,36 @@
 
                         </div>
 
+                        <div class="produto-resultado-cores d-flex flex-wrap gap-2 mt-2"></div>
+
                     </div>
                 `;
+
+                const cores = item.querySelector(".produto-resultado-cores");
+                const opcoes = variacoes.length
+                    ? variacoes
+                    : [{id: null, nome: "Sem variação", codigo: "", estoque}];
+                opcoes.forEach((cor) => {
+                    const existente = gerenciadorItens?.obterItem(produto.id, cor.id);
+                    const botao = document.createElement("button");
+                    botao.type = "button";
+                    botao.className = existente
+                        ? "btn btn-sm btn-outline-secondary"
+                        : "btn btn-sm btn-outline-primary";
+                    botao.disabled = Boolean(existente);
+                    botao.textContent = `${cor.nome}${cor.codigo ? ` (${cor.codigo})` : ""} · estoque ${cor.estoque}`;
+                    botao.title = existente ? "Esta cor já foi adicionada" : "Adicionar esta opção";
+                    botao.addEventListener("click", () => {
+                        if (existente) return;
+                        this.selecionarProduto(produto, cor.id);
+                        document.getElementById("btn-adicionar-produto")?.click();
+                    });
+                    cores.appendChild(botao);
+                });
 
                 item.addEventListener("mouseenter", () => {
                     this.indiceAtivo = indice;
                     this.atualizarDestaque();
-                });
-
-                item.addEventListener("click", () => {
-                    if (jaAdicionado) {
-                        gerenciadorItens
-                            ?.destacarProdutoExistente(produto.id);
-
-                        return;
-                    }
-
-                    this.selecionarProduto(produto);
                 });
 
                 this.resultados.appendChild(item);
@@ -405,8 +386,11 @@
             this.exibirResultados();
         }
 
-        selecionarProduto(produto) {
-            this.produtoSelecionado = produto;
+        selecionarProduto(produto, variacaoCorId = null) {
+            this.produtoSelecionado = {
+                ...produto,
+                variacao_cor_id: Number(variacaoCorId || 0) || null,
+            };
             this.inputId.value = produto.id;
 
             const codigo = produto.codigo || "";

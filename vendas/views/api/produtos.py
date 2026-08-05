@@ -18,11 +18,20 @@ def buscar_produtos(request):
         resultados.append(
             {
                 "id": produto.pk,
-                "codigo": produto.codigo,
-                "modelo": produto.modelo,
+                "codigo": produto.codigo or "",
+                "modelo": produto.modelo or "",
                 "marca": marca,
                 "preco": str(produto.preco_venda),
                 "estoque": produto.estoque_atual,
+                "variacoes": [
+                    {
+                        "id": cor.pk,
+                        "nome": cor.nome or cor.codigo,
+                        "codigo": cor.codigo,
+                        "estoque": cor.estoque,
+                    }
+                    for cor in produto.variacoes_cor.all()
+                ],
             }
         )
 

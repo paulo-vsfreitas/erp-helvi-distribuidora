@@ -20,9 +20,9 @@ def draw_footer(canvas, doc):
     canvas.setLineWidth(0.8)
     canvas.line(
         margem_esquerda,
-        35,
+        42,
         margem_direita,
-        35,
+        42,
     )
 
     canvas.setFont("Helvetica", 7.5)
@@ -36,7 +36,7 @@ def draw_footer(canvas, doc):
 
     canvas.drawString(
         margem_esquerda,
-        23,
+        29,
         f"Documento emitido automaticamente pelo ERP Helvi | {nome_empresa}",
     )
 
@@ -46,14 +46,21 @@ def draw_footer(canvas, doc):
 
     canvas.drawCentredString(
         largura_pagina / 2,
-        12,
+        9,
         emitido_em,
     )
 
     canvas.drawRightString(
         margem_direita,
-        23,
+        29,
         f"Página {canvas.getPageNumber()}",
     )
+
+    if empresa.exibir_site_pdf and empresa.site:
+        canvas.drawCentredString(
+            largura_pagina / 2,
+            19,
+            empresa.site,
+        )
 
     canvas.restoreState()

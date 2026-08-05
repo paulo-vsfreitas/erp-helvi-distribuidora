@@ -29,6 +29,7 @@ def buscar_produtos_para_compra(termo):
             "colecao",
             "tipo_armacao",
         )
+        .prefetch_related("variacoes_cor")
         .annotate(
             ultimo_custo_compra=Subquery(
                 ultimo_custo

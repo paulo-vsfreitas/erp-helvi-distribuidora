@@ -36,6 +36,7 @@ from financeiro.views.estornos import (
 from financeiro.views.movimentacoes import (
     lista_movimentacoes,
 )
+from financeiro.views.rentabilidade import rentabilidade
 
 
 app_name = "financeiro"
@@ -160,6 +161,11 @@ urlpatterns = [
         "parcelas/<int:parcela_id>/registrar-baixa/",
         registrar_baixa_view,
         name="registrar_baixa",
+    ),
+    path(
+        "rentabilidade/",
+        rentabilidade,
+        name="rentabilidade",
     ),
     path(
         "baixas/<int:baixa_id>/estornar/",

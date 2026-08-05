@@ -2,11 +2,14 @@ from django.urls import path
 
 from vendas.views import (
     cancelar_venda_view,
+    editar_venda,
     ficha_venda,
     finalizar_venda_view,
     lista_vendas,
+    pdf_resumo_venda,
     nova_venda,
     relatorio_vendas,
+    alterar_vendedor_view,
 )
 from vendas.views.api import buscar_produtos
 
@@ -34,6 +37,21 @@ urlpatterns = [
         "api/produtos/",
         buscar_produtos,
         name="api_produtos",
+    ),
+    path(
+        "<int:numero>/editar/",
+        editar_venda,
+        name="editar",
+    ),
+    path(
+        "<int:numero>/vendedor/",
+        alterar_vendedor_view,
+        name="alterar_vendedor",
+    ),
+    path(
+        "<int:numero>/pdf/",
+        pdf_resumo_venda,
+        name="pdf",
     ),
     path(
         "<int:numero>/finalizar/",

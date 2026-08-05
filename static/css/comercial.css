@@ -967,6 +967,36 @@
     cursor: default;
 }
 
+#produto-resultados.autocomplete-list {
+    width: min(820px, 90vw);
+    right: auto;
+    max-height: 480px;
+    padding: 8px;
+    overflow-y: auto;
+}
+
+#produto-resultados .autocomplete-item {
+    padding: 16px;
+    border-radius: 10px;
+    border: 1px solid #ece6d8;
+    margin-bottom: 6px;
+}
+
+#produto-resultados .produto-resultado-cores {
+    padding-left: 48px;
+}
+
+#produto-resultados .produto-resultado-cores .btn {
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 6px 11px;
+}
+
+#produto-resultados .produto-resultado-cores .btn:disabled {
+    opacity: 0.55;
+}
+
 #produto-resultados .autocomplete-item-adicionado:hover,
 #produto-resultados .autocomplete-item-adicionado.autocomplete-item-active {
     background: rgba(29, 154, 98, 0.11);

@@ -4,8 +4,9 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
-from produtos.forms import ImagemProdutoForm, ProdutoForm
+from produtos.forms import ImagemProdutoForm, ProdutoForm, VariacaoCorFormSet
 from produtos.models import ImagemProduto, Produto
+from produtos.services import salvar_produto_com_cores
 
 
 @login_required
@@ -84,12 +85,14 @@ def novo_produto(request):
     if request.method == "POST":
         form = ProdutoForm(request.POST, request.FILES)
 
-        if form.is_valid():
-            form.save()
+        formset = VariacaoCorFormSet(request.POST, prefix="cores")
+        if form.is_valid() and formset.is_valid():
+            salvar_produto_com_cores(form, formset)
             messages.success(request, "Produto cadastrado com sucesso.")
             return redirect("produtos:lista_produtos")
     else:
         form = ProdutoForm()
+        formset = VariacaoCorFormSet(prefix="cores")
 
     return render(request, "produtos/form_produto.html", {
         "form": form,
@@ -97,6 +100,9 @@ def novo_produto(request):
         "produto": None,
         "imagens": None,
         "imagem_form": None,
+        "cores_formset": formset,
+        "sem_variacao_cor": request.POST.get("sem_variacao_cor") == "on" if request.method == "POST" else True,
+        "tem_variacoes_cor": False,
     })
 
 
@@ -107,12 +113,14 @@ def editar_produto(request, produto_id):
     if request.method == "POST":
         form = ProdutoForm(request.POST, request.FILES, instance=produto)
 
-        if form.is_valid():
-            form.save()
+        formset = VariacaoCorFormSet(request.POST, instance=produto, prefix="cores")
+        if form.is_valid() and formset.is_valid():
+            salvar_produto_com_cores(form, formset)
             messages.success(request, "Produto atualizado com sucesso.")
             return redirect("produtos:lista_produtos")
     else:
         form = ProdutoForm(instance=produto)
+        formset = VariacaoCorFormSet(instance=produto, prefix="cores")
 
     return render(request, "produtos/form_produto.html", {
         "form": form,
@@ -120,6 +128,9 @@ def editar_produto(request, produto_id):
         "produto": produto,
         "imagens": produto.imagens.all(),
         "imagem_form": ImagemProdutoForm(),
+        "cores_formset": formset,
+        "sem_variacao_cor": request.POST.get("sem_variacao_cor") == "on" if request.method == "POST" else not produto.variacoes_cor.exists(),
+        "tem_variacoes_cor": produto.variacoes_cor.exists(),
     })
 
 

@@ -1,5 +1,32 @@
 # Changelog do ERP Helvi
 
+## 05/08/2026 — Edição de vendas em aberto
+
+- incluído botão **Editar venda** na ficha das vendas em aberto;
+- formulário de edição carrega cliente, entrega, itens e variações de cor já selecionadas;
+- recálculo seguro de subtotal, descontos, frete e total ao salvar;
+- vendas finalizadas, canceladas ou com integrações processadas permanecem protegidas;
+- corrigida a leitura de valores monetários digitados com vírgula no formulário.
+- cores disponíveis passaram a ser clicáveis no card de busca do produto;
+- o mesmo produto pode compor a venda mais de uma vez quando as cores diferem;
+- administradores e gerentes podem corrigir o vendedor diretamente na lista de vendas.
+- cadastro de produtos ganhou a opção explícita **Produto sem variação de cor**,
+  com interface simplificada e proteção para produtos que já possuem cores.
+- corrigido o envio de vendas com produtos sem cor misturados a produtos com
+  variação, mantendo cada cor associada à linha correta.
+- orçamento recebeu a mesma seleção visual por produto e cor usada nas vendas;
+- resumo PDF da venda foi redesenhado com identidade institucional, logo das
+  Configurações, dados completos do cliente, entrega, pagamento e fechamento.
+- Configurações recebeu Instagram, Facebook e seleção dos canais exibidos nos PDFs;
+- orçamento adotou o mesmo padrão institucional completo do documento de venda;
+- ficha da venda permite compartilhar o PDF pelo recurso nativo do dispositivo;
+- Administrador, Gerente e Financeiro podem corrigir o vendedor de qualquer
+  venda mediante confirmação da própria senha;
+- datas e horários programáticos foram normalizados para `America/Sao_Paulo`.
+- site institucional movido para o rodapé dos PDFs; WhatsApp e Instagram agora
+  aparecem com ícones vetoriais e os documentos exibem o último horário atualizado.
+- cabeçalho evita repetir razão social quando ela é igual ao nome fantasia.
+
 ## 04/08/2026 — Relatórios analíticos dedicados
 
 - substituídos os atalhos operacionais da Central por 12 relatórios dedicados;
@@ -124,3 +151,47 @@
 - autenticação e usuários;
 - catálogo, produtos e clientes;
 - permissões e identidade visual inicial.
+# Alterações de 04/08/2026
+
+- Cadastro e edição de produtos passam a aceitar Código, Modelo, Marca,
+  Coleção e Nome/descrição da variação de cor em branco, com tratamento
+  seguro nas listagens, fichas, buscas, PDFs e integrações.
+- Corrigido o alinhamento da listagem de produtos para exibir estoque, preço,
+  situação e ações nas colunas corretas, com moeda e estados padronizados.
+- Adicionados endereços estruturados de clientes, modalidade e endereço de
+  entrega em orçamentos/vendas, frete condicionado ao envio, variações de cor
+  nos itens e resumo em PDF para vendas em aberto. Os seletores de produtos
+  também foram ampliados para melhorar a leitura operacional.
+# Ajuste visual do cabeçalho dos PDFs
+
+- Reorganizados nome, dados fiscais, contatos, redes sociais e endereço no cabeçalho dos PDFs de vendas e orçamentos.
+- Substituído o ícone simplificado do WhatsApp por uma representação oficial, maior e mais legível.
+# Correção do fluxo de caixa e rentabilidade
+
+- Corrigido o saldo anterior do fluxo de caixa, que incluía novamente as
+  movimentações do próprio período quando nenhum filtro de data era enviado.
+- Definido o mês corrente como período padrão do fluxo de caixa.
+- Criada a página **Financeiro → Lucro e Margem**, com receita dos produtos,
+  custo das mercadorias, lucro bruto, margem, frete e detalhamento por venda.
+- Adicionado custo unitário histórico ao item da venda, consolidado no momento
+  da finalização para não ser alterado por atualizações futuras do produto.
+# Refinamento da ficha de venda
+
+- Corrigida a inversão entre produto e variação de cor na tabela de itens.
+- Códigos opcionais deixam de exibir `None` e passam a mostrar um estado claro.
+- O resumo agora diferencia produtos distintos, itens/variações e quantidade de
+  peças.
+- Melhorada a leitura da tabela com identificação visual de códigos e cores.
+# Cabeçalho da ficha de venda
+
+- Removido do topo o botão duplicado de resumo em PDF; a ação permanece no
+  painel próprio de ações.
+- O destaque do cliente agora apresenta documento, responsável, contato e
+  e-mail quando cadastrados, além do número e dos estados da venda.
+- Eliminada a repetição do cliente dentro da seção de dados da venda.
+# Alinhamento dos estados da venda
+
+- Reorganizados número, situação e pagamento em uma grade com linhas e colunas
+  estáveis, evitando sobreposição dos rótulos com os selos de status.
+- Corrigido o carregamento do CSS específico na ficha, com atualização de
+  versão para impedir o uso do estilo antigo em cache.

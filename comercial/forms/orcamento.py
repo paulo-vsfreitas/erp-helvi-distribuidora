@@ -45,6 +45,14 @@ class OrcamentoForm(forms.ModelForm):
             "data_validade",
             "desconto",
             "frete",
+            "tipo_entrega",
+            "entrega_cep",
+            "entrega_logradouro",
+            "entrega_numero",
+            "entrega_complemento",
+            "entrega_bairro",
+            "entrega_cidade",
+            "entrega_estado",
             "condicoes_comerciais",
             "observacoes",
         ]
@@ -112,6 +120,23 @@ class OrcamentoForm(forms.ModelForm):
                     ),
                 }
             ),
+            "tipo_entrega": forms.Select(attrs={"class": "form-select"}),
+            "entrega_cep": forms.TextInput(attrs={
+                "class": "form-control", "placeholder": "00000-000",
+                "data-mask": "cep", "data-cep-autocomplete": "true",
+                "data-logradouro-target": "id_entrega_logradouro",
+                "data-bairro-target": "id_entrega_bairro",
+                "data-cidade-target": "id_entrega_cidade",
+                "data-estado-target": "id_entrega_estado",
+                "data-complemento-target": "id_entrega_complemento",
+                "data-numero-target": "id_entrega_numero",
+            }),
+            "entrega_logradouro": forms.TextInput(attrs={"class": "form-control"}),
+            "entrega_numero": forms.TextInput(attrs={"class": "form-control"}),
+            "entrega_complemento": forms.TextInput(attrs={"class": "form-control"}),
+            "entrega_bairro": forms.TextInput(attrs={"class": "form-control"}),
+            "entrega_cidade": forms.TextInput(attrs={"class": "form-control"}),
+            "entrega_estado": forms.TextInput(attrs={"class": "form-control", "maxlength": 2}),
         }
 
         error_messages = {
@@ -155,6 +180,13 @@ class OrcamentoForm(forms.ModelForm):
         self.fields["cliente_email"].required = False
         self.fields["condicoes_comerciais"].required = False
         self.fields["observacoes"].required = False
+        self.fields["tipo_entrega"].required = False
+        for nome in (
+            "entrega_cep", "entrega_logradouro", "entrega_numero",
+            "entrega_complemento", "entrega_bairro", "entrega_cidade",
+            "entrega_estado",
+        ):
+            self.fields[nome].required = False
 
         self.fields["data_validade"].input_formats = [
             "%Y-%m-%d",
@@ -270,3 +302,14 @@ class OrcamentoForm(forms.ModelForm):
             )
 
         return frete
+
+    def clean(self):
+        dados = super().clean()
+        dados["tipo_entrega"] = dados.get("tipo_entrega") or Orcamento.TipoEntrega.RETIRADA
+        if dados.get("tipo_entrega") == Orcamento.TipoEntrega.ENVIO:
+            for campo in ("entrega_logradouro", "entrega_numero", "entrega_cidade", "entrega_estado"):
+                if not dados.get(campo):
+                    self.add_error(campo, "Informe este dado para a entrega.")
+        else:
+            dados["frete"] = Decimal("0.00")
+        return dados

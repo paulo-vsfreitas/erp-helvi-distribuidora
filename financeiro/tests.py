@@ -23,6 +23,10 @@ from financeiro.services.estorno_service import (
     estornar_recebimento,
 )
 from financeiro.services.recebimento_service import registrar_recebimento
+from financeiro.services.fluxo_caixa_service import obter_fluxo_caixa
+from financeiro.services.rentabilidade_service import obter_rentabilidade
+from produtos.models import Produto
+from vendas.models import ItemVenda, Venda
 
 
 class EstornoFinanceiroTests(TestCase):
@@ -213,3 +217,66 @@ class EstornoFinanceiroTests(TestCase):
             reverse("financeiro:ficha_conta_pagar", args=[conta.pk]),
         )
         self.assertTrue(baixa.estornada)
+
+
+class FluxoCaixaTests(TestCase):
+    def setUp(self):
+        self.usuario = get_user_model().objects.create_user(
+            username="caixa", password="senha-segura", perfil="ADM"
+        )
+        self.conta = ContaFinanceira.objects.create(
+            nome="Banco", tipo=ContaFinanceira.TIPO_CONTA_CORRENTE, saldo_inicial=Decimal("0.00")
+        )
+
+    def test_movimento_do_periodo_nao_entra_no_saldo_anterior(self):
+        MovimentacaoFinanceira.objects.create(
+            conta_financeira=self.conta,
+            tipo=MovimentacaoFinanceira.TIPO_ENTRADA,
+            data_movimentacao=date.today(),
+            valor=Decimal("1099.00"),
+            descricao="Recebimento da venda",
+            criado_por=self.usuario,
+        )
+        resultado = obter_fluxo_caixa({})
+        self.assertEqual(resultado["saldo_anterior"], Decimal("0.00"))
+        self.assertEqual(resultado["total_entradas"], Decimal("1099.00"))
+        self.assertEqual(resultado["saldo_final"], Decimal("1099.00"))
+        self.assertEqual(resultado["quantidade_movimentacoes"], 1)
+
+
+class RentabilidadeTests(TestCase):
+    def setUp(self):
+        self.usuario = get_user_model().objects.create_user(
+            username="gestor", password="senha-segura", perfil="ADM"
+        )
+        self.produto = Produto.objects.create(
+            modelo="Produto rentável", preco_custo=Decimal("40.00"),
+            preco_venda=Decimal("70.00"), estoque_atual=10,
+        )
+        self.venda = Venda.objects.create(
+            numero=9001, status=Venda.STATUS_FINALIZADA,
+            subtotal=Decimal("140.00"), desconto=Decimal("10.00"),
+            frete=Decimal("20.00"), total=Decimal("150.00"),
+            criada_por=self.usuario,
+        )
+        ItemVenda.objects.create(
+            venda=self.venda, produto=self.produto, quantidade=2,
+            preco_unitario=Decimal("70.00"), custo_unitario=Decimal("40.00"),
+            desconto=Decimal("0.00"), total=Decimal("140.00"),
+        )
+
+    def test_calcula_lucro_com_custo_historico_e_sem_frete(self):
+        self.produto.preco_custo = Decimal("99.00")
+        self.produto.save(update_fields=["preco_custo"])
+        resultado = obter_rentabilidade({})
+        self.assertEqual(resultado["receita_produtos"], Decimal("130.00"))
+        self.assertEqual(resultado["custo_total"], Decimal("80.00"))
+        self.assertEqual(resultado["lucro_bruto"], Decimal("50.00"))
+        self.assertEqual(resultado["frete_total"], Decimal("20.00"))
+
+    def test_tela_de_rentabilidade_exibe_venda(self):
+        self.client.force_login(self.usuario)
+        resposta = self.client.get(reverse("financeiro:rentabilidade"))
+        self.assertEqual(resposta.status_code, 200)
+        self.assertContains(resposta, "Lucro e margem")
+        self.assertContains(resposta, "#009001")

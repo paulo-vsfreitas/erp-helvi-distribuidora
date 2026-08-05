@@ -323,6 +323,26 @@ Dados da empresa | ERP Helvi
                             </label>
                             {{ form.rodape_documentos }}
                         </div>
+                        <div class="mt-4">
+                            <strong>Informações exibidas nos PDFs</strong>
+                            <p class="text-muted small mb-2">Escolha os canais que aparecerão em vendas e orçamentos.</p>
+                            <div class="d-flex flex-wrap gap-4">
+                                <div class="form-check">{{ form.exibir_whatsapp_pdf }} <label class="form-check-label" for="{{ form.exibir_whatsapp_pdf.id_for_label }}">WhatsApp</label></div>
+                                <div class="form-check">{{ form.exibir_instagram_pdf }} <label class="form-check-label" for="{{ form.exibir_instagram_pdf.id_for_label }}">Instagram</label></div>
+                                <div class="form-check">{{ form.exibir_facebook_pdf }} <label class="form-check-label" for="{{ form.exibir_facebook_pdf.id_for_label }}">Facebook</label></div>
+                                <div class="form-check">{{ form.exibir_site_pdf }} <label class="form-check-label" for="{{ form.exibir_site_pdf.id_for_label }}">Site</label></div>
+                            </div>
+
+                            <div class="configuracoes-field span-3">
+                                <label for="{{ form.instagram.id_for_label }}">Instagram</label>
+                                {{ form.instagram }}
+                            </div>
+
+                            <div class="configuracoes-field span-3">
+                                <label for="{{ form.facebook.id_for_label }}">Facebook</label>
+                                {{ form.facebook }}
+                            </div>
+                        </div>
                     </div>
                 </section>
 

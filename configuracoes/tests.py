@@ -18,6 +18,16 @@ from configuracoes.services import (
 
 
 class ModelosMensagemTests(TestCase):
+    def test_configuracao_define_canais_exibidos_nos_pdfs(self):
+        empresa = Empresa(
+            instagram="@helvi",
+            facebook="facebook.com/helvi",
+            exibir_instagram_pdf=True,
+            exibir_facebook_pdf=False,
+        )
+        self.assertTrue(empresa.exibir_instagram_pdf)
+        self.assertFalse(empresa.exibir_facebook_pdf)
+
     def test_nova_empresa_recebe_modelos_padrao_aprovados(self):
         empresa = Empresa()
 
@@ -84,7 +94,7 @@ class ModelosMensagemTests(TestCase):
 
 class ModelosMensagemMigrationTests(TransactionTestCase):
     migrate_from = [("configuracoes", "0002_empresa_modelos_mensagem")]
-    migrate_to = [("configuracoes", "0003_preencher_modelos_mensagem_padrao")]
+    migrate_to = [("configuracoes", "0004_empresa_redes_sociais_pdf")]
 
     def test_preenche_somente_campos_vazios(self):
         executor = MigrationExecutor(connection)

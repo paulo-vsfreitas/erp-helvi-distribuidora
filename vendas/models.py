@@ -5,10 +5,16 @@ from django.core.validators import MinValueValidator
 from django.db import models
 
 from clientes.models import Cliente
-from produtos.models import Produto
+from produtos.models import Produto, VariacaoCor
 
 
 class Venda(models.Model):
+    ENTREGA_RETIRADA = "retirada"
+    ENTREGA_ENVIO = "envio"
+    TIPO_ENTREGA_CHOICES = [
+        (ENTREGA_RETIRADA, "Retirada"),
+        (ENTREGA_ENVIO, "Envio / entrega"),
+    ]
     STATUS_EM_ABERTO = "aberta"
     STATUS_FINALIZADA = "finalizada"
     STATUS_CANCELADA = "cancelada"
@@ -138,6 +144,19 @@ class Venda(models.Model):
         validators=[MinValueValidator(Decimal("0.00"))],
     )
 
+    tipo_entrega = models.CharField(
+        max_length=10,
+        choices=TIPO_ENTREGA_CHOICES,
+        default=ENTREGA_RETIRADA,
+    )
+    entrega_cep = models.CharField(max_length=9, blank=True)
+    entrega_logradouro = models.CharField(max_length=200, blank=True)
+    entrega_numero = models.CharField(max_length=20, blank=True)
+    entrega_complemento = models.CharField(max_length=100, blank=True)
+    entrega_bairro = models.CharField(max_length=100, blank=True)
+    entrega_cidade = models.CharField(max_length=100, blank=True)
+    entrega_estado = models.CharField(max_length=2, blank=True)
+
     total = models.DecimalField(
         max_digits=12,
         decimal_places=2,
@@ -253,6 +272,10 @@ class Venda(models.Model):
         return self.itens.count()
 
     @property
+    def quantidade_produtos(self):
+        return len({item.produto_id for item in self.itens.all()})
+
+    @property
     def quantidade_pecas(self):
         return sum(item.quantidade for item in self.itens.all())
 
@@ -306,6 +329,14 @@ class ItemVenda(models.Model):
         related_name="itens_venda",
     )
 
+    variacao_cor = models.ForeignKey(
+        VariacaoCor,
+        on_delete=models.PROTECT,
+        related_name="itens_venda",
+        null=True,
+        blank=True,
+    )
+
     quantidade = models.PositiveIntegerField(
         validators=[MinValueValidator(1)],
     )
@@ -314,6 +345,14 @@ class ItemVenda(models.Model):
         max_digits=12,
         decimal_places=2,
         validators=[MinValueValidator(Decimal("0.01"))],
+    )
+
+    custo_unitario = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=Decimal("0.00"),
+        validators=[MinValueValidator(Decimal("0.00"))],
+        help_text="Custo do produto preservado no momento da venda.",
     )
 
     desconto = models.DecimalField(
@@ -336,8 +375,8 @@ class ItemVenda(models.Model):
         ordering = ["id"]
         constraints = [
             models.UniqueConstraint(
-                fields=["venda", "produto"],
-                name="venda_produto_unico",
+                fields=["venda", "produto", "variacao_cor"],
+                name="venda_produto_cor_unico",
             ),
         ]
 

@@ -179,9 +179,15 @@
                 </div>
 
                 <a href="{% url 'financeiro:dashboard' %}"
-                   {% if request.resolver_match.namespace == 'financeiro' and request.resolver_match.url_name != 'lista_movimentacoes' %}class="is-active" aria-current="page"{% endif %}>
+                   {% if request.resolver_match.namespace == 'financeiro' and request.resolver_match.url_name == 'dashboard' %}class="is-active" aria-current="page"{% endif %}>
                     <i class="bi bi-wallet2"></i>
                     Visão Financeira
+                </a>
+
+                <a href="{% url 'financeiro:rentabilidade' %}"
+                   {% if request.resolver_match.namespace == 'financeiro' and request.resolver_match.url_name == 'rentabilidade' %}class="is-active" aria-current="page"{% endif %}>
+                    <i class="bi bi-graph-up-arrow"></i>
+                    Lucro e Margem
                 </a>
 
                 <a href="{% url 'financeiro:lista_movimentacoes' %}"
