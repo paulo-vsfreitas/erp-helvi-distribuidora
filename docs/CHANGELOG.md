@@ -2,6 +2,8 @@
 
 ## 05/08/2026 — Edição de vendas em aberto
 
+- adicionada seleção explícita entre desenvolvimento, homologação e produção,
+  com aviso visual, e-mail seguro e marcação de PDFs na homologação;
 - PDFs de vendas e orçamentos agora exibem produtos distintos, itens/variações
   e total de peças.
 - adicionada autorização granular de ações no backend: Vendedor consulta

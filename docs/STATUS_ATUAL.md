@@ -6,11 +6,13 @@ Atualizado em **05/08/2026**.
 
 O ERP Helvi está em **release candidate 1.0**. Os fluxos essenciais funcionam de
 ponta a ponta, as telas principais compartilham o Helvi UI, as integrações
-críticas possuem auditoria e o pacote automatizado possui 124 testes aprovados.
+críticas possuem auditoria e o pacote automatizado possui 126 testes aprovados.
 
 O código está pronto para a homologação de aceitação e para a preparação do
 ambiente definitivo. Publicação em produção ainda exige backup, configuração
 de infraestrutura, SMTP real, HTTPS e plano de restauração.
+O projeto já suporta configuração isolada de homologação, com banco próprio,
+aviso visual permanente, e-mail em modo seguro e PDFs identificados.
 
 A Central de Configurações permite manter os dados institucionais, WhatsApp,
 Instagram, Facebook, os canais exibidos nos PDFs e os modelos
@@ -21,7 +23,7 @@ itens/variações e peças.
 
 ## Validação registrada
 
-- `python manage.py test --keepdb`: **124 testes aprovados**;
+- `python manage.py test --keepdb`: **126 testes aprovados**;
 - `python manage.py check`: nenhum problema;
 - `python manage.py makemigrations --check --dry-run`: nenhuma mudança;
 - `python manage.py auditar_integracoes`: zero divergências;

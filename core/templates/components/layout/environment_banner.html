@@ -1,0 +1,7 @@
+{% if app_exibir_ambiente %}
+    <div class="environment-banner environment-banner--{{ app_ambiente }}" role="status">
+        <i class="bi bi-cone-striped" aria-hidden="true"></i>
+        <strong>{{ app_ambiente_rotulo }}</strong>
+        <span>Não utilize estes dados como registros oficiais.</span>
+    </div>
+{% endif %}

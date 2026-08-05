@@ -8,8 +8,10 @@
     <title>{% block title %}ERP Helvi{% endblock %}</title>
 
     <link rel="stylesheet" href="{% static 'css/public.css' %}?v=1.1.0">
+    <link rel="stylesheet" href="{% static 'css/environment.css' %}?v=1.0.0">
 </head>
 <body>
+    {% include "components/layout/environment_banner.html" %}
     {% block content %}{% endblock %}
 </body>
 </html>

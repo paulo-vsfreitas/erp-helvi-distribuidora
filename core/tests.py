@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.test import override_settings
 from django.template.loader import get_template
 from django.test import Client, SimpleTestCase, TestCase
 from django.urls import reverse
@@ -98,6 +99,28 @@ class HelviUITemplateTests(SimpleTestCase):
             source.index("helvi_ui/helvi-ui.css"),
         )
         self.assertIn('class="page helvi-ui"', source)
+
+    @override_settings(APP_ENV="staging")
+    def test_layout_identifica_ambiente_de_homologacao(self):
+        from core.context_processors import ambiente_aplicacao
+
+        contexto = ambiente_aplicacao(None)
+        self.assertTrue(contexto["app_exibir_ambiente"])
+        self.assertEqual(
+            contexto["app_ambiente_rotulo"],
+            "AMBIENTE DE HOMOLOGAÇÃO",
+        )
+        source = get_template(
+            "components/layout/environment_banner.html"
+        ).template.source
+        self.assertIn("app_ambiente_rotulo", source)
+
+    @override_settings(APP_ENV="production")
+    def test_layout_oculta_aviso_em_producao(self):
+        from core.context_processors import ambiente_aplicacao
+
+        contexto = ambiente_aplicacao(None)
+        self.assertFalse(contexto["app_exibir_ambiente"])
 
     def test_framework_helvi_contem_estruturas_compartilhadas(self):
         template = get_template("core/base.html")

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.utils import timezone
 
 from configuracoes.services.empresa_service import obter_empresa
@@ -16,10 +17,19 @@ def draw_footer(
     canvas.saveState()
 
     empresa = obter_empresa()
-    largura_pagina, _ = doc.pagesize
+    largura_pagina, altura_pagina = doc.pagesize
 
     margem_esquerda = doc.leftMargin
     margem_direita = largura_pagina - doc.rightMargin
+
+    if settings.APP_ENV == "staging":
+        canvas.setFillColorRGB(0.78, 0.48, 0.04)
+        canvas.setFont("Helvetica-Bold", 8)
+        canvas.drawCentredString(
+            largura_pagina / 2,
+            altura_pagina - 18,
+            "AMBIENTE DE HOMOLOGAÇÃO - DOCUMENTO SEM VALIDADE OPERACIONAL",
+        )
 
     canvas.setStrokeColor(colors.HELVI_GOLD)
     canvas.setLineWidth(0.8)

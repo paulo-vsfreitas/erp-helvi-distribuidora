@@ -12,6 +12,10 @@ Atualizado em 04/08/2026.
 - Pillow para imagens;
 - `python-dotenv` para configuração local.
 
+Os ambientes são selecionados por `DJANGO_ENV_FILE` e identificados por
+`APP_ENV`. Desenvolvimento, homologação e produção usam bancos e mídias
+independentes; apenas código e migrations aprovados avançam entre ambientes.
+
 ## Domínios
 
 Cada aplicação Django representa um domínio. O `core` concentra apenas recursos

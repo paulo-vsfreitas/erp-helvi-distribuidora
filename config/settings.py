@@ -13,11 +13,22 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-load_dotenv(BASE_DIR / ".env")
+ENV_FILE = Path(os.getenv("DJANGO_ENV_FILE", BASE_DIR / ".env"))
+if not ENV_FILE.is_absolute():
+    ENV_FILE = BASE_DIR / ENV_FILE
+load_dotenv(ENV_FILE)
+
+APP_ENV = os.getenv("APP_ENV", "development").strip().lower()
+AMBIENTES_VALIDOS = {"development", "staging", "production"}
+if APP_ENV not in AMBIENTES_VALIDOS:
+    raise ImproperlyConfigured(
+        "APP_ENV deve ser development, staging ou production."
+    )
 
 
 def env_bool(nome, padrao=False):
@@ -98,6 +109,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 "usuarios.context_processors.permissoes_usuario",
+                "core.context_processors.ambiente_aplicacao",
             ],
         },
     },
@@ -217,6 +229,8 @@ EMAIL_BACKEND = os.getenv(
     "EMAIL_BACKEND",
     "django.core.mail.backends.console.EmailBackend",
 )
+if APP_ENV == "staging":
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 EMAIL_HOST = os.getenv("EMAIL_HOST", "")
 EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")

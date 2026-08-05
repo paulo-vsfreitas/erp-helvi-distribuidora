@@ -1,0 +1,36 @@
+.environment-banner {
+    min-height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 7px 18px;
+    position: relative;
+    z-index: 1000;
+    font-size: 12px;
+    letter-spacing: .02em;
+    text-align: center;
+}
+
+.environment-banner--staging {
+    color: #5c3900;
+    background: #ffd879;
+    border-bottom: 1px solid #d59a18;
+}
+
+.environment-banner--development {
+    color: #17405c;
+    background: #dff2ff;
+    border-bottom: 1px solid #7ab9df;
+}
+
+@media (max-width: 640px) {
+    .environment-banner {
+        flex-wrap: wrap;
+        gap: 3px 8px;
+    }
+
+    .environment-banner span {
+        width: 100%;
+    }
+}

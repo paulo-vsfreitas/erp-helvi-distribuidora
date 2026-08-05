@@ -28,6 +28,20 @@ Obrigatórias/relevantes:
 - HSTS conforme política do domínio;
 - `LOG_LEVEL`.
 
+O arquivo carregado pode ser selecionado explicitamente com
+`DJANGO_ENV_FILE`. Cada ambiente também deve declarar `APP_ENV` como
+`development`, `staging` ou `production`. Homologação força o backend de e-mail
+para o console, mostra identificação visual nas telas e marca os PDFs como sem
+validade operacional.
+
+Exemplo de validação da homologação no PowerShell:
+
+```powershell
+$env:DJANGO_ENV_FILE=".env.homologacao"
+python manage.py check
+python manage.py migrate --plan
+```
+
 ## Validação antes da publicação
 
 ```powershell
