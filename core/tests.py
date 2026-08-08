@@ -64,6 +64,8 @@ class HelviUITemplateTests(SimpleTestCase):
         "core/relatorio_analitico.html",
         "core/dashboard.html",
         "core/login.html",
+        "core/selecionar_operacao.html",
+        "core/dashboard_use_helvi.html",
         "registration/password_reset_form.html",
         "registration/password_reset_done.html",
         "registration/password_reset_confirm.html",
@@ -227,7 +229,105 @@ class CSRFExperienceTests(TestCase):
 
         self.assertRedirects(
             resposta,
-            f'{reverse("login")}?next=%2F',
+            f'{reverse("login")}?next=%2Foperacoes%2F',
+        )
+
+
+class FluxoOperacoesTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.senha = "senha-segura-operacoes-2026"
+        cls.usuario = get_user_model().objects.create_user(
+            username="operacoes-teste",
+            password=cls.senha,
+            first_name="Paulo",
+            primeiro_acesso=False,
+        )
+
+    def test_login_seguro_redireciona_para_selecao(self):
+        resposta = self.client.post(
+            reverse("login"),
+            {
+                "username": self.usuario.username,
+                "password": self.senha,
+            },
+            REMOTE_ADDR="192.0.2.80",
+        )
+
+        self.assertRedirects(
+            resposta,
+            reverse("selecionar_operacao"),
+        )
+
+    def test_distribuidora_e_armazenada_e_abre_dashboard_atual(self):
+        self.client.force_login(self.usuario)
+
+        resposta = self.client.post(
+            reverse("selecionar_operacao"),
+            {"operacao": "distribuidora"},
+        )
+
+        self.assertRedirects(resposta, reverse("dashboard"))
+        self.assertEqual(
+            self.client.session["operacao_ativa"],
+            "distribuidora",
+        )
+
+    def test_use_helvi_e_armazenada_e_abre_placeholder(self):
+        self.client.force_login(self.usuario)
+
+        resposta = self.client.post(
+            reverse("selecionar_operacao"),
+            {"operacao": "use-helvi"},
+        )
+
+        self.assertRedirects(
+            resposta,
+            reverse("dashboard_use_helvi"),
+        )
+        self.assertEqual(
+            self.client.session["operacao_ativa"],
+            "use-helvi",
+        )
+        self.assertContains(
+            self.client.get(reverse("dashboard_use_helvi")),
+            "Ambiente inicial pronto",
+        )
+
+    def test_operacao_invalida_nao_e_armazenada(self):
+        self.client.force_login(self.usuario)
+
+        resposta = self.client.post(
+            reverse("selecionar_operacao"),
+            {"operacao": "inexistente"},
+        )
+
+        self.assertEqual(resposta.status_code, 400)
+        self.assertNotIn("operacao_ativa", self.client.session)
+
+    def test_trocar_operacao_limpa_sessao(self):
+        self.client.force_login(self.usuario)
+        sessao = self.client.session
+        sessao["operacao_ativa"] = "distribuidora"
+        sessao.save()
+
+        resposta = self.client.get(reverse("trocar_operacao"))
+
+        self.assertRedirects(
+            resposta,
+            reverse("selecionar_operacao"),
+        )
+        self.assertNotIn("operacao_ativa", self.client.session)
+
+    def test_dashboards_respeitam_operacao_ativa(self):
+        self.client.force_login(self.usuario)
+        sessao = self.client.session
+        sessao["operacao_ativa"] = "use-helvi"
+        sessao.save()
+
+        self.assertRedirects(
+            self.client.get(reverse("dashboard")),
+            reverse("dashboard_use_helvi"),
         )
 
 

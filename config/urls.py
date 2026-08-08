@@ -3,17 +3,14 @@ from django.urls import path, include
 from django.contrib.auth import views as auth_views
 from django.conf import settings
 from django.conf.urls.static import static
-from usuarios.forms_login import LoginSeguroForm
+from core.auth_views import HelviLoginView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
 
     path(
         "senha/login/",
-        auth_views.LoginView.as_view(
-            template_name="core/login.html",
-            authentication_form=LoginSeguroForm,
-        ),
+        HelviLoginView.as_view(),
         name="login",
     ),
 

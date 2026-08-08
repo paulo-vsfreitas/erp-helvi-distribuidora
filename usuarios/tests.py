@@ -41,8 +41,10 @@ class FormularioUsuarioTests(TestCase):
         self.assertContains(response, "Segurança da conta")
         self.assertContains(response, "Acesso e permissões")
         self.assertContains(response, "Salvar alterações")
-        self.assertContains(response, "css/usuarios.css")
-        self.assertContains(response, "js/usuarios/form_usuario.js")
+        self.assertContains(response, "/static/css/usuarios.")
+        self.assertContains(response, ".css?v=1.0.1")
+        self.assertContains(response, "/static/js/usuarios/form_usuario.")
+        self.assertContains(response, ".js?v=1.0.0")
 
         form = response.context["form"]
         self.assertEqual(
@@ -366,7 +368,7 @@ class SegurancaLoginTests(TestCase):
 
         resposta = self._login("senha-correta-segura", ip="192.0.2.31")
 
-        self.assertRedirects(resposta, reverse("dashboard"))
+        self.assertRedirects(resposta, reverse("selecionar_operacao"))
 
     def test_login_correto_apos_expiracao_zerar_contador(self):
         for _ in range(5):
@@ -379,7 +381,7 @@ class SegurancaLoginTests(TestCase):
 
         resposta = self._login("senha-correta-segura", ip="192.0.2.40")
 
-        self.assertRedirects(resposta, reverse("dashboard"))
+        self.assertRedirects(resposta, reverse("selecionar_operacao"))
         controle = ControleTentativaLogin.objects.get(
             username=self.usuario.username,
             endereco_ip="192.0.2.40",
@@ -424,7 +426,7 @@ class PrimeiroAcessoTests(TestCase):
             },
         )
 
-        self.assertRedirects(response, reverse("dashboard"))
+        self.assertRedirects(response, reverse("selecionar_operacao"))
         self.usuario.refresh_from_db()
         self.assertFalse(self.usuario.primeiro_acesso)
         self.assertTrue(

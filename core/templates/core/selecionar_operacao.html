@@ -1,0 +1,75 @@
+{% extends 'public/base_public.html' %}
+
+{% block title %}Escolha uma operação | Helvi ERP{% endblock %}
+
+{% block content %}
+<main class="operation-page">
+    <header class="operation-header">
+        {% include "components/layout/erp_brand.html" with compact=True %}
+        <div class="operation-user">
+            <span>Conectado como</span>
+            <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit">Sair</button>
+            </form>
+        </div>
+    </header>
+
+    <section class="operation-content">
+        <div class="operation-intro">
+            <span class="access-eyebrow">Bem-vindo ao Helvi ERP</span>
+            <h1>Em qual operação você vai trabalhar?</h1>
+            <p>Escolha seu ambiente. Você poderá trocar de operação a qualquer momento, sem fazer login novamente.</p>
+        </div>
+
+        {% if operacao_invalida %}
+            <div class="operation-alert">Não foi possível identificar a operação. Escolha uma das opções abaixo.</div>
+        {% endif %}
+
+        <div class="operation-grid">
+            <form method="post" class="operation-card operation-card--distribuidora">
+                {% csrf_token %}
+                <input type="hidden" name="operacao" value="distribuidora">
+                <div class="operation-card__top">
+                    <span class="operation-monogram">HD</span>
+                    <span class="operation-status">Operação principal</span>
+                </div>
+                <div>
+                    <span class="operation-card__label">Distribuição B2B</span>
+                    <h2>Helvi<br>Distribuidora</h2>
+                    <p>Compras, estoque, produtos, financeiro e relacionamento com óticas.</p>
+                </div>
+                <ul>
+                    <li><i class="bi bi-box-seam"></i> Estoque e compras</li>
+                    <li><i class="bi bi-eyeglasses"></i> Produtos e coleções</li>
+                    <li><i class="bi bi-graph-up-arrow"></i> Comercial B2B</li>
+                </ul>
+                <button type="submit">Entrar na Distribuidora <i class="bi bi-arrow-right"></i></button>
+            </form>
+
+            <form method="post" class="operation-card operation-card--use">
+                {% csrf_token %}
+                <input type="hidden" name="operacao" value="use-helvi">
+                <div class="operation-card__top">
+                    <span class="operation-monogram">UH</span>
+                    <span class="operation-status">Novo ambiente</span>
+                </div>
+                <div>
+                    <span class="operation-card__label">Experiência e varejo</span>
+                    <h2>Use<br>Helvi</h2>
+                    <p>Eventos, vendas, caixa, clientes finais e uma experiência própria.</p>
+                </div>
+                <ul>
+                    <li><i class="bi bi-calendar-event"></i> Eventos e ativações</li>
+                    <li><i class="bi bi-bag-check"></i> Vendas e caixa</li>
+                    <li><i class="bi bi-people"></i> Clientes finais</li>
+                </ul>
+                <button type="submit">Entrar na Use Helvi <i class="bi bi-arrow-right"></i></button>
+            </form>
+        </div>
+    </section>
+
+    <footer class="operation-footer">Helvi ERP <span></span> Ambiente de homologação</footer>
+</main>
+{% endblock %}

@@ -5,6 +5,9 @@ Atualizado em 05/08/2026.
 ## Autenticação
 
 - autenticação padrão do Django com usuário próprio do ERP;
+- login único com identidade Helvi ERP e seleção obrigatória da operação após
+  a autenticação;
+- operação ativa mantida na sessão, com troca sem novo login;
 - troca obrigatória da senha no primeiro acesso;
 - sessão expira após 30 minutos sem atividade e ao fechar o navegador;
 - cinco falhas para a mesma combinação de usuário e IP geram bloqueio por

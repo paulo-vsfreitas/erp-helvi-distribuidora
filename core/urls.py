@@ -5,6 +5,21 @@ from . import views
 
 urlpatterns = [
     path(
+        "operacoes/",
+        views.selecionar_operacao,
+        name="selecionar_operacao",
+    ),
+    path(
+        "operacoes/trocar/",
+        views.trocar_operacao,
+        name="trocar_operacao",
+    ),
+    path(
+        "use-helvi/",
+        views.dashboard_use_helvi,
+        name="dashboard_use_helvi",
+    ),
+    path(
         "",
         views.dashboard,
         name="dashboard",

@@ -8,7 +8,7 @@ from django.shortcuts import redirect, render
 @login_required
 def primeiro_acesso(request):
     if not request.user.primeiro_acesso:
-        return redirect("dashboard")
+        return redirect("selecionar_operacao")
 
     if request.method == "POST":
         form = PasswordChangeForm(request.user, request.POST)
@@ -22,7 +22,7 @@ def primeiro_acesso(request):
                 request,
                 "Senha definida com sucesso. Seu acesso está liberado.",
             )
-            return redirect("dashboard")
+            return redirect("selecionar_operacao")
     else:
         form = PasswordChangeForm(request.user)
 

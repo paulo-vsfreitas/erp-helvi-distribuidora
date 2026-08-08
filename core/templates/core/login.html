@@ -9,10 +9,8 @@
     <div class="auth-card">
 
         <div class="auth-brand">
-            <img src="{% static 'img/logo.png' %}" alt="Helvi" class="auth-logo">
-
-            <h1>ERP Helvi</h1>
-            <p>Gestão inteligente para a Helvi Distribuidora</p>
+            {% include "components/layout/erp_brand.html" %}
+            <p>Um acesso. Duas operações. Toda a gestão conectada.</p>
         </div>
 
         {% if form.errors %}
@@ -49,7 +47,7 @@
             </div>
 
             <button type="submit" class="auth-button">
-                Entrar no sistema
+                Entrar no Helvi ERP
             </button>
 
             <a href="{% url 'password_reset' %}" class="auth-forgot">
@@ -58,8 +56,8 @@
         </form>
 
         <footer class="auth-footer">
-            <span>Versão 3.6</span>
-            <span>© Helvi Distribuidora</span>
+            <span>Ambiente de homologação</span>
+            <span>© Helvi ERP</span>
         </footer>
 
     </div>

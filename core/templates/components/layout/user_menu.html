@@ -38,6 +38,14 @@
             Alterar Senha
         </a>
 
+        <a href="{% url 'trocar_operacao' %}" class="user-menu__operation">
+            <i class="bi bi-arrow-left-right"></i>
+            <span>
+                Trocar operação
+                {% if operacao_ativa %}<small>{{ operacao_ativa.nome }}</small>{% endif %}
+            </span>
+        </a>
+
         <hr>
 
         <form method="post" action="{% url 'logout' %}">

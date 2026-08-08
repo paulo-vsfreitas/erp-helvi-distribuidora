@@ -1,5 +1,15 @@
 # Changelog do ERP Helvi
 
+## 07/08/2026 — Fase 1 da experiência Helvi ERP
+
+- novo login com identidade unificada Helvi ERP, preservando autenticação
+  segura, bloqueio por tentativas, auditoria e primeiro acesso;
+- seleção pós-login entre Helvi Distribuidora e Use Helvi;
+- operação ativa armazenada na sessão e opção de troca sem novo login;
+- Helvi Distribuidora mantém o dashboard atual sem alteração funcional;
+- Use Helvi recebe dashboard inicial próprio no ambiente de homologação;
+- fluxo coberto por testes automatizados e layouts responsivos dedicados.
+
 ## 05/08/2026 — Edição de vendas em aberto
 
 - adicionada seleção explícita entre desenvolvimento, homologação e produção,

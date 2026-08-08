@@ -87,6 +87,17 @@
     background: #f3f4f6;
 }
 
+.user-menu__operation span {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-menu__operation small {
+    color: #8a6f25;
+    font-size: 11px;
+    margin-top: 2px;
+}
+
 .user-menu__dropdown hr {
     border: none;
     border-top: 1px solid #e5e7eb;

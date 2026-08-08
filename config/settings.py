@@ -111,6 +111,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 "usuarios.context_processors.permissoes_usuario",
                 "core.context_processors.ambiente_aplicacao",
+                "core.context_processors.operacao_ativa",
             ],
         },
     },
@@ -216,7 +217,7 @@ STORAGES = {
 }
 
 LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'dashboard'
+LOGIN_REDIRECT_URL = 'selecionar_operacao'
 LOGOUT_REDIRECT_URL = 'login'
 
 # Sessão expira após 30 minutos sem atividade.

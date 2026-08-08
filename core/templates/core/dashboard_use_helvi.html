@@ -1,0 +1,39 @@
+{% extends 'public/base_public.html' %}
+
+{% block title %}Use Helvi | Helvi ERP{% endblock %}
+
+{% block content %}
+<main class="use-dashboard">
+    <header class="use-topbar">
+        {% include "components/layout/erp_brand.html" with compact=True %}
+        <div class="use-topbar__actions">
+            <span><i class="bi bi-stars"></i> Use Helvi</span>
+            <a href="{% url 'trocar_operacao' %}"><i class="bi bi-arrow-left-right"></i> Trocar operação</a>
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit"><i class="bi bi-box-arrow-right"></i> Sair</button>
+            </form>
+        </div>
+    </header>
+
+    <section class="use-hero">
+        <div>
+            <span class="access-eyebrow">Use Helvi · Homologação</span>
+            <h1>Um novo jeito de viver a experiência Helvi.</h1>
+            <p>Este é o ponto de partida da operação Use Helvi. Os módulos de eventos, vendas e clientes serão construídos aqui.</p>
+        </div>
+        <div class="use-hero__shape" aria-hidden="true"><span>UH</span></div>
+    </section>
+
+    <section class="use-modules">
+        <article><i class="bi bi-calendar2-event"></i><div><span>Próximo módulo</span><h2>Eventos</h2><p>Planejamento, estoque e resultados de cada ação.</p></div></article>
+        <article><i class="bi bi-bag-heart"></i><div><span>Em breve</span><h2>Vendas</h2><p>Uma jornada de venda simples e conectada.</p></div></article>
+        <article><i class="bi bi-people"></i><div><span>Em breve</span><h2>Clientes</h2><p>Relacionamento e histórico em um só lugar.</p></div></article>
+    </section>
+
+    <section class="use-placeholder">
+        <i class="bi bi-hammer"></i>
+        <div><strong>Ambiente inicial pronto</strong><p>A identidade e a estrutura da Use Helvi já estão separadas para receber os próximos módulos.</p></div>
+    </section>
+</main>
+{% endblock %}

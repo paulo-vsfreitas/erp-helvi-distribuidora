@@ -238,7 +238,10 @@
         <header class="topbar">
 
             <div>
-                <strong>ERP Helvi</strong>
+                <strong>Helvi ERP</strong>
+                {% if operacao_ativa %}
+                    <span class="topbar-operation">{{ operacao_ativa.nome }}</span>
+                {% endif %}
             </div>
 
             {% include "components/layout/user_menu.html" %}

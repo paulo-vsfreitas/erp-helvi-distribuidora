@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.http import Http404
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.utils import timezone
 from datetime import timedelta
 
@@ -22,10 +22,21 @@ from core.services.relatorio_exportacao_service import (
     exportar_csv,
     exportar_pdf,
 )
+from core.services.operacao_service import (
+    HELVI_DISTRIBUIDORA,
+    USE_HELVI,
+    definir_operacao_ativa,
+    limpar_operacao_ativa,
+    obter_operacao_ativa,
+)
 
 
 @login_required
 def dashboard(request):
+    operacao = obter_operacao_ativa(request)
+    if operacao == USE_HELVI:
+        return redirect("dashboard_use_helvi")
+
     contexto = obter_contexto_dashboard()
 
     return render(
@@ -33,6 +44,44 @@ def dashboard(request):
         "core/dashboard.html",
         contexto,
     )
+
+
+@login_required
+def selecionar_operacao(request):
+    if request.method == "POST":
+        operacao = definir_operacao_ativa(
+            request,
+            request.POST.get("operacao"),
+        )
+        if operacao == HELVI_DISTRIBUIDORA:
+            return redirect("dashboard")
+        if operacao == USE_HELVI:
+            return redirect("dashboard_use_helvi")
+
+        return render(
+            request,
+            "core/selecionar_operacao.html",
+            {"operacao_invalida": True},
+            status=400,
+        )
+
+    return render(request, "core/selecionar_operacao.html")
+
+
+@login_required
+def trocar_operacao(request):
+    limpar_operacao_ativa(request)
+    return redirect("selecionar_operacao")
+
+
+@login_required
+def dashboard_use_helvi(request):
+    operacao = obter_operacao_ativa(request)
+    if operacao is None:
+        return redirect("selecionar_operacao")
+    if operacao == HELVI_DISTRIBUIDORA:
+        return redirect("dashboard")
+    return render(request, "core/dashboard_use_helvi.html")
 
 
 @login_required
