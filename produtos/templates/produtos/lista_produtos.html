@@ -16,6 +16,18 @@
 {% include "components/layout/page_header.html" with titulo="Produtos" subtitulo="Consulte as armações cadastradas no ERP Helvi." %}
 {% endif %}
 
+{% if pode_gerenciar_produtos %}
+<div class="d-flex justify-content-end mb-3">
+    <a
+        href="{% url 'produtos:importar_produtos' %}"
+        class="btn btn-outline-secondary"
+    >
+        <i class="bi bi-file-earmark-arrow-up"></i>
+        Importar Produtos
+    </a>
+</div>
+{% endif %}
+
 <form method="get" class="card search-form">
     <label for="busca">
         <strong>Pesquisar produto</strong>

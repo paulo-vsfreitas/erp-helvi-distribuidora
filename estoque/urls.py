@@ -1,16 +1,17 @@
 from django.urls import path
 
 from estoque.views import (
-    ajuste_estoque, 
-    lista_movimentacoes, 
-    nova_entrada, nova_saida, 
-    novo_inventario, 
-    conferir_inventario, 
-    finalizar_inventario_view, 
+    ajuste_estoque,
+    lista_movimentacoes,
+    nova_entrada,
+    nova_saida,
+    novo_inventario,
+    conferir_inventario,
+    finalizar_inventario_view,
     lista_inventarios,
     dashboard_estoque,
-    
-    )
+    variacoes_produto,
+)
 
 app_name = "estoque"
 
@@ -24,4 +25,5 @@ urlpatterns = [
     path("inventarios/<int:pk>/finalizar/", finalizar_inventario_view, name="finalizar_inventario"),
     path("inventarios/", lista_inventarios, name="lista_inventarios"),
     path("", dashboard_estoque, name="dashboard_estoque"),
+    path("variacoes-produto/", variacoes_produto, name="variacoes_produto",),
 ]

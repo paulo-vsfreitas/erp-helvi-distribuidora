@@ -1,6 +1,10 @@
 from django.urls import path
 
 from .views.ficha_produto import ficha_produto
+from .views.importacao import (
+    baixar_modelo_importacao_produtos,
+    importar_produtos,
+)
 from .views.produtos import (
     editar_produto,
     excluir_imagem_produto,
@@ -16,6 +20,18 @@ app_name = "produtos"
 urlpatterns = [
     path("", lista_produtos, name="lista_produtos"),
     path("novo/", novo_produto, name="novo_produto"),
+
+    # Importação
+    path(
+        "importar/",
+        importar_produtos,
+        name="importar_produtos",
+    ),
+    path(
+        "importar/modelo/",
+        baixar_modelo_importacao_produtos,
+        name="modelo_importacao_produtos",
+    ),
 
     # Ficha do Produto
     path("<int:produto_id>/", ficha_produto, name="ficha_produto"),
@@ -34,4 +50,13 @@ urlpatterns = [
     # Situação
     path("<int:produto_id>/inativar/", inativar_produto, name="inativar_produto"),
     path("<int:produto_id>/reativar/", reativar_produto, name="reativar_produto"),
+
+    path(
+        "importar/",
+        importar_produtos,
+        name="importar_produtos",),
+    path(
+        "importar/modelo/",
+        baixar_modelo_importacao_produtos,
+        name="modelo_importacao_produtos",),
 ]

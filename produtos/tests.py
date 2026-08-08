@@ -6,7 +6,12 @@ from django.test import TestCase
 from django.urls import reverse
 
 from produtos.forms import ProdutoForm, VariacaoCorForm
-from produtos.models import Produto
+from produtos.models import Produto, VariacaoCor
+from django.core.files.uploadedfile import SimpleUploadedFile
+from produtos.services.importacao import (
+    importar_produtos,
+)
+from estoque.models import MovimentacaoEstoque
 
 
 class AcoesProdutoTests(TestCase):
@@ -89,7 +94,7 @@ class CamposOpcionaisProdutoTests(TestCase):
 
     def payload_vazio(self):
         return {
-            "codigo": "",
+            "categoria_comercial": Produto.CategoriaComercial.ARMACAO,
             "modelo": "",
             "marca": "",
             "colecao": "",
@@ -151,3 +156,325 @@ class CamposOpcionaisProdutoTests(TestCase):
 
         self.assertRedirects(resposta, reverse("produtos:lista_produtos"))
         self.assertFalse(Produto.objects.get().variacoes_cor.exists())
+
+
+class ImportacaoProdutosTests(TestCase):
+    def setUp(self):
+        from usuarios.models import Usuario
+
+        self.usuario = Usuario.objects.create_user(
+            username="admin_importacao",
+            password="senha123",
+            perfil="ADM",
+        )
+        self.client.force_login(self.usuario)
+
+    def test_tela_importacao_abre(self):
+        resposta = self.client.get(
+            reverse("produtos:importar_produtos")
+        )
+
+        self.assertEqual(resposta.status_code, 200)
+        self.assertContains(resposta, "Importar Produtos")
+        self.assertContains(resposta, "Simular Importação")
+        self.assertContains(resposta, "Baixar modelo Excel")
+
+    def test_importacao_rejeita_extensao_invalida(self):
+        arquivo = SimpleUploadedFile(
+            "produtos.txt",
+            b"arquivo invalido",
+            content_type="text/plain",
+        )
+
+        resposta = self.client.post(
+            reverse("produtos:importar_produtos"),
+            {
+                "arquivo": arquivo,
+            },
+        )
+
+        self.assertEqual(resposta.status_code, 200)
+        self.assertContains(
+            resposta,
+            "Envie um arquivo Excel (.xlsx) ou CSV (.csv).",
+        )
+
+    def test_download_modelo_excel(self):
+        resposta = self.client.get(
+            reverse("produtos:modelo_importacao_produtos")
+        )
+
+        self.assertEqual(resposta.status_code, 200)
+        self.assertEqual(
+            resposta["Content-Type"],
+            (
+                "application/vnd.openxmlformats-officedocument."
+                "spreadsheetml.sheet"
+            ),
+        )
+        self.assertIn(
+            "modelo_importacao_produtos_helvi.xlsx",
+            resposta["Content-Disposition"],
+        )
+        self.assertGreater(len(resposta.content), 1000)
+
+class CategoriaComercialProdutoTests(TestCase):
+    def test_novo_produto_assume_armacao_por_padrao(self):
+        produto = Produto.objects.create(
+            preco_custo=Decimal("10.00"),
+            preco_venda=Decimal("20.00"),
+        )
+
+        self.assertEqual(
+            produto.categoria_comercial,
+            Produto.CategoriaComercial.ARMACAO,
+        )
+
+    def test_formulario_aceita_acessorio_sem_genero_e_tipo_armacao(self):
+        form = ProdutoForm(
+            data={
+                "categoria_comercial": Produto.CategoriaComercial.ACESSORIO,
+                "codigo_fornecedor": "FL-001",
+                "modelo": "Flanela Premium",
+                "marca": "",
+                "colecao": "",
+                "genero": "",
+                "tipo_armacao": "",
+                "preco_custo": "2.50",
+                "preco_venda": "8.00",
+                "estoque_atual": "20",
+                "estoque_minimo": "5",
+                "observacoes": "",
+                "ativo": "on",
+            }
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+    def test_acessorio_remove_genero_e_tipo_armacao(self):
+        form = ProdutoForm(
+            data={
+                "categoria_comercial": Produto.CategoriaComercial.ACESSORIO,
+                "codigo_fornecedor": "EST-001",
+                "modelo": "Estojo Premium",
+                "marca": "",
+                "colecao": "",
+                "genero": "",
+                "tipo_armacao": "",
+                "preco_custo": "5.00",
+                "preco_venda": "15.00",
+                "estoque_atual": "10",
+                "estoque_minimo": "2",
+                "observacoes": "",
+                "ativo": "on",
+            }
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertIsNone(form.cleaned_data["genero"])
+        self.assertIsNone(form.cleaned_data["tipo_armacao"])
+
+class ImportadorRealProdutosTests(TestCase):
+    def setUp(self):
+        self.usuario = (
+            get_user_model().objects.create_user(
+                username="importador-real",
+                password="senha123",
+                perfil="ADM",
+            )
+        )
+
+    def test_importa_armacao_com_variacoes(self):
+        linhas = [
+            {
+                "linha": 2,
+                "categoria_comercial": "armacao",
+                "codigo_fornecedor": "ROM-001",
+                "codigo": "",
+                "modelo": "Roma",
+                "marca": "",
+                "colecao": "",
+                "genero": "Adulto",
+                "tipo_armacao": "Acetato",
+                "sem_variacao": False,
+                "cor_variacao": "Preto",
+                "codigo_variacao": "C1",
+                "custo": Decimal("25.00"),
+                "venda": Decimal("75.00"),
+                "estoque": 10,
+                "estoque_minimo": 2,
+                "observacoes": "",
+                "erros": [],
+            },
+            {
+                "linha": 3,
+                "categoria_comercial": "armacao",
+                "codigo_fornecedor": "ROM-001",
+                "codigo": "",
+                "modelo": "Roma",
+                "marca": "",
+                "colecao": "",
+                "genero": "Adulto",
+                "tipo_armacao": "Acetato",
+                "sem_variacao": False,
+                "cor_variacao": "Tartaruga",
+                "codigo_variacao": "C2",
+                "custo": Decimal("25.00"),
+                "venda": Decimal("75.00"),
+                "estoque": 5,
+                "estoque_minimo": 2,
+                "observacoes": "",
+                "erros": [],
+            },
+        ]
+
+        resultado = importar_produtos(
+            linhas=linhas,
+            usuario=self.usuario,
+        )
+
+        produto = Produto.objects.get(
+            codigo_fornecedor="ROM-001"
+        )
+
+        self.assertEqual(
+            resultado["produtos_criados"],
+            1,
+        )
+
+        self.assertEqual(
+            produto.variacoes_cor.count(),
+            2,
+        )
+
+        self.assertEqual(
+            produto.estoque_atual,
+            15,
+        )
+
+        self.assertEqual(
+            produto.variacoes_cor.get(
+                codigo="C1"
+            ).estoque,
+            10,
+        )
+
+        self.assertEqual(
+            produto.variacoes_cor.get(
+                codigo="C2"
+            ).estoque,
+            5,
+        )
+
+        self.assertEqual(
+            MovimentacaoEstoque.objects.filter(
+                produto=produto,
+                origem="Importação Inicial",
+            ).count(),
+            2,
+        )
+
+    def test_importa_acessorio_com_estoque_simples(self):
+        linhas = [
+            {
+                "linha": 2,
+                "categoria_comercial": "acessorio",
+                "codigo_fornecedor": "FLA-001",
+                "codigo": "",
+                "modelo": "Flanela Premium",
+                "marca": "",
+                "colecao": "",
+                "genero": "",
+                "tipo_armacao": "",
+                "sem_variacao": True,
+                "cor_variacao": "",
+                "codigo_variacao": "",
+                "custo": Decimal("2.00"),
+                "venda": Decimal("7.00"),
+                "estoque": 30,
+                "estoque_minimo": 5,
+                "observacoes": "",
+                "erros": [],
+            },
+        ]
+
+        importar_produtos(
+            linhas=linhas,
+            usuario=self.usuario,
+        )
+
+        produto = Produto.objects.get(
+            codigo_fornecedor="FLA-001"
+        )
+
+        self.assertEqual(
+            produto.categoria_comercial,
+            Produto.CategoriaComercial.ACESSORIO,
+        )
+
+        self.assertEqual(
+            produto.estoque_atual,
+            30,
+        )
+
+        self.assertFalse(
+            produto.variacoes_cor.exists()
+        )
+
+        self.assertEqual(
+            MovimentacaoEstoque.objects.filter(
+                produto=produto,
+                origem="Importação Inicial",
+            ).count(),
+            1,
+        )
+
+    def test_importacao_cria_referencias_do_catalogo(self):
+        linhas = [
+            {
+                "linha": 2,
+                "categoria_comercial": "armacao",
+                "codigo_fornecedor": "TEST-001",
+                "codigo": "",
+                "modelo": "Teste",
+                "marca": "Helvi Teste",
+                "colecao": "Coleção Teste",
+                "genero": "Adulto",
+                "tipo_armacao": "Metal",
+                "sem_variacao": False,
+                "cor_variacao": "Preto",
+                "codigo_variacao": "C1",
+                "custo": Decimal("10.00"),
+                "venda": Decimal("30.00"),
+                "estoque": 1,
+                "estoque_minimo": 0,
+                "observacoes": "",
+                "erros": [],
+            },
+        ]
+
+        importar_produtos(
+            linhas=linhas,
+            usuario=self.usuario,
+        )
+
+        produto = Produto.objects.get(
+            codigo_fornecedor="TEST-001"
+        )
+
+        self.assertEqual(
+            produto.marca.nome,
+            "Helvi Teste",
+        )
+        self.assertEqual(
+            produto.colecao.nome,
+            "Coleção Teste",
+        )
+        self.assertEqual(
+            produto.genero.nome,
+            "Adulto",
+        )
+        self.assertEqual(
+            produto.tipo_armacao.nome,
+            "Metal",
+        )

@@ -1,6 +1,6 @@
 from .ajustes import ajuste_estoque
 from .movimentacoes import lista_movimentacoes
-from .entradas import nova_entrada
+from .entradas import (nova_entrada, variacoes_produto,)
 from .saidas import nova_saida
 from .inventarios import (novo_inventario, conferir_inventario, finalizar_inventario_view, lista_inventarios,)
 from .dashboard import dashboard_estoque

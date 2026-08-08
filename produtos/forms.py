@@ -6,15 +6,29 @@ from .models import ImagemProduto, Produto, VariacaoCor
 
 
 
+from django import forms
+from django.forms import BaseInlineFormSet, inlineformset_factory
+
+from .models import ImagemProduto, Produto, VariacaoCor
+
+
 class ProdutoForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for nome_campo in ("codigo", "modelo", "marca", "colecao"):
+
+        for nome_campo in (
+            "codigo",
+            "modelo",
+            "marca",
+            "colecao",
+        ):
             self.fields[nome_campo].required = False
 
     class Meta:
         model = Produto
+
         fields = [
+            "categoria_comercial",
             "codigo",
             "codigo_fornecedor",
             "modelo",
@@ -32,59 +46,88 @@ class ProdutoForm(forms.ModelForm):
         ]
 
         widgets = {
-            "codigo": forms.TextInput(attrs={
-                "class": "form-control",
-                "placeholder": "Ex: HV0001",
-            }),
-
-            "codigo_fornecedor": forms.TextInput(attrs={
-                "class": "form-control",
-                "placeholder": "Ex: ROMA-C2-54",
-                "autocomplete": "off",
-            }),
-
-
-            "modelo": forms.TextInput(attrs={
-                "class": "form-control",
-                "placeholder": "Ex: Roma, Milano, Classic 01",
-            }),
-            "marca": forms.Select(attrs={"class": "form-select"}),
-            "colecao": forms.Select(attrs={"class": "form-select"}),
-            "genero": forms.Select(attrs={"class": "form-select"}),
-            "tipo_armacao": forms.Select(attrs={"class": "form-select"}),
-            "preco_custo": forms.NumberInput(attrs={
-                "class": "form-control",
-                "step": "0.01",
-                "min": "0",
-            }),
-            "preco_venda": forms.NumberInput(attrs={
-                "class": "form-control",
-                "step": "0.01",
-                "min": "0",
-            }),
-            "estoque_atual": forms.NumberInput(attrs={
-                "class": "form-control",
-                "min": "0",
-            }),
-            "estoque_minimo": forms.NumberInput(attrs={
-                "class": "form-control",
-                "min": "0",
-            }),
-            "observacoes": forms.Textarea(attrs={
-                "class": "form-control",
-                "rows": 4,
-                "placeholder": "Informações adicionais sobre o produto",
-            }),
-            "foto": forms.ClearableFileInput(attrs={
-                "class": "form-control",
-            }),
-            "ativo": forms.CheckboxInput(attrs={
-                "class": "form-check-input",
-            }),
+            "categoria_comercial": forms.Select(
+                attrs={
+                    "class": "form-select",
+                    "data-categoria-comercial": "true",
+                }
+            ),
+            "codigo": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Ex: HV0001",
+                }
+            ),
+            "codigo_fornecedor": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Ex: ROMA-C2-54",
+                    "autocomplete": "off",
+                }
+            ),
+            "modelo": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Ex: Roma, Milano, Classic 01",
+                }
+            ),
+            "marca": forms.Select(
+                attrs={"class": "form-select"}
+            ),
+            "colecao": forms.Select(
+                attrs={"class": "form-select"}
+            ),
+            "genero": forms.Select(
+                attrs={"class": "form-select"}
+            ),
+            "tipo_armacao": forms.Select(
+                attrs={"class": "form-select"}
+            ),
+            "preco_custo": forms.NumberInput(
+                attrs={
+                    "class": "form-control",
+                    "step": "0.01",
+                    "min": "0",
+                }
+            ),
+            "preco_venda": forms.NumberInput(
+                attrs={
+                    "class": "form-control",
+                    "step": "0.01",
+                    "min": "0",
+                }
+            ),
+            "estoque_atual": forms.NumberInput(
+                attrs={
+                    "class": "form-control",
+                    "min": "0",
+                }
+            ),
+            "estoque_minimo": forms.NumberInput(
+                attrs={
+                    "class": "form-control",
+                    "min": "0",
+                }
+            ),
+            "observacoes": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 4,
+                    "placeholder": "Informações adicionais sobre o produto",
+                }
+            ),
+            "foto": forms.ClearableFileInput(
+                attrs={"class": "form-control"}
+            ),
+            "ativo": forms.CheckboxInput(
+                attrs={"class": "form-check-input"}
+            ),
         }
 
         labels = {
+            "categoria_comercial": "Categoria Comercial",
             "codigo": "Código",
+            "codigo_fornecedor": "Código do fornecedor",
             "modelo": "Modelo",
             "marca": "Marca",
             "colecao": "Coleção",
@@ -97,37 +140,7 @@ class ProdutoForm(forms.ModelForm):
             "observacoes": "Observações",
             "foto": "Foto Principal",
             "ativo": "Produto Ativo",
-            "codigo_fornecedor": "Código do fornecedor",
         }
-
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, **kwargs)
-
-            fornecedor_atual_id = getattr(
-                self.instance,
-                "fornecedor_id",
-                None,
-            )
-
-            filtro = Q(ativo=True)
-
-            if fornecedor_atual_id:
-                filtro |= Q(pk=fornecedor_atual_id)
-
-            self.fields["fornecedor"].queryset = (
-                self.fields["fornecedor"]
-                .queryset
-                .filter(filtro)
-                .distinct()
-                .order_by(
-                    "nome_fantasia",
-                    "razao_social",
-                )
-            )
-
-            self.fields["fornecedor"].empty_label = (
-                "Selecione o fornecedor principal"
-            )
 
     def clean_codigo(self):
         codigo = self.cleaned_data.get("codigo")
@@ -168,26 +181,47 @@ class ProdutoForm(forms.ModelForm):
         estoque_minimo = cleaned_data.get("estoque_minimo")
 
         if preco_custo is not None and preco_custo < 0:
-            self.add_error("preco_custo", "O preço de custo não pode ser negativo.")
-
-        if preco_venda is not None and preco_venda < 0:
-            self.add_error("preco_venda", "O preço de venda não pode ser negativo.")
-
-        if estoque_atual is not None and estoque_atual < 0:
-            self.add_error("estoque_atual", "O estoque atual não pode ser negativo.")
-
-        if estoque_minimo is not None and estoque_minimo < 0:
-            self.add_error("estoque_minimo", "O estoque mínimo não pode ser negativo.")
-
-        if preco_custo and preco_venda and preco_venda < preco_custo:
             self.add_error(
-                "preco_venda",
-                "O preço de venda não deve ser menor que o preço de custo."
+                "preco_custo",
+                "O preço de custo não pode ser negativo.",
             )
 
+        if preco_venda is not None and preco_venda < 0:
+            self.add_error(
+                "preco_venda",
+                "O preço de venda não pode ser negativo.",
+            )
+
+        if estoque_atual is not None and estoque_atual < 0:
+            self.add_error(
+                "estoque_atual",
+                "O estoque atual não pode ser negativo.",
+            )
+
+        if estoque_minimo is not None and estoque_minimo < 0:
+            self.add_error(
+                "estoque_minimo",
+                "O estoque mínimo não pode ser negativo.",
+            )
+
+        if (
+            preco_custo is not None
+            and preco_venda is not None
+            and preco_venda < preco_custo
+        ):
+            self.add_error(
+                "preco_venda",
+                "O preço de venda não deve ser menor que o preço de custo.",
+            )
+
+        # Categoria comercial
+        categoria = cleaned_data.get("categoria_comercial")
+
+        if categoria == Produto.CategoriaComercial.ACESSORIO:
+            cleaned_data["genero"] = None
+            cleaned_data["tipo_armacao"] = None
+
         return cleaned_data
-
-
 class ImagemProdutoForm(forms.ModelForm):
     class Meta:
         model = ImagemProduto
@@ -220,35 +254,73 @@ class ImagemProdutoForm(forms.ModelForm):
 class VariacaoCorForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
         self.fields["nome"].required = False
+        self.fields["nome"].label = "Cor / Variação"
+        self.fields["codigo"].label = "Código da Variação"
+        self.fields["estoque"].label = "Estoque"
 
     class Meta:
         model = VariacaoCor
         fields = ["nome", "codigo", "estoque"]
+
         widgets = {
-            "nome": forms.TextInput(attrs={"class": "form-control", "placeholder": "Ex: Preto fosco"}),
-            "codigo": forms.TextInput(attrs={"class": "form-control", "placeholder": "Ex: PT01"}),
-            "estoque": forms.NumberInput(attrs={"class": "form-control", "min": 0}),
+            "nome": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Ex: Preto, Tartaruga, Azul",
+                }
+            ),
+            "codigo": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Ex: C1, C2, C3 ou 5 em 1",
+                }
+            ),
+            "estoque": forms.NumberInput(
+                attrs={
+                    "class": "form-control",
+                    "min": "0",
+                }
+            ),
         }
 
     def clean_codigo(self):
-        return (self.cleaned_data.get("codigo") or "").strip().upper()
+        return (
+            self.cleaned_data.get("codigo") or ""
+        ).strip().upper()
 
 
 class BaseVariacaoCorFormSet(BaseInlineFormSet):
     def clean(self):
-        codigos = set()
-        for form in self.forms:
-            if not hasattr(form, "cleaned_data") or form.cleaned_data.get("DELETE"):
-                continue
-            codigo = form.cleaned_data.get("codigo")
-            if codigo and codigo in codigos:
-                form.add_error("codigo", "Este código de cor já foi informado para o produto.")
-            codigos.add(codigo)
         super().clean()
+
+        codigos = set()
+
+        for form in self.forms:
+            if (
+                not hasattr(form, "cleaned_data")
+                or form.cleaned_data.get("DELETE")
+            ):
+                continue
+
+            codigo = form.cleaned_data.get("codigo")
+
+            if codigo and codigo in codigos:
+                form.add_error(
+                    "codigo",
+                    "Este código de variação já foi informado para o produto.",
+                )
+
+            if codigo:
+                codigos.add(codigo)
 
 
 VariacaoCorFormSet = inlineformset_factory(
-    Produto, VariacaoCor, form=VariacaoCorForm,
-    formset=BaseVariacaoCorFormSet, extra=1, can_delete=True,
+    Produto,
+    VariacaoCor,
+    form=VariacaoCorForm,
+    formset=BaseVariacaoCorFormSet,
+    extra=1,
+    can_delete=True,
 )

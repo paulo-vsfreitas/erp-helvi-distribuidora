@@ -6,6 +6,13 @@
         {% csrf_token %}
 
         <div class="form-grid">
+            <div class="form-group">
+                <label for="{{ form.categoria_comercial.id_for_label }}">
+                    Categoria Comercial
+                </label>
+                {{ form.categoria_comercial }}
+                {{ form.categoria_comercial.errors }}
+            </div>
 
             <div class="form-group">
                 <label for="{{ form.codigo.id_for_label }}">
@@ -47,20 +54,24 @@
                 {{ form.colecao.errors }}
             </div>
 
-            <div class="form-group">
-                <label for="{{ form.genero.id_for_label }}">
-                    Gênero
-                </label>
-                {{ form.genero }}
-                {{ form.genero.errors }}
-            </div>
+            <div id="campos-armacao" class="contents">
 
-            <div class="form-group">
-                <label for="{{ form.tipo_armacao.id_for_label }}">
-                    Tipo de Armação
-                </label>
-                {{ form.tipo_armacao }}
-                {{ form.tipo_armacao.errors }}
+                <div class="form-group">
+                    <label for="{{ form.genero.id_for_label }}">
+                        Gênero
+                    </label>
+                    {{ form.genero }}
+                    {{ form.genero.errors }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.tipo_armacao.id_for_label }}">
+                        Tipo de Armação
+                    </label>
+                    {{ form.tipo_armacao }}
+                    {{ form.tipo_armacao.errors }}
+                </div>
+
             </div>
 
             <div class="form-group">
@@ -121,7 +132,9 @@
             {{ form.ativo.errors }}
         </div>
 
-        <section class="table-card mt-4 mb-4">
+        <section
+            id="bloco-variacoes"
+            class="table-card mt-4 mb-4">
             <div class="table-card-header d-flex justify-content-between align-items-center">
                 <span>Variações de cor</span>
                 <button type="button" id="adicionar-cor" class="btn btn-secondary btn-sm"{% if sem_variacao_cor %} disabled{% endif %}>
@@ -195,6 +208,10 @@
     const camposVariacoes = document.getElementById('campos-variacoes-cor');
     const adicionarCor = document.getElementById('adicionar-cor');
 
+    const categoria = document.getElementById('id_categoria_comercial');
+    const camposArmacao = document.getElementById('campos-armacao');
+    const blocoVariacoes = document.getElementById('bloco-variacoes');
+
     function alternarVariacoes() {
         const ocultar = semVariacao.checked;
         camposVariacoes.style.display = ocultar ? 'none' : '';
@@ -208,6 +225,30 @@
                 });
             });
         }
+    }
+
+    function alternarCategoria() {
+
+        if (!categoria) {
+            return;
+        }
+
+        const acessorio =
+            categoria.value === "acessorio";
+
+        camposArmacao.style.display =
+            acessorio ? "none" : "";
+
+        blocoVariacoes.style.display =
+            acessorio ? "none" : "";
+
+        if (acessorio && !semVariacao.disabled) {
+
+            semVariacao.checked = true;
+
+            alternarVariacoes();
+        }
+
     }
 
     semVariacao.addEventListener('change', alternarVariacoes);
@@ -224,6 +265,12 @@
         if (id && id.value) { excluir.value = 'on'; linha.style.display = 'none'; }
         else { linha.remove(); }
     });
+    categoria?.addEventListener(
+    "change",
+    alternarCategoria
+    );
+
+    alternarCategoria();
     alternarVariacoes();
 })();
 </script>

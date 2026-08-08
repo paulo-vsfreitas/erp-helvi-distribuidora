@@ -5,6 +5,17 @@ from fornecedores.models import Fornecedor
 
 
 class Produto(models.Model):
+    class CategoriaComercial(models.TextChoices):
+        ARMACAO = "armacao", "Armação"
+        ACESSORIO = "acessorio", "Acessório"
+
+
+    categoria_comercial = models.CharField(
+        max_length=20,
+        choices=CategoriaComercial.choices,
+        default=CategoriaComercial.ARMACAO,
+        verbose_name="Categoria Comercial",
+    )
     codigo = models.CharField(
         max_length=50,
         unique=True,

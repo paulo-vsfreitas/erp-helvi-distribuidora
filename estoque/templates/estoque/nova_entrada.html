@@ -1,14 +1,197 @@
 {% extends "core/base.html" %}
+
 {% block title %}Nova Entrada | ERP Helvi{% endblock %}
+
 {% block content %}
-<div class="hui-module-page hui-module-page--estoque hui-form-page">
-    {% url "estoque:lista_movimentacoes" as voltar_url %}
-    {% include "components/layout/page_header.html" with titulo="Nova entrada" subtitulo="Registre uma entrada manual de produtos no estoque." botao_url=voltar_url botao_texto="Voltar às movimentações" botao_icon="bi bi-arrow-left" %}
-    <section class="table-card hui-form-section"><header class="hui-table-heading"><div><span class="hui-table-heading__eyebrow">Movimentação</span><h2>Dados da entrada</h2><p>Informe o produto, a quantidade, o local e a origem.</p></div></header><div class="table-card__body">
-        <form method="post">{% csrf_token %}{% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
-            <div class="row g-3"><div class="col-md-6">{{ form.produto.label_tag }}{{ form.produto }}{{ form.produto.errors }}</div><div class="col-md-3">{{ form.quantidade.label_tag }}{{ form.quantidade }}{{ form.quantidade.errors }}</div><div class="col-md-3">{{ form.local.label_tag }}{{ form.local }}{{ form.local.errors }}</div><div class="col-md-6">{{ form.origem.label_tag }}{{ form.origem }}{{ form.origem.errors }}</div><div class="col-12">{{ form.observacao.label_tag }}{{ form.observacao }}{{ form.observacao.errors }}</div></div>
-            <div class="hui-form-actions"><a href="{{ voltar_url }}" class="btn btn-outline-secondary">Cancelar</a><button type="submit" class="btn btn-primary"><i class="bi bi-box-arrow-in-down"></i> Salvar entrada</button></div>
-        </form>
-    </div></section>
+
+{% url 'estoque:lista_movimentacoes' as voltar_url %}
+
+{% include "components/layout/page_header.html" with titulo="Nova Entrada de Estoque" subtitulo="Registre uma entrada e, quando necessário, selecione a Cor / Variação do produto." botao_url=voltar_url botao_texto="Voltar" botao_icon="bi bi-arrow-left" %}
+
+<div class="card form-card">
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {% for erro in form.non_field_errors %}
+                    <div>{{ erro }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="form-grid">
+
+            <div class="form-group">
+                <label for="{{ form.produto.id_for_label }}">
+                    Produto
+                </label>
+                {{ form.produto }}
+                {{ form.produto.errors }}
+            </div>
+
+            <div
+                class="form-group"
+                id="grupo-variacao-cor"
+                style="display: none;"
+            >
+                <label for="{{ form.variacao_cor.id_for_label }}">
+                    Cor / Variação
+                </label>
+
+                {{ form.variacao_cor }}
+                {{ form.variacao_cor.errors }}
+
+                <div
+                    id="ajuda-variacao-cor"
+                    class="form-text"
+                ></div>
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.quantidade.id_for_label }}">
+                    Quantidade
+                </label>
+                {{ form.quantidade }}
+                {{ form.quantidade.errors }}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.origem.id_for_label }}">
+                    Origem
+                </label>
+                {{ form.origem }}
+                {{ form.origem.errors }}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.local.id_for_label }}">
+                    Local
+                </label>
+                {{ form.local }}
+                {{ form.local.errors }}
+            </div>
+
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.observacao.id_for_label }}">
+                Observação
+            </label>
+            {{ form.observacao }}
+            {{ form.observacao.errors }}
+        </div>
+
+        <div class="form-actions">
+            <button
+                type="submit"
+                class="btn btn-primary"
+            >
+                <i class="bi bi-check-circle"></i>
+                Registrar Entrada
+            </button>
+
+            <a
+                href="{% url 'estoque:lista_movimentacoes' %}"
+                class="btn btn-secondary"
+            >
+                Cancelar
+            </a>
+        </div>
+    </form>
 </div>
+
+<script>
+(function () {
+    const produto = document.getElementById('id_produto');
+    const variacao = document.getElementById('id_variacao_cor');
+    const grupoVariacao = document.getElementById('grupo-variacao-cor');
+    const ajudaVariacao = document.getElementById('ajuda-variacao-cor');
+
+    if (!produto || !variacao || !grupoVariacao) {
+        return;
+    }
+
+    async function carregarVariacoes() {
+        const produtoId = produto.value;
+
+        variacao.innerHTML = '<option value="">---------</option>';
+        variacao.disabled = true;
+        grupoVariacao.style.display = 'none';
+
+        if (!produtoId) {
+            return;
+        }
+
+        try {
+            const url = (
+                "{% url 'estoque:variacoes_produto' %}"
+                + "?produto_id="
+                + encodeURIComponent(produtoId)
+            );
+
+            const resposta = await fetch(url, {
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                }
+            });
+
+            if (!resposta.ok) {
+                throw new Error("Falha ao consultar variações.");
+            }
+
+            const dados = await resposta.json();
+
+            if (!dados.variacoes.length) {
+                ajudaVariacao.textContent =
+                    "Este produto não possui Cor / Variação. "
+                    + "A entrada será aplicada ao estoque geral.";
+
+                grupoVariacao.style.display = '';
+                variacao.disabled = true;
+
+                return;
+            }
+
+            dados.variacoes.forEach(function (item) {
+                const option = document.createElement('option');
+
+                option.value = item.id;
+                option.textContent =
+                    item.codigo
+                    + (
+                        item.nome
+                            ? ' — ' + item.nome
+                            : ''
+                    )
+                    + ' — estoque atual: '
+                    + item.estoque;
+
+                variacao.appendChild(option);
+            });
+
+            variacao.disabled = false;
+            grupoVariacao.style.display = '';
+
+            ajudaVariacao.textContent =
+                "Este produto possui variações. "
+                + "Selecione qual delas receberá a entrada.";
+
+        } catch (erro) {
+            grupoVariacao.style.display = '';
+
+            ajudaVariacao.textContent =
+                "Não foi possível carregar as variações do produto.";
+        }
+    }
+
+    produto.addEventListener(
+        'change',
+        carregarVariacoes
+    );
+
+    carregarVariacoes();
+})();
+</script>
+
 {% endblock %}
