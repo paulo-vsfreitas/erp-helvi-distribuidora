@@ -724,5 +724,9 @@ class FichaVendaApresentacaoTests(TestCase):
         self.assertContains(resposta, "cliente@otica.test")
         self.assertNotContains(resposta, ">Resumo em PDF<")
         self.assertContains(resposta, "Abrir resumo em PDF")
-        self.assertContains(resposta, "/static/css/vendas.")
-        self.assertContains(resposta, ".css?v=1.1.0")
+        html = resposta.content.decode()
+
+        self.assertRegex(
+            html,
+            r"/static/css/vendas(?:\.[0-9a-f]+)?\.css\?v=1\.1\.0",
+        )

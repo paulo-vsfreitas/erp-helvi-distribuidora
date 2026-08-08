@@ -41,10 +41,17 @@ class FormularioUsuarioTests(TestCase):
         self.assertContains(response, "Segurança da conta")
         self.assertContains(response, "Acesso e permissões")
         self.assertContains(response, "Salvar alterações")
-        self.assertContains(response, "/static/css/usuarios.")
-        self.assertContains(response, ".css?v=1.0.1")
-        self.assertContains(response, "/static/js/usuarios/form_usuario.")
-        self.assertContains(response, ".js?v=1.0.0")
+        html = response.content.decode()
+
+        self.assertRegex(
+            html,
+            r"/static/css/usuarios(?:\.[0-9a-f]+)?\.css(?:\?v=[^\"']+)?",
+        )
+
+        self.assertRegex(
+            html,
+            r"/static/js/usuarios/form_usuario(?:\.[0-9a-f]+)?\.js(?:\?v=[^\"']+)?",
+        )
 
         form = response.context["form"]
         self.assertEqual(

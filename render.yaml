@@ -3,7 +3,7 @@ services:
     name: erp-helvi-homologacao
     runtime: python
     plan: free
-    branch: chore/ambiente-homologacao
+    branch: homologacao
     autoDeployTrigger: commit
     buildCommand: >-
       pip install -r requirements.txt &&
