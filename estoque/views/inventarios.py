@@ -51,7 +51,10 @@ def novo_inventario(request):
 @login_required
 def conferir_inventario(request, pk):
     inventario = get_object_or_404(
-        Inventario.objects.prefetch_related("itens__produto"),
+        Inventario.objects.prefetch_related(
+            "itens__produto",
+            "itens__variacao_cor",
+        ),
         pk=pk,
     )
 

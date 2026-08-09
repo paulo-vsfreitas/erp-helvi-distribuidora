@@ -52,6 +52,7 @@
                     <tr>
                         <th>Data</th>
                         <th>Produto</th>
+                        <th>Cor / Variação</th>
                         <th>Tipo</th>
                         <th>Qtd.</th>
                         <th>Saldo</th>
@@ -62,13 +63,23 @@
                     <tr>
                         <td>{{ mov.data_movimentacao|date:"d/m/Y H:i" }}</td>
                         <td>{{ mov.produto }}</td>
+                        <td>
+                            {% if mov.variacao_cor %}
+                                {{ mov.variacao_cor.codigo }}
+                                {% if mov.variacao_cor.nome %}
+                                    — {{ mov.variacao_cor.nome }}
+                                {% endif %}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
                         <td>{{ mov.get_tipo_display }}</td>
                         <td>{{ mov.quantidade }}</td>
                         <td>{{ mov.saldo_atual }}</td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="5" class="text-center text-muted">
+                        <td colspan="6" class="text-center text-muted">
                             Nenhuma movimentação encontrada.
                         </td>
                     </tr>

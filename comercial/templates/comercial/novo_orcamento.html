@@ -235,38 +235,53 @@
                             Buscar Produto
                         </label>
 
-                        <div class="orcamento-produto-busca">
+                        <div class="row g-3 align-items-end">
 
-                            <div class="position-relative">
+                            <div class="col-lg-9">
 
-                                <input
-                                    type="text"
-                                    id="produto-search"
-                                    class="form-control"
-                                    placeholder="Digite código, modelo ou marca..."
-                                    autocomplete="off"
+                                <label
+                                    for="produto-search"
+                                    class="form-label"
                                 >
+                                    Produto
+                                </label>
 
-                                <input
-                                    type="hidden"
-                                    id="produto-id"
-                                >
+                                <div class="position-relative">
 
-                                <div
-                                    id="produto-resultados"
-                                    class="autocomplete-list d-none"
-                                ></div>
+                                    <input
+                                        type="text"
+                                        id="produto-search"
+                                        class="form-control"
+                                        placeholder="Código ERP, cód. fornecedor, modelo ou marca..."
+                                        autocomplete="off"
+                                    >
+
+                                    <input
+                                        type="hidden"
+                                        id="produto-id"
+                                    >
+
+                                    <div
+                                        id="produto-resultados"
+                                        class="autocomplete-list d-none"
+                                    ></div>
+
+                                </div>
 
                             </div>
 
-                            <button
-                                type="button"
-                                id="btn-adicionar-produto"
-                                class="btn btn-primary"
-                            >
-                                <i class="bi bi-plus-circle"></i>
-                                Adicionar
-                            </button>
+                            <div class="col-lg-3 d-grid">
+
+                                <button
+                                    type="button"
+                                    id="btn-adicionar-produto"
+                                    class="btn btn-primary"
+                                >
+                                    <i class="bi bi-plus-circle"></i>
+                                    Adicionar
+                                </button>
+
+                            </div>
 
                         </div>
 
@@ -524,8 +539,8 @@
 {% block extra_js %}
 
 <script src="{% static 'js/comercial/cliente_autocomplete.js' %}?v=6"></script>
-<script src="{% static 'js/comercial/produto_autocomplete.js' %}?v=5"></script>
-<script src="{% static 'js/comercial/itens_orcamento.js' %}?v=3"></script>
+<script src="{% static 'js/comercial/produto_autocomplete.js' %}?v=8"></script>
+<script src="{% static 'js/comercial/itens_orcamento.js' %}?v=4"></script>
 <script src="{% static 'js/comercial/resumo_financeiro.js' %}?v=2"></script>
 <script src="{% static 'js/comercial/novo_orcamento.js' %}?v=5"></script>
 <script>

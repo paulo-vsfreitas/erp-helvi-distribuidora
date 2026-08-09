@@ -148,10 +148,18 @@ class Produto(models.Model):
         ]
 
     def __str__(self):
-        identificacao = " - ".join(
-            valor for valor in (self.codigo, self.modelo) if valor
-        )
-        return identificacao or f"Produto #{self.pk or 'novo'}"
+        partes = []
+
+        if self.codigo:
+            partes.append(self.codigo)
+
+        if self.codigo_fornecedor:
+            partes.append(self.codigo_fornecedor)
+
+        if self.modelo:
+            partes.append(self.modelo)
+
+        return " — ".join(partes) or f"Produto #{self.pk or 'novo'}"
 
     @property
     def lucro_unitario(self):

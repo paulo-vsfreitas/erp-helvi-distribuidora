@@ -461,9 +461,20 @@
     margin-top: 22px;
 }
 
+#form-orcamento .orcamento-produtos-table {
+    margin-top: 22px;
+    width: 100%;
+    overflow-x: auto;
+}
+
+#form-orcamento .orcamento-produtos-table table {
+    width: 100%;
+    min-width: 900px;
+}
+
 #form-orcamento .orcamento-produtos-table th,
 #form-orcamento .orcamento-produtos-table td {
-    padding: 14px 16px;
+    padding: 12px 10px;
     vertical-align: middle;
 }
 
@@ -500,9 +511,24 @@
     font-weight: 700;
 }
 
-@media (max-width: 991.98px) {
+/*
+ * Em notebooks e monitores Full HD, a sidebar do ERP
+ * já consome parte importante da largura disponível.
+ *
+ * O resumo financeiro só permanece lateral quando
+ * existe espaço real para o formulário e a tabela.
+ */
+@media (max-width: 1919.98px) {
     #form-orcamento .orcamento-layout {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #form-orcamento .orcamento-summary-column {
+        width: 100%;
+    }
+
+    #form-orcamento .orcamento-summary-card {
+        width: 100%;
     }
 }
 

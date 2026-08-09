@@ -340,6 +340,7 @@ def criar_orcamento(*, dados, itens, vendedor):
             ItemOrcamento(
                 orcamento=orcamento,
                 produto=item["produto"],
+                variacao_cor=item["variacao_cor"],
                 quantidade=item["quantidade"],
                 valor_unitario=item["valor_unitario"],
                 desconto=item["desconto"],

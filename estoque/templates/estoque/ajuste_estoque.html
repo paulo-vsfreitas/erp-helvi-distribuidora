@@ -1,14 +1,332 @@
 {% extends "core/base.html" %}
+
 {% block title %}Ajuste de Estoque | ERP Helvi{% endblock %}
+
 {% block content %}
+
 <div class="hui-module-page hui-module-page--estoque hui-form-page">
+
     {% url "estoque:lista_movimentacoes" as voltar_url %}
+
     {% include "components/layout/page_header.html" with titulo="Ajuste de estoque" subtitulo="Corrija divergências entre o estoque físico e o sistema." botao_url=voltar_url botao_texto="Voltar às movimentações" botao_icon="bi bi-arrow-left" %}
-    <section class="table-card hui-form-section"><header class="hui-table-heading"><div><span class="hui-table-heading__eyebrow">Conferência</span><h2>Dados do ajuste</h2><p>O saldo informado substituirá a quantidade atual do produto.</p></div></header><div class="table-card__body">
-        <form method="post">{% csrf_token %}{% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
-            <div class="row g-3"><div class="col-md-6">{{ form.produto.label_tag }}{{ form.produto }}{{ form.produto.errors }}</div><div class="col-md-3">{{ form.quantidade_correta.label_tag }}{{ form.quantidade_correta }}{{ form.quantidade_correta.errors }}</div><div class="col-md-3">{{ form.motivo.label_tag }}{{ form.motivo }}{{ form.motivo.errors }}</div><div class="col-12">{{ form.observacao.label_tag }}{{ form.observacao }}{{ form.observacao.errors }}</div></div>
-            <div class="hui-form-actions"><a href="{{ voltar_url }}" class="btn btn-outline-secondary">Cancelar</a><button type="submit" class="btn btn-primary"><i class="bi bi-sliders"></i> Salvar ajuste</button></div>
-        </form>
-    </div></section>
+
+    <section class="table-card hui-form-section">
+
+        <header class="hui-table-heading">
+            <div>
+                <span class="hui-table-heading__eyebrow">
+                    Conferência
+                </span>
+
+                <h2>
+                    Dados do ajuste
+                </h2>
+
+                <p>
+                    Informe o saldo físico correto do produto ou
+                    da Cor / Variação selecionada.
+                </p>
+            </div>
+        </header>
+
+        <div class="table-card__body">
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {% for erro in form.non_field_errors %}
+                            <div>{{ erro }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        <label
+                            for="{{ form.produto.id_for_label }}"
+                            class="form-label"
+                        >
+                            Produto
+                        </label>
+
+                        {{ form.produto }}
+
+                        {% for erro in form.produto.errors %}
+                            <div class="text-danger mt-1">
+                                {{ erro }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div
+                        class="col-md-6"
+                        id="grupo-variacao-cor"
+                        style="display: none;"
+                    >
+                        <label
+                            for="{{ form.variacao_cor.id_for_label }}"
+                            class="form-label"
+                        >
+                            Cor / Variação
+                        </label>
+
+                        {{ form.variacao_cor }}
+
+                        {% for erro in form.variacao_cor.errors %}
+                            <div class="text-danger mt-1">
+                                {{ erro }}
+                            </div>
+                        {% endfor %}
+
+                        <div
+                            id="ajuda-variacao-cor"
+                            class="form-text"
+                        ></div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label
+                            for="{{ form.quantidade_correta.id_for_label }}"
+                            class="form-label"
+                        >
+                            Quantidade correta
+                        </label>
+
+                        {{ form.quantidade_correta }}
+
+                        {% for erro in form.quantidade_correta.errors %}
+                            <div class="text-danger mt-1">
+                                {{ erro }}
+                            </div>
+                        {% endfor %}
+
+                        <div
+                            id="ajuda-quantidade"
+                            class="form-text"
+                        >
+                            Informe o saldo físico correto após a conferência.
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <label
+                            for="{{ form.motivo.id_for_label }}"
+                            class="form-label"
+                        >
+                            Motivo do ajuste
+                        </label>
+
+                        {{ form.motivo }}
+
+                        {% for erro in form.motivo.errors %}
+                            <div class="text-danger mt-1">
+                                {{ erro }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-12">
+                        <label
+                            for="{{ form.observacao.id_for_label }}"
+                            class="form-label"
+                        >
+                            Observação
+                        </label>
+
+                        {{ form.observacao }}
+
+                        {% for erro in form.observacao.errors %}
+                            <div class="text-danger mt-1">
+                                {{ erro }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                </div>
+
+                <div class="hui-form-actions">
+                    <a
+                        href="{{ voltar_url }}"
+                        class="btn btn-outline-secondary"
+                    >
+                        Cancelar
+                    </a>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        <i class="bi bi-sliders"></i>
+                        Salvar ajuste
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </section>
 </div>
+
+<script>
+(function () {
+    const produto =
+        document.getElementById('id_produto');
+
+    const variacao =
+        document.getElementById('id_variacao_cor');
+
+    const grupo =
+        document.getElementById('grupo-variacao-cor');
+
+    const ajudaVariacao =
+        document.getElementById('ajuda-variacao-cor');
+
+    const quantidade =
+        document.getElementById('id_quantidade_correta');
+
+    const ajudaQuantidade =
+        document.getElementById('ajuda-quantidade');
+
+    if (!produto || !variacao || !grupo) {
+        return;
+    }
+
+    async function carregarVariacoes() {
+        const produtoId = produto.value;
+        const valorSelecionado = variacao.value;
+
+        variacao.innerHTML =
+            '<option value="">---------</option>';
+
+        variacao.disabled = true;
+        grupo.style.display = 'none';
+
+        if (quantidade) {
+            quantidade.value = '';
+        }
+
+        if (!produtoId) {
+            return;
+        }
+
+        try {
+            const url =
+                "{% url 'estoque:variacoes_produto' %}"
+                + "?produto_id="
+                + encodeURIComponent(produtoId);
+
+            const resposta = await fetch(
+                url,
+                {
+                    headers: {
+                        "X-Requested-With":
+                            "XMLHttpRequest"
+                    }
+                }
+            );
+
+            if (!resposta.ok) {
+                throw new Error(
+                    "Falha ao consultar variações."
+                );
+            }
+
+            const dados = await resposta.json();
+
+            grupo.style.display = '';
+
+            if (!dados.variacoes.length) {
+                variacao.disabled = true;
+
+                ajudaVariacao.textContent =
+                    "Este produto não possui Cor / Variação. "
+                    + "O ajuste será aplicado ao estoque geral.";
+
+                ajudaQuantidade.textContent =
+                    "Informe o saldo físico correto do produto.";
+
+                return;
+            }
+
+            dados.variacoes.forEach(function (item) {
+                const option =
+                    document.createElement('option');
+
+                option.value = item.id;
+
+                option.textContent =
+                    item.codigo
+                    + (
+                        item.nome
+                            ? ' — ' + item.nome
+                            : ''
+                    )
+                    + ' — estoque atual: '
+                    + item.estoque;
+
+                option.dataset.estoque =
+                    item.estoque;
+
+                if (
+                    String(item.id)
+                    === String(valorSelecionado)
+                ) {
+                    option.selected = true;
+                }
+
+                variacao.appendChild(option);
+            });
+
+            variacao.disabled = false;
+
+            ajudaVariacao.textContent =
+                "Selecione a Cor / Variação "
+                + "que será ajustada.";
+
+            ajudaQuantidade.textContent =
+                "Depois de selecionar a variação, "
+                + "informe o saldo físico correto.";
+
+        } catch (erro) {
+            grupo.style.display = '';
+
+            ajudaVariacao.textContent =
+                "Não foi possível carregar "
+                + "as variações do produto.";
+        }
+    }
+
+    variacao.addEventListener(
+        'change',
+        function () {
+            const option =
+                variacao.options[
+                    variacao.selectedIndex
+                ];
+
+            if (
+                option
+                && option.dataset
+                && option.dataset.estoque !== undefined
+            ) {
+                ajudaQuantidade.textContent =
+                    "Estoque atual da variação: "
+                    + option.dataset.estoque
+                    + ". Informe a quantidade física correta.";
+            }
+        }
+    );
+
+    produto.addEventListener(
+        'change',
+        carregarVariacoes
+    );
+
+    carregarVariacoes();
+})();
+</script>
+
 {% endblock %}

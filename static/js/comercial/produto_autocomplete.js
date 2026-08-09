@@ -275,13 +275,33 @@
                 item.setAttribute("role", "option");
                 item.setAttribute("aria-selected", "false");
 
-                const codigo = this.escaparHtml(
+                /*
+                 * O código ERP pode estar vazio.
+                 * Nesse caso, usamos o código do fornecedor
+                 * como identificação principal do produto.
+                 */
+                const codigoErp = this.escaparHtml(
                     produto.codigo || ""
                 );
+
+                const codigoFornecedor = this.escaparHtml(
+                    produto.codigo_fornecedor || ""
+                );
+
+                const codigoPrincipal =
+                    codigoErp || codigoFornecedor;
 
                 const modelo = this.escaparHtml(
                     produto.modelo || ""
                 );
+
+                const identificacao =
+                    [
+                        codigoPrincipal,
+                        modelo,
+                    ]
+                    .filter(Boolean)
+                    .join(" — ");
 
                 const marca = this.escaparHtml(
                     produto.marca || "Marca não informada"
@@ -311,17 +331,30 @@
                         <div class="autocomplete-item-header">
 
                             <strong>
-                                ${codigo} — ${modelo}
+                                ${identificacao || "Produto sem identificação"}
                             </strong>
 
                             <div class="produto-resultado-direita">
                                 <strong>
                                     ${preco}
                                 </strong>
-
                             </div>
 
                         </div>
+
+                        ${
+                            codigoFornecedor
+                                ? `
+                                    <div class="produto-resultado-codigo-fornecedor">
+                                        <i class="bi bi-upc-scan"></i>
+                                        <span>
+                                            Cód. fornecedor:
+                                            <strong>${codigoFornecedor}</strong>
+                                        </span>
+                                    </div>
+                                `
+                                : ""
+                        }
 
                         <div class="cliente-resultado-dados">
 
@@ -348,30 +381,72 @@
 
                         </div>
 
-                        <div class="produto-resultado-cores d-flex flex-wrap gap-2 mt-2"></div>
+                        <div
+                            class="produto-resultado-cores d-flex flex-wrap gap-2 mt-2"
+                        ></div>
 
                     </div>
                 `;
 
-                const cores = item.querySelector(".produto-resultado-cores");
+                const cores = item.querySelector(
+                    ".produto-resultado-cores"
+                );
+
                 const opcoes = variacoes.length
                     ? variacoes
-                    : [{id: null, nome: "Sem variação", codigo: "", estoque}];
+                    : [
+                        {
+                            id: null,
+                            nome: "Sem variação",
+                            codigo: "",
+                            estoque,
+                        },
+                    ];
+
                 opcoes.forEach((cor) => {
-                    const existente = gerenciadorItens?.obterItem(produto.id, cor.id);
-                    const botao = document.createElement("button");
+                    const existente =
+                        gerenciadorItens?.obterItem(
+                            produto.id,
+                            cor.id
+                        );
+
+                    const botao =
+                        document.createElement("button");
+
                     botao.type = "button";
+
                     botao.className = existente
                         ? "btn btn-sm btn-outline-secondary"
                         : "btn btn-sm btn-outline-primary";
+
                     botao.disabled = Boolean(existente);
-                    botao.textContent = `${cor.nome}${cor.codigo ? ` (${cor.codigo})` : ""} · estoque ${cor.estoque}`;
-                    botao.title = existente ? "Esta cor já foi adicionada" : "Adicionar esta opção";
+
+                    botao.textContent =
+                        `${cor.nome}`
+                        + `${cor.codigo ? ` (${cor.codigo})` : ""}`
+                        + ` · estoque ${cor.estoque}`;
+
+                    botao.title = existente
+                        ? "Esta cor já foi adicionada"
+                        : "Adicionar esta opção";
+
                     botao.addEventListener("click", () => {
-                        if (existente) return;
-                        this.selecionarProduto(produto, cor.id);
-                        document.getElementById("btn-adicionar-produto")?.click();
+                        if (existente) {
+                            return;
+                        }
+
+                        this.selecionarProduto(
+                            produto,
+                            cor.id
+                        );
+
+                        document
+                            .getElementById(
+                                "btn-adicionar-produto"
+                            )
+                            ?.click();
                     });
+
                     cores.appendChild(botao);
                 });
 
@@ -389,22 +464,38 @@
         selecionarProduto(produto, variacaoCorId = null) {
             this.produtoSelecionado = {
                 ...produto,
-                variacao_cor_id: Number(variacaoCorId || 0) || null,
+                variacao_cor_id:
+                    Number(variacaoCorId || 0) || null,
             };
+
             this.inputId.value = produto.id;
 
-            const codigo = produto.codigo || "";
-            const modelo = produto.modelo || "";
+            /*
+             * Mantém a mesma identificação utilizada
+             * na lista de resultados.
+             */
+            const codigoPrincipal =
+                produto.codigo
+                || produto.codigo_fornecedor
+                || "";
+
+            const modelo =
+                produto.modelo || "";
 
             this.inputBusca.value =
-                `${codigo} - ${modelo}`.trim();
+                [
+                    codigoPrincipal,
+                    modelo,
+                ]
+                .filter(Boolean)
+                .join(" — ");
 
             this.ocultarResultados();
 
             this.inputBusca.dispatchEvent(
                 new CustomEvent("produto:selecionado", {
                     bubbles: true,
-                    detail: produto,
+                    detail: this.produtoSelecionado,
                 })
             );
         }
@@ -480,19 +571,24 @@
         }
 
         escaparHtml(valor) {
-            const elemento = document.createElement("div");
+            const elemento =
+                document.createElement("div");
 
-            elemento.textContent = valor ?? "";
+            elemento.textContent =
+                valor ?? "";
 
             return elemento.innerHTML;
         }
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
-        window.HelviComercial =
-            window.HelviComercial || {};
+    document.addEventListener(
+        "DOMContentLoaded",
+        () => {
+            window.HelviComercial =
+                window.HelviComercial || {};
 
-        window.HelviComercial.produtoAutocomplete =
-            new ProdutoAutocomplete();
-    });
+            window.HelviComercial.produtoAutocomplete =
+                new ProdutoAutocomplete();
+        }
+    );
 })();

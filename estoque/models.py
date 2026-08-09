@@ -134,6 +134,15 @@ class InventarioItem(models.Model):
         related_name="itens_inventario",
     )
 
+    variacao_cor = models.ForeignKey(
+        "produtos.VariacaoCor",
+        on_delete=models.PROTECT,
+        related_name="itens_inventario",
+        blank=True,
+        null=True,
+        verbose_name="Cor / Variação",
+    )
+
     estoque_sistema = models.IntegerField()
     quantidade_fisica = models.IntegerField(blank=True, null=True)
     diferenca = models.IntegerField(default=0)

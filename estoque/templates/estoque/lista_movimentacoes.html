@@ -26,7 +26,7 @@
                         name="busca" 
                         value="{{ busca }}" 
                         class="form-control" 
-                        placeholder="Código ou modelo"
+                        placeholder="Código, cód. fornecedor, modelo, cor ou origem"
                     >
                 </div>
 
@@ -76,6 +76,7 @@
                     <tr>
                         <th>Data</th>
                         <th>Produto</th>
+                        <th>Cor / Variação</th>
                         <th>Tipo</th>
                         <th>Quantidade</th>
                         <th>Saldo</th>
@@ -92,7 +93,25 @@
                             <td>{{ mov.data_movimentacao|date:"d/m/Y H:i" }}</td>
 
                             <td>
-                                {{ mov.produto.codigo }} - {{ mov.produto.modelo }}
+                                <strong>{{ mov.produto }}</strong>
+                            </td>
+
+                            <td>
+                                {% if mov.variacao_cor %}
+                                    <strong>
+                                        {{ mov.variacao_cor.codigo }}
+                                    </strong>
+
+                                    {% if mov.variacao_cor.nome %}
+                                        <div class="text-muted small">
+                                            {{ mov.variacao_cor.nome }}
+                                        </div>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted">
+                                        Sem variação
+                                    </span>
+                                {% endif %}
                             </td>
 
                             <td>
@@ -111,7 +130,7 @@
                     {% empty %}
 
                         <tr>
-                            <td colspan="7">
+                            <td colspan="8">
                                 {% include "components/states/empty_state.html" with icone="bi-inbox" mensagem="Nenhuma movimentação encontrada." %}
                             </td>
                         </tr>

@@ -14,6 +14,7 @@ from financeiro.models import (
 )
 from produtos.models import Produto, VariacaoCor
 from vendas.models import Venda
+from estoque.services.saldos import alterar_saldo
 
 
 @transaction.atomic
@@ -96,9 +97,21 @@ def cancelar_venda(*, venda, usuario, autorizado_por, motivo):
     return venda
 
 
-def _estornar_estoque(*, venda, usuario, motivo):
-    itens = list(venda.itens.all())
-    produto_ids = [item.produto_id for item in itens]
+def _estornar_estoque(
+    *,
+    venda,
+    usuario,
+    motivo,
+):
+    itens = list(
+        venda.itens.all()
+    )
+
+    produto_ids = [
+        item.produto_id
+        for item in itens
+    ]
+
     produtos = {
         produto.pk: produto
         for produto in (
@@ -107,43 +120,84 @@ def _estornar_estoque(*, venda, usuario, motivo):
             .filter(pk__in=produto_ids)
         )
     }
+
+    variacao_ids = [
+        item.variacao_cor_id
+        for item in itens
+        if item.variacao_cor_id
+    ]
+
     variacoes = {
-        cor.pk: cor
-        for cor in VariacaoCor.objects.select_for_update().filter(
-            pk__in=[item.variacao_cor_id for item in itens if item.variacao_cor_id]
+        variacao.pk: variacao
+        for variacao in (
+            VariacaoCor.objects
+            .select_for_update()
+            .filter(pk__in=variacao_ids)
         )
     }
 
-    if len(produtos) != len(set(produto_ids)):
+    if len(produtos) != len(
+        set(produto_ids)
+    ):
         raise ValidationError(
-            "Não foi possível localizar todos os produtos da venda."
+            "Não foi possível localizar "
+            "todos os produtos da venda."
         )
 
     for item in itens:
-        produto = produtos[item.produto_id]
-        if item.variacao_cor_id:
-            cor = variacoes[item.variacao_cor_id]
-            cor.estoque += item.quantidade
-            cor.save(update_fields=["estoque"])
-        saldo_anterior = produto.estoque_atual or 0
-        saldo_atual = saldo_anterior + item.quantidade
+        produto = produtos[
+            item.produto_id
+        ]
 
-        produto.estoque_atual = saldo_atual
-        produto.save(update_fields=["estoque_atual"])
+        variacao = (
+            variacoes.get(
+                item.variacao_cor_id
+            )
+            if item.variacao_cor_id
+            else None
+        )
+
+        if (
+            item.variacao_cor_id
+            and variacao is None
+        ):
+            raise ValidationError(
+                "Não foi possível localizar a "
+                "Cor / Variação de um dos itens."
+            )
+
+        resultado = alterar_saldo(
+            produto=produto,
+            variacao_cor=variacao,
+            quantidade=item.quantidade,
+            operacao="entrada",
+        )
 
         MovimentacaoEstoque.objects.create(
-            produto=produto,
-            variacao_cor_id=item.variacao_cor_id,
+            produto=resultado[
+                "produto"
+            ],
+            variacao_cor=resultado[
+                "variacao_cor"
+            ],
             tipo="cancelamento_venda",
             quantidade=item.quantidade,
-            saldo_anterior=saldo_anterior,
-            saldo_atual=saldo_atual,
+            saldo_anterior=resultado[
+                "saldo_anterior"
+            ],
+            saldo_atual=resultado[
+                "saldo_atual"
+            ],
             usuario=usuario,
-            origem=f"Venda nº {venda.numero}",
+            origem=(
+                f"Venda nº {venda.numero}"
+            ),
             local="Estoque principal",
             observacao=(
-                f"Estorno automático pelo cancelamento da venda "
-                f"nº {venda.numero}. Motivo: {motivo}"
+                "Estorno automático pelo "
+                "cancelamento da venda "
+                f"nº {venda.numero}. "
+                f"Motivo: {motivo}"
             ),
         )
 

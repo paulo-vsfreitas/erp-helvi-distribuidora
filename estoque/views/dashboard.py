@@ -20,6 +20,7 @@ def dashboard_estoque(request):
 
     ultimas_movimentacoes = MovimentacaoEstoque.objects.select_related(
         "produto",
+        "variacao_cor",
         "usuario",
     ).all()[:10]
 

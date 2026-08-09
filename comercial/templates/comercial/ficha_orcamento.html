@@ -443,17 +443,18 @@
                                 <tr>
 
                                     <td>
-                                        <strong>
-                                            {{ item.produto.codigo }}
-                                        </strong>
+                                        {% if item.produto.codigo %}
+                                            <strong>{{ item.produto.codigo }}</strong>
+                                        {% elif item.produto.codigo_fornecedor %}
+                                            <strong>{{ item.produto.codigo_fornecedor }}</strong>
+                                        {% else %}
+                                            <span class="text-muted">—</span>
+                                        {% endif %}
                                     </td>
 
-                                    <td>{{ item.variacao_cor|default:"Sem variação" }}</td>
-
                                     <td>
-
                                         <div class="produto-ficha-nome">
-                                            {{ item.produto.modelo }}
+                                            {{ item.produto.modelo|default:"Produto sem descrição" }}
                                         </div>
 
                                         {% if item.produto.marca %}
@@ -462,6 +463,30 @@
                                             </div>
                                         {% endif %}
 
+                                        {% if item.produto.codigo_fornecedor %}
+                                            <div class="produto-ficha-meta">
+                                                Cód. fornecedor:
+                                                {{ item.produto.codigo_fornecedor }}
+                                            </div>
+                                        {% endif %}
+                                    </td>
+
+                                    <td>
+                                        {% if item.variacao_cor %}
+                                            <strong>
+                                                {{ item.variacao_cor.codigo }}
+                                            </strong>
+
+                                            {% if item.variacao_cor.nome %}
+                                                <div class="text-muted small">
+                                                    {{ item.variacao_cor.nome }}
+                                                </div>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="text-muted">
+                                                Sem variação
+                                            </span>
+                                        {% endif %}
                                     </td>
 
                                     <td class="text-center">

@@ -16,21 +16,35 @@ def nova_saida(request):
             try:
                 registrar_saida_estoque(
                     produto=form.cleaned_data["produto"],
-                    quantidade=form.cleaned_data["quantidade"],
+                    variacao_cor=form.cleaned_data[
+                        "variacao_cor"
+                    ],
+                    quantidade=form.cleaned_data[
+                        "quantidade"
+                    ],
                     usuario=request.user,
                     origem=form.cleaned_data["origem"],
                     local=form.cleaned_data["local"],
-                    observacao=form.cleaned_data["observacao"],
+                    observacao=form.cleaned_data[
+                        "observacao"
+                    ],
                 )
 
+            except ValidationError as erro:
+                form.add_error(
+                    None,
+                    erro.messages[0],
+                )
+
+            else:
                 messages.success(
                     request,
                     "Saída de estoque registrada com sucesso.",
                 )
-                return redirect("estoque:lista_movimentacoes")
 
-            except ValidationError as e:
-                form.add_error(None, e.messages[0])
+                return redirect(
+                    "estoque:lista_movimentacoes"
+                )
 
     else:
         form = SaidaEstoqueForm()

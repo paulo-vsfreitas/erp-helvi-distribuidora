@@ -1,7 +1,8 @@
-from django.db.models import F, Sum
+from django.db.models import F, Q, Sum
 
 from estoque.models import MovimentacaoEstoque
 from produtos.models import Produto
+
 
 
 def listar_movimentacoes_estoque(
@@ -11,12 +12,17 @@ def listar_movimentacoes_estoque(
 ):
     movimentacoes = MovimentacaoEstoque.objects.select_related(
         "produto",
+        "variacao_cor",
         "usuario",
     ).all()
-
     if busca:
         movimentacoes = movimentacoes.filter(
-            produto__modelo__icontains=busca
+            Q(produto__codigo__icontains=busca)
+            | Q(produto__codigo_fornecedor__icontains=busca)
+            | Q(produto__modelo__icontains=busca)
+            | Q(variacao_cor__codigo__icontains=busca)
+            | Q(variacao_cor__nome__icontains=busca)
+            | Q(origem__icontains=busca)
         )
 
     if tipo:

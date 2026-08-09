@@ -2,6 +2,7 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 
 from estoque.models import MovimentacaoEstoque
+from estoque.services.saldos import alterar_saldo
 
 
 @transaction.atomic
@@ -12,33 +13,31 @@ def registrar_saida_estoque(
     origem=None,
     local="Estoque Principal",
     observacao=None,
+    variacao_cor=None,
 ):
     if quantidade <= 0:
         raise ValidationError(
             "A quantidade da saída deve ser maior que zero."
         )
 
-    if quantidade > produto.estoque_atual:
-        raise ValidationError(
-            f"Estoque insuficiente. Disponível: {produto.estoque_atual}."
-        )
-
-    saldo_anterior = produto.estoque_atual
-    saldo_atual = saldo_anterior - quantidade
+    resultado = alterar_saldo(
+        produto=produto,
+        variacao_cor=variacao_cor,
+        quantidade=quantidade,
+        operacao="saida",
+    )
 
     MovimentacaoEstoque.objects.create(
-        produto=produto,
+        produto=resultado["produto"],
+        variacao_cor=resultado["variacao_cor"],
         tipo="saida",
         quantidade=quantidade,
-        saldo_anterior=saldo_anterior,
-        saldo_atual=saldo_atual,
+        saldo_anterior=resultado["saldo_anterior"],
+        saldo_atual=resultado["saldo_atual"],
         usuario=usuario,
         origem=origem,
         local=local or "Estoque Principal",
         observacao=observacao,
     )
 
-    produto.estoque_atual = saldo_atual
-    produto.save(update_fields=["estoque_atual"])
-
-    return produto
+    return resultado["produto"]

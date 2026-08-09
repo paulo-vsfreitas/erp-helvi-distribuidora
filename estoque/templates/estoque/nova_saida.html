@@ -1,14 +1,298 @@
 {% extends "core/base.html" %}
+
 {% block title %}Nova Saída de Estoque | ERP Helvi{% endblock %}
+
 {% block content %}
-<div class="hui-module-page hui-module-page--estoque hui-form-page">
-    {% url "estoque:lista_movimentacoes" as voltar_url %}
-    {% include "components/layout/page_header.html" with titulo="Nova saída" subtitulo="Registre uma saída manual de produtos do estoque." botao_url=voltar_url botao_texto="Voltar às movimentações" botao_icon="bi bi-arrow-left" %}
-    <section class="table-card hui-form-section"><header class="hui-table-heading"><div><span class="hui-table-heading__eyebrow">Movimentação</span><h2>Dados da saída</h2><p>Informe o produto, a quantidade, o local e a origem.</p></div></header><div class="table-card__body">
-        <form method="post">{% csrf_token %}{% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
-            <div class="row g-3"><div class="col-md-6">{{ form.produto.label_tag }}{{ form.produto }}{{ form.produto.errors }}</div><div class="col-md-3">{{ form.quantidade.label_tag }}{{ form.quantidade }}{{ form.quantidade.errors }}</div><div class="col-md-3">{{ form.local.label_tag }}{{ form.local }}{{ form.local.errors }}</div><div class="col-md-6">{{ form.origem.label_tag }}{{ form.origem }}{{ form.origem.errors }}</div><div class="col-12">{{ form.observacao.label_tag }}{{ form.observacao }}{{ form.observacao.errors }}</div></div>
-            <div class="hui-form-actions"><a href="{{ voltar_url }}" class="btn btn-outline-secondary">Cancelar</a><button type="submit" class="btn btn-danger"><i class="bi bi-box-arrow-up"></i> Registrar saída</button></div>
+
+{% url 'estoque:lista_movimentacoes' as voltar_url %}
+
+{% include "components/layout/page_header.html" with titulo="Nova saída" subtitulo="Registre uma saída manual de produtos do estoque." botao_url=voltar_url botao_texto="Voltar às movimentações" botao_icon="bi bi-arrow-left" %}
+
+<div class="card">
+    <div class="card-body">
+
+        <div class="mb-4">
+            <small class="text-uppercase fw-bold">
+                Movimentação
+            </small>
+
+            <h5 class="mb-1">
+                Dados da saída
+            </h5>
+
+            <p class="text-muted mb-0">
+                Informe o produto, a Cor / Variação,
+                a quantidade, o local e a origem.
+            </p>
+        </div>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {% for erro in form.non_field_errors %}
+                        <div>{{ erro }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="row g-3">
+
+                <div class="col-md-6">
+                    <label
+                        for="{{ form.produto.id_for_label }}"
+                        class="form-label"
+                    >
+                        Produto
+                    </label>
+
+                    {{ form.produto }}
+
+                    {% for erro in form.produto.errors %}
+                        <div class="text-danger mt-1">
+                            {{ erro }}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div
+                    class="col-md-6"
+                    id="grupo-variacao-cor"
+                    style="display: none;"
+                >
+                    <label
+                        for="{{ form.variacao_cor.id_for_label }}"
+                        class="form-label"
+                    >
+                        Cor / Variação
+                    </label>
+
+                    {{ form.variacao_cor }}
+
+                    {% for erro in form.variacao_cor.errors %}
+                        <div class="text-danger mt-1">
+                            {{ erro }}
+                        </div>
+                    {% endfor %}
+
+                    <div
+                        id="ajuda-variacao-cor"
+                        class="form-text"
+                    ></div>
+                </div>
+
+                <div class="col-md-4">
+                    <label
+                        for="{{ form.quantidade.id_for_label }}"
+                        class="form-label"
+                    >
+                        Quantidade
+                    </label>
+
+                    {{ form.quantidade }}
+
+                    {% for erro in form.quantidade.errors %}
+                        <div class="text-danger mt-1">
+                            {{ erro }}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-4">
+                    <label
+                        for="{{ form.local.id_for_label }}"
+                        class="form-label"
+                    >
+                        Local
+                    </label>
+
+                    {{ form.local }}
+
+                    {% for erro in form.local.errors %}
+                        <div class="text-danger mt-1">
+                            {{ erro }}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-4">
+                    <label
+                        for="{{ form.origem.id_for_label }}"
+                        class="form-label"
+                    >
+                        Origem
+                    </label>
+
+                    {{ form.origem }}
+
+                    {% for erro in form.origem.errors %}
+                        <div class="text-danger mt-1">
+                            {{ erro }}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-12">
+                    <label
+                        for="{{ form.observacao.id_for_label }}"
+                        class="form-label"
+                    >
+                        Observação
+                    </label>
+
+                    {{ form.observacao }}
+
+                    {% for erro in form.observacao.errors %}
+                        <div class="text-danger mt-1">
+                            {{ erro }}
+                        </div>
+                    {% endfor %}
+                </div>
+
+            </div>
+
+            <div
+                class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top"
+            >
+                <a
+                    href="{% url 'estoque:lista_movimentacoes' %}"
+                    class="btn btn-outline-secondary"
+                >
+                    Cancelar
+                </a>
+
+                <button
+                    type="submit"
+                    class="btn btn-danger"
+                >
+                    <i class="bi bi-box-arrow-up"></i>
+                    Registrar saída
+                </button>
+            </div>
         </form>
-    </div></section>
+
+    </div>
 </div>
+
+<script>
+(function () {
+    const produto =
+        document.getElementById('id_produto');
+
+    const variacao =
+        document.getElementById('id_variacao_cor');
+
+    const grupo =
+        document.getElementById('grupo-variacao-cor');
+
+    const ajuda =
+        document.getElementById('ajuda-variacao-cor');
+
+    if (!produto || !variacao || !grupo) {
+        return;
+    }
+
+    async function carregarVariacoes() {
+        const produtoId = produto.value;
+
+        const valorSelecionado = variacao.value;
+
+        variacao.innerHTML =
+            '<option value="">---------</option>';
+
+        variacao.disabled = true;
+        grupo.style.display = 'none';
+
+        if (!produtoId) {
+            return;
+        }
+
+        try {
+            const url =
+                "{% url 'estoque:variacoes_produto' %}"
+                + "?produto_id="
+                + encodeURIComponent(produtoId);
+
+            const resposta = await fetch(
+                url,
+                {
+                    headers: {
+                        "X-Requested-With":
+                            "XMLHttpRequest"
+                    }
+                }
+            );
+
+            if (!resposta.ok) {
+                throw new Error(
+                    "Falha ao consultar variações."
+                );
+            }
+
+            const dados = await resposta.json();
+
+            grupo.style.display = '';
+
+            if (!dados.variacoes.length) {
+                ajuda.textContent =
+                    "Este produto não possui "
+                    + "Cor / Variação. "
+                    + "A saída será aplicada "
+                    + "ao estoque geral.";
+
+                variacao.disabled = true;
+                return;
+            }
+
+            dados.variacoes.forEach(function (item) {
+                const option =
+                    document.createElement('option');
+
+                option.value = item.id;
+
+                option.textContent =
+                    item.codigo
+                    + (
+                        item.nome
+                            ? ' — ' + item.nome
+                            : ''
+                    )
+                    + ' — disponível: '
+                    + item.estoque;
+
+                if (
+                    String(item.id)
+                    === String(valorSelecionado)
+                ) {
+                    option.selected = true;
+                }
+
+                variacao.appendChild(option);
+            });
+
+            variacao.disabled = false;
+
+            ajuda.textContent =
+                "Selecione a Cor / Variação "
+                + "que será retirada do estoque.";
+
+        } catch (erro) {
+            grupo.style.display = '';
+
+            ajuda.textContent =
+                "Não foi possível carregar "
+                + "as variações do produto.";
+        }
+    }
+
+    produto.addEventListener(
+        'change',
+        carregarVariacoes
+    );
+
+    carregarVariacoes();
+})();
+</script>
+
 {% endblock %}

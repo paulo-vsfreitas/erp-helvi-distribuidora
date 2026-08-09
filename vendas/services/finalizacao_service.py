@@ -3,6 +3,7 @@ from django.db import transaction
 from django.utils import timezone
 
 from estoque.models import MovimentacaoEstoque
+from estoque.services.saldos import alterar_saldo
 from produtos.models import Produto, VariacaoCor
 from vendas.models import Venda
 from vendas.services.processamento_pagamento_service import (
@@ -53,84 +54,131 @@ def finalizar_venda(
             .filter(pk__in=produto_ids)
         )
     }
+
+    variacao_ids = [
+        item.variacao_cor_id
+        for item in itens
+        if item.variacao_cor_id
+    ]
+
     variacoes = {
-        cor.pk: cor
-        for cor in VariacaoCor.objects.select_for_update().filter(
-            pk__in=[item.variacao_cor_id for item in itens if item.variacao_cor_id]
+        variacao.pk: variacao
+        for variacao in (
+            VariacaoCor.objects
+            .select_for_update()
+            .filter(pk__in=variacao_ids)
         )
     }
 
-    erros_estoque = []
+    if len(produtos) != len(set(produto_ids)):
+        raise ValidationError(
+            "Não foi possível localizar todos os produtos da venda."
+        )
 
     for item in itens:
-        produto = produtos.get(item.produto_id)
+        produto = produtos[item.produto_id]
 
-        if produto is None:
-            erros_estoque.append(
-                f"O produto do item {item.pk} não foi encontrado."
-            )
-            continue
-
-        estoque_atual = (
-            variacoes[item.variacao_cor_id].estoque
-            if item.variacao_cor_id else produto.estoque_atual or 0
-        )
-
-        if estoque_atual < item.quantidade:
-            erros_estoque.append(
-                f"{produto}: estoque disponível "
-                f"{estoque_atual}, quantidade vendida "
-                f"{item.quantidade}."
+        if item.variacao_cor_id:
+            variacao = variacoes.get(
+                item.variacao_cor_id
             )
 
-    if erros_estoque:
-        raise ValidationError(
-            [
-                "Estoque insuficiente para finalizar a venda:",
-                *erros_estoque,
-            ]
-        )
+            if variacao is None:
+                raise ValidationError(
+                    "Não foi possível localizar a "
+                    "Cor / Variação de um dos itens."
+                )
+
+            if variacao.produto_id != produto.pk:
+                raise ValidationError(
+                    "A Cor / Variação selecionada "
+                    "não pertence ao produto."
+                )
+
+        elif produto.variacoes_cor.exists():
+            raise ValidationError(
+                f"Selecione a Cor / Variação "
+                f"do produto {produto}."
+            )
 
     if not venda.estoque_baixado:
         for item in itens:
-            produto = produtos[item.produto_id]
+            produto = produtos[
+                item.produto_id
+            ]
 
-            # O custo definitivo pertence ao momento da finalização. Depois
-            # disso, alterações no cadastro do produto não mudam o histórico.
-            if item.custo_unitario != produto.preco_custo:
-                item.custo_unitario = produto.preco_custo
-                item.save(update_fields=["custo_unitario"])
-
-            if item.variacao_cor_id:
-                cor = variacoes[item.variacao_cor_id]
-                cor.estoque -= item.quantidade
-                cor.save(update_fields=["estoque"])
-
-            saldo_anterior = produto.estoque_atual or 0
-            saldo_atual = (
-                saldo_anterior - item.quantidade
+            variacao = (
+                variacoes.get(
+                    item.variacao_cor_id
+                )
+                if item.variacao_cor_id
+                else None
             )
+
+            if (
+                item.custo_unitario
+                != produto.preco_custo
+            ):
+                item.custo_unitario = (
+                    produto.preco_custo
+                )
+
+                item.save(
+                    update_fields=[
+                        "custo_unitario"
+                    ]
+                )
+
+            try:
+                resultado = alterar_saldo(
+                    produto=produto,
+                    variacao_cor=variacao,
+                    quantidade=item.quantidade,
+                    operacao="saida",
+                )
+
+            except ValidationError as erro:
+                identificacao = str(produto)
+
+                if variacao:
+                    identificacao += (
+                        f" / {variacao}"
+                    )
+
+                detalhe = (
+                    erro.messages[0]
+                    if erro.messages
+                    else str(erro)
+                )
+
+                raise ValidationError(
+                    f"{identificacao}: {detalhe}"
+                )
 
             MovimentacaoEstoque.objects.create(
-                produto=produto,
-                variacao_cor_id=item.variacao_cor_id,
+                produto=resultado[
+                    "produto"
+                ],
+                variacao_cor=resultado[
+                    "variacao_cor"
+                ],
                 tipo="venda",
                 quantidade=item.quantidade,
-                saldo_anterior=saldo_anterior,
-                saldo_atual=saldo_atual,
+                saldo_anterior=resultado[
+                    "saldo_anterior"
+                ],
+                saldo_atual=resultado[
+                    "saldo_atual"
+                ],
                 usuario=usuario,
-                origem=f"Venda nº {venda.numero}",
+                origem=(
+                    f"Venda nº {venda.numero}"
+                ),
                 local="Estoque principal",
                 observacao=(
-                    "Saída automática referente à "
-                    f"venda nº {venda.numero}."
+                    "Saída automática referente "
+                    f"à venda nº {venda.numero}."
                 ),
-            )
-
-            produto.estoque_atual = saldo_atual
-
-            produto.save(
-                update_fields=["estoque_atual"]
             )
 
         venda.estoque_baixado = True
