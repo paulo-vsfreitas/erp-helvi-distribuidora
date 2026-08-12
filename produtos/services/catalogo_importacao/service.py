@@ -1,7 +1,10 @@
 from collections import OrderedDict
 from decimal import Decimal
+from io import BytesIO
+import logging
 from pathlib import Path
 
+from PIL import Image
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.db import transaction
@@ -13,19 +16,133 @@ from produtos.models import (
     ImportacaoCatalogo,
     ItemImportacaoCatalogo,
     Produto,
+    RecorteImportacaoCatalogo,
     VariacaoImportacaoCatalogo,
 )
 from produtos.services.importacao import importar_produtos
 from .analisador import (
     arquivo_local,
     completar_variacoes_visuais,
-    detectar_quantidade_variacoes_imagem,
-    detectar_variacoes_visuais_imagem,
+    detectar_layout_visual_imagem,
     extrair_texto_imagem,
     extrair_texto_pdf,
     gerar_preview_pdf,
     sugerir_dados,
 )
+
+
+logger = logging.getLogger(__name__)
+
+
+def _caixa_pixels(caixa, largura, altura):
+    x1 = max(0, min(largura - 1, round(largura * caixa["x1"] / 100)))
+    y1 = max(0, min(altura - 1, round(altura * caixa["y1"] / 100)))
+    x2 = max(x1 + 1, min(largura, round(largura * caixa["x2"] / 100)))
+    y2 = max(y1 + 1, min(altura, round(altura * caixa["y2"] / 100)))
+    return x1, y1, x2, y2
+
+
+def _jpeg_recorte(imagem, caixa):
+    buffer = BytesIO()
+    imagem.crop(_caixa_pixels(caixa, *imagem.size)).save(
+        buffer,
+        format="JPEG",
+        quality=91,
+        optimize=True,
+    )
+    return buffer.getvalue()
+
+
+def _excluir_arquivos_storage(storage, nomes):
+    for nome in nomes:
+        if not nome:
+            continue
+        try:
+            storage.delete(nome)
+        except (OSError, ValueError) as erro:
+            # A troca dos recortes já foi concluída no banco. Uma falha pontual
+            # de limpeza não pode invalidar o conjunto novo e consistente.
+            logger.warning("Falha ao remover recorte antigo %s: %s", nome, erro)
+            continue
+
+
+def processar_recursos_visuais(arquivo, *, caminho=None):
+    """Gera e troca atomicamente Hero/C1..Cn de um arquivo de staging."""
+    if caminho is None:
+        campo = (
+            arquivo.arquivo
+            if arquivo.tipo == ArquivoImportacaoCatalogo.Tipo.IMAGEM
+            else arquivo.preview
+        )
+        if not campo:
+            return []
+        sufixo = (
+            Path(arquivo.nome_original).suffix.lower()
+            if arquivo.tipo == ArquivoImportacaoCatalogo.Tipo.IMAGEM
+            else ".jpg"
+        )
+        with arquivo_local(campo, sufixo=sufixo) as caminho_local:
+            return processar_recursos_visuais(arquivo, caminho=caminho_local)
+
+    layout = detectar_layout_visual_imagem(caminho)
+    preparados = []
+    with Image.open(caminho) as origem:
+        imagem = origem.convert("RGB")
+        if layout.get("hero"):
+            preparados.append({
+                "tipo": RecorteImportacaoCatalogo.Tipo.HERO,
+                "indice": 0,
+                "conteudo": _jpeg_recorte(imagem, layout["hero"]),
+                "nome_cor": "",
+                "cor_hex": "#6c757d",
+                "texto_hex": "#ffffff",
+                "layout": layout["hero"],
+            })
+        for visual in layout.get("variacoes", []):
+            caixa = visual.get("caixa")
+            if not caixa:
+                continue
+            preparados.append({
+                "tipo": RecorteImportacaoCatalogo.Tipo.VARIACAO,
+                "indice": visual["indice"],
+                "conteudo": _jpeg_recorte(imagem, caixa),
+                "nome_cor": visual.get("nome", ""),
+                "cor_hex": visual.get("cor_hex", "#6c757d"),
+                "texto_hex": visual.get("texto_hex", "#ffffff"),
+                "layout": {
+                    "caixa": caixa,
+                    "marcadores": visual.get("marcadores", []),
+                },
+            })
+
+    novos_nomes = []
+    storage = RecorteImportacaoCatalogo._meta.get_field("imagem").storage
+    try:
+        with transaction.atomic():
+            anteriores = list(
+                RecorteImportacaoCatalogo.objects.select_for_update()
+                .filter(arquivo=arquivo)
+            )
+            nomes_anteriores = [recorte.imagem.name for recorte in anteriores]
+            RecorteImportacaoCatalogo.objects.filter(arquivo=arquivo).delete()
+
+            novos = []
+            for dados in preparados:
+                conteudo = dados.pop("conteudo")
+                recorte = RecorteImportacaoCatalogo(arquivo=arquivo, **dados)
+                nome = f"arquivo_{arquivo.pk}_{recorte.tipo}_{recorte.indice}.jpg"
+                recorte.imagem.save(nome, ContentFile(conteudo), save=False)
+                novos_nomes.append(recorte.imagem.name)
+                recorte.save()
+                novos.append(recorte)
+
+            transaction.on_commit(
+                lambda: _excluir_arquivos_storage(storage, nomes_anteriores)
+            )
+        return novos
+    except Exception:
+        _excluir_arquivos_storage(storage, novos_nomes)
+        raise
 
 
 def criar_lote(*, dados, arquivos, usuario):
@@ -64,7 +181,18 @@ def _analisar_arquivo(arquivo):
             gerar_preview_pdf(arquivo, caminho)
             if arquivo.preview:
                 with arquivo_local(arquivo.preview, sufixo=".jpg") as preview:
-                    variacoes_visuais = detectar_variacoes_visuais_imagem(preview)
+                    recortes = processar_recursos_visuais(arquivo, caminho=preview)
+                    variacoes_visuais = [
+                        {
+                            "indice": recorte.indice,
+                            "nome": recorte.nome_cor,
+                            "cor_hex": recorte.cor_hex,
+                            "texto_hex": recorte.texto_hex,
+                            **recorte.layout,
+                        }
+                        for recorte in recortes
+                        if recorte.tipo == RecorteImportacaoCatalogo.Tipo.VARIACAO
+                    ]
                     if not texto.strip():
                         texto_ocr, aviso_ocr = extrair_texto_imagem(preview)
                         if texto_ocr:
@@ -74,7 +202,18 @@ def _analisar_arquivo(arquivo):
                             aviso = "; ".join(filter(None, [aviso, aviso_ocr]))
         else:
             texto, aviso = extrair_texto_imagem(caminho)
-            variacoes_visuais = detectar_variacoes_visuais_imagem(caminho)
+            recortes = processar_recursos_visuais(arquivo, caminho=caminho)
+            variacoes_visuais = [
+                {
+                    "indice": recorte.indice,
+                    "nome": recorte.nome_cor,
+                    "cor_hex": recorte.cor_hex,
+                    "texto_hex": recorte.texto_hex,
+                    **recorte.layout,
+                }
+                for recorte in recortes
+                if recorte.tipo == RecorteImportacaoCatalogo.Tipo.VARIACAO
+            ]
 
     arquivo.texto_extraido = texto
     arquivo.aviso_analise = aviso

@@ -1,6 +1,6 @@
 # Cadastros Base
 
-Atualizado em 04/08/2026.
+Atualizado em 12/08/2026.
 
 ## Usuários
 
@@ -57,7 +57,11 @@ Aplicação: `produtos`.
 - constraints contra valores negativos;
 - integração com compras, vendas, estoque e relatórios.
 - código, modelo, marca e coleção opcionais no cadastro e na edição;
-- nome/descrição opcional nas variações de cor.
+- nome/descrição opcional nas variações de cor;
+- importação de catálogos com Hero e C1..Cn processados na análise, persistidos
+  no storage privado e entregues por URL assinada durante a conferência;
+- reanálise substitui os recortes de staging e limpa os arquivos anteriores sem
+  alterar a heurística visual, a confirmação definitiva ou o estoque por cor.
 
 Alterações de saldo devem passar pelos services de estoque. Não ajuste
 `estoque_atual` diretamente em views ou templates.

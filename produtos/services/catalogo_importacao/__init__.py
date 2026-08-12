@@ -1,3 +1,15 @@
-from .service import analisar_lote, confirmar_importacao, criar_lote, atualizar_duplicidade
+from .service import (
+    analisar_lote,
+    atualizar_duplicidade,
+    confirmar_importacao,
+    criar_lote,
+    processar_recursos_visuais,
+)
 
-__all__ = ["analisar_lote", "confirmar_importacao", "criar_lote", "atualizar_duplicidade"]
+__all__ = [
+    "analisar_lote",
+    "atualizar_duplicidade",
+    "confirmar_importacao",
+    "criar_lote",
+    "processar_recursos_visuais",
+]

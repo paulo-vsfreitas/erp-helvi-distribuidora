@@ -18,6 +18,7 @@ from produtos.models import (
     ArquivoImportacaoCatalogo,
     ImportacaoCatalogo,
     ItemImportacaoCatalogo,
+    RecorteImportacaoCatalogo,
     VariacaoImportacaoCatalogo,
 )
 from produtos.services.catalogo_importacao import (
@@ -130,7 +131,12 @@ def conferir_catalogo(request, lote_id):
         return redirect("produtos:conferir_catalogo", lote_id=lote.pk)
 
     itens = list(
-        lote.itens.prefetch_related("variacoes", "arquivos")
+        lote.itens.prefetch_related(
+            "variacoes",
+            "arquivos",
+            "arquivos__recortes",
+            "arquivo_principal__recortes",
+        )
         .select_related("produto_duplicado", "arquivo_principal")
         .all()
     )
@@ -139,15 +145,31 @@ def conferir_catalogo(request, lote_id):
         item.layout_visual = {"hero": None, "variacoes": []}
         item.variacoes_visuais = []
         variacoes_db = list(item.variacoes.all())
-        if arquivo:
-            campo = arquivo.arquivo if arquivo.tipo == ArquivoImportacaoCatalogo.Tipo.IMAGEM else arquivo.preview
-            if campo:
-                sufixo = Path(arquivo.nome_original).suffix.lower() if arquivo.tipo == ArquivoImportacaoCatalogo.Tipo.IMAGEM else ".jpg"
-                try:
-                    with arquivo_local(campo, sufixo=sufixo) as caminho:
-                        item.layout_visual = detectar_layout_visual_imagem(caminho)
-                except (OSError, ValueError):
-                    item.layout_visual = {"hero": None, "variacoes": []}
+        recortes = list(arquivo.recortes.all()) if arquivo else []
+        hero = next(
+            (r for r in recortes if r.tipo == RecorteImportacaoCatalogo.Tipo.HERO),
+            None,
+        )
+        variacoes_persistidas = {
+            r.indice: r
+            for r in recortes
+            if r.tipo == RecorteImportacaoCatalogo.Tipo.VARIACAO
+        }
+        item.layout_visual = {
+            "hero": hero.layout if hero else None,
+            "variacoes": [
+                {
+                    "indice": recorte.indice,
+                    "nome": recorte.nome_cor,
+                    "cor_hex": recorte.cor_hex,
+                    "texto_hex": recorte.texto_hex,
+                    **recorte.layout,
+                }
+                for recorte in sorted(
+                    variacoes_persistidas.values(), key=lambda recorte: recorte.indice
+                )
+            ],
+        }
 
         for indice, variacao_db in enumerate(variacoes_db, start=1):
             visual = next((v for v in item.layout_visual.get("variacoes", []) if v.get("indice") == indice), None)
@@ -164,8 +186,8 @@ def conferir_catalogo(request, lote_id):
                     "descricao": (variacao_db.nome if variacao_db else visual.get("nome", "")),
                     "arquivo_id": arquivo.id,
                 })
-        item.tem_hero_visual = bool(item.layout_visual.get("hero"))
-        item.arquivo_visual_id = arquivo.id if arquivo else None
+        item.tem_hero_visual = hero is not None
+        item.arquivo_visual_id = arquivo.id if arquivo and recortes else None
     total_itens = len(itens)
     total_sem_variacao = sum(1 for item in itens if not item.variacoes.all())
     total_duplicidades = sum(1 for item in itens if item.duplicidade != ItemImportacaoCatalogo.Duplicidade.NENHUMA)
@@ -222,6 +244,15 @@ def reanalisar_catalogo(request, lote_id):
 def visualizar_recorte_catalogo(request, lote_id, arquivo_id, tipo, indice=0):
     """Entrega recortes temporários usados somente na conferência visual do catálogo."""
     arquivo = get_object_or_404(ArquivoImportacaoCatalogo, pk=arquivo_id, lote_id=lote_id)
+    recorte = arquivo.recortes.filter(tipo=tipo, indice=indice).first()
+    if recorte:
+        try:
+            return redirect(recorte.imagem.url)
+        except (OSError, ValueError):
+            raise Http404("Recorte não encontrado no storage.")
+
+    # Compatibilidade controlada para lotes anteriores. Reanalisar o lote cria
+    # os recortes persistidos e retira este processamento do caminho normal.
     campo = arquivo.arquivo if arquivo.tipo == ArquivoImportacaoCatalogo.Tipo.IMAGEM else arquivo.preview
     if not campo:
         raise Http404("Imagem de origem não disponível.")

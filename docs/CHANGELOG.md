@@ -1,5 +1,17 @@
 # Changelog do ERP Helvi
 
+## 12/08/2026 — Recortes persistidos na importação de catálogos
+
+- Hero e variações C1..Cn passam a ser gerados uma única vez durante a
+  análise/reanálise do catálogo;
+- JPEGs e metadados visuais ficam persistidos no staging do storage privado;
+- conferência normal deixa de baixar a imagem original e recalcular layout/crop;
+- navegador recebe redirect para a URL assinada de cada recorte, sem proxy pelo
+  worker da aplicação;
+- reanálise de lotes antigos migra os recortes e limpa os objetos substituídos;
+- confirmação definitiva, imagens do produto e estoque por variação preservados;
+- suíte automatizada ampliada para 169 testes aprovados.
+
 ## 07/08/2026 — Fase 1 da experiência Helvi ERP
 
 - novo login com identidade unificada Helvi ERP, preservando autenticação

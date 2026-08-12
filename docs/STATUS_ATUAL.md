@@ -1,12 +1,16 @@
 # Status Atual do ERP Helvi
 
-Atualizado em **07/08/2026**.
+Atualizado em **12/08/2026**.
 
 ## Resumo executivo
 
 O ERP Helvi está em **release candidate 1.0**. Os fluxos essenciais funcionam de
 ponta a ponta, as telas principais compartilham o Helvi UI, as integrações
-críticas possuem auditoria e o pacote automatizado possui 132 testes aprovados.
+críticas possuem auditoria e o pacote automatizado possui 169 testes aprovados.
+
+A importação visual de catálogos processa Hero e variações uma única vez na
+análise/reanálise, mantém os recortes no storage privado e serve URLs assinadas
+diretamente ao navegador, sem recalcular o layout durante a conferência normal.
 
 O código está pronto para a homologação de aceitação e para a preparação do
 ambiente definitivo. Publicação em produção ainda exige backup, configuração
@@ -28,7 +32,7 @@ itens/variações e peças.
 
 ## Validação registrada
 
-- `python manage.py test --keepdb`: **132 testes aprovados**;
+- `python manage.py test --keepdb`: **169 testes aprovados**;
 - `python manage.py check`: nenhum problema;
 - `python manage.py makemigrations --check --dry-run`: nenhuma mudança;
 - `python manage.py auditar_integracoes`: zero divergências;

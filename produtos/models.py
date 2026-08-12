@@ -309,6 +309,38 @@ class ArquivoImportacaoCatalogo(models.Model):
         return self.nome_original
 
 
+class RecorteImportacaoCatalogo(models.Model):
+    class Tipo(models.TextChoices):
+        HERO = "hero", "Hero"
+        VARIACAO = "variacao", "Variação"
+
+    arquivo = models.ForeignKey(
+        ArquivoImportacaoCatalogo,
+        on_delete=models.CASCADE,
+        related_name="recortes",
+    )
+    tipo = models.CharField(max_length=20, choices=Tipo.choices)
+    indice = models.PositiveIntegerField(default=0)
+    imagem = models.ImageField(upload_to="importacoes_catalogo/recortes/%Y/%m/")
+    nome_cor = models.CharField(max_length=100, blank=True)
+    cor_hex = models.CharField(max_length=7, default="#6c757d")
+    texto_hex = models.CharField(max_length=7, default="#ffffff")
+    layout = models.JSONField(default=dict, blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["tipo", "indice", "id"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["arquivo", "tipo", "indice"],
+                name="recorte_catalogo_arquivo_tipo_indice_unico",
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.arquivo} - {self.tipo} {self.indice}"
+
+
 class ItemImportacaoCatalogo(models.Model):
     class Duplicidade(models.TextChoices):
         NENHUMA = "nenhuma", "Nenhuma"
