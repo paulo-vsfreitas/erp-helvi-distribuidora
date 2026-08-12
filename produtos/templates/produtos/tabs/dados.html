@@ -23,6 +23,14 @@
             </div>
 
             <div class="form-group">
+                <label for="{{ form.fornecedor.id_for_label }}">
+                    Fornecedor principal
+                </label>
+                {{ form.fornecedor }}
+                {{ form.fornecedor.errors }}
+            </div>
+
+            <div class="form-group">
                 <label for="{{ form.codigo_fornecedor.id_for_label }}">
                     Código do fornecedor
                 </label>

@@ -38,7 +38,10 @@ urlpatterns = [
 
 ]
 
-if settings.DEBUG:
+if settings.DEBUG or getattr(settings, "APP_ENV", "production") in {"development", "staging"}:
+    # Em desenvolvimento e homologacao os uploads precisam ser servidos pelo
+    # proprio Django para permitir a conferencia visual de catalogos/produtos.
+    # Producao continua dependendo de storage/web server apropriado.
     urlpatterns += static(
         settings.MEDIA_URL,
         document_root=settings.MEDIA_ROOT,

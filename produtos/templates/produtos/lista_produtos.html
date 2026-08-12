@@ -17,13 +17,12 @@
 {% endif %}
 
 {% if pode_gerenciar_produtos %}
-<div class="d-flex justify-content-end mb-3">
-    <a
-        href="{% url 'produtos:importar_produtos' %}"
-        class="btn btn-outline-secondary"
-    >
-        <i class="bi bi-file-earmark-arrow-up"></i>
-        Importar Produtos
+<div class="d-flex justify-content-end gap-2 mb-3">
+    <a href="{% url 'produtos:importar_catalogo' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-images"></i> Importar Catálogo
+    </a>
+    <a href="{% url 'produtos:importar_produtos' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-file-earmark-spreadsheet"></i> Importar Excel/CSV
     </a>
 </div>
 {% endif %}

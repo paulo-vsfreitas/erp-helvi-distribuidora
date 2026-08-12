@@ -30,6 +30,7 @@ class ProdutoForm(forms.ModelForm):
         fields = [
             "categoria_comercial",
             "codigo",
+            "fornecedor",
             "codigo_fornecedor",
             "modelo",
             "marca",
@@ -57,6 +58,9 @@ class ProdutoForm(forms.ModelForm):
                     "class": "form-control",
                     "placeholder": "Ex: HV0001",
                 }
+            ),
+            "fornecedor": forms.Select(
+                attrs={"class": "form-select"}
             ),
             "codigo_fornecedor": forms.TextInput(
                 attrs={
@@ -127,6 +131,7 @@ class ProdutoForm(forms.ModelForm):
         labels = {
             "categoria_comercial": "Categoria Comercial",
             "codigo": "Código",
+            "fornecedor": "Fornecedor principal",
             "codigo_fornecedor": "Código do fornecedor",
             "modelo": "Modelo",
             "marca": "Marca",
@@ -214,6 +219,22 @@ class ProdutoForm(forms.ModelForm):
                 "O preço de venda não deve ser menor que o preço de custo.",
             )
 
+        fornecedor = cleaned_data.get("fornecedor")
+        codigo_fornecedor = cleaned_data.get("codigo_fornecedor")
+
+        if fornecedor and codigo_fornecedor:
+            duplicado = Produto.objects.filter(
+                fornecedor=fornecedor,
+                codigo_fornecedor__iexact=codigo_fornecedor,
+            )
+            if self.instance.pk:
+                duplicado = duplicado.exclude(pk=self.instance.pk)
+            if duplicado.exists():
+                self.add_error(
+                    "codigo_fornecedor",
+                    "Este código já está cadastrado para o fornecedor selecionado.",
+                )
+
         # Categoria comercial
         categoria = cleaned_data.get("categoria_comercial")
 
@@ -298,10 +319,25 @@ class BaseVariacaoCorFormSet(BaseInlineFormSet):
         codigos = set()
 
         for form in self.forms:
-            if (
-                not hasattr(form, "cleaned_data")
-                or form.cleaned_data.get("DELETE")
-            ):
+            if not hasattr(form, "cleaned_data"):
+                continue
+
+            if form.cleaned_data.get("DELETE"):
+                variacao = form.instance
+                if (
+                    variacao.pk
+                    and (
+                        variacao.movimentacoes_estoque.exists()
+                        or variacao.itens_orcamento.exists()
+                        or variacao.itens_venda.exists()
+                        or variacao.itens_inventario.exists()
+                    )
+                ):
+                    form.add_error(
+                        None,
+                        "Esta variação possui histórico e não pode ser removida. "
+                        "Mantenha-a cadastrada para preservar a rastreabilidade.",
+                    )
                 continue
 
             codigo = form.cleaned_data.get("codigo")

@@ -28,6 +28,7 @@ def lista_produtos(request):
             "colecao",
             "genero",
             "tipo_armacao",
+            "fornecedor",
         )
         .all()
         .order_by(
@@ -50,6 +51,8 @@ def lista_produtos(request):
         produtos = produtos.filter(
             Q(codigo__icontains=busca)
             | Q(codigo_fornecedor__icontains=busca)
+            | Q(fornecedor__razao_social__icontains=busca)
+            | Q(fornecedor__nome_fantasia__icontains=busca)
             | Q(modelo__icontains=busca)
             | Q(marca__nome__icontains=busca)
             | Q(colecao__nome__icontains=busca)
@@ -87,7 +90,7 @@ def novo_produto(request):
 
         formset = VariacaoCorFormSet(request.POST, prefix="cores")
         if form.is_valid() and formset.is_valid():
-            salvar_produto_com_cores(form, formset)
+            salvar_produto_com_cores(form, formset, usuario=request.user)
             messages.success(request, "Produto cadastrado com sucesso.")
             return redirect("produtos:lista_produtos")
     else:
@@ -115,7 +118,7 @@ def editar_produto(request, produto_id):
 
         formset = VariacaoCorFormSet(request.POST, instance=produto, prefix="cores")
         if form.is_valid() and formset.is_valid():
-            salvar_produto_com_cores(form, formset)
+            salvar_produto_com_cores(form, formset, usuario=request.user)
             messages.success(request, "Produto atualizado com sucesso.")
             return redirect("produtos:lista_produtos")
     else:

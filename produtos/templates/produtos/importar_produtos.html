@@ -6,6 +6,8 @@
 
 {% include "components/layout/page_header.html" with titulo="Importar Produtos" subtitulo="Cadastre vários produtos e suas variações a partir de uma planilha." %}
 
+<div class="d-flex justify-content-end mb-3"><a href="{% url 'produtos:importar_catalogo' %}" class="btn btn-outline-secondary"><i class="bi bi-images"></i> Importar PDF / Imagens</a></div>
+
 <div class="card mb-4">
     <div class="card-body">
         <h5 class="card-title">

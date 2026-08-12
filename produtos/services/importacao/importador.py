@@ -80,7 +80,7 @@ def _agrupar_linhas(linhas):
     return grupos
 
 
-def _validar_produto_existente(linha):
+def _validar_produto_existente(linha, *, fornecedor=None):
     codigo = (
         linha.get("codigo")
         or ""
@@ -101,16 +101,23 @@ def _validar_produto_existente(linha):
             f"O Código ERP {codigo!r} já está cadastrado."
         )
 
-    if (
-        codigo_fornecedor
-        and Produto.objects.filter(
+    if codigo_fornecedor:
+        consulta = Produto.objects.filter(
             codigo_fornecedor__iexact=codigo_fornecedor
-        ).exists()
-    ):
-        raise ErroImportacaoProdutos(
-            "O Código do fornecedor "
-            f"{codigo_fornecedor!r} já está cadastrado."
         )
+        if fornecedor is not None:
+            consulta = consulta.filter(fornecedor=fornecedor)
+
+        if consulta.exists():
+            contexto = (
+                f" para {fornecedor}"
+                if fornecedor is not None
+                else ""
+            )
+            raise ErroImportacaoProdutos(
+                "O Código do fornecedor "
+                f"{codigo_fornecedor!r}{contexto} já está cadastrado."
+            )
 
 
 def _validar_consistencia_grupo(linhas):
@@ -141,36 +148,48 @@ def _validar_consistencia_grupo(linhas):
                 )
 
 
-def _criar_produto_base(linha):
+def _criar_produto_base(
+    linha,
+    *,
+    fornecedor=None,
+    criar_referencias_catalogo=True,
+    tipo_armacao_padrao=None,
+):
     categoria = linha["categoria_comercial"]
 
-    marca = _buscar_ou_criar_referencia(
-        Marca,
-        linha.get("marca"),
-    )
-
-    colecao = _buscar_ou_criar_referencia(
-        Colecao,
-        linha.get("colecao"),
-    )
+    if criar_referencias_catalogo:
+        marca = _buscar_ou_criar_referencia(
+            Marca,
+            linha.get("marca"),
+        )
+        colecao = _buscar_ou_criar_referencia(
+            Colecao,
+            linha.get("colecao"),
+        )
+    else:
+        marca = None
+        colecao = None
 
     genero = None
     tipo_armacao = None
 
     if categoria == "armacao":
-        genero = _buscar_ou_criar_referencia(
-            Genero,
-            linha.get("genero"),
-        )
-
-        tipo_armacao = _buscar_ou_criar_referencia(
-            TipoArmacao,
-            linha.get("tipo_armacao"),
-        )
+        if criar_referencias_catalogo:
+            genero = _buscar_ou_criar_referencia(
+                Genero,
+                linha.get("genero"),
+            )
+            tipo_armacao = _buscar_ou_criar_referencia(
+                TipoArmacao,
+                linha.get("tipo_armacao"),
+            )
+        else:
+            tipo_armacao = tipo_armacao_padrao
 
     produto = Produto.objects.create(
         categoria_comercial=categoria,
         codigo=linha.get("codigo") or None,
+        fornecedor=fornecedor,
         codigo_fornecedor=(
             linha.get("codigo_fornecedor")
             or None
@@ -263,6 +282,9 @@ def importar_produtos(
     *,
     linhas,
     usuario=None,
+    fornecedor=None,
+    criar_referencias_catalogo=True,
+    tipo_armacao_padrao=None,
 ):
     simulacao = simular_importacao_produtos(
         linhas
@@ -288,11 +310,15 @@ def importar_produtos(
         primeira = linhas_produto[0]
 
         _validar_produto_existente(
-            primeira
+            primeira,
+            fornecedor=fornecedor,
         )
 
         produto = _criar_produto_base(
-            primeira
+            primeira,
+            fornecedor=fornecedor,
+            criar_referencias_catalogo=criar_referencias_catalogo,
+            tipo_armacao_padrao=tipo_armacao_padrao,
         )
 
         produtos_criados += 1

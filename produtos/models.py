@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 
 from catalogo.models import Colecao, Genero, Marca, TipoArmacao
@@ -22,6 +23,15 @@ class Produto(models.Model):
         blank=True,
         null=True,
         verbose_name="Código",
+    )
+
+    fornecedor = models.ForeignKey(
+        Fornecedor,
+        on_delete=models.SET_NULL,
+        related_name="produtos",
+        blank=True,
+        null=True,
+        verbose_name="Fornecedor principal",
     )
 
     codigo_fornecedor = models.CharField(
@@ -145,6 +155,15 @@ class Produto(models.Model):
                 condition=models.Q(estoque_minimo__gte=0),
                 name="produto_estoque_minimo_nao_negativo",
             ),
+            models.UniqueConstraint(
+                fields=["fornecedor", "codigo_fornecedor"],
+                condition=(
+                    models.Q(fornecedor__isnull=False)
+                    & models.Q(codigo_fornecedor__isnull=False)
+                    & ~models.Q(codigo_fornecedor="")
+                ),
+                name="produto_fornecedor_codigo_fornecedor_unico",
+            ),
         ]
 
     def __str__(self):
@@ -237,3 +256,104 @@ class ImagemProduto(models.Model):
 
     def __str__(self):
         return f"Imagem de {self.produto}"
+
+
+class ImportacaoCatalogo(models.Model):
+    class Status(models.TextChoices):
+        RASCUNHO = "rascunho", "Rascunho"
+        ANALISADO = "analisado", "Analisado"
+        IMPORTADO = "importado", "Importado"
+        CANCELADO = "cancelado", "Cancelado"
+
+    fornecedor = models.ForeignKey(
+        Fornecedor, on_delete=models.PROTECT, related_name="importacoes_catalogo"
+    )
+    tipo_armacao = models.ForeignKey(
+        TipoArmacao, on_delete=models.PROTECT, related_name="importacoes_catalogo"
+    )
+    preco_custo_padrao = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    preco_venda_padrao = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    estoque_inicial_padrao = models.PositiveIntegerField(default=1)
+    estoque_minimo_padrao = models.PositiveIntegerField(default=0)
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.RASCUNHO)
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="importacoes_catalogo_produtos"
+    )
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+    confirmado_em = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-criado_em"]
+
+    def __str__(self):
+        return f"Catálogo #{self.pk} - {self.fornecedor}"
+
+
+class ArquivoImportacaoCatalogo(models.Model):
+    class Tipo(models.TextChoices):
+        PDF = "pdf", "PDF"
+        IMAGEM = "imagem", "Imagem"
+
+    lote = models.ForeignKey(ImportacaoCatalogo, on_delete=models.CASCADE, related_name="arquivos")
+    arquivo = models.FileField(upload_to="importacoes_catalogo/%Y/%m/")
+    preview = models.ImageField(upload_to="importacoes_catalogo/previews/%Y/%m/", blank=True, null=True)
+    nome_original = models.CharField(max_length=255)
+    tipo = models.CharField(max_length=20, choices=Tipo.choices)
+    texto_extraido = models.TextField(blank=True)
+    aviso_analise = models.TextField(blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.nome_original
+
+
+class ItemImportacaoCatalogo(models.Model):
+    class Duplicidade(models.TextChoices):
+        NENHUMA = "nenhuma", "Nenhuma"
+        POSSIVEL = "possivel", "Possível"
+        EXATA = "exata", "Exata"
+
+    lote = models.ForeignKey(ImportacaoCatalogo, on_delete=models.CASCADE, related_name="itens")
+    arquivos = models.ManyToManyField(ArquivoImportacaoCatalogo, related_name="itens", blank=True)
+    arquivo_principal = models.ForeignKey(
+        ArquivoImportacaoCatalogo, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="itens_como_principal"
+    )
+    codigo_fornecedor = models.CharField(max_length=80, blank=True)
+    modelo = models.CharField(max_length=100, blank=True)
+    preco_custo = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    preco_venda = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    estoque_minimo = models.PositiveIntegerField(default=0)
+    estoque_sem_variacao = models.PositiveIntegerField(default=0)
+    incluir = models.BooleanField(default=True)
+    duplicidade = models.CharField(
+        max_length=20, choices=Duplicidade.choices, default=Duplicidade.NENHUMA
+    )
+    produto_duplicado = models.ForeignKey(
+        Produto, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="sugestoes_importacao_catalogo"
+    )
+    observacoes = models.TextField(blank=True)
+    ordem = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["ordem", "id"]
+
+    def __str__(self):
+        return self.codigo_fornecedor or self.modelo or f"Item #{self.pk}"
+
+
+class VariacaoImportacaoCatalogo(models.Model):
+    item = models.ForeignKey(ItemImportacaoCatalogo, on_delete=models.CASCADE, related_name="variacoes")
+    nome = models.CharField(max_length=100, blank=True)
+    codigo = models.CharField(max_length=50, blank=True)
+    estoque = models.PositiveIntegerField(default=0)
+    ordem = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["ordem", "id"]
+
+    def __str__(self):
+        return self.codigo or self.nome or f"Variação #{self.pk}"

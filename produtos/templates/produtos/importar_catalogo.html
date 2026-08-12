@@ -1,0 +1,73 @@
+{% extends "core/base.html" %}
+
+{% block title %}Importar Catálogo | ERP Helvi{% endblock %}
+
+{% block content %}
+{% include "components/layout/page_header.html" with titulo="Importar Catálogo de Produtos" subtitulo="Analise PDF e imagens, confira as sugestões e só então grave os produtos." %}
+
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+            <div>
+                <h5 class="card-title mb-2"><i class="bi bi-images"></i> Novo lote de catálogo</h5>
+                <p class="text-muted mb-0">Os dados abaixo serão aplicados como padrão ao lote. A leitura automática cria apenas uma prévia editável.</p>
+            </div>
+            <span class="badge bg-warning text-dark"><i class="bi bi-shield-check"></i> Nada é cadastrado automaticamente</span>
+        </div>
+    </div>
+</div>
+
+<form method="post" enctype="multipart/form-data" novalidate class="card">
+    <div class="card-body">
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label" for="{{ form.fornecedor.id_for_label }}">{{ form.fornecedor.label }}</label>
+                {{ form.fornecedor }}
+                {% for erro in form.fornecedor.errors %}<div class="text-danger small mt-1">{{ erro }}</div>{% endfor %}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="{{ form.tipo_armacao.id_for_label }}">{{ form.tipo_armacao.label }}</label>
+                {{ form.tipo_armacao }}
+                {% for erro in form.tipo_armacao.errors %}<div class="text-danger small mt-1">{{ erro }}</div>{% endfor %}
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" for="{{ form.preco_custo.id_for_label }}">{{ form.preco_custo.label }}</label>
+                {{ form.preco_custo }}
+                {% for erro in form.preco_custo.errors %}<div class="text-danger small mt-1">{{ erro }}</div>{% endfor %}
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" for="{{ form.preco_venda.id_for_label }}">{{ form.preco_venda.label }}</label>
+                {{ form.preco_venda }}
+                {% for erro in form.preco_venda.errors %}<div class="text-danger small mt-1">{{ erro }}</div>{% endfor %}
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" for="{{ form.estoque_inicial.id_for_label }}">{{ form.estoque_inicial.label }}</label>
+                {{ form.estoque_inicial }}
+                {% for erro in form.estoque_inicial.errors %}<div class="text-danger small mt-1">{{ erro }}</div>{% endfor %}
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" for="{{ form.estoque_minimo.id_for_label }}">{{ form.estoque_minimo.label }}</label>
+                {{ form.estoque_minimo }}
+                {% for erro in form.estoque_minimo.errors %}<div class="text-danger small mt-1">{{ erro }}</div>{% endfor %}
+            </div>
+            <div class="col-12">
+                <label class="form-label" for="{{ form.arquivos.id_for_label }}">{{ form.arquivos.label }}</label>
+                {{ form.arquivos }}
+                <div class="form-text">{{ form.arquivos.help_text }}</div>
+                {% for erro in form.arquivos.errors %}<div class="text-danger small mt-1">{{ erro }}</div>{% endfor %}
+            </div>
+        </div>
+
+        <div class="alert alert-info mt-4 mb-0">
+            <strong>Fluxo seguro:</strong> o ERP salva os arquivos em um lote temporário, analisa e sugere código/modelo/cores, apresenta a conferência e só cria Produto/VariacaoCor/Estoque após o botão de confirmação.
+        </div>
+    </div>
+    <div class="card-footer d-flex justify-content-between">
+        <a href="{% url 'produtos:lista_produtos' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Voltar</a>
+        <button class="btn btn-primary" type="submit"><i class="bi bi-stars"></i> Analisar arquivos</button>
+    </div>
+</form>
+{% endblock %}
