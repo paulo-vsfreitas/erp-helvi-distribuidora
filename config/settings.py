@@ -14,7 +14,6 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 from django.core.exceptions import ImproperlyConfigured
-from botocore.config import Config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -206,49 +205,31 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 SUPABASE_STORAGE_ENABLED = env_bool("SUPABASE_STORAGE_ENABLED", False)
 
+SUPABASE_URL = os.getenv("SUPABASE_URL", "").strip().rstrip("/")
+SUPABASE_SECRET_KEY = os.getenv("SUPABASE_SECRET_KEY", "").strip()
 SUPABASE_STORAGE_BUCKET = os.getenv("SUPABASE_STORAGE_BUCKET", "").strip()
-SUPABASE_STORAGE_ENDPOINT = os.getenv("SUPABASE_STORAGE_ENDPOINT", "").strip()
-SUPABASE_STORAGE_REGION = os.getenv("SUPABASE_STORAGE_REGION", "").strip()
-SUPABASE_STORAGE_ACCESS_KEY_ID = os.getenv("SUPABASE_STORAGE_ACCESS_KEY_ID", "").strip()
-SUPABASE_STORAGE_SECRET_ACCESS_KEY = os.getenv("SUPABASE_STORAGE_SECRET_ACCESS_KEY", "").strip()
 SUPABASE_STORAGE_URL_EXPIRE = int(os.getenv("SUPABASE_STORAGE_URL_EXPIRE", "3600"))
 
 if SUPABASE_STORAGE_ENABLED:
     obrigatorias_storage = {
+        "SUPABASE_URL": SUPABASE_URL,
+        "SUPABASE_SECRET_KEY": SUPABASE_SECRET_KEY,
         "SUPABASE_STORAGE_BUCKET": SUPABASE_STORAGE_BUCKET,
-        "SUPABASE_STORAGE_ENDPOINT": SUPABASE_STORAGE_ENDPOINT,
-        "SUPABASE_STORAGE_REGION": SUPABASE_STORAGE_REGION,
-        "SUPABASE_STORAGE_ACCESS_KEY_ID": SUPABASE_STORAGE_ACCESS_KEY_ID,
-        "SUPABASE_STORAGE_SECRET_ACCESS_KEY": SUPABASE_STORAGE_SECRET_ACCESS_KEY,
     }
     ausentes_storage = [nome for nome, valor in obrigatorias_storage.items() if not valor]
     if ausentes_storage:
         raise ImproperlyConfigured(
-            "Supabase Storage habilitado, mas faltam variáveis: "
+            "Supabase Storage REST habilitado, mas faltam variáveis: "
             + ", ".join(ausentes_storage)
         )
 
     default_storage = {
-        "BACKEND": "config.storage.SupabaseS3Storage",
+        "BACKEND": "config.storage.SupabaseRESTStorage",
         "OPTIONS": {
-            "access_key": SUPABASE_STORAGE_ACCESS_KEY_ID,
-            "secret_key": SUPABASE_STORAGE_SECRET_ACCESS_KEY,
+            "project_url": SUPABASE_URL,
+            "secret_key": SUPABASE_SECRET_KEY,
             "bucket_name": SUPABASE_STORAGE_BUCKET,
-            "endpoint_url": SUPABASE_STORAGE_ENDPOINT,
-            "region_name": SUPABASE_STORAGE_REGION,
-            # Configuração explícita para endpoint S3 compatível do Supabase.
-            # Os SDKs AWS atuais ativam checksums automaticamente quando suportados;
-            # no endpoint compatível usamos apenas quando forem exigidos.
-            "client_config": Config(
-                signature_version="s3v4",
-                s3={"addressing_style": "path"},
-                request_checksum_calculation="when_required",
-                response_checksum_validation="when_required",
-            ),
-            # O bucket do ERP é privado; .url gera URL assinada temporária.
-            "querystring_auth": True,
-            "querystring_expire": SUPABASE_STORAGE_URL_EXPIRE,
-            "default_acl": None,
+            "signed_url_expire": SUPABASE_STORAGE_URL_EXPIRE,
         },
     }
 else:

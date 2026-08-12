@@ -66,17 +66,15 @@ Antes de alterar o projeto:
 ## Armazenamento de mídia
 
 O ERP usa o filesystem local (`media/`) quando `SUPABASE_STORAGE_ENABLED=False`.
-Em homologação/produção, pode usar Supabase Storage pelo protocolo S3 com bucket privado.
-As credenciais S3 devem existir apenas como variáveis de ambiente do servidor.
+Em homologação/produção, usa Supabase Storage pela API REST nativa com bucket privado.
+A Secret API Key deve existir apenas como variável de ambiente do servidor e nunca ser exposta ao navegador.
 
 Variáveis:
 
 - `SUPABASE_STORAGE_ENABLED`
+- `SUPABASE_URL`
+- `SUPABASE_SECRET_KEY` (somente backend; nunca versionar ou expor no navegador)
 - `SUPABASE_STORAGE_BUCKET`
-- `SUPABASE_STORAGE_ENDPOINT`
-- `SUPABASE_STORAGE_REGION`
-- `SUPABASE_STORAGE_ACCESS_KEY_ID`
-- `SUPABASE_STORAGE_SECRET_ACCESS_KEY`
 - `SUPABASE_STORAGE_URL_EXPIRE`
 
 Para validar a conexão sem deixar arquivo residual:

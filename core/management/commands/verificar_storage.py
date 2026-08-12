@@ -14,8 +14,8 @@ class Command(BaseCommand):
         self.stdout.write(f"Backend: {backend}")
         if getattr(settings, "SUPABASE_STORAGE_ENABLED", False):
             self.stdout.write(f"Bucket: {settings.SUPABASE_STORAGE_BUCKET}")
-            self.stdout.write(f"Endpoint: {settings.SUPABASE_STORAGE_ENDPOINT}")
-            self.stdout.write(f"Region: {settings.SUPABASE_STORAGE_REGION}")
+            self.stdout.write(f"Supabase URL: {settings.SUPABASE_URL}")
+            self.stdout.write("Transporte: REST nativo (sem S3)")
 
         nome = "_diagnosticos/helvi-storage-check.txt"
         salvo = None
