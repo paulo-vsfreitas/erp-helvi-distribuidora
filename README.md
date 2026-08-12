@@ -62,3 +62,25 @@ Antes de alterar o projeto:
 4. mantenha views finas e regras transacionais nos services;
 5. acrescente testes para a regra alterada;
 6. execute a auditoria e atualize a documentação no mesmo commit.
+
+## Armazenamento de mídia
+
+O ERP usa o filesystem local (`media/`) quando `SUPABASE_STORAGE_ENABLED=False`.
+Em homologação/produção, pode usar Supabase Storage pelo protocolo S3 com bucket privado.
+As credenciais S3 devem existir apenas como variáveis de ambiente do servidor.
+
+Variáveis:
+
+- `SUPABASE_STORAGE_ENABLED`
+- `SUPABASE_STORAGE_BUCKET`
+- `SUPABASE_STORAGE_ENDPOINT`
+- `SUPABASE_STORAGE_REGION`
+- `SUPABASE_STORAGE_ACCESS_KEY_ID`
+- `SUPABASE_STORAGE_SECRET_ACCESS_KEY`
+- `SUPABASE_STORAGE_URL_EXPIRE`
+
+Para validar a conexão sem deixar arquivo residual:
+
+```bash
+python manage.py verificar_storage
+```

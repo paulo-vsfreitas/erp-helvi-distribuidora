@@ -203,10 +203,56 @@ STATICFILES_DIRS = [
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-STORAGES = {
-    "default": {
+SUPABASE_STORAGE_ENABLED = env_bool("SUPABASE_STORAGE_ENABLED", False)
+
+SUPABASE_STORAGE_BUCKET = os.getenv("SUPABASE_STORAGE_BUCKET", "").strip()
+SUPABASE_STORAGE_ENDPOINT = os.getenv("SUPABASE_STORAGE_ENDPOINT", "").strip()
+SUPABASE_STORAGE_REGION = os.getenv("SUPABASE_STORAGE_REGION", "").strip()
+SUPABASE_STORAGE_ACCESS_KEY_ID = os.getenv("SUPABASE_STORAGE_ACCESS_KEY_ID", "").strip()
+SUPABASE_STORAGE_SECRET_ACCESS_KEY = os.getenv("SUPABASE_STORAGE_SECRET_ACCESS_KEY", "").strip()
+SUPABASE_STORAGE_URL_EXPIRE = int(os.getenv("SUPABASE_STORAGE_URL_EXPIRE", "3600"))
+
+if SUPABASE_STORAGE_ENABLED:
+    obrigatorias_storage = {
+        "SUPABASE_STORAGE_BUCKET": SUPABASE_STORAGE_BUCKET,
+        "SUPABASE_STORAGE_ENDPOINT": SUPABASE_STORAGE_ENDPOINT,
+        "SUPABASE_STORAGE_REGION": SUPABASE_STORAGE_REGION,
+        "SUPABASE_STORAGE_ACCESS_KEY_ID": SUPABASE_STORAGE_ACCESS_KEY_ID,
+        "SUPABASE_STORAGE_SECRET_ACCESS_KEY": SUPABASE_STORAGE_SECRET_ACCESS_KEY,
+    }
+    ausentes_storage = [nome for nome, valor in obrigatorias_storage.items() if not valor]
+    if ausentes_storage:
+        raise ImproperlyConfigured(
+            "Supabase Storage habilitado, mas faltam variáveis: "
+            + ", ".join(ausentes_storage)
+        )
+
+    default_storage = {
+        "BACKEND": "storages.backends.s3.S3Storage",
+        "OPTIONS": {
+            "access_key": SUPABASE_STORAGE_ACCESS_KEY_ID,
+            "secret_key": SUPABASE_STORAGE_SECRET_ACCESS_KEY,
+            "bucket_name": SUPABASE_STORAGE_BUCKET,
+            "endpoint_url": SUPABASE_STORAGE_ENDPOINT,
+            "region_name": SUPABASE_STORAGE_REGION,
+            # Supabase exige forcePathStyle=true nos clientes S3.
+            "addressing_style": "path",
+            "signature_version": "s3v4",
+            # O bucket do ERP é privado; .url gera URL assinada temporária.
+            "querystring_auth": True,
+            "querystring_expire": SUPABASE_STORAGE_URL_EXPIRE,
+            "default_acl": None,
+            # Não sobrescrever uploads com o mesmo nome.
+            "file_overwrite": False,
+        },
+    }
+else:
+    default_storage = {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
-    },
+    }
+
+STORAGES = {
+    "default": default_storage,
     "staticfiles": {
         "BACKEND": (
             "django.contrib.staticfiles.storage.StaticFilesStorage"

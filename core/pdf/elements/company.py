@@ -1,3 +1,5 @@
+from io import BytesIO
+
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.units import mm
 from reportlab.platypus import Image, Paragraph, Spacer, Table, TableStyle
@@ -23,7 +25,14 @@ def build_company():
 
     if empresa.logo:
         try:
-            logo = Image(empresa.logo.path)
+            empresa.logo.open("rb")
+            try:
+                logo_buffer = BytesIO(empresa.logo.read())
+            finally:
+                empresa.logo.close()
+            logo = Image(logo_buffer)
+            # Mantém o buffer vivo até o ReportLab finalizar a renderização.
+            logo._helvi_buffer = logo_buffer
             logo._restrictSize(37 * mm, 30 * mm)
         except Exception:
             logo = Spacer(37 * mm, 30 * mm)

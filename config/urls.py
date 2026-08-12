@@ -38,7 +38,10 @@ urlpatterns = [
 
 ]
 
-if settings.DEBUG or getattr(settings, "APP_ENV", "production") in {"development", "staging"}:
+if (
+    not getattr(settings, "SUPABASE_STORAGE_ENABLED", False)
+    and (settings.DEBUG or getattr(settings, "APP_ENV", "production") in {"development", "staging"})
+):
     # Em desenvolvimento e homologacao os uploads precisam ser servidos pelo
     # proprio Django para permitir a conferencia visual de catalogos/produtos.
     # Producao continua dependendo de storage/web server apropriado.

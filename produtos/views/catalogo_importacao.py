@@ -276,6 +276,15 @@ def visualizar_arquivo_catalogo(request, lote_id, arquivo_id):
     if not campo:
         raise Http404("Prévia deste arquivo não está disponível.")
 
+    # Para storage remoto privado, entregue a URL assinada diretamente ao
+    # navegador. Isso evita manter uma conexão S3 aberta dentro do worker do
+    # Render e reduz bastante o consumo de memória da aplicação.
+    try:
+        if getattr(campo.storage, "querystring_auth", False):
+            return redirect(campo.url)
+    except (OSError, ValueError):
+        pass
+
     try:
         campo.open("rb")
     except (FileNotFoundError, OSError, ValueError):

@@ -4,6 +4,7 @@ import shutil
 import subprocess
 import tempfile
 import colorsys
+from urllib.request import urlopen
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -24,12 +25,20 @@ def arquivo_local(campo_arquivo, *, sufixo=""):
     """Materializa um FieldFile em arquivo fechado, compatível com subprocessos no Windows."""
     with tempfile.TemporaryDirectory() as diretorio:
         caminho = Path(diretorio) / f"arquivo{sufixo or '.tmp'}"
-        campo_arquivo.open("rb")
         try:
-            with caminho.open("wb") as destino:
-                shutil.copyfileobj(campo_arquivo, destino)
-        finally:
-            campo_arquivo.close()
+            campo_arquivo.open("rb")
+            try:
+                with caminho.open("wb") as destino:
+                    shutil.copyfileobj(campo_arquivo, destino)
+            finally:
+                campo_arquivo.close()
+        except (FileNotFoundError, OSError, ValueError):
+            # Em storages S3 privados, alguns backends podem falhar ao abrir o
+            # objeto como arquivo após o upload, embora consigam gerar uma URL
+            # assinada válida. Usa essa URL como fallback sem depender de MEDIA_ROOT.
+            url = campo_arquivo.url
+            with urlopen(url, timeout=30) as origem, caminho.open("wb") as destino:
+                shutil.copyfileobj(origem, destino)
         # O arquivo precisa estar fechado antes de Tesseract/Poppler abrirem o caminho
         # no Windows; NamedTemporaryFile aberto pode bloquear acesso de subprocessos.
         yield str(caminho)
@@ -424,7 +433,7 @@ def _classificar_cor_regiao(imagem, caixa):
     razao_gb = g / max(b, 1)
     if r > g and r > b and razao_rg >= 1.12:
         if razao_rb >= 1.08:
-            if val < 0.36:
+            if val < 0.40:
                 return "Marrom escuro"
             if val < 0.62:
                 # Vermelho muito dominante e azul ainda presente tende a vinho;
@@ -505,7 +514,7 @@ def _cor_representativa_regiao(imagem, caixa):
     if nome == "Preto":
         nivel = max(24, min(54, round((r + g + b) / 3)))
         r = g = b = nivel
-    elif nome == "Grafite":
+    elif nome == "Preto claro":
         nivel = max(64, min(105, round((r + g + b) / 3)))
         r = g = b = nivel
 
