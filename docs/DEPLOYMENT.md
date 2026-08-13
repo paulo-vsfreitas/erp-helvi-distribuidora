@@ -104,10 +104,13 @@ Um backup nunca testado não atende ao critério da versão 1.0.
 ## Homologação gratuita no Render
 
 O arquivo `render.yaml` descreve o serviço de homologação conectado à branch
-`chore/ambiente-homologacao`. Credenciais do Supabase são cadastradas como
-variáveis secretas no painel e nunca entram no Git. O plano gratuito pode
-hibernar por inatividade e possui sistema de arquivos efêmero; por isso, uploads
-de homologação são descartáveis até a adoção de armazenamento externo.
+`homologacao`. O serviço usa a imagem definida no `Dockerfile`, com Python
+3.12.10, Tesseract em português/inglês e Poppler para OCR e leitura de PDFs.
+O build valida a presença de `tesseract`, `pdftotext` e `pdftoppm` antes de
+publicar. Credenciais do Supabase são cadastradas como variáveis secretas no
+painel e nunca entram no Git. O plano gratuito pode hibernar por inatividade e
+possui sistema de arquivos efêmero; a mídia persistente permanece no bucket
+privado do Supabase.
 
 ## Rollback
 

@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from django.contrib.auth import get_user_model
 from django.test import override_settings
 from django.template.loader import get_template
@@ -6,6 +8,26 @@ from django.urls import reverse
 
 from core.services.central_relatorios_service import montar_central_relatorios
 from produtos.models import Produto
+
+
+class RenderRuntimeTests(SimpleTestCase):
+    def test_runtime_de_homologacao_inclui_ocr_e_pdf(self):
+        raiz = Path(__file__).resolve().parent.parent
+        dockerfile = (raiz / "Dockerfile").read_text(encoding="utf-8")
+        blueprint = (raiz / "render.yaml").read_text(encoding="utf-8")
+
+        self.assertIn("runtime: docker", blueprint)
+        self.assertIn("dockerfilePath: ./Dockerfile", blueprint)
+        for pacote in (
+            "tesseract-ocr-por",
+            "tesseract-ocr-eng",
+            "poppler-utils",
+        ):
+            with self.subTest(pacote=pacote):
+                self.assertIn(pacote, dockerfile)
+        for executavel in ("tesseract", "pdftotext", "pdftoppm"):
+            with self.subTest(executavel=executavel):
+                self.assertIn(f"command -v {executavel}", dockerfile)
 
 
 class HelviUITemplateTests(SimpleTestCase):

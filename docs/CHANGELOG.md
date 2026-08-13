@@ -1,5 +1,12 @@
 # Changelog do ERP Helvi
 
+## 13/08/2026 — Runtime de OCR na homologação
+
+- homologação passa a usar uma imagem Docker reproduzível com Python 3.12.10;
+- Tesseract em português/inglês e Poppler passam a integrar o runtime online;
+- o build valida os binários de OCR/PDF e interrompe a publicação se faltar
+  alguma dependência nativa obrigatória.
+
 ## 12/08/2026 — OCR, cores e desempenho da importação de catálogos
 
 - códigos numéricos visíveis passam a tolerar espaçamento e confusões comuns

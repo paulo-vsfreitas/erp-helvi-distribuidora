@@ -17,6 +17,10 @@ A implementação atual usa ferramentas locais quando disponíveis:
 - `pdftotext` para texto nativo de PDF;
 - `pdftoppm` para gerar preview da primeira página e permitir OCR de PDF digitalizado.
 
+Na homologação Render, essas ferramentas são instaladas pelo `Dockerfile`. O
+build deve falhar se Tesseract (incluindo o idioma `por`) ou Poppler não estiver
+disponível, evitando publicar o OCR parcialmente funcional.
+
 Se alguma ferramenta não estiver instalada, o lote continua disponível e a conferência manual permanece funcional. A saída da leitura é sempre tratada como sugestão.
 
 ## Regras preservadas

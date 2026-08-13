@@ -1,0 +1,22 @@
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+.venv
+venv
+__pycache__
+*.py[cod]
+*.log
+*.sqlite3
+*.sqlite3-journal
+backups
+media
+staticfiles
+imagens fora
+.agents
+.codex
+.idea
+.vscode
+Thumbs.db
+.DS_Store
