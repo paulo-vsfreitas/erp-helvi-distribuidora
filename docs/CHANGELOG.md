@@ -10,6 +10,8 @@
   que uma referência antiga do Blueprint interrompa uploads de mídia.
 - Gunicorn passa a usar um worker com duas threads, timeout de cinco minutos e
   reciclagem preventiva, reduzindo estouros de memória e abortos durante OCR.
+- URLs assinadas do Supabase aceitam respostas com ou sem o prefixo
+  `/storage/v1`, evitando caminhos duplicados e imagens quebradas.
 
 ## 12/08/2026 — OCR, cores e desempenho da importação de catálogos
 

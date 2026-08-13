@@ -239,4 +239,7 @@ class SupabaseRESTStorage(Storage):
             raise SupabaseStorageError("Supabase Storage não retornou uma URL assinada.")
         if signed.startswith("http://") or signed.startswith("https://"):
             return signed
-        return f"{self.api_url}{signed if signed.startswith('/') else '/' + signed}"
+        caminho = "/" + signed.lstrip("/")
+        if caminho.startswith("/storage/v1/"):
+            return f"{self.project_url}{caminho}"
+        return f"{self.api_url}{caminho}"

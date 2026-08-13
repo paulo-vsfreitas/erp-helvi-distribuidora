@@ -8,6 +8,7 @@ from django.urls import reverse
 
 from core.services.central_relatorios_service import montar_central_relatorios
 from produtos.models import Produto
+from config.storage import SupabaseRESTStorage
 
 
 class RenderRuntimeTests(SimpleTestCase):
@@ -31,6 +32,35 @@ class RenderRuntimeTests(SimpleTestCase):
         for executavel in ("tesseract", "pdftotext", "pdftoppm"):
             with self.subTest(executavel=executavel):
                 self.assertIn(f"command -v {executavel}", dockerfile)
+
+
+class SupabaseStorageTests(SimpleTestCase):
+    def setUp(self):
+        self.storage = SupabaseRESTStorage(
+            project_url="https://projeto.supabase.co",
+            secret_key="segredo",
+            bucket_name="privado",
+        )
+
+    def test_url_assinada_com_prefixo_storage_nao_duplica_api(self):
+        self.storage._request_json = lambda *args, **kwargs: {
+            "signedURL": "/storage/v1/object/sign/privado/foto.jpg?token=abc"
+        }
+
+        self.assertEqual(
+            self.storage.url("foto.jpg"),
+            "https://projeto.supabase.co/storage/v1/object/sign/privado/foto.jpg?token=abc",
+        )
+
+    def test_url_assinada_com_prefixo_object_recebe_api(self):
+        self.storage._request_json = lambda *args, **kwargs: {
+            "signedURL": "/object/sign/privado/foto.jpg?token=abc"
+        }
+
+        self.assertEqual(
+            self.storage.url("foto.jpg"),
+            "https://projeto.supabase.co/storage/v1/object/sign/privado/foto.jpg?token=abc",
+        )
 
 
 class HelviUITemplateTests(SimpleTestCase):
