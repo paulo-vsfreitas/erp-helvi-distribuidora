@@ -34,4 +34,4 @@ USER django
 
 EXPOSE 10000
 
-CMD ["sh", "-c", "python manage.py migrate --noinput && exec gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-10000} --workers 2 --timeout 120"]
+CMD ["sh", "-c", "python manage.py migrate --noinput && exec gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-10000} --worker-class gthread --workers 1 --threads 2 --timeout 300 --graceful-timeout 30 --max-requests 250 --max-requests-jitter 25"]

@@ -8,6 +8,8 @@
   alguma dependência nativa obrigatória.
 - a URL do projeto Supabase passa a ser gerenciada no painel do Render, evitando
   que uma referência antiga do Blueprint interrompa uploads de mídia.
+- Gunicorn passa a usar um worker com duas threads, timeout de cinco minutos e
+  reciclagem preventiva, reduzindo estouros de memória e abortos durante OCR.
 
 ## 12/08/2026 — OCR, cores e desempenho da importação de catálogos
 

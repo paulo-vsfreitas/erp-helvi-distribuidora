@@ -112,6 +112,9 @@ gerenciadas no painel e nunca entram no Git nem são sobrescritas pelo Blueprint
 O plano gratuito pode hibernar por inatividade e
 possui sistema de arquivos efêmero; a mídia persistente permanece no bucket
 privado do Supabase.
+O Gunicorn usa um processo com duas threads para limitar memória no plano Free,
+mantendo concorrência mínima, timeout compatível com OCR em lote e reciclagem
+preventiva do worker.
 
 ## Rollback
 
