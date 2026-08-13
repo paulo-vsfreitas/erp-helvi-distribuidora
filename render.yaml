@@ -48,7 +48,7 @@ services:
       - key: SUPABASE_STORAGE_ENABLED
         value: "True"
       - key: SUPABASE_URL
-        value: https://rfinkojerahvyjcjeucb.supabase.co
+        sync: false
       - key: SUPABASE_SECRET_KEY
         sync: false
       - key: SUPABASE_STORAGE_BUCKET

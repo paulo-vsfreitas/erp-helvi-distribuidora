@@ -6,6 +6,8 @@
 - Tesseract em português/inglês e Poppler passam a integrar o runtime online;
 - o build valida os binários de OCR/PDF e interrompe a publicação se faltar
   alguma dependência nativa obrigatória.
+- a URL do projeto Supabase passa a ser gerenciada no painel do Render, evitando
+  que uma referência antiga do Blueprint interrompa uploads de mídia.
 
 ## 12/08/2026 — OCR, cores e desempenho da importação de catálogos
 

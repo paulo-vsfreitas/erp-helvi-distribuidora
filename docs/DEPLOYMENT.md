@@ -107,8 +107,9 @@ O arquivo `render.yaml` descreve o serviço de homologação conectado à branch
 `homologacao`. O serviço usa a imagem definida no `Dockerfile`, com Python
 3.12.10, Tesseract em português/inglês e Poppler para OCR e leitura de PDFs.
 O build valida a presença de `tesseract`, `pdftotext` e `pdftoppm` antes de
-publicar. Credenciais do Supabase são cadastradas como variáveis secretas no
-painel e nunca entram no Git. O plano gratuito pode hibernar por inatividade e
+publicar. URL, credenciais e chaves do Supabase são cadastradas como variáveis
+gerenciadas no painel e nunca entram no Git nem são sobrescritas pelo Blueprint.
+O plano gratuito pode hibernar por inatividade e
 possui sistema de arquivos efêmero; a mídia persistente permanece no bucket
 privado do Supabase.
 

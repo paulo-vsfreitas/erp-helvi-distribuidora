@@ -18,6 +18,7 @@ class RenderRuntimeTests(SimpleTestCase):
 
         self.assertIn("runtime: docker", blueprint)
         self.assertIn("dockerfilePath: ./Dockerfile", blueprint)
+        self.assertIn("- key: SUPABASE_URL\n        sync: false", blueprint)
         for pacote in (
             "tesseract-ocr-por",
             "tesseract-ocr-eng",
