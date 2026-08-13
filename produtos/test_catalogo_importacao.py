@@ -577,16 +577,24 @@ class CatalogoStagingTests(BaseCatalogoTest):
         self.client.force_login(self.usuario)
 
         with override_settings(DEBUG=False):
-            foto = self.client.get(
-                reverse("produtos:visualizar_foto_produto", args=[produto.pk])
-            )
-            galeria = self.client.get(
-                reverse("produtos:visualizar_imagem_produto", args=[imagem.pk])
-            )
+            with patch.object(
+                produto.foto.storage, "querystring_auth", True, create=True
+            ), patch.object(
+                produto.foto.storage,
+                "url",
+                side_effect=AssertionError("A mídia privada não deve redirecionar."),
+            ):
+                foto = self.client.get(
+                    reverse("produtos:visualizar_foto_produto", args=[produto.pk])
+                )
+                galeria = self.client.get(
+                    reverse("produtos:visualizar_imagem_produto", args=[imagem.pk])
+                )
             lista = self.client.get(reverse("produtos:lista_produtos"))
 
         self.assertEqual(foto.status_code, 200)
         self.assertTrue(foto["Content-Type"].startswith("image/"))
+        self.assertEqual(foto["Cache-Control"], "private, max-age=300")
         self.assertEqual(galeria.status_code, 200)
         self.assertContains(
             lista,
@@ -601,6 +609,9 @@ class CatalogoStagingTests(BaseCatalogoTest):
         )
         self.assertContains(ficha, 'class="hui-image-gallery"')
         self.assertContains(ficha, "width:160px!important")
+        self.assertContains(ficha, 'class="ficha-grid ficha-grid--financeiro"')
+        self.assertContains(ficha, 'class="ficha-grid ficha-grid--estoque"')
+        self.assertContains(ficha, 'class="ficha-info-item ficha-info-item--situacao"')
 
     def test_duplicidade_exata_mesmo_fornecedor_bloqueia_confirmacao(self):
         Produto.objects.create(

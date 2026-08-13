@@ -6,7 +6,7 @@ Atualizado em **13/08/2026**.
 
 O ERP Helvi está em **release candidate 1.0**. Os fluxos essenciais funcionam de
 ponta a ponta, as telas principais compartilham o Helvi UI, as integrações
-críticas possuem auditoria e o pacote automatizado possui 178 testes aprovados.
+críticas possuem auditoria e o pacote automatizado possui 180 testes aprovados.
 
 A importação visual de catálogos processa Hero e variações uma única vez na
 análise/reanálise, mantém os recortes no storage privado e serve URLs assinadas
@@ -18,11 +18,14 @@ uploads, tráfego e latência de exibição.
 O OCR recorta previamente apenas a região de texto vermelho e limita o fallback
 geral; durante o envio, a análise reutiliza a cópia temporária recebida e evita
 baixar novamente cada original do Storage privado.
-As imagens confirmadas dos produtos são servidas pelo ERP no storage local e
-por URL assinada no Supabase privado, sem depender de `DEBUG` ou de `/media/`.
+As imagens confirmadas dos produtos são servidas pelo ERP com autenticação tanto
+no storage local quanto no Supabase privado, sem depender de `DEBUG`, de
+`/media/` ou de redirecionamento assinado no navegador.
 Na apresentação do produto, o Hero ou a primeira variação vira a foto principal
 otimizada; as miniaturas preservam o produto inteiro e a folha completa do
 fornecedor permanece disponível, contida na galeria e ampliável por clique.
+Os indicadores laterais de financeiro e estoque usam grade responsiva própria,
+preservando valores e badges em diferentes níveis de zoom.
 
 O código está pronto para a homologação de aceitação e para a preparação do
 ambiente definitivo. Publicação em produção ainda exige backup, configuração
@@ -46,7 +49,7 @@ itens/variações e peças.
 
 ## Validação registrada
 
-- `python manage.py test --keepdb`: **178 testes aprovados**;
+- `python manage.py test --keepdb`: **180 testes aprovados**;
 - `python manage.py check`: nenhum problema;
 - `python manage.py makemigrations --check --dry-run`: nenhuma mudança;
 - `python manage.py auditar_integracoes`: zero divergências;

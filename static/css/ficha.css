@@ -78,6 +78,27 @@
     margin: 0;
 }
 
+.hui-detail-side .ficha-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.hui-detail-side .ficha-info-item {
+    min-width: 0;
+}
+
+.hui-detail-side .ficha-info-item strong {
+    overflow-wrap: anywhere;
+}
+
+.hui-detail-side .ficha-grid--estoque .ficha-info-item--situacao {
+    grid-column: 1 / -1;
+}
+
+.hui-detail-side .ficha-info-item--situacao .badge {
+    max-width: 100%;
+    white-space: normal;
+}
+
 .ficha-section-title {
     margin-bottom: 18px;
 }
@@ -114,5 +135,9 @@
 
     .ficha-actions .btn {
         width: 100%;
+    }
+
+    .hui-detail-side .ficha-grid {
+        grid-template-columns: 1fr;
     }
 }

@@ -56,7 +56,7 @@
         <div class="hui-detail-side">
         <section class="card hui-detail-section hui-detail-section--direct">
                 <div class="ficha-section-title"><h3>Financeiro</h3><p>Custos, preço e margem.</p></div>
-                <div class="ficha-grid">
+                <div class="ficha-grid ficha-grid--financeiro">
                     <div class="ficha-info-item"><span>Preço de custo</span><strong>R$ {{ produto.preco_custo|floatformat:"2g" }}</strong></div>
                     <div class="ficha-info-item"><span>Preço de venda</span><strong>R$ {{ produto.preco_venda|floatformat:"2g" }}</strong></div>
                     <div class="ficha-info-item"><span>Lucro unitário</span><strong>R$ {{ produto.lucro_unitario|floatformat:"2g" }}</strong></div>
@@ -65,10 +65,10 @@
             </section>
         <section class="card hui-detail-section hui-detail-section--direct">
                 <div class="ficha-section-title"><h3>Estoque</h3><p>Disponibilidade atual do produto.</p></div>
-                <div class="ficha-grid">
+                <div class="ficha-grid ficha-grid--estoque">
                     <div class="ficha-info-item"><span>Estoque atual</span><strong>{{ produto.estoque_atual }}</strong></div>
                     <div class="ficha-info-item"><span>Estoque mínimo</span><strong>{{ produto.estoque_minimo }}</strong></div>
-                    <div class="ficha-info-item"><span>Situação</span><strong>{% if produto.estoque_atual == 0 %}<span class="badge bg-danger">Esgotado</span>{% elif produto.estoque_atual <= produto.estoque_minimo %}<span class="badge bg-warning text-dark">Estoque baixo</span>{% else %}<span class="badge bg-success">Estoque adequado</span>{% endif %}</strong></div>
+                    <div class="ficha-info-item ficha-info-item--situacao"><span>Situação</span><strong>{% if produto.estoque_atual == 0 %}<span class="badge bg-danger">Esgotado</span>{% elif produto.estoque_atual <= produto.estoque_minimo %}<span class="badge bg-warning text-dark">Estoque baixo</span>{% else %}<span class="badge bg-success">Estoque adequado</span>{% endif %}</strong></div>
                 </div>
             </section>
         </div>

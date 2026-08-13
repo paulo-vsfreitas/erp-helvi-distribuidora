@@ -1,5 +1,13 @@
 # Changelog do ERP Helvi
 
+## 13/08/2026 — Mídia definitiva e ficha responsiva de produtos
+
+- fotos principais e galeria privada passam pelo endpoint autenticado do ERP,
+  evitando falhas de redirecionamento assinado no navegador;
+- respostas de imagem recebem cache privado curto;
+- Financeiro e Estoque usam duas colunas responsivas, com o badge de situação
+  em uma linha segura nos diferentes níveis de zoom.
+
 ## 13/08/2026 — Runtime de OCR na homologação
 
 - homologação passa a usar uma imagem Docker reproduzível com Python 3.12.10;

@@ -3,7 +3,7 @@ from pathlib import Path
 
 from django.contrib.auth.decorators import login_required
 from django.http import FileResponse, Http404
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404
 
 from produtos.models import ImagemProduto, Produto
 
@@ -12,14 +12,14 @@ def _entregar_campo(campo):
     if not campo:
         raise Http404("Imagem não cadastrada.")
     try:
-        if getattr(campo.storage, "querystring_auth", False):
-            return redirect(campo.url)
         campo.open("rb")
     except (FileNotFoundError, OSError, ValueError):
         raise Http404("Imagem não encontrada no storage.")
 
     content_type = mimetypes.guess_type(Path(campo.name).name)[0] or "image/jpeg"
-    return FileResponse(campo, content_type=content_type)
+    response = FileResponse(campo, content_type=content_type)
+    response["Cache-Control"] = "private, max-age=300"
+    return response
 
 
 @login_required

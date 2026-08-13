@@ -68,12 +68,15 @@ Aplicação: `produtos`.
   cache curto de URLs assinadas reduzem o custo sem expor o storage privado;
 - o OCR trabalha sobre a região útil do texto vermelho e a requisição reutiliza
   o upload temporário para análise, sem download redundante do Storage;
-- fotos principais e galeria são entregues de forma compatível com storage
-  local privado e Supabase, inclusive após a confirmação da importação;
+- fotos principais e galeria são entregues pelo endpoint autenticado do ERP,
+  compatível com storage local privado e Supabase e sem depender de redirect no
+  navegador, inclusive após a confirmação da importação;
 - produtos importados usam Hero ou primeira variação como foto principal em
   destaque, preservando a imagem completa do catálogo na galeria;
 - miniaturas preservam a proporção do produto sem cortes laterais, enquanto a
   folha original do catálogo aparece contida na galeria e abre em tamanho real;
+- a ficha mantém financeiro e estoque legíveis em grade lateral responsiva,
+  inclusive com zoom ampliado e em telas estreitas;
 - reanálise substitui os recortes de staging e limpa os arquivos anteriores sem
   alterar a heurística visual, a confirmação definitiva ou o estoque por cor.
 
