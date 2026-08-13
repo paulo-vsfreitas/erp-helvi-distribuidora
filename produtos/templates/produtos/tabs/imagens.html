@@ -51,9 +51,9 @@
             {% for imagem in imagens %}
                 <tr>
                     <td>
-                        <a href="{{ imagem.imagem.url }}" target="_blank">
+                        <a href="{% url 'produtos:visualizar_imagem_produto' imagem.id %}" target="_blank">
                             <img
-                                src="{{ imagem.imagem.url }}"
+                                src="{% url 'produtos:visualizar_imagem_produto' imagem.id %}"
                                 alt="{{ imagem.descricao|default:produto.modelo }}"
                                 style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;"
                             >

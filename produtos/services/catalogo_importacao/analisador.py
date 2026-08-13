@@ -4,6 +4,7 @@ import shutil
 import subprocess
 import tempfile
 import colorsys
+import math
 from urllib.request import urlopen
 from contextlib import contextmanager
 from pathlib import Path
@@ -86,11 +87,16 @@ def localizar_tesseract():
     return None
 
 
-def _ocr_tesseract(tesseract, caminho, *, psm=11):
+def _ocr_tesseract(tesseract, caminho, *, psm=11, somente_codigo=False):
     comando = [tesseract, caminho, "stdout", "-l", "por+eng", "--psm", str(psm)]
+    if somente_codigo:
+        comando.extend(["-c", "tessedit_char_whitelist=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ- "])
     resultado = _executar(comando)
     if resultado is None:
-        resultado = _executar([tesseract, caminho, "stdout", "--psm", str(psm)])
+        comando = [tesseract, caminho, "stdout", "--psm", str(psm)]
+        if somente_codigo:
+            comando.extend(["-c", "tessedit_char_whitelist=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ- "])
+        resultado = _executar(comando)
     return resultado.stdout.strip() if resultado is not None else ""
 
 
@@ -105,7 +111,26 @@ def _mascara_texto_vermelho(caminho, destino):
             )
             luminosidade = vermelho.point(lambda valor: 255 if valor >= 105 else 0)
             mascara = ImageChops.multiply(predominancia, luminosidade)
-            ImageOps.invert(mascara).save(destino, format="PNG")
+            caixa = mascara.getbbox()
+            if not caixa:
+                return False
+            margem_x = max(12, round((caixa[2] - caixa[0]) * 0.08))
+            margem_y = max(8, round((caixa[3] - caixa[1]) * 0.18))
+            caixa = (
+                max(0, caixa[0] - margem_x),
+                max(0, caixa[1] - margem_y),
+                min(mascara.width, caixa[2] + margem_x),
+                min(mascara.height, caixa[3] + margem_y),
+            )
+            mascara = ImageOps.invert(mascara.crop(caixa))
+            if mascara.width < 900:
+                escala = min(3, max(1, round(900 / max(1, mascara.width))))
+                if escala > 1:
+                    mascara = mascara.resize(
+                        (mascara.width * escala, mascara.height * escala),
+                        Image.Resampling.NEAREST,
+                    )
+            mascara.save(destino, format="PNG", compress_level=1)
         return True
     except (OSError, ValueError):
         return False
@@ -132,12 +157,35 @@ def extrair_texto_imagem(caminho):
             "Instale o Tesseract-OCR ou configure TESSERACT_CMD e reanalise o lote.",
         )
 
-    texto_geral = _ocr_tesseract(tesseract, caminho, psm=11)
     texto_vermelho = ""
     with tempfile.TemporaryDirectory() as diretorio:
         processada = Path(diretorio) / "texto_vermelho.png"
         if _mascara_texto_vermelho(caminho, processada):
-            texto_vermelho = _ocr_tesseract(tesseract, str(processada), psm=11)
+            texto_vermelho = _ocr_tesseract(
+                tesseract,
+                str(processada),
+                psm=11,
+                somente_codigo=True,
+            )
+
+    # Nos catálogos visuais homologados, o código e a medida aparecem em
+    # vermelho. Quando o passe especializado já encontra um código confiável,
+    # evita um segundo processo Tesseract sobre a imagem inteira.
+    texto_geral = ""
+    if not _extrair_codigo_fornecedor(texto_vermelho):
+        with tempfile.TemporaryDirectory() as diretorio:
+            reduzida = Path(diretorio) / "ocr_geral.jpg"
+            try:
+                with Image.open(caminho).convert("RGB") as imagem:
+                    imagem.thumbnail(
+                        (1800, 1800),
+                        Image.Resampling.LANCZOS,
+                        reducing_gap=3.0,
+                    )
+                    imagem.save(reduzida, format="JPEG", quality=84, optimize=False)
+                texto_geral = _ocr_tesseract(tesseract, str(reduzida), psm=11)
+            except (OSError, ValueError):
+                texto_geral = _ocr_tesseract(tesseract, caminho, psm=11)
 
     texto = _combinar_textos(texto_vermelho, texto_geral)
     if not texto:
@@ -249,7 +297,7 @@ def _faixas_separadoras_horizontais(imagem):
         # fundo branco/cinza sem produto, e não deve dividir o mosaico.
         if 1 <= fim - indice <= limite_faixa:
             centro = (indice + fim - 1) // 2
-            if altura * 0.03 < centro < altura * 0.97:
+            if altura * 0.08 < centro < altura * 0.92:
                 faixas.append(centro)
         indice = fim
 
@@ -312,6 +360,32 @@ def detectar_quantidade_variacoes_imagem(caminho):
 
 
 
+def _resumir_amostras_cor(amostras):
+    if not amostras:
+        return None
+
+    total = sum(a[6] for a in amostras) or 1.0
+    r = sum(a[0] * a[6] for a in amostras) / total
+    g = sum(a[1] * a[6] for a in amostras) / total
+    b = sum(a[2] * a[6] for a in amostras) / total
+    sat = sum(a[4] * a[6] for a in amostras) / total
+    val = sum(a[5] * a[6] for a in amostras) / total
+    seno = sum(math.sin(2 * math.pi * a[3]) * a[6] for a in amostras)
+    cosseno = sum(math.cos(2 * math.pi * a[3]) * a[6] for a in amostras)
+    hue = (math.atan2(seno, cosseno) % (2 * math.pi)) / (2 * math.pi) if seno or cosseno else 0.0
+
+    return {
+        "r": r, "g": g, "b": b,
+        "h": hue, "s": sat, "v": val,
+        "escuros": sum(a[6] for a in amostras if a[5] < 0.36) / total,
+        "muito_escuros": sum(a[6] for a in amostras if a[5] < 0.25) / total,
+        "neutros": sum(a[6] for a in amostras if a[4] < 0.18) / total,
+        "quentes": sum(a[6] for a in amostras if (a[3] < 0.16 or a[3] > 0.96)) / total,
+        "azuis": sum(a[6] for a in amostras if 0.52 <= a[3] < 0.72) / total,
+        "roxos": sum(a[6] for a in amostras if 0.72 <= a[3] < 0.94) / total,
+    }
+
+
 def _estatisticas_cor_regiao(imagem, caixa):
     """Resume a cor útil da peça ignorando o fundo do catálogo.
 
@@ -331,7 +405,11 @@ def _estatisticas_cor_regiao(imagem, caixa):
     recorte.thumbnail((220, 150))
 
     amostras = []
-    for r, g, b in recorte.getdata():
+    superiores = []
+    inferiores = []
+    limite_superior = recorte.height / 3
+    limite_inferior = recorte.height * 2 / 3
+    for posicao, (r, g, b) in enumerate(recorte.getdata()):
         rf, gf, bf = r / 255.0, g / 255.0, b / 255.0
         h, sat, val = colorsys.rgb_to_hsv(rf, gf, bf)
         # Fundo branco/cinza claro e reflexos de estúdio.
@@ -347,49 +425,23 @@ def _estatisticas_cor_regiao(imagem, caixa):
         peso = max(0.10, sat) * max(0.18, 1.04 - val)
         if val < 0.45:
             peso *= 1.25
-        amostras.append((r, g, b, h, sat, val, peso))
+        amostra = (r, g, b, h, sat, val, peso)
+        amostras.append(amostra)
+        y = posicao // recorte.width
+        if y < limite_superior:
+            superiores.append(amostra)
+        elif y >= limite_inferior:
+            inferiores.append(amostra)
 
-    if not amostras:
-        return None
-
-    total = sum(a[6] for a in amostras) or 1.0
-    r = sum(a[0] * a[6] for a in amostras) / total
-    g = sum(a[1] * a[6] for a in amostras) / total
-    b = sum(a[2] * a[6] for a in amostras) / total
-    sat = sum(a[4] * a[6] for a in amostras) / total
-    val = sum(a[5] * a[6] for a in amostras) / total
-
-    import math
-    seno = sum(math.sin(2 * math.pi * a[3]) * a[6] for a in amostras)
-    cosseno = sum(math.cos(2 * math.pi * a[3]) * a[6] for a in amostras)
-    hue = (math.atan2(seno, cosseno) % (2 * math.pi)) / (2 * math.pi) if seno or cosseno else 0.0
-
-    escuros = sum(a[6] for a in amostras if a[5] < 0.36) / total
-    muito_escuros = sum(a[6] for a in amostras if a[5] < 0.25) / total
-    neutros = sum(a[6] for a in amostras if a[4] < 0.18) / total
-    quentes = sum(a[6] for a in amostras if (a[3] < 0.16 or a[3] > 0.96)) / total
-    azuis = sum(a[6] for a in amostras if 0.52 <= a[3] < 0.72) / total
-    roxos = sum(a[6] for a in amostras if 0.72 <= a[3] < 0.94) / total
-
-    return {
-        "r": r, "g": g, "b": b,
-        "h": hue, "s": sat, "v": val,
-        "escuros": escuros, "muito_escuros": muito_escuros,
-        "neutros": neutros, "quentes": quentes,
-        "azuis": azuis, "roxos": roxos,
-    }
+    resumo = _resumir_amostras_cor(amostras)
+    if resumo:
+        resumo["superior"] = _resumir_amostras_cor(superiores)
+        resumo["inferior"] = _resumir_amostras_cor(inferiores)
+    return resumo
 
 
-def _classificar_cor_regiao(imagem, caixa):
-    """Sugere a cor percebida da peça com regras calibradas para óculos.
-
-    A classificação prioriza a aparência que o usuário enxerga no catálogo,
-    não apenas o hue matemático. Isso é importante em lentes escuras: reflexos
-    frios podem tornar uma peça preta azulada no RGB, e tons terrosos podem
-    ganhar reflexos violetas. As regras abaixo tratam primeiro pastel/neutral,
-    famílias terrosas e luminosidade, deixando o matiz puro por último.
-    """
-    e = _estatisticas_cor_regiao(imagem, caixa)
+def _classificar_estatisticas_cor(e):
+    """Classifica estatísticas já calculadas, sem reler pixels da imagem."""
     if not e:
         return ""
 
@@ -497,9 +549,51 @@ def _classificar_cor_regiao(imagem, caixa):
         return "Rosa" if val > 0.60 else "Roxo"
     return ""
 
-def _cor_representativa_regiao(imagem, caixa):
+
+def _familia_cor(nome):
+    return (nome or "").replace(" escuro", "").replace(" claro", "")
+
+
+def _descricao_degrade(e, nome_base):
+    superior = e.get("superior")
+    inferior = e.get("inferior")
+    if not superior or not inferior:
+        return nome_base
+
+    nome_superior = _classificar_estatisticas_cor(superior)
+    nome_inferior = _classificar_estatisticas_cor(inferior)
+    familia_superior = _familia_cor(nome_superior)
+    familia_inferior = _familia_cor(nome_inferior)
+    diferenca_luz = abs(superior["v"] - inferior["v"])
+    cromatico = max(superior["s"], inferior["s"]) >= 0.18
+    familias_validas = {
+        "Azul", "Cinza", "Preto", "Marrom", "Rosa", "Roxo", "Dourado",
+        "Dourado / transparente", "Transparente",
+    }
+
+    neutro_degrade = {
+        familia_superior, familia_inferior
+    }.issubset({"Preto", "Cinza", "Transparente"})
+    if (not cromatico and not neutro_degrade) or diferenca_luz < 0.13:
+        return nome_base
+    if neutro_degrade:
+        return "Cinza degradê"
+    if familia_superior == familia_inferior and familia_superior in familias_validas:
+        return f"{familia_superior} degradê"
+    if familia_superior in familias_validas and familia_inferior in familias_validas:
+        return f"{familia_superior} / {familia_inferior} degradê"
+    return f"{_familia_cor(nome_base)} degradê" if nome_base else nome_base
+
+
+def _classificar_cor_regiao(imagem, caixa):
+    """Sugere a cor percebida, incluindo lentes com degradê vertical relevante."""
+    estatisticas = _estatisticas_cor_regiao(imagem, caixa)
+    nome = _classificar_estatisticas_cor(estatisticas)
+    return _descricao_degrade(estatisticas, nome) if estatisticas else ""
+
+def _cor_representativa_regiao(imagem, caixa, *, estatisticas=None, nome=None):
     """Retorna HEX representativo da peça e uma cor de texto legível."""
-    e = _estatisticas_cor_regiao(imagem, caixa)
+    e = estatisticas or _estatisticas_cor_regiao(imagem, caixa)
     if not e:
         return "#6c757d", "#ffffff"
 
@@ -510,7 +604,7 @@ def _cor_representativa_regiao(imagem, caixa):
     # Para peças classificadas como preto/grafite, neutraliza pequenas
     # dominâncias azuis/roxas causadas pelo reflexo do estúdio. O badge fica
     # visualmente mais fiel ao que o usuário enxerga na armação/lente.
-    nome = _classificar_cor_regiao(imagem, caixa)
+    nome = nome or _classificar_estatisticas_cor(e)
     if nome == "Preto":
         nivel = max(24, min(54, round((r + g + b) / 3)))
         r = g = b = nivel
@@ -526,84 +620,77 @@ def _cor_representativa_regiao(imagem, caixa):
     return hex_cor, texto
 
 
-def detectar_variacoes_visuais_imagem(caminho):
+def _detectar_variacoes_visuais(imagem, separadores, altura_reduzida):
     """Retorna regiões C1..Cn, posição do badge e sugestão de cor.
 
     Usa exatamente os mesmos layouts já homologados pelo contador visual, para
     manter quantidade e associação espacial sincronizadas.
     """
+    largura, altura = imagem.size
+    if largura < 100 or altura < 100 or not altura_reduzida:
+        return []
+    limites_reduzidos = [0, *separadores, altura_reduzida]
+    faixas_reduzidas = [
+        (limites_reduzidos[i], limites_reduzidos[i + 1])
+        for i in range(len(limites_reduzidos) - 1)
+        if limites_reduzidos[i + 1] - limites_reduzidos[i] > 0
+    ]
+    escala_y = altura / altura_reduzida
+    proporcao = largura / altura
+    variacoes = []
+
+    if proporcao >= 1.15 and 1 <= len(faixas_reduzidas) <= 20:
+        regioes = [
+            (indice, 0, int(inicio * escala_y), largura, int(fim * escala_y), [25, 75])
+            for indice, (inicio, fim) in enumerate(faixas_reduzidas, start=1)
+        ]
+    elif proporcao < 1.15 and len(faixas_reduzidas) >= 4:
+        inferiores = [fim - inicio for inicio, fim in faixas_reduzidas[1:]]
+        mediana = sorted(inferiores)[len(inferiores) // 2]
+        primeira = faixas_reduzidas[0][1] - faixas_reduzidas[0][0]
+        if not mediana or primeira < mediana * 1.45:
+            return []
+        regioes = []
+        indice = 1
+        for inicio_r, fim_r in faixas_reduzidas[1:]:
+            inicio, fim = int(inicio_r * escala_y), int(fim_r * escala_y)
+            for esq, dire, x in ((0, largura // 2, 25), (largura // 2, largura, 75)):
+                regioes.append((indice, esq, inicio, dire, fim, [x]))
+                indice += 1
+    else:
+        return []
+
+    for indice, esq, inicio, dire, fim, marcadores_x in regioes:
+        caixa = (esq, inicio, dire, fim)
+        estatisticas = _estatisticas_cor_regiao(imagem, caixa)
+        nome_base = _classificar_estatisticas_cor(estatisticas)
+        nome = _descricao_degrade(estatisticas, nome_base) if estatisticas else ""
+        cor_hex, texto_hex = _cor_representativa_regiao(
+            imagem, caixa, estatisticas=estatisticas, nome=nome_base
+        )
+        y = round(((inicio + fim) / 2) / altura * 100, 2)
+        variacoes.append({
+            "indice": indice, "nome": nome,
+            "cor_hex": cor_hex, "texto_hex": texto_hex,
+            "caixa": {
+                "x1": round(esq / largura * 100, 3),
+                "y1": round(inicio / altura * 100, 3),
+                "x2": round(dire / largura * 100, 3),
+                "y2": round(fim / altura * 100, 3),
+            },
+            "marcadores": [{"x": x, "y": y} for x in marcadores_x],
+        })
+    return variacoes if len(variacoes) <= 30 else []
+
+
+def detectar_variacoes_visuais_imagem(caminho):
     try:
         with Image.open(caminho) as origem:
             imagem = origem.convert("RGB")
-            largura, altura = imagem.size
-            if largura < 100 or altura < 100:
-                return []
-
             separadores, altura_reduzida = _faixas_separadoras_horizontais(imagem)
-            if not altura_reduzida:
-                return []
-            limites_reduzidos = [0, *separadores, altura_reduzida]
-            faixas_reduzidas = [
-                (limites_reduzidos[i], limites_reduzidos[i + 1])
-                for i in range(len(limites_reduzidos) - 1)
-                if limites_reduzidos[i + 1] - limites_reduzidos[i] > 0
-            ]
-            escala_y = altura / altura_reduzida
-            proporcao = largura / altura
-            variacoes = []
-
-            if proporcao >= 1.15 and 1 <= len(faixas_reduzidas) <= 20:
-                for indice, (inicio_r, fim_r) in enumerate(faixas_reduzidas, start=1):
-                    inicio, fim = int(inicio_r * escala_y), int(fim_r * escala_y)
-                    # A linha inteira é uma variação; as duas metades são vistas da mesma cor.
-                    caixa = (0, inicio, largura, fim)
-                    nome = _classificar_cor_regiao(imagem, caixa)
-                    cor_hex, texto_hex = _cor_representativa_regiao(imagem, caixa)
-                    y = round(((inicio + fim) / 2) / altura * 100, 2)
-                    variacoes.append({
-                        "indice": indice, "nome": nome,
-                        "cor_hex": cor_hex, "texto_hex": texto_hex,
-                        "caixa": {
-                            "x1": 0.0, "y1": round(inicio / altura * 100, 3),
-                            "x2": 100.0, "y2": round(fim / altura * 100, 3),
-                        },
-                        "marcadores": [
-                            {"x": 25, "y": y}, {"x": 75, "y": y},
-                        ],
-                    })
-                return variacoes
-
-            if proporcao < 1.15 and len(faixas_reduzidas) >= 4:
-                inferiores = [fim - inicio for inicio, fim in faixas_reduzidas[1:]]
-                ordenadas = sorted(inferiores)
-                mediana = ordenadas[len(ordenadas) // 2]
-                primeira = faixas_reduzidas[0][1] - faixas_reduzidas[0][0]
-                if mediana > 0 and primeira >= mediana * 1.45:
-                    indice = 1
-                    for inicio_r, fim_r in faixas_reduzidas[1:]:
-                        inicio, fim = int(inicio_r * escala_y), int(fim_r * escala_y)
-                        for coluna, (esq, dire) in enumerate(((0, largura // 2), (largura // 2, largura))):
-                            caixa = (esq, inicio, dire, fim)
-                            nome = _classificar_cor_regiao(imagem, caixa)
-                            cor_hex, texto_hex = _cor_representativa_regiao(imagem, caixa)
-                            x = 25 if coluna == 0 else 75
-                            y = round(((inicio + fim) / 2) / altura * 100, 2)
-                            variacoes.append({
-                                "indice": indice, "nome": nome,
-                                "cor_hex": cor_hex, "texto_hex": texto_hex,
-                                "caixa": {
-                                    "x1": round(esq / largura * 100, 3),
-                                    "y1": round(inicio / altura * 100, 3),
-                                    "x2": round(dire / largura * 100, 3),
-                                    "y2": round(fim / altura * 100, 3),
-                                },
-                                "marcadores": [{"x": x, "y": y}],
-                            })
-                            indice += 1
-                    return variacoes if len(variacoes) <= 30 else []
+            return _detectar_variacoes_visuais(imagem, separadores, altura_reduzida)
     except (OSError, ValueError):
         return []
-    return []
 
 def detectar_layout_visual_imagem(caminho):
     """Retorna hero (quando houver) e as regiões das variações para a UI."""
@@ -625,7 +712,12 @@ def detectar_layout_visual_imagem(caminho):
                     escala_y = altura / altura_reduzida
                     hero_fim = int(faixas[0][1] * escala_y)
                     hero = {"x1": 0.0, "y1": 0.0, "x2": 100.0, "y2": round(hero_fim / altura * 100, 3)}
-            return {"hero": hero, "variacoes": detectar_variacoes_visuais_imagem(caminho)}
+            return {
+                "hero": hero,
+                "variacoes": _detectar_variacoes_visuais(
+                    imagem, separadores, altura_reduzida
+                ),
+            }
     except (OSError, ValueError):
         return {"hero": None, "variacoes": []}
 
@@ -690,19 +782,61 @@ def _nome_arquivo_descritivo(nome_arquivo):
     return stem.replace("_", " ").strip()
 
 
+PADRAO_MEDIDA_OPTICA = re.compile(
+    r"(?<!\d)\d{2,3}\s*[-–—/]\s*\d{2,3}\s*[-–—/]\s*\d{2,3}(?!\d)"
+)
+
+
+def _normalizar_token_codigo(token):
+    """Corrige confusões usuais do OCR apenas em tokens predominantemente numéricos."""
+    compacto = re.sub(r"[^A-Z0-9-]", "", token.upper())
+    if not compacto or PADRAO_MEDIDA_OPTICA.fullmatch(compacto):
+        return ""
+
+    sem_hifen = compacto.replace("-", "")
+    quantidade_digitos = sum(caractere.isdigit() for caractere in sem_hifen)
+    if quantidade_digitos < 2:
+        return ""
+
+    mapa_ocr = str.maketrans({"O": "0", "I": "1", "L": "1"})
+    normalizado = sem_hifen.translate(mapa_ocr)
+    if re.fullmatch(r"\d{3,8}", normalizado):
+        return normalizado
+    if re.fullmatch(r"[A-Z]{1,4}\d{2,8}[A-Z]?", normalizado):
+        return normalizado
+    return ""
+
+
+def _extrair_codigo_fornecedor(base):
+    """Escolhe um identificador de produto sem aceitar medidas ópticas."""
+    sem_medidas = PADRAO_MEDIDA_OPTICA.sub(" ", base.upper())
+    candidatos = []
+    padrao_token = re.compile(
+        r"\b(?:[A-Z]{1,4}-?)?[0-9OIL]{3,8}[A-Z]?\b|"
+        r"(?<![A-Z0-9])(?:[0-9OIL]\s+){2,7}[0-9OIL](?![A-Z0-9])"
+    )
+    for ordem, token in enumerate(padrao_token.findall(sem_medidas)):
+        # Espaços inseridos entre algarismos pelo OCR não mudam o identificador.
+        normalizado = _normalizar_token_codigo(re.sub(r"(?<=\d)\s+(?=[\dOIL])", "", token))
+        if not normalizado:
+            continue
+        somente_numeros = normalizado.isdigit()
+        # Catálogos observados usam principalmente 4–6 dígitos. Prefixos
+        # alfanuméricos continuam aceitos, mas não superam um código numérico
+        # claro encontrado no texto vermelho.
+        tamanho_ideal = 4 <= len(normalizado) <= 6
+        pontuacao = (3 if somente_numeros else 2) + (2 if tamanho_ideal else 0) - ordem * 0.01
+        candidatos.append((pontuacao, normalizado))
+    return max(candidatos, default=(0, ""))[1]
+
+
 def sugerir_dados(texto, nome_arquivo=""):
     base = texto.strip()
     if not base:
         base = _nome_arquivo_descritivo(nome_arquivo)
     linhas = _limpar_linhas(base)
 
-    # Medidas ópticas (ex.: 60-14-142) não são código de fornecedor.
-    base_sem_medidas = re.sub(r"\b\d{2,3}\s*-\s*\d{2,3}\s*-\s*\d{2,3}\b", " ", base)
-    base_codigo = base_sem_medidas.upper()
-    base_codigo = re.sub(r"\bO(?=\d{2,7}\b)", "0", base_codigo)
-    candidatos = re.findall(r"\b(?:[A-Z]{1,4}[- ]?)?\d{3,8}[A-Z]?\b", base_codigo)
-    candidatos = [re.sub(r"\s+", "", valor) for valor in candidatos]
-    codigo = candidatos[0] if candidatos else ""
+    codigo = _extrair_codigo_fornecedor(base)
 
     # Prefere a linha que contém o código. Isso evita usar ruído do OCR como modelo.
     linha_modelo = ""
@@ -722,7 +856,7 @@ def sugerir_dados(texto, nome_arquivo=""):
         partes_codigo = ["[O0]" if caractere == "0" else re.escape(caractere) for caractere in codigo]
         padrao_codigo = "".join(partes_codigo)
         modelo = re.sub(padrao_codigo, "", modelo, count=1, flags=re.IGNORECASE).strip(" -–—:/")
-    modelo = re.sub(r"\b\d{2,3}\s*-\s*\d{2,3}\s*-\s*\d{2,3}\b", "", modelo).strip(" -–—:/")
+    modelo = PADRAO_MEDIDA_OPTICA.sub("", modelo).strip(" -–—:/")
     # Se sobrou somente pontuação/números, é mais seguro deixar em branco para revisão.
     if not re.search(r"[A-Za-zÀ-ÿ]", modelo):
         modelo = ""

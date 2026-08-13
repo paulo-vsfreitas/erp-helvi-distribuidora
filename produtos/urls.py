@@ -13,6 +13,7 @@ from .views.importacao import (
     baixar_modelo_importacao_produtos,
     importar_produtos,
 )
+from .views.media import visualizar_foto_produto, visualizar_imagem_produto
 from .views.produtos import (
     editar_produto,
     excluir_imagem_produto,
@@ -63,6 +64,8 @@ urlpatterns = [
 
     # Imagens
     path("<int:produto_id>/galeria/", galeria_produto, name="galeria_produto"),
+    path("<int:produto_id>/foto/", visualizar_foto_produto, name="visualizar_foto_produto"),
+    path("imagem/<int:imagem_id>/visualizar/", visualizar_imagem_produto, name="visualizar_imagem_produto"),
     path(
         "imagem/<int:imagem_id>/excluir/",
         excluir_imagem_produto,

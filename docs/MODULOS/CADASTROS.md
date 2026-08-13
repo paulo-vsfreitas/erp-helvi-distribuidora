@@ -60,6 +60,20 @@ Aplicação: `produtos`.
 - nome/descrição opcional nas variações de cor;
 - importação de catálogos com Hero e C1..Cn processados na análise, persistidos
   no storage privado e entregues por URL assinada durante a conferência;
+- OCR tolerante às confusões usuais em códigos numéricos, sem aceitar medidas
+  ópticas como identificador do produto;
+- classificação visual diferencia famílias cromáticas e lentes degradê por
+  zonas, mantendo todas as sugestões editáveis na conferência;
+- um JPEG visual dimensionado por arquivo, recortes CSS, carregamento tardio e
+  cache curto de URLs assinadas reduzem o custo sem expor o storage privado;
+- o OCR trabalha sobre a região útil do texto vermelho e a requisição reutiliza
+  o upload temporário para análise, sem download redundante do Storage;
+- fotos principais e galeria são entregues de forma compatível com storage
+  local privado e Supabase, inclusive após a confirmação da importação;
+- produtos importados usam Hero ou primeira variação como foto principal em
+  destaque, preservando a imagem completa do catálogo na galeria;
+- miniaturas preservam a proporção do produto sem cortes laterais, enquanto a
+  folha original do catálogo aparece contida na galeria e abre em tamanho real;
 - reanálise substitui os recortes de staging e limpa os arquivos anteriores sem
   alterar a heurística visual, a confirmação definitiva ou o estoque por cor.
 

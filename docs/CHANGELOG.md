@@ -1,5 +1,34 @@
 # Changelog do ERP Helvi
 
+## 12/08/2026 — OCR, cores e desempenho da importação de catálogos
+
+- códigos numéricos visíveis passam a tolerar espaçamento e confusões comuns
+  entre `0/O` e `1/I/L`, mantendo medidas ópticas fora do código do fornecedor;
+- classificação visual passa a comparar as zonas superior e inferior das
+  lentes e descreve degradês de azul, cinza, marrom, rosa e combinações úteis;
+- análise de layout e cor reutiliza a mesma imagem e as mesmas estatísticas;
+- Hero e variações reutilizam um único JPEG progressivo dimensionado por
+  arquivo, recortado por coordenadas no navegador; isso reduz CPU, memória e
+  os uploads ao Render/Supabase de até nove para um por catálogo;
+- miniaturas deixam de carregar o original quando existe recorte persistido e
+  URLs assinadas são reutilizadas por um cache curto, mantendo o bucket privado.
+- o endpoint transmite os recortes no storage local mesmo com `DEBUG=False` e
+  mantém redirect direto para URLs assinadas no Supabase privado;
+- fotos principais e imagens definitivas dos produtos usam endpoints próprios:
+  no storage local são transmitidas mesmo com `DEBUG=False` e, no Supabase,
+  seguem diretamente por URL assinada;
+- a confirmação gera uma foto principal otimizada a partir do Hero ou, quando
+  ele não existe, da primeira variação; o catálogo completo permanece na
+  galeria para conferência e auditoria;
+- miniaturas de produtos preservam a proporção horizontal do óculos sem cortes,
+  e as imagens completas do catálogo ficam contidas nos cartões da galeria;
+- o OCR especializado evita o segundo passe geral quando o código vermelho já
+  foi encontrado, e bordas externas deixam de interferir na detecção do Hero.
+- o passe especializado agora envia ao OCR somente a caixa de texto vermelho,
+  reduz o fallback geral e analisa a cópia temporária do upload sem baixá-la
+  novamente do Storage privado.
+- suíte automatizada ampliada para 174 testes aprovados.
+
 ## 12/08/2026 — Recortes persistidos na importação de catálogos
 
 - Hero e variações C1..Cn passam a ser gerados uma única vez durante a

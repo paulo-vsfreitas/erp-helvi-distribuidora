@@ -3,10 +3,11 @@ import tempfile
 from decimal import Decimal
 from io import BytesIO
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import patch, PropertyMock
 
 from PIL import Image
 from django.core.exceptions import ValidationError
+from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import IntegrityError, transaction
 from django.test import TestCase, override_settings
@@ -22,7 +23,10 @@ from produtos.models import (
     RecorteImportacaoCatalogo,
 )
 from produtos.services.catalogo_importacao import analisar_lote, confirmar_importacao, criar_lote
-from produtos.services.catalogo_importacao.service import processar_recursos_visuais
+from produtos.services.catalogo_importacao.service import (
+    criar_destaque_produto_importado,
+    processar_recursos_visuais,
+)
 from produtos.services.catalogo_importacao.analisador import (
     _classificar_cor_regiao,
     detectar_layout_visual_imagem,
@@ -131,6 +135,22 @@ class CatalogoAnalyzerTests(TestCase):
         sugestao = sugerir_dados("MB904\n60-14-142")
         self.assertEqual(sugestao["codigo_fornecedor"], "MB904")
 
+    def test_codigos_visiveis_do_catalogo_sao_extraidos(self):
+        for texto, esperado in (
+            ("90320", "90320"),
+            ("2216", "2216"),
+            ("24O23\n60-13-140", "24023"),
+            ("22402\n60–14–142", "22402"),
+            ("9 0 3 2 0", "90320"),
+        ):
+            with self.subTest(texto=texto):
+                self.assertEqual(sugerir_dados(texto)["codigo_fornecedor"], esperado)
+
+    def test_medida_isolada_nunca_vira_codigo(self):
+        for medida in ("60-13-140", "60 – 14 – 142", "60/14/142"):
+            with self.subTest(medida=medida):
+                self.assertEqual(sugerir_dados(medida)["codigo_fornecedor"], "")
+
     def test_polarizado_separa_descricao_do_codigo(self):
         sugestao = sugerir_dados("Polarizado 82044")
         self.assertEqual(sugestao["codigo_fornecedor"], "82044")
@@ -168,6 +188,21 @@ class CatalogoAnalyzerTests(TestCase):
             self.assertEqual(len(marcadores), 8)
             self.assertEqual([m["indice"] for m in marcadores], list(range(1, 9)))
             self.assertLess(marcadores[0]["x"], marcadores[1]["x"])
+
+    def test_detector_ignora_moldura_superior_antes_do_hero(self):
+        with tempfile.TemporaryDirectory() as diretorio:
+            caminho = Path(diretorio) / "catalogo-com-moldura.jpg"
+            imagem = Image.new("RGB", (450, 600), "white")
+            for y in (34, 210, 305, 400, 495):
+                for linha in range(y, y + 5):
+                    for x in range(450):
+                        imagem.putpixel((x, linha), (228, 228, 228))
+            imagem.save(caminho)
+
+            layout = detectar_layout_visual_imagem(caminho)
+
+            self.assertIsNotNone(layout["hero"])
+            self.assertEqual(len(layout["variacoes"]), 8)
 
     def test_layout_visual_retrato_expoe_hero_caixas_e_cor_do_badge(self):
         with tempfile.TemporaryDirectory() as diretorio:
@@ -238,6 +273,22 @@ class CatalogoAnalyzerTests(TestCase):
             self.assertEqual(variacoes[0]["nome"], "Rosa")
             self.assertIn(variacoes[1]["nome"], {"Azul", "Azul escuro"})
 
+    def test_classificador_identifica_lentes_degrade_sem_forcar_roxo(self):
+        casos = [
+            ((55, 105, 185), (190, 215, 240), "Azul degradê"),
+            ((75, 75, 82), (185, 185, 190), "Cinza degradê"),
+            ((105, 58, 38), (220, 185, 145), "Marrom degradê"),
+            ((185, 90, 125), (240, 195, 205), "Rosa degradê"),
+        ]
+        for superior, inferior, esperado in casos:
+            with self.subTest(esperado=esperado):
+                imagem = Image.new("RGB", (180, 120), inferior)
+                for y in range(60):
+                    for x in range(180):
+                        imagem.putpixel((x, y), superior)
+                nome = _classificar_cor_regiao(imagem, (0, 0, 180, 120))
+                self.assertEqual(nome, esperado)
+
 
 class RecorteCatalogoTests(BaseCatalogoTest):
     def criar_arquivo(self, upload):
@@ -288,6 +339,10 @@ class RecorteCatalogoTests(BaseCatalogoTest):
         self.assertTrue(variacoes[0].nome_cor)
         self.assertTrue(variacoes[0].layout["caixa"])
         self.assertTrue(all(r.imagem.name for r in recortes))
+        self.assertEqual(len({r.imagem.name for r in recortes}), 1)
+        with Image.open(recortes[0].imagem.path) as imagem:
+            self.assertLessEqual(imagem.width, 1200)
+            self.assertLessEqual(imagem.height, 1200)
 
     def test_processamento_sem_hero_persiste_somente_variacoes(self):
         _, arquivo = self.criar_arquivo(
@@ -301,6 +356,46 @@ class RecorteCatalogoTests(BaseCatalogoTest):
             sum(r.tipo == RecorteImportacaoCatalogo.Tipo.VARIACAO for r in recortes),
             3,
         )
+
+    def test_hero_vira_foto_principal_sem_remover_catalogo_original(self):
+        lote, arquivo = self.criar_arquivo(imagem_catalogo_upload())
+        processar_recursos_visuais(arquivo)
+        item = lote.itens.create(codigo_fornecedor="DESTAQUE", arquivo_principal=arquivo)
+        item.arquivos.add(arquivo)
+        produto = Produto.objects.create(
+            fornecedor=self.fornecedor,
+            codigo_fornecedor="DESTAQUE",
+            preco_custo=10,
+            preco_venda=20,
+        )
+
+        imagem = criar_destaque_produto_importado(item, produto)
+
+        self.assertIsNotNone(imagem)
+        self.assertTrue(imagem.principal)
+        produto.refresh_from_db()
+        self.assertEqual(produto.foto.name, imagem.imagem.name)
+        with Image.open(imagem.imagem.path) as destaque:
+            self.assertGreater(destaque.width, destaque.height)
+
+    def test_primeira_variacao_vira_destaque_quando_nao_existe_hero(self):
+        lote, arquivo = self.criar_arquivo(
+            imagem_catalogo_upload(retrato=False, linhas=3)
+        )
+        processar_recursos_visuais(arquivo)
+        item = lote.itens.create(codigo_fornecedor="SEM-HERO", arquivo_principal=arquivo)
+        item.arquivos.add(arquivo)
+        produto = Produto.objects.create(
+            fornecedor=self.fornecedor,
+            codigo_fornecedor="SEM-HERO",
+            preco_custo=10,
+            preco_venda=20,
+        )
+
+        imagem = criar_destaque_produto_importado(item, produto)
+
+        self.assertIsNotNone(imagem)
+        self.assertTrue(imagem.principal)
 
     def test_constraint_impede_recorte_duplicado(self):
         _, arquivo = self.criar_arquivo(imagem_upload())
@@ -375,13 +470,23 @@ class RecorteCatalogoTests(BaseCatalogoTest):
             ]
 
         self.assertEqual(resposta.status_code, 200)
-        self.assertTrue(all(r.status_code == 302 for r in respostas_recortes))
+        self.assertTrue(all(r.status_code == 200 for r in respostas_recortes))
         self.assertFalse(materializar.called)
         self.assertFalse(detectar.called)
         self.assertFalse(ocr.called)
         self.assertFalse(detectar_variacoes.called)
         self.assertFalse(abrir_imagem.called)
         self.assertEqual(len(resposta.context["itens"][0].variacoes_visuais), 6)
+        self.assertContains(resposta, "importacao_catalogo.css?v=2.0.0")
+        self.assertContains(resposta, "catalog-crop-frame")
+        self.assertContains(resposta, "width: var(--crop-width) !important")
+        self.assertNotContains(
+            resposta,
+            f'src="{reverse(
+                "produtos:visualizar_arquivo_catalogo",
+                args=[lote.pk, arquivo.pk],
+            )}"',
+        )
 
     def test_endpoint_recorte_persistido_redireciona_para_storage(self):
         lote, arquivo = self.criar_arquivo(
@@ -397,8 +502,36 @@ class RecorteCatalogoTests(BaseCatalogoTest):
             )
         )
 
-        self.assertEqual(resposta.status_code, 302)
-        self.assertEqual(resposta.url, recorte.imagem.url)
+        self.assertEqual(resposta.status_code, 200)
+        self.assertEqual(resposta["Content-Type"], "image/jpeg")
+
+    def test_url_assinada_do_mesmo_recorte_e_reutilizada(self):
+        lote, arquivo = self.criar_arquivo(
+            imagem_catalogo_upload(retrato=False, linhas=3)
+        )
+        recorte = processar_recursos_visuais(arquivo)[0]
+        self.client.force_login(self.usuario)
+        cache.clear()
+        rota = reverse(
+            "produtos:visualizar_recorte_catalogo",
+            args=[lote.pk, arquivo.pk, recorte.tipo, recorte.indice],
+        )
+
+        with (
+            patch.object(
+                recorte.imagem.storage, "querystring_auth", True, create=True
+            ),
+            patch.object(
+                type(recorte.imagem), "url", new_callable=PropertyMock,
+                return_value="https://storage.example/assinada",
+            ) as gerar_url,
+        ):
+            primeira = self.client.get(rota)
+            segunda = self.client.get(rota)
+
+        self.assertEqual(primeira.url, "https://storage.example/assinada")
+        self.assertEqual(segunda.url, primeira.url)
+        self.assertEqual(gerar_url.call_count, 1)
 
 
 class CatalogoStagingTests(BaseCatalogoTest):
@@ -432,6 +565,42 @@ class CatalogoStagingTests(BaseCatalogoTest):
         self.assertTrue(produto.imagens.exists())
         lote.refresh_from_db()
         self.assertEqual(lote.status, ImportacaoCatalogo.Status.IMPORTADO)
+
+    def test_imagens_importadas_sao_entregues_com_debug_desativado(self):
+        lote = self.criar_lote_analisado()
+        confirmar_importacao(lote, usuario=self.usuario)
+        produto = Produto.objects.get(
+            fornecedor=self.fornecedor,
+            codigo_fornecedor="4165",
+        )
+        imagem = produto.imagens.get(principal=True)
+        self.client.force_login(self.usuario)
+
+        with override_settings(DEBUG=False):
+            foto = self.client.get(
+                reverse("produtos:visualizar_foto_produto", args=[produto.pk])
+            )
+            galeria = self.client.get(
+                reverse("produtos:visualizar_imagem_produto", args=[imagem.pk])
+            )
+            lista = self.client.get(reverse("produtos:lista_produtos"))
+
+        self.assertEqual(foto.status_code, 200)
+        self.assertTrue(foto["Content-Type"].startswith("image/"))
+        self.assertEqual(galeria.status_code, 200)
+        self.assertContains(
+            lista,
+            reverse("produtos:visualizar_foto_produto", args=[produto.pk]),
+        )
+        self.assertContains(lista, 'class="hui-product-list-thumbnail"')
+        self.assertContains(lista, "width:72px!important")
+        self.assertContains(lista, "helvi-ui.css?v=1.9.1", html=False)
+
+        ficha = self.client.get(
+            reverse("produtos:ficha_produto", args=[produto.pk])
+        )
+        self.assertContains(ficha, 'class="hui-image-gallery"')
+        self.assertContains(ficha, "width:160px!important")
 
     def test_duplicidade_exata_mesmo_fornecedor_bloqueia_confirmacao(self):
         Produto.objects.create(

@@ -2,7 +2,37 @@
 {% load static l10n %}
 
 {% block title %}Conferir Catálogo | ERP Helvi{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'css/importacao_catalogo.css' %}">{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/importacao_catalogo.css' %}?v=2.0.0">
+<style>
+/* Regras críticas ficam junto do markup para o recorte não depender da ordem
+   dos stylesheets globais nem da coleta de estáticos do ambiente. */
+.catalog-review .catalog-crop-frame {
+    position: relative !important;
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    aspect-ratio: var(--crop-aspect) !important;
+    overflow: hidden !important;
+    background: #fff;
+}
+.catalog-review .catalog-crop-frame > img {
+    position: absolute !important;
+    top: var(--crop-top) !important;
+    left: var(--crop-left) !important;
+    display: block !important;
+    width: var(--crop-width) !important;
+    max-width: none !important;
+    height: auto !important;
+    max-height: none !important;
+    object-fit: initial !important;
+    margin: 0 !important;
+    transform: none !important;
+}
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="catalog-review">
@@ -76,17 +106,17 @@
                         </div>
 
                         {% if item.tem_hero_visual and item.arquivo_visual_id %}
-                        <div class="catalog-hero-card">
-                            <img src="{% url 'produtos:visualizar_recorte_catalogo' lote.id item.arquivo_visual_id 'hero' 0 %}" alt="Apresentação do produto {{ item.codigo_fornecedor }}">
+                        <div class="catalog-hero-card{% if item.hero_visual.aspecto_recorte %} catalog-crop-frame{% endif %}"{% if item.hero_visual.aspecto_recorte %} style="--crop-aspect:{{ item.hero_visual.aspecto_recorte|unlocalize }};--crop-width:{{ item.hero_visual.imagem_largura_pct|unlocalize }}%;--crop-left:{{ item.hero_visual.imagem_esquerda_pct|unlocalize }}%;--crop-top:{{ item.hero_visual.imagem_topo_pct|unlocalize }}%;"{% endif %}>
+                            <img src="{% url 'produtos:visualizar_recorte_catalogo' lote.id item.arquivo_visual_id 'hero' 0 %}" alt="Apresentação do produto {{ item.codigo_fornecedor }}" decoding="async">
                         </div>
                         {% endif %}
 
                         {% if item.variacoes_visuais %}
                         <div class="catalog-variation-gallery">
                             {% for visual in item.variacoes_visuais %}
-                            <button type="button" class="catalog-variation-tile" data-variation-index="{{ visual.indice }}" style="--variation-color: {{ visual.cor_hex }}; --variation-text: {{ visual.texto_hex }};" title="{{ visual.codigo }}{% if visual.descricao %} · {{ visual.descricao }}{% endif %}">
+                            <button type="button" class="catalog-variation-tile" data-variation-index="{{ visual.indice }}" style="--variation-color:{{ visual.cor_hex }};--variation-text:{{ visual.texto_hex }};--crop-aspect:{{ visual.aspecto_recorte|unlocalize }};--crop-width:{{ visual.imagem_largura_pct|unlocalize }}%;--crop-left:{{ visual.imagem_esquerda_pct|unlocalize }}%;--crop-top:{{ visual.imagem_topo_pct|unlocalize }}%;" title="{{ visual.codigo }}{% if visual.descricao %} · {{ visual.descricao }}{% endif %}">
                                 <span class="catalog-tile-code">{{ visual.codigo }}</span>
-                                <img src="{% url 'produtos:visualizar_recorte_catalogo' lote.id visual.arquivo_id 'variacao' visual.indice %}" alt="Variação {{ visual.codigo }}">
+                                {% if visual.aspecto_recorte %}<span class="catalog-crop-frame"><img src="{% url 'produtos:visualizar_recorte_catalogo' lote.id visual.arquivo_id 'variacao' visual.indice %}" alt="Variação {{ visual.codigo }}" loading="lazy" decoding="async"></span>{% else %}<img src="{% url 'produtos:visualizar_recorte_catalogo' lote.id visual.arquivo_id 'variacao' visual.indice %}" alt="Variação {{ visual.codigo }}" loading="lazy" decoding="async">{% endif %}
                             </button>
                             {% endfor %}
                         </div>
@@ -106,8 +136,9 @@
                         <div class="catalog-thumbs catalog-thumbs-compact">
                             {% for arquivo in item.arquivos.all %}
                             <div class="catalog-thumb {% if item.arquivo_principal_id == arquivo.id or not item.arquivo_principal_id and forloop.first %}is-primary{% endif %}">
-                                {% if arquivo.tipo == "imagem" %}<img src="{% url 'produtos:visualizar_arquivo_catalogo' lote.id arquivo.id %}" alt="{{ arquivo.nome_original }}">
-                                {% elif arquivo.preview %}<img src="{% url 'produtos:visualizar_arquivo_catalogo' lote.id arquivo.id %}" alt="Preview {{ arquivo.nome_original }}">{% endif %}
+                                {% if arquivo.miniatura_recorte %}<img src="{% url 'produtos:visualizar_recorte_catalogo' lote.id arquivo.id arquivo.miniatura_recorte.tipo arquivo.miniatura_recorte.indice %}" alt="{{ arquivo.nome_original }}" loading="lazy" decoding="async">
+                                {% elif arquivo.tipo == "imagem" %}<img src="{% url 'produtos:visualizar_arquivo_catalogo' lote.id arquivo.id %}" alt="{{ arquivo.nome_original }}" loading="lazy" decoding="async">
+                                {% elif arquivo.preview %}<img src="{% url 'produtos:visualizar_arquivo_catalogo' lote.id arquivo.id %}" alt="Preview {{ arquivo.nome_original }}" loading="lazy" decoding="async">{% endif %}
                                 {% if lote.status != "importado" %}
                                 <div class="form-check"><input class="form-check-input primary-image-radio" type="radio" name="item-{{ item.id }}-arquivo_principal" value="{{ arquivo.id }}" {% if item.arquivo_principal_id == arquivo.id or not item.arquivo_principal_id and forloop.first %}checked{% endif %}> <label class="form-check-label">Foto principal</label></div>
                                 {% endif %}
@@ -147,8 +178,8 @@
                             <div class="catalog-empty-state no-vars text-warning-emphasis" {% if item.variacoes.all %}hidden{% endif %}><i class="bi bi-exclamation-triangle"></i> <strong>Cor não identificada.</strong> Informe as variações antes de confirmar.</div>
                             {% for variacao in item.variacoes.all %}
                             <div class="catalog-variation-row var-row" data-variation-index="{{ forloop.counter }}" style="--variation-color: {{ variacao.cor_hex }}; --variation-text: {{ variacao.texto_hex }};">
-                                <div class="catalog-var-preview">
-                                    {% if item.arquivo_visual_id %}<img src="{% url 'produtos:visualizar_recorte_catalogo' lote.id item.arquivo_visual_id 'variacao' forloop.counter %}" alt="{{ variacao.codigo }}">{% endif %}
+                                <div class="catalog-var-preview{% if variacao.visual.aspecto_recorte %} catalog-crop-frame{% endif %}"{% if variacao.visual.aspecto_recorte %} style="--crop-aspect:{{ variacao.visual.aspecto_recorte|unlocalize }};--crop-width:{{ variacao.visual.imagem_largura_pct|unlocalize }}%;--crop-left:{{ variacao.visual.imagem_esquerda_pct|unlocalize }}%;--crop-top:{{ variacao.visual.imagem_topo_pct|unlocalize }}%;"{% endif %}>
+                                    {% if item.arquivo_visual_id %}<img src="{% url 'produtos:visualizar_recorte_catalogo' lote.id item.arquivo_visual_id 'variacao' forloop.counter %}" alt="{{ variacao.codigo }}" loading="lazy" decoding="async">{% endif %}
                                 </div>
                                 <div class="catalog-var-description">
                                     <label class="form-label">Cor / descrição</label>

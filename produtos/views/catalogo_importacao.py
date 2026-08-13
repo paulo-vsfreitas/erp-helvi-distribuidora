@@ -2,11 +2,13 @@ from decimal import Decimal, InvalidOperation
 from io import BytesIO
 import mimetypes
 from pathlib import Path
+import tempfile
 
 from PIL import Image
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.http import FileResponse, Http404, HttpResponse
@@ -33,6 +35,29 @@ from produtos.services.catalogo_importacao.analisador import (
 )
 
 
+def _url_midia_privada(campo):
+    """Reutiliza brevemente a URL assinada entre galeria, tabela e miniaturas."""
+    chave = f"catalogo:url-assinada:{campo.name}"
+    url = cache.get(chave)
+    if not url:
+        url = campo.url
+        cache.set(chave, url, timeout=300)
+    return url
+
+
+def _dados_recorte_css(caixa, aspecto_imagem=None):
+    if not caixa or not aspecto_imagem:
+        return {}
+    largura = max(0.001, caixa["x2"] - caixa["x1"])
+    altura = max(0.001, caixa["y2"] - caixa["y1"])
+    return {
+        "aspecto_recorte": aspecto_imagem * largura / altura,
+        "imagem_largura_pct": 10000 / largura,
+        "imagem_esquerda_pct": -100 * caixa["x1"] / largura,
+        "imagem_topo_pct": -100 * caixa["y1"] / altura,
+    }
+
+
 def _decimal(valor, padrao):
     try:
         return Decimal((valor or "").replace(",", "."))
@@ -52,12 +77,33 @@ def importar_catalogo(request):
     if request.method == "POST":
         form = ImportacaoCatalogoForm(request.POST, request.FILES)
         if form.is_valid():
-            lote = criar_lote(
-                dados=form.cleaned_data,
-                arquivos=form.cleaned_data["arquivos"],
-                usuario=request.user,
-            )
-            analisar_lote(lote)
+            arquivos_upload = list(form.cleaned_data["arquivos"])
+            with tempfile.TemporaryDirectory() as diretorio:
+                caminhos_upload = []
+                for indice, arquivo_upload in enumerate(arquivos_upload):
+                    sufixo = Path(arquivo_upload.name).suffix.lower()
+                    caminho = Path(diretorio) / f"upload_{indice}{sufixo}"
+                    with caminho.open("wb") as destino:
+                        for bloco in arquivo_upload.chunks():
+                            destino.write(bloco)
+                    arquivo_upload.seek(0)
+                    caminhos_upload.append(caminho)
+
+                lote = criar_lote(
+                    dados=form.cleaned_data,
+                    arquivos=arquivos_upload,
+                    usuario=request.user,
+                )
+                arquivos_lote = list(lote.arquivos.all().order_by("id"))
+                analisar_lote(
+                    lote,
+                    caminhos_locais={
+                        arquivo.pk: caminho
+                        for arquivo, caminho in zip(
+                            arquivos_lote, caminhos_upload, strict=True
+                        )
+                    },
+                )
             messages.success(
                 request,
                 "Arquivos analisados. Confira e edite as sugestões antes de importar.",
@@ -141,6 +187,16 @@ def conferir_catalogo(request, lote_id):
         .all()
     )
     for item in itens:
+        for arquivo_item in item.arquivos.all():
+            recortes_item = list(arquivo_item.recortes.all())
+            miniatura = next(
+                (
+                    recorte for recorte in recortes_item
+                    if recorte.tipo == RecorteImportacaoCatalogo.Tipo.HERO
+                ),
+                recortes_item[0] if recortes_item else None,
+            )
+            arquivo_item.miniatura_recorte = miniatura
         arquivo = item.arquivo_principal or next(iter(item.arquivos.all()), None)
         item.layout_visual = {"hero": None, "variacoes": []}
         item.variacoes_visuais = []
@@ -170,11 +226,27 @@ def conferir_catalogo(request, lote_id):
                 )
             ],
         }
+        item.hero_visual = None
+        if hero:
+            item.hero_visual = {
+                **hero.layout,
+                **_dados_recorte_css(
+                    hero.layout,
+                    hero.layout.get("aspecto_imagem"),
+                ),
+            }
 
         for indice, variacao_db in enumerate(variacoes_db, start=1):
             visual = next((v for v in item.layout_visual.get("variacoes", []) if v.get("indice") == indice), None)
             variacao_db.cor_hex = (visual or {}).get("cor_hex", "#6c757d")
             variacao_db.texto_hex = (visual or {}).get("texto_hex", "#ffffff")
+            variacao_db.visual = {
+                **(visual or {}),
+                **_dados_recorte_css(
+                    (visual or {}).get("caixa"),
+                    (visual or {}).get("aspecto_imagem"),
+                ),
+            }
 
         if arquivo:
             for visual in item.layout_visual.get("variacoes", []):
@@ -182,6 +254,10 @@ def conferir_catalogo(request, lote_id):
                 variacao_db = variacoes_db[indice - 1] if 0 < indice <= len(variacoes_db) else None
                 item.variacoes_visuais.append({
                     **visual,
+                    **_dados_recorte_css(
+                        visual.get("caixa"),
+                        visual.get("aspecto_imagem"),
+                    ),
                     "codigo": (variacao_db.codigo if variacao_db and variacao_db.codigo else f"C{indice}"),
                     "descricao": (variacao_db.nome if variacao_db else visual.get("nome", "")),
                     "arquivo_id": arquivo.id,
@@ -247,8 +323,11 @@ def visualizar_recorte_catalogo(request, lote_id, arquivo_id, tipo, indice=0):
     recorte = arquivo.recortes.filter(tipo=tipo, indice=indice).first()
     if recorte:
         try:
-            return redirect(recorte.imagem.url)
-        except (OSError, ValueError):
+            if getattr(recorte.imagem.storage, "querystring_auth", False):
+                return redirect(_url_midia_privada(recorte.imagem))
+            recorte.imagem.open("rb")
+            return FileResponse(recorte.imagem, content_type="image/jpeg")
+        except (FileNotFoundError, OSError, ValueError):
             raise Http404("Recorte não encontrado no storage.")
 
     # Compatibilidade controlada para lotes anteriores. Reanalisar o lote cria
@@ -312,7 +391,7 @@ def visualizar_arquivo_catalogo(request, lote_id, arquivo_id):
     # Render e reduz bastante o consumo de memória da aplicação.
     try:
         if getattr(campo.storage, "querystring_auth", False):
-            return redirect(campo.url)
+            return redirect(_url_midia_privada(campo))
     except (OSError, ValueError):
         pass
 

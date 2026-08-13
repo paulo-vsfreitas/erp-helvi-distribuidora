@@ -31,7 +31,7 @@
         <section class="card hui-detail-section hui-detail-section--direct">
             <div class="hui-detail-media">
                 {% if produto.foto %}
-                    <a href="{{ produto.foto.url }}" target="_blank" rel="noopener"><img src="{{ produto.foto.url }}" alt="{{ produto.modelo }}" class="hui-product-photo"></a>
+                    <a href="{% url 'produtos:visualizar_foto_produto' produto.id %}" target="_blank" rel="noopener"><img src="{% url 'produtos:visualizar_foto_produto' produto.id %}" alt="{{ produto.modelo }}" class="hui-product-photo"></a>
                 {% else %}
                     <div class="hui-product-photo hui-product-photo--empty"><i class="bi bi-image"></i><span>Sem foto principal</span></div>
                 {% endif %}
@@ -76,7 +76,15 @@
 
     <section class="card hui-detail-section hui-detail-section--direct">
         <div class="ficha-section-title"><h3>Imagens adicionais</h3><p>Galeria cadastrada para este produto.</p></div>
-        {% if imagens %}<div class="hui-image-gallery">{% for imagem in imagens %}<a href="{{ imagem.imagem.url }}" target="_blank" rel="noopener"><img src="{{ imagem.imagem.url }}" alt="{{ imagem.descricao|default:produto.modelo }}"></a>{% endfor %}</div>{% else %}<div class="hui-empty-state hui-empty-state--compact"><i class="bi bi-images"></i><p>Nenhuma imagem adicional cadastrada.</p></div>{% endif %}
+        {% if imagens %}
+            <div class="hui-image-gallery" style="display:flex!important;flex-wrap:wrap!important;align-items:flex-start!important;gap:12px!important;">
+                {% for imagem in imagens %}
+                    <a href="{% url 'produtos:visualizar_imagem_produto' imagem.id %}" target="_blank" rel="noopener" style="display:flex!important;width:160px!important;height:110px!important;min-width:160px!important;max-width:160px!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;padding:6px!important;">
+                        <img src="{% url 'produtos:visualizar_imagem_produto' imagem.id %}" alt="{{ imagem.descricao|default:produto.modelo }}" style="display:block!important;width:148px!important;height:98px!important;max-width:148px!important;max-height:98px!important;object-fit:contain!important;">
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}<div class="hui-empty-state hui-empty-state--compact"><i class="bi bi-images"></i><p>Nenhuma imagem adicional cadastrada.</p></div>{% endif %}
     </section>
 </div>
 {% endblock %}

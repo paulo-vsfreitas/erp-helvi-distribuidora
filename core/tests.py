@@ -129,7 +129,7 @@ class HelviUITemplateTests(SimpleTestCase):
         source = template.template.source
 
         self.assertIn("helvi_ui/helvi-ui.css", source)
-        self.assertIn("?v=1.9.0", source)
+        self.assertIn("?v=1.9.1", source)
 
     def test_sidebar_organiza_modulos_por_dominio_e_marca_pagina_ativa(self):
         source = get_template("core/base.html").template.source

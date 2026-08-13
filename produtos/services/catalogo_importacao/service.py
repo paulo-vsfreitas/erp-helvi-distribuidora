@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from contextlib import nullcontext
 from decimal import Decimal
 from io import BytesIO
 import logging
@@ -42,13 +43,16 @@ def _caixa_pixels(caixa, largura, altura):
     return x1, y1, x2, y2
 
 
-def _jpeg_recorte(imagem, caixa):
+def _jpeg_visual(imagem):
+    visual = imagem.copy()
+    visual.thumbnail((1200, 1200), Image.Resampling.LANCZOS, reducing_gap=3.0)
     buffer = BytesIO()
-    imagem.crop(_caixa_pixels(caixa, *imagem.size)).save(
+    visual.save(
         buffer,
         format="JPEG",
-        quality=91,
-        optimize=True,
+        quality=82,
+        optimize=False,
+        progressive=True,
     )
     return buffer.getvalue()
 
@@ -88,15 +92,19 @@ def processar_recursos_visuais(arquivo, *, caminho=None):
     preparados = []
     with Image.open(caminho) as origem:
         imagem = origem.convert("RGB")
+        aspecto_imagem = imagem.width / imagem.height
+        conteudo_visual = _jpeg_visual(imagem)
         if layout.get("hero"):
             preparados.append({
                 "tipo": RecorteImportacaoCatalogo.Tipo.HERO,
                 "indice": 0,
-                "conteudo": _jpeg_recorte(imagem, layout["hero"]),
                 "nome_cor": "",
                 "cor_hex": "#6c757d",
                 "texto_hex": "#ffffff",
-                "layout": layout["hero"],
+                "layout": {
+                    **layout["hero"],
+                    "aspecto_imagem": aspecto_imagem,
+                },
             })
         for visual in layout.get("variacoes", []):
             caixa = visual.get("caixa")
@@ -105,13 +113,13 @@ def processar_recursos_visuais(arquivo, *, caminho=None):
             preparados.append({
                 "tipo": RecorteImportacaoCatalogo.Tipo.VARIACAO,
                 "indice": visual["indice"],
-                "conteudo": _jpeg_recorte(imagem, caixa),
                 "nome_cor": visual.get("nome", ""),
                 "cor_hex": visual.get("cor_hex", "#6c757d"),
                 "texto_hex": visual.get("texto_hex", "#ffffff"),
                 "layout": {
                     "caixa": caixa,
                     "marcadores": visual.get("marcadores", []),
+                    "aspecto_imagem": aspecto_imagem,
                 },
             })
 
@@ -123,16 +131,24 @@ def processar_recursos_visuais(arquivo, *, caminho=None):
                 RecorteImportacaoCatalogo.objects.select_for_update()
                 .filter(arquivo=arquivo)
             )
-            nomes_anteriores = [recorte.imagem.name for recorte in anteriores]
+            nomes_anteriores = list({
+                recorte.imagem.name for recorte in anteriores if recorte.imagem.name
+            })
             RecorteImportacaoCatalogo.objects.filter(arquivo=arquivo).delete()
 
             novos = []
-            for dados in preparados:
-                conteudo = dados.pop("conteudo")
+            nome_visual = ""
+            for indice_preparado, dados in enumerate(preparados):
                 recorte = RecorteImportacaoCatalogo(arquivo=arquivo, **dados)
-                nome = f"arquivo_{arquivo.pk}_{recorte.tipo}_{recorte.indice}.jpg"
-                recorte.imagem.save(nome, ContentFile(conteudo), save=False)
-                novos_nomes.append(recorte.imagem.name)
+                if indice_preparado == 0:
+                    nome = f"arquivo_{arquivo.pk}_visual.jpg"
+                    recorte.imagem.save(
+                        nome, ContentFile(conteudo_visual), save=False
+                    )
+                    nome_visual = recorte.imagem.name
+                    novos_nomes.append(nome_visual)
+                else:
+                    recorte.imagem.name = nome_visual
                 recorte.save()
                 novos.append(recorte)
 
@@ -172,10 +188,15 @@ def criar_lote(*, dados, arquivos, usuario):
     return lote
 
 
-def _analisar_arquivo(arquivo):
+def _analisar_arquivo(arquivo, *, caminho_local=None):
     sufixo = Path(arquivo.nome_original).suffix.lower()
     variacoes_visuais = []
-    with arquivo_local(arquivo.arquivo, sufixo=sufixo) as caminho:
+    contexto_arquivo = (
+        nullcontext(str(caminho_local))
+        if caminho_local
+        else arquivo_local(arquivo.arquivo, sufixo=sufixo)
+    )
+    with contexto_arquivo as caminho:
         if arquivo.tipo == ArquivoImportacaoCatalogo.Tipo.PDF:
             texto, aviso = extrair_texto_pdf(caminho)
             gerar_preview_pdf(arquivo, caminho)
@@ -253,14 +274,18 @@ def atualizar_duplicidade(item):
     item.save(update_fields=["duplicidade", "produto_duplicado"])
 
 
-def analisar_lote(lote):
+def analisar_lote(lote, *, caminhos_locais=None):
     if lote.status == ImportacaoCatalogo.Status.IMPORTADO:
         raise ValidationError("Este catálogo já foi importado.")
 
     grupos = OrderedDict()
 
+    caminhos_locais = caminhos_locais or {}
     for arquivo in lote.arquivos.all().order_by("id"):
-        sugestao = _analisar_arquivo(arquivo)
+        sugestao = _analisar_arquivo(
+            arquivo,
+            caminho_local=caminhos_locais.get(arquivo.pk),
+        )
         chave = _chave_sugestao(sugestao, arquivo)
         grupos.setdefault(chave, {"sugestao": sugestao, "arquivos": [], "variacoes": []})
         grupos[chave]["arquivos"].append(arquivo)
@@ -346,11 +371,74 @@ def _linhas_item(item, *, numero_inicial):
     return linhas
 
 
+def criar_destaque_produto_importado(item, produto, *, arquivo_principal=None):
+    arquivo_principal = arquivo_principal or item.arquivo_principal
+    recorte_destaque = None
+    if arquivo_principal:
+        recorte_destaque = arquivo_principal.recortes.filter(
+            tipo=RecorteImportacaoCatalogo.Tipo.HERO,
+            indice=0,
+        ).first()
+        if not recorte_destaque:
+            recorte_destaque = arquivo_principal.recortes.filter(
+                tipo=RecorteImportacaoCatalogo.Tipo.VARIACAO,
+            ).order_by("indice").first()
+    if not recorte_destaque or produto.imagens.filter(
+        descricao__startswith="Destaque do catálogo"
+    ).exists():
+        return None
+    try:
+        recorte_destaque.imagem.open("rb")
+        with Image.open(recorte_destaque.imagem) as origem:
+            imagem = origem.convert("RGB")
+            caixa = recorte_destaque.layout.get(
+                "caixa", recorte_destaque.layout
+            )
+            destaque = imagem.crop(
+                _caixa_pixels(caixa, *imagem.size)
+            )
+            destaque.thumbnail(
+                (1200, 720), Image.Resampling.LANCZOS, reducing_gap=3.0
+            )
+            buffer = BytesIO()
+            destaque.save(
+                buffer,
+                format="JPEG",
+                quality=86,
+                optimize=False,
+                progressive=True,
+            )
+    finally:
+        recorte_destaque.imagem.close()
+
+    produto.imagens.filter(principal=True).update(principal=False)
+    imagem_destaque = ImagemProduto(
+        produto=produto,
+        descricao=f"Destaque do catálogo {arquivo_principal.nome_original}"[:100],
+        principal=True,
+    )
+    imagem_destaque.imagem.save(
+        f"destaque_{produto.pk}_{arquivo_principal.pk}.jpg",
+        ContentFile(buffer.getvalue()),
+        save=True,
+    )
+    produto.foto = imagem_destaque.imagem
+    produto.save(update_fields=["foto"])
+    return imagem_destaque
+
+
 def _copiar_imagens(item, produto):
     principal_definida = produto.imagens.filter(principal=True).exists()
     arquivos = list(item.arquivos.all())
     if item.arquivo_principal_id:
         arquivos.sort(key=lambda arquivo: arquivo.pk != item.arquivo_principal_id)
+
+    arquivo_principal = arquivos[0] if arquivos else None
+    if criar_destaque_produto_importado(
+        item, produto, arquivo_principal=arquivo_principal
+    ):
+        principal_definida = True
+
     for arquivo in arquivos:
         campo = arquivo.arquivo if arquivo.tipo == ArquivoImportacaoCatalogo.Tipo.IMAGEM else arquivo.preview
         if not campo:

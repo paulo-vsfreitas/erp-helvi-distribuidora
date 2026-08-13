@@ -1269,14 +1269,50 @@
 
 .hui-image-gallery {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 1rem;
+}
+
+.helvi-ui .hui-image-gallery > a {
+    display: grid;
+    width: 100%;
+    height: 210px;
+    place-items: center;
+    overflow: hidden;
+    padding: .65rem;
+    border: 1px solid var(--hui-border);
+    border-radius: 12px;
+    background: var(--hui-surface-muted);
+}
+
+.helvi-ui .hui-image-gallery > a > img {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 188px !important;
+    object-fit: contain !important;
+}
+
+.helvi-ui .hui-entity-table img.hui-product-list-thumbnail {
+    display: block;
+    width: 72px !important;
+    height: 48px !important;
+    min-width: 72px;
+    max-width: 72px !important;
+    max-height: 48px !important;
+    padding: 3px;
+    object-fit: contain !important;
+    border: 1px solid var(--hui-border);
+    border-radius: 10px;
+    background: #fff;
+    cursor: pointer;
 }
 
 .hui-table-thumbnail {
     width: 58px;
     height: 58px;
-    object-fit: cover;
+    object-fit: contain;
     border: 1px solid var(--hui-border);
     border-radius: 9px;
 }

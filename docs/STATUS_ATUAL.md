@@ -6,11 +6,23 @@ Atualizado em **12/08/2026**.
 
 O ERP Helvi está em **release candidate 1.0**. Os fluxos essenciais funcionam de
 ponta a ponta, as telas principais compartilham o Helvi UI, as integrações
-críticas possuem auditoria e o pacote automatizado possui 169 testes aprovados.
+críticas possuem auditoria e o pacote automatizado possui 177 testes aprovados.
 
 A importação visual de catálogos processa Hero e variações uma única vez na
 análise/reanálise, mantém os recortes no storage privado e serve URLs assinadas
 diretamente ao navegador, sem recalcular o layout durante a conferência normal.
+O OCR diferencia códigos de fornecedor de medidas ópticas e a análise visual
+reconhece famílias de cores e degradês; um único JPEG visual por arquivo, os
+recortes no navegador e o cache curto de URLs assinadas reduzem CPU, memória,
+uploads, tráfego e latência de exibição.
+O OCR recorta previamente apenas a região de texto vermelho e limita o fallback
+geral; durante o envio, a análise reutiliza a cópia temporária recebida e evita
+baixar novamente cada original do Storage privado.
+As imagens confirmadas dos produtos são servidas pelo ERP no storage local e
+por URL assinada no Supabase privado, sem depender de `DEBUG` ou de `/media/`.
+Na apresentação do produto, o Hero ou a primeira variação vira a foto principal
+otimizada; as miniaturas preservam o produto inteiro e a folha completa do
+fornecedor permanece disponível, contida na galeria e ampliável por clique.
 
 O código está pronto para a homologação de aceitação e para a preparação do
 ambiente definitivo. Publicação em produção ainda exige backup, configuração
@@ -32,7 +44,7 @@ itens/variações e peças.
 
 ## Validação registrada
 
-- `python manage.py test --keepdb`: **169 testes aprovados**;
+- `python manage.py test --keepdb`: **177 testes aprovados**;
 - `python manage.py check`: nenhum problema;
 - `python manage.py makemigrations --check --dry-run`: nenhuma mudança;
 - `python manage.py auditar_integracoes`: zero divergências;
