@@ -95,8 +95,20 @@
 }
 
 .hui-detail-side .ficha-info-item--situacao .badge {
+    display: inline-flex !important;
+    width: auto;
     max-width: 100%;
+    justify-content: center;
     white-space: normal;
+}
+
+.hui-detail-side .ficha-info-item--situacao .badge.bg-success,
+.hui-detail-side .ficha-info-item--situacao .badge.bg-danger {
+    color: #fff !important;
+}
+
+.hui-detail-side .ficha-info-item--situacao .badge.bg-warning {
+    color: #212529 !important;
 }
 
 .ficha-section-title {

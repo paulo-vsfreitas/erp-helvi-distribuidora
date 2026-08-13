@@ -62,6 +62,12 @@ class SupabaseStorageTests(SimpleTestCase):
             "https://projeto.supabase.co/storage/v1/object/sign/privado/foto.jpg?token=abc",
         )
 
+    def test_leitura_privada_usa_endpoint_autenticado(self):
+        self.assertEqual(
+            self.storage._authenticated_object_url("produtos/foto 1.jpg"),
+            "https://projeto.supabase.co/storage/v1/object/authenticated/privado/produtos/foto%201.jpg",
+        )
+
 
 class HelviUITemplateTests(SimpleTestCase):
     templates_migrados = (

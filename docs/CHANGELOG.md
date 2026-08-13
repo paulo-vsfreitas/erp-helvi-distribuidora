@@ -4,9 +4,11 @@
 
 - fotos principais e galeria privada passam pelo endpoint autenticado do ERP,
   evitando falhas de redirecionamento assinado no navegador;
+- leitura do Supabase privado utiliza explicitamente a rota
+  `/object/authenticated`, distinta da rota usada para upload;
 - respostas de imagem recebem cache privado curto;
 - Financeiro e Estoque usam duas colunas responsivas, com o badge de situação
-  em uma linha segura nos diferentes níveis de zoom.
+  em uma linha segura, compacta e com contraste nos diferentes níveis de zoom.
 
 ## 13/08/2026 — Runtime de OCR na homologação
 

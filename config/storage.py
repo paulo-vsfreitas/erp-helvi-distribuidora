@@ -72,6 +72,9 @@ class SupabaseRESTStorage(Storage):
     def _object_url(self, name):
         return f"{self.api_url}/object/{self._object_path(name)}"
 
+    def _authenticated_object_url(self, name):
+        return f"{self.api_url}/object/authenticated/{self._object_path(name)}"
+
     def _request_json(self, method, url, *, payload=None, headers=None, allow_missing=False):
         data = None
         request_headers = self._headers(**(headers or {}))
@@ -160,7 +163,11 @@ class SupabaseRESTStorage(Storage):
         if "r" not in mode:
             raise ValueError("SupabaseRESTStorage suporta abertura apenas para leitura.")
 
-        req = Request(self._object_url(name), method="GET", headers=self._headers())
+        req = Request(
+            self._authenticated_object_url(name),
+            method="GET",
+            headers=self._headers(),
+        )
         arquivo = tempfile.SpooledTemporaryFile(max_size=8 * 1024 * 1024, mode="w+b")
         try:
             with urlopen(req, timeout=self.timeout) as response:
@@ -187,7 +194,11 @@ class SupabaseRESTStorage(Storage):
         return File(arquivo, name=name)
 
     def exists(self, name):
-        req = Request(self._object_url(name), method="HEAD", headers=self._headers())
+        req = Request(
+            self._authenticated_object_url(name),
+            method="HEAD",
+            headers=self._headers(),
+        )
         try:
             with urlopen(req, timeout=self.timeout):
                 return True
@@ -212,7 +223,11 @@ class SupabaseRESTStorage(Storage):
         )
 
     def size(self, name):
-        req = Request(self._object_url(name), method="HEAD", headers=self._headers())
+        req = Request(
+            self._authenticated_object_url(name),
+            method="HEAD",
+            headers=self._headers(),
+        )
         try:
             with urlopen(req, timeout=self.timeout) as response:
                 tamanho = response.headers.get("Content-Length")

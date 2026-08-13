@@ -69,8 +69,8 @@ Aplicação: `produtos`.
 - o OCR trabalha sobre a região útil do texto vermelho e a requisição reutiliza
   o upload temporário para análise, sem download redundante do Storage;
 - fotos principais e galeria são entregues pelo endpoint autenticado do ERP,
-  compatível com storage local privado e Supabase e sem depender de redirect no
-  navegador, inclusive após a confirmação da importação;
+  compatível com storage local privado e com a rota autenticada do Supabase,
+  sem depender de redirect no navegador após a confirmação da importação;
 - produtos importados usam Hero ou primeira variação como foto principal em
   destaque, preservando a imagem completa do catálogo na galeria;
 - miniaturas preservam a proporção do produto sem cortes laterais, enquanto a
