@@ -88,10 +88,11 @@ class BaixaPagarForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         self.parcela = parcela
+        operacao = parcela.conta_pagar.operacao if parcela else "distribuidora"
 
         self.fields["conta_financeira"].queryset = (
             ContaFinanceira.objects
-            .filter(ativo=True)
+            .filter(ativo=True, operacao=operacao)
             .order_by("-conta_padrao", "nome")
         )
 
@@ -100,6 +101,7 @@ class BaixaPagarForm(forms.ModelForm):
             .filter(
                 ativo=True,
                 conta_padrao=True,
+                operacao=operacao,
             )
             .first()
         )

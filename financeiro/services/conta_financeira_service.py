@@ -44,8 +44,9 @@ def listar_contas_financeiras(
     busca="",
     tipo="",
     status="ativas",
+    operacao="distribuidora",
 ):
-    todas_contas = ContaFinanceira.objects.all()
+    todas_contas = ContaFinanceira.objects.filter(operacao=operacao)
 
     busca = (busca or "").strip()
     tipo = (tipo or "").strip()
@@ -168,7 +169,7 @@ def salvar_conta_financeira(form):
             ContaFinanceira.objects
             .select_for_update()
             .exclude(pk=conta.pk)
-            .filter(conta_padrao=True)
+            .filter(conta_padrao=True, operacao=conta.operacao)
         )
 
         contas_padrao.update(

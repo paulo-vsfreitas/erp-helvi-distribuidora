@@ -13,6 +13,12 @@ from financeiro.services.conta_financeira_service import (
     salvar_conta_financeira,
 )
 from usuarios.decorators import perfil_requerido
+from core.services.operacao_service import obter_operacao_ativa
+
+
+def _codigo_operacao(request):
+    operacao = obter_operacao_ativa(request)
+    return operacao.codigo if operacao else "distribuidora"
 
 
 @login_required
@@ -26,6 +32,7 @@ def lista_contas_financeiras(request):
         busca=busca,
         tipo=tipo,
         status=status,
+        operacao=_codigo_operacao(request),
     )
 
     indicadores = dados["indicadores"]
@@ -85,6 +92,7 @@ def nova_conta_financeira(request):
         form = ContaFinanceiraForm(request.POST)
 
         if form.is_valid():
+            form.instance.operacao = _codigo_operacao(request)
             conta = salvar_conta_financeira(form)
 
             messages.success(
@@ -124,6 +132,7 @@ def editar_conta_financeira(request, pk):
     conta = get_object_or_404(
         ContaFinanceira,
         pk=pk,
+        operacao=_codigo_operacao(request),
     )
 
     if request.method == "POST":
@@ -178,6 +187,7 @@ def ficha_conta_financeira(request, pk):
     conta = get_object_or_404(
         ContaFinanceira,
         pk=pk,
+        operacao=_codigo_operacao(request),
     )
 
     dados_ficha = obter_dados_ficha_conta_financeira(
@@ -208,6 +218,7 @@ def inativar_conta_financeira(request, pk):
     conta = get_object_or_404(
         ContaFinanceira,
         pk=pk,
+        operacao=_codigo_operacao(request),
     )
 
     if request.method != "POST":
@@ -239,6 +250,7 @@ def reativar_conta_financeira(request, pk):
     conta = get_object_or_404(
         ContaFinanceira,
         pk=pk,
+        operacao=_codigo_operacao(request),
     )
 
     if request.method != "POST":

@@ -302,6 +302,7 @@ class FluxoOperacoesTests(TestCase):
             username="operacoes-teste",
             password=cls.senha,
             first_name="Paulo",
+            perfil="ADM",
             primeiro_acesso=False,
         )
 
@@ -334,7 +335,7 @@ class FluxoOperacoesTests(TestCase):
             "distribuidora",
         )
 
-    def test_use_helvi_e_armazenada_e_abre_placeholder(self):
+    def test_use_helvi_e_armazenada_e_abre_modulo_eventos(self):
         self.client.force_login(self.usuario)
 
         resposta = self.client.post(
@@ -352,7 +353,7 @@ class FluxoOperacoesTests(TestCase):
         )
         self.assertContains(
             self.client.get(reverse("dashboard_use_helvi")),
-            "Ambiente inicial pronto",
+            "Eventos já disponíveis",
         )
 
     def test_operacao_invalida_nao_e_armazenada(self):
@@ -389,6 +390,54 @@ class FluxoOperacoesTests(TestCase):
         self.assertRedirects(
             self.client.get(reverse("dashboard")),
             reverse("dashboard_use_helvi"),
+        )
+
+    def test_use_helvi_bloqueia_produtos_e_oculta_menu_da_distribuidora(self):
+        self.client.force_login(self.usuario)
+        sessao = self.client.session
+        sessao["operacao_ativa"] = "use-helvi"
+        sessao.save()
+
+        resposta = self.client.get(reverse("produtos:lista_produtos"))
+
+        self.assertRedirects(resposta, reverse("dashboard_use_helvi"))
+        painel = self.client.get(reverse("financeiro:dashboard"))
+        self.assertNotContains(painel, reverse("produtos:lista_produtos"))
+        self.assertNotContains(painel, reverse("estoque:dashboard_estoque"))
+        self.assertNotContains(painel, reverse("compras:lista"))
+
+    def test_use_helvi_bloqueia_relatorios_gerais(self):
+        self.client.force_login(self.usuario)
+        sessao = self.client.session
+        sessao["operacao_ativa"] = "use-helvi"
+        sessao.save()
+
+        self.assertRedirects(
+            self.client.get(reverse("central_relatorios")),
+            reverse("dashboard_use_helvi"),
+        )
+        self.assertRedirects(
+            self.client.get(reverse("financeiro:rentabilidade")),
+            reverse("eventos:financeiro"),
+        )
+
+    def test_distribuidora_bloqueia_eventos_use_helvi(self):
+        self.client.force_login(self.usuario)
+        sessao = self.client.session
+        sessao["operacao_ativa"] = "distribuidora"
+        sessao.save()
+
+        self.assertRedirects(
+            self.client.get(reverse("eventos:agenda")),
+            reverse("dashboard"),
+        )
+
+    def test_sessao_legada_sem_operacao_permanece_na_distribuidora(self):
+        self.client.force_login(self.usuario)
+
+        self.assertEqual(
+            self.client.get(reverse("produtos:lista_produtos")).status_code,
+            200,
         )
 
 

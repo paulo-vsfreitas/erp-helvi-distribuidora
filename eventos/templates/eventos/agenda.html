@@ -1,0 +1,51 @@
+{% extends "eventos/base.html" %}
+{% load static %}
+
+{% block eventos_title %}Agenda de eventos{% endblock %}
+{% block eventos_content %}
+<header class="eventos-page-header">
+    <div><span class="eventos-eyebrow">USE HELVI</span><h1>Agenda de eventos</h1><p>Veja os próximos stands e acesse todas as informações em um clique.</p></div>
+    <a class="eventos-btn eventos-btn--primary" href="{% url 'eventos:novo' %}">Novo evento</a>
+</header>
+
+{% if lembretes_eventos %}
+<div class="lembrete-modal" id="lembrete-modal" role="dialog" aria-modal="true" aria-labelledby="lembrete-titulo">
+    <div class="lembrete-modal__fundo" data-fechar-lembrete></div>
+    <section class="lembrete-modal__conteudo eventos-card">
+        <header><div><span class="eventos-eyebrow">LEMBRETE DE EVENTO</span><h2 id="lembrete-titulo">Você tem evento chegando</h2></div><button type="button" aria-label="Fechar lembrete" data-fechar-lembrete>×</button></header>
+        <div class="lembrete-modal__lista">
+        {% for evento in lembretes_eventos %}
+            <article><time>{{ evento.inicio|date:"d/m/Y · H:i" }}</time><strong>{{ evento.nome }}</strong><p>{{ evento.texto_lembrete }}</p><div><a class="eventos-btn" href="{% url 'eventos:ficha' evento.pk %}">Ver evento</a><a class="eventos-btn eventos-btn--primary" href="{% url 'eventos:editar' evento.pk %}">Editar</a></div></article>
+        {% endfor %}
+        </div>
+        <footer><button class="eventos-btn" type="button" data-fechar-lembrete>Entendi</button></footer>
+    </section>
+</div>
+{% endif %}
+
+<div class="eventos-layout">
+    <section class="eventos-card calendario-card">
+        <header class="calendario-header">
+            <a href="?mes={{ anterior }}" aria-label="Mês anterior">‹</a><h2>{{ mes_nome }} de {{ ano }}</h2><a href="?mes={{ proximo }}" aria-label="Próximo mês">›</a>
+        </header>
+        <div class="calendario-semana"><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span><span>Dom</span></div>
+        <div class="calendario-grid">
+            {% for semana in calendario %}{% for item in semana %}
+            <div class="calendario-dia {% if not item.dia %}calendario-dia--vazio{% endif %}">
+                {% if item.dia %}<strong>{{ item.dia }}</strong>{% for evento in item.eventos %}<a class="{% if evento.status == 'cancelado' %}calendario-evento--cancelado{% endif %}" style="--evento-cores:{{ evento.gradiente_agenda }}" href="{% url 'eventos:ficha' evento.pk %}">{{ evento.nome }}</a>{% endfor %}{% endif %}
+            </div>
+            {% endfor %}{% endfor %}
+        </div>
+    </section>
+    <aside class="eventos-card proximos-card">
+        <h2>Próximos eventos</h2>
+        {% for evento in proximos_eventos %}
+        <a class="proximo-evento" style="--evento-cores:{{ evento.gradiente_agenda }}" href="{% url 'eventos:ficha' evento.pk %}">
+            <time><strong>{{ evento.inicio|date:"d" }}</strong><span>{{ evento.inicio|date:"M" }}</span></time>
+            <div><strong>{{ evento.nome }}</strong><span>{{ evento.inicio|date:"H:i" }} · {{ evento.local|default:"Local a definir" }}</span><small>{{ evento.get_status_display }}</small></div>
+        </a>
+        {% empty %}<div class="eventos-empty">Nenhum evento futuro. Cadastre o primeiro evento da Use Helvi.</div>{% endfor %}
+    </aside>
+</div>
+{% if lembretes_eventos %}<script>document.addEventListener("DOMContentLoaded",function(){const modal=document.getElementById("lembrete-modal");document.querySelectorAll("[data-fechar-lembrete]").forEach(function(botao){botao.addEventListener("click",function(){modal.hidden=true})});document.addEventListener("keydown",function(evento){if(evento.key==="Escape")modal.hidden=true})});</script>{% endif %}
+{% endblock %}

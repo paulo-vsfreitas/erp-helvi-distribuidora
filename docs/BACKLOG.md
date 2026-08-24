@@ -33,6 +33,10 @@ não representam falhas conhecidas nos fluxos 1.0 já homologados.
 
 ## Comercial e relacionamento
 
+- comprovantes e checklist dos eventos da Use Helvi;
+- integração das vendas simplificadas dos eventos ao futuro fluxo completo de
+  vendas, produtos e estoque da Use Helvi;
+
 - integração oficial com provedor de WhatsApp, se contratada;
 - confirmação automática de entrega/leitura quando o provedor permitir;
 - validade padrão configurável por empresa;

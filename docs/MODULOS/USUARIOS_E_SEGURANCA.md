@@ -49,3 +49,14 @@ somente leitura na administração do Django.
 - Vendedor consulta Estoque, Produtos e Catálogo sem modificá-los;
 - cancelamento de venda exige credenciais de Administrador e registra quem
   solicitou e quem autorizou.
+- a matriz de acesso combina perfil e operação ativa; ser Administrador não
+  libera módulos pertencentes à outra empresa;
+- a Use Helvi acessa somente seu painel, Eventos e o Financeiro isolado;
+- Produtos, Catálogo, Estoque, Compras, Vendas, Relacionamento, Configurações e
+  Relatórios gerais permanecem exclusivos da Helvi Distribuidora;
+- o bloqueio ocorre no backend para acessos diretos por URL e a mesma matriz
+  remove do menu os links incompatíveis com a operação.
+- dentro do Financeiro compartilhado, Lucro e Margem comercial permanece
+  exclusivo da Distribuidora; a Use Helvi usa seu relatório financeiro próprio.
+- sessões legadas sem a chave de operação assumem Distribuidora, origem dos
+  registros históricos; novos logins continuam exigindo seleção explícita.

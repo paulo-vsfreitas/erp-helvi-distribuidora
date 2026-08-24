@@ -79,6 +79,7 @@ def _obter_saldo_anterior(
     *,
     data_inicial,
     conta_financeira=None,
+    operacao="distribuidora",
 ):
     """
     Calcula o saldo existente antes do início do período.
@@ -89,7 +90,7 @@ def _obter_saldo_anterior(
     Sem conta selecionada, consolida todas as contas
     financeiras.
     """
-    contas = ContaFinanceira.objects.all()
+    contas = ContaFinanceira.objects.filter(operacao=operacao)
 
     if conta_financeira:
         contas = contas.filter(pk=conta_financeira.pk)
@@ -132,7 +133,7 @@ def _obter_saldo_anterior(
     return saldo_anterior
 
 
-def obter_fluxo_caixa(parametros):
+def obter_fluxo_caixa(parametros, operacao="distribuidora"):
     """
     Filtra as movimentações e monta o fluxo de caixa
     com saldo acumulado.
@@ -146,9 +147,13 @@ def obter_fluxo_caixa(parametros):
         }
 
     form = FluxoCaixaFiltroForm(parametros)
+    form.fields["conta_financeira"].queryset = ContaFinanceira.objects.filter(
+        operacao=operacao, ativo=True,
+    )
 
     movimentacoes = (
         MovimentacaoFinanceira.objects
+        .filter(operacao=operacao)
         .select_related(
             "conta_financeira",
             "categoria",
@@ -244,6 +249,7 @@ def obter_fluxo_caixa(parametros):
     saldo_anterior = _obter_saldo_anterior(
         data_inicial=filtros["data_inicial"],
         conta_financeira=filtros["conta_financeira"],
+        operacao=operacao,
     )
 
     saldo_acumulado = saldo_anterior

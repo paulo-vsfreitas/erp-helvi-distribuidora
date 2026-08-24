@@ -16,6 +16,7 @@ from configuracoes.models import Empresa
 PDF_OFICIAL = {
     "vendas", "contas-receber", "contas-pagar", "fluxo-caixa",
     "posicao-estoque", "compras",
+    "use-helvi-financeiro",
 }
 
 

@@ -1,5 +1,29 @@
 # Changelog do ERP Helvi
 
+## 24/08/2026 — Eventos e lucro por stand na Use Helvi
+
+- primeiro módulo operacional da Use Helvi com agenda mensal, próximos eventos,
+  cadastro de local, período, público, responsável e participantes;
+- ficha do evento reúne vendas, valores recebidos, custos dos produtos,
+  despesas pagas ou pendentes, lucro e margem;
+- lançamento rápido de despesa reaproveita Contas a Pagar e, quando já paga,
+  registra baixa e saída de caixa atomicamente;
+- lançamento simplificado de vendas preserva faturamento, recebimento e custo
+  até a integração futura com o módulo completo de Vendas da Use Helvi;
+- categorias usuais de stands são disponibilizadas pela migration inicial;
+- acesso restrito a Administrador e Gerente com a operação Use Helvi ativa.
+- suíte automatizada ampliada para 189 testes.
+- Financeiro passa a identificar e filtrar contas, obrigações e movimentos por
+  Helvi Distribuidora ou Use Helvi, validando a conta usada na baixa;
+- contatos distinguem WhatsApp, telefone e e-mail, com campo para Instagram;
+- vendas rápidas recebem tipo de produto e quantidade, apoiadas por cadastro
+  inicial de linhas casuais, esportivas e estojos;
+- nova área de Despesas gerais registra expositores, equipamentos, materiais e
+  outros gastos sem afetar o lucro de um evento específico.
+- dashboard da Use Helvi exibe acessos diretos para agenda, despesas e produtos;
+- cancelamento de evento exige motivo por POST, registra usuário/data, preserva
+  o histórico e impede novos lançamentos no evento cancelado.
+
 ## 13/08/2026 — Mídia definitiva e ficha responsiva de produtos
 
 - fotos principais e galeria privada passam pelo endpoint autenticado do ERP,
@@ -288,3 +312,37 @@
   estáveis, evitando sobreposição dos rótulos com os selos de status.
 - Corrigido o carregamento do CSS específico na ficha, com atualização de
   versão para impedir o uso do estilo antigo em cache.
+# 24/08/2026 — Equipes e categorias flexíveis na Use Helvi
+
+- cadastro próprio de pessoas e equipes para reutilização entre eventos;
+- seleção de equipe com inclusão automática dos integrantes;
+- formatação automática e normalização de telefone/WhatsApp;
+- criação, edição, exclusão lógica e reativação de categorias de despesas;
+- categoria “Outros” pré-cadastrada e “Compras Homologação” retirada das novas despesas.
+- edição, exclusão lógica e reativação dos tipos de produto usados nos eventos.
+- módulo Financeiro da Use Helvi com lançamento de receitas recebidas/pendentes;
+- relatórios por evento, período e mês com PDF oficial, WhatsApp e e-mail.
+- Financeiro consolidado e recolhível, com receitas, despesas, categorias e contas;
+- bloqueio de evento duplicado e de pessoa/equipe em dois eventos no mesmo dia.
+# 24/08/2026 — Isolamento de módulos por operação
+
+- menus passam a considerar simultaneamente perfil e operação ativa;
+- Use Helvi fica restrita ao painel próprio, Eventos e Financeiro;
+- módulos da Distribuidora e relatórios gerais são bloqueados no backend quando
+  a Use Helvi está ativa;
+- Eventos é bloqueado quando a operação ativa é Helvi Distribuidora;
+- sessões novas exigem seleção de operação; sessões legadas sem a chave são
+  tratadas como Distribuidora para manter compatibilidade com os dados atuais.
+
+# 24/08/2026 — Lembretes e cores na Agenda da Use Helvi
+
+- cadastro de pessoa recebe uma cor reutilizável na Agenda;
+- eventos com vários integrantes combinam as cores de todos no calendário e na
+  lista de próximos eventos;
+- evento recebe lembrete opcional, antecedência em dias e mensagem própria;
+- Agenda apresenta os lembretes vigentes em pop-up com atalhos para visualizar
+  ou editar o evento.
+- Instagram foi retirado do cadastro de pessoas e mantido somente nas
+  informações do organizador/local de cada evento.
+- eventos cancelados passam a aparecer riscados e em vermelho no
+  calendário, mantendo a rastreabilidade sem parecerem compromissos ativos.

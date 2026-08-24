@@ -11,6 +11,7 @@ class Modulo:
     CONFIGURACOES = "configuracoes"
     USUARIOS = "usuarios"
     COMPRAS = "compras"
+    EVENTOS = "eventos"
 
 
 class Acao:
@@ -21,6 +22,29 @@ class Acao:
     MOVIMENTAR_ESTOQUE = "estoque.movimentar"
     GERENCIAR_INVENTARIO = "estoque.gerenciar_inventario"
     ALTERAR_VENDEDOR = "vendas.alterar_vendedor"
+
+
+MODULOS_POR_OPERACAO = {
+    "distribuidora": {
+        Modulo.DASHBOARD,
+        Modulo.VENDAS,
+        Modulo.CLIENTES,
+        Modulo.FORNECEDORES,
+        Modulo.PRODUTOS,
+        Modulo.CATALOGO,
+        Modulo.ESTOQUE,
+        Modulo.FINANCEIRO,
+        Modulo.RELATORIOS,
+        Modulo.CONFIGURACOES,
+        Modulo.USUARIOS,
+        Modulo.COMPRAS,
+    },
+    "use-helvi": {
+        Modulo.DASHBOARD,
+        Modulo.FINANCEIRO,
+        Modulo.EVENTOS,
+    },
+}
 
 
 PERFIS = {
@@ -39,6 +63,7 @@ PERFIS = {
             Modulo.CONFIGURACOES,
             Modulo.USUARIOS,
             Modulo.COMPRAS,
+            Modulo.EVENTOS,
         },
     },
     "GER": {
@@ -54,6 +79,7 @@ PERFIS = {
             Modulo.FINANCEIRO,
             Modulo.RELATORIOS,
             Modulo.COMPRAS,
+            Modulo.EVENTOS,
         },
     },
     "VEN": {
@@ -114,6 +140,19 @@ def usuario_tem_permissao(usuario, modulo):
         return False
 
     return modulo in perfil["permissoes"]
+
+
+def operacao_tem_modulo(operacao, modulo):
+    """Confirma se o domínio pertence à operação ativa."""
+    codigo = getattr(operacao, "codigo", operacao)
+    return modulo in MODULOS_POR_OPERACAO.get(codigo, set())
+
+
+def usuario_tem_permissao_na_operacao(usuario, modulo, operacao):
+    return usuario_tem_permissao(usuario, modulo) and operacao_tem_modulo(
+        operacao,
+        modulo,
+    )
 
 
 def usuario_pode_executar(usuario, acao):

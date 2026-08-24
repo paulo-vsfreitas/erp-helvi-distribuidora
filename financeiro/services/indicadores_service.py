@@ -48,20 +48,20 @@ def _obter_total_agregado(queryset, campo="valor"):
     )
 
 
-def _obter_saldo_total_contas_financeiras():
+def _obter_saldo_total_contas_financeiras(operacao="distribuidora"):
     """
     Soma os saldos atuais de todas as contas financeiras ativas.
     """
     return sum(
         (
             conta.saldo_atual
-            for conta in ContaFinanceira.objects.filter(ativo=True)
+            for conta in ContaFinanceira.objects.filter(ativo=True, operacao=operacao)
         ),
         ZERO,
     )
 
 
-def obter_dados_dashboard_financeiro():
+def obter_dados_dashboard_financeiro(operacao="distribuidora"):
     """
     Centraliza as consultas e os indicadores do dashboard financeiro.
 
@@ -79,11 +79,11 @@ def obter_dados_dashboard_financeiro():
     hoje = timezone.localdate()
     inicio_mes = hoje.replace(day=1)
 
-    contas_pagar_ativas = ContaPagar.objects.exclude(
+    contas_pagar_ativas = ContaPagar.objects.filter(operacao=operacao).exclude(
         status=ContaPagar.STATUS_CANCELADA,
     )
 
-    contas_receber_ativas = ContaReceber.objects.exclude(
+    contas_receber_ativas = ContaReceber.objects.filter(operacao=operacao).exclude(
         status=ContaReceber.STATUS_CANCELADA,
     )
 
@@ -142,6 +142,7 @@ def obter_dados_dashboard_financeiro():
     )
 
     movimentacoes_validas = MovimentacaoFinanceira.objects.filter(
+        operacao=operacao,
         estornada=False,
     )
 
@@ -181,6 +182,7 @@ def obter_dados_dashboard_financeiro():
     )
 
     parcelas_pagar_vencidas = ParcelaPagar.objects.filter(
+        conta_pagar__operacao=operacao,
         data_vencimento__lt=hoje,
         status__in=[
             ParcelaPagar.STATUS_PENDENTE,
@@ -193,6 +195,7 @@ def obter_dados_dashboard_financeiro():
     )
 
     parcelas_receber_vencidas = ParcelaReceber.objects.filter(
+        conta_receber__operacao=operacao,
         data_vencimento__lt=hoje,
         status__in=[
             ParcelaReceber.STATUS_PENDENTE,
@@ -309,12 +312,12 @@ def obter_dados_dashboard_financeiro():
     )
 
     saldo_financeiro = (
-        _obter_saldo_total_contas_financeiras()
+        _obter_saldo_total_contas_financeiras(operacao)
     )
 
     quantidade_contas_financeiras = (
         ContaFinanceira.objects
-        .filter(ativo=True)
+        .filter(ativo=True, operacao=operacao)
         .count()
     )
 
@@ -461,6 +464,7 @@ def obter_dados_dashboard_financeiro():
         "quantidade_parcelas_pendentes": (
             ParcelaPagar.objects
             .filter(
+                conta_pagar__operacao=operacao,
                 status__in=[
                     ParcelaPagar.STATUS_PENDENTE,
                     ParcelaPagar.STATUS_PARCIAL,

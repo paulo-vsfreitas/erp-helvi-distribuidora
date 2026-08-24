@@ -16,6 +16,10 @@ Os ambientes são selecionados por `DJANGO_ENV_FILE` e identificados por
 `APP_ENV`. Desenvolvimento, homologação e produção usam bancos e mídias
 independentes; apenas código e migrations aprovados avançam entre ambientes.
 
+Dentro do mesmo ambiente, o Financeiro identifica a operação responsável por
+cada conta, obrigação e movimento. A sessão seleciona a operação ativa, mas o
+isolamento permanece gravado no banco e é validado também nos services.
+
 ## Domínios
 
 Cada aplicação Django representa um domínio. O `core` concentra apenas recursos
@@ -34,6 +38,7 @@ financeiro       contas, parcelas, movimentos, baixas e recebimentos
 comercial        orçamentos e compartilhamentos
 vendas           vendas, pagamento, finalização e cancelamento
 configuracoes    dados da empresa e modelos de comunicação
+eventos          agenda, equipe, despesas, vendas e resultado da Use Helvi
 ```
 
 A Central de Relatórios é uma composição transversal do `core`; não existe

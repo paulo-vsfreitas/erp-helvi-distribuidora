@@ -203,8 +203,13 @@ def listar_contas_receber(request):
         )
     )
 
+    from core.services.operacao_service import obter_operacao_ativa
+    ativa = obter_operacao_ativa(request)
+    operacao = ativa.codigo if ativa else "distribuidora"
+
     contas = (
         ContaReceber.objects
+        .filter(operacao=operacao)
         .select_related(
             "cliente",
             "categoria",

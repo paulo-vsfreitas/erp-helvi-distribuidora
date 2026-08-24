@@ -41,6 +41,12 @@ class CategoriaFinanceira(CadastroBase):
 
 
 class ContaFinanceira(models.Model):
+    OPERACAO_DISTRIBUIDORA = "distribuidora"
+    OPERACAO_USE_HELVI = "use-helvi"
+    OPERACAO_CHOICES = [
+        (OPERACAO_DISTRIBUIDORA, "Helvi Distribuidora"),
+        (OPERACAO_USE_HELVI, "Use Helvi"),
+    ]
     TIPO_CAIXA = "caixa"
     TIPO_CONTA_CORRENTE = "conta_corrente"
     TIPO_CONTA_POUPANCA = "conta_poupanca"
@@ -63,6 +69,10 @@ class ContaFinanceira(models.Model):
         max_length=100,
         unique=True,
         verbose_name="Nome",
+    )
+    operacao = models.CharField(
+        "Empresa/operação", max_length=20, choices=OPERACAO_CHOICES,
+        default=OPERACAO_DISTRIBUIDORA, db_index=True,
     )
 
     tipo = models.CharField(
@@ -193,6 +203,10 @@ class ContaPagar(models.Model):
         unique=True,
         editable=False,
         verbose_name="Número",
+    )
+    operacao = models.CharField(
+        "Empresa/operação", max_length=20, choices=ContaFinanceira.OPERACAO_CHOICES,
+        default=ContaFinanceira.OPERACAO_DISTRIBUIDORA, db_index=True,
     )
 
     descricao = models.CharField(
@@ -782,6 +796,10 @@ class ContaReceber(models.Model):
         unique=True,
         editable=False,
         verbose_name="Número",
+    )
+    operacao = models.CharField(
+        "Empresa/operação", max_length=20, choices=ContaFinanceira.OPERACAO_CHOICES,
+        default=ContaFinanceira.OPERACAO_DISTRIBUIDORA, db_index=True,
     )
 
     descricao = models.CharField(
@@ -1464,6 +1482,10 @@ class MovimentacaoFinanceira(models.Model):
         on_delete=models.PROTECT,
         related_name="movimentacoes",
         verbose_name="Conta financeira",
+    )
+    operacao = models.CharField(
+        "Empresa/operação", max_length=20, choices=ContaFinanceira.OPERACAO_CHOICES,
+        default=ContaFinanceira.OPERACAO_DISTRIBUIDORA, db_index=True,
     )
 
     categoria = models.ForeignKey(

@@ -11,6 +11,12 @@ from financeiro.services.conta_pagar_service import (
     obter_dados_ficha_conta_pagar,
 )
 from usuarios.decorators import perfil_requerido
+from core.services.operacao_service import obter_operacao_ativa
+
+
+def _codigo_operacao(request):
+    ativa = obter_operacao_ativa(request)
+    return ativa.codigo if ativa else "distribuidora"
 
 
 @login_required
@@ -33,7 +39,7 @@ def nova_conta_pagar(request):
 
         if form.is_valid():
             conta = criar_conta_pagar_manual(
-                dados=form.cleaned_data.copy(),
+                dados={**form.cleaned_data.copy(), "operacao": _codigo_operacao(request)},
                 usuario=request.user,
             )
 
@@ -68,6 +74,8 @@ def nova_conta_pagar(request):
 def ficha_conta_pagar(request, pk):
     try:
         contexto = obter_dados_ficha_conta_pagar(pk)
+        if contexto["conta"].operacao != _codigo_operacao(request):
+            raise ContaPagar.DoesNotExist
     except ContaPagar.DoesNotExist as erro:
         raise Http404(
             "Conta a Pagar não encontrada."

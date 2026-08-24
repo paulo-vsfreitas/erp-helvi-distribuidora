@@ -1,0 +1,25 @@
+{% extends "public/base_public.html" %}
+{% load static %}
+{% block extra_css %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/eventos_cadastros.css' %}?v=1.2.0">{% endblock %}
+
+{% block title %}{% block eventos_title %}Eventos{% endblock %} | Use Helvi{% endblock %}
+
+{% block content %}
+<div class="eventos-app">
+    <header class="eventos-topbar">
+        <a href="{% url 'dashboard_use_helvi' %}" class="eventos-brand">Use Helvi <small>Eventos</small></a>
+        <nav>
+            <a href="{% url 'eventos:agenda' %}">Agenda</a>
+            <a href="{% url 'eventos:financeiro' %}">Financeiro</a>
+            <a href="{% url 'eventos:equipes' %}">Equipe</a>
+            <a href="{% url 'eventos:tipos_produto' %}">Produtos</a>
+            <a href="{% url 'eventos:novo' %}" class="eventos-action">+ Novo evento</a>
+            <a href="{% url 'trocar_operacao' %}">Trocar operação</a>
+        </nav>
+    </header>
+    {% if messages %}<div class="eventos-messages">{% for message in messages %}<div class="eventos-alert eventos-alert--{{ message.tags }}">{{ message }}</div>{% endfor %}</div>{% endif %}
+    <main class="eventos-content">{% block eventos_content %}{% endblock %}</main>
+</div>
+<script src="{% static 'js/core/mascaras.js' %}"></script>
+<script>document.addEventListener("DOMContentLoaded", function(){ window.Helvi?.initMasks?.(); });</script>
+{% endblock %}

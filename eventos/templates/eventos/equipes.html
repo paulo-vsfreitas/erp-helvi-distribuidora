@@ -1,0 +1,16 @@
+{% extends "eventos/base.html" %}
+{% block eventos_title %}Equipe{% endblock %}
+{% block eventos_content %}
+<header class="eventos-page-header"><div><span class="eventos-eyebrow">CADASTRO RÁPIDO</span><h1>Equipe dos stands</h1><p>Cadastre pessoas uma vez, organize equipes e selecione-as nos próximos eventos.</p></div></header>
+<div class="cadastros-grid">
+<section class="eventos-card lancamentos"><h2>Pessoas cadastradas</h2>
+{% for pessoa in pessoas %}<div class="cadastro-row"><div><strong><i class="agenda-cor" style="--agenda-cor:{{ pessoa.cor_agenda }}"></i>{{ pessoa.nome }}</strong><span>{{ pessoa.get_tipo_contato_display }}: {{ pessoa.contato|default:"—" }}</span></div><div><a class="eventos-btn" href="{% url 'eventos:editar_pessoa' pessoa.pk %}">Editar</a><form method="post" action="{% url 'eventos:alternar_cadastro_equipe' 'pessoa' pessoa.pk %}">{% csrf_token %}<button class="eventos-btn" type="submit">{% if pessoa.ativo %}Excluir{% else %}Ativar{% endif %}</button></form></div></div>{% empty %}<div class="eventos-empty">Nenhuma pessoa cadastrada.</div>{% endfor %}
+</section>
+<aside class="eventos-card quick-card"><h2>Nova pessoa</h2><form method="post">{% csrf_token %}<input type="hidden" name="acao" value="pessoa">{{ pessoa_form.as_p }}<button class="eventos-btn eventos-btn--primary">Cadastrar pessoa</button></form></aside>
+<section class="eventos-card lancamentos"><h2>Equipes cadastradas</h2>
+{% for equipe in equipes %}<div class="cadastro-row"><div><strong>{{ equipe.nome }}</strong><span>{% for pessoa in equipe.pessoas.all %}{{ pessoa.nome }}{% if not forloop.last %}, {% endif %}{% empty %}Sem integrantes{% endfor %}</span></div><div><a class="eventos-btn" href="{% url 'eventos:editar_equipe' equipe.pk %}">Editar</a><form method="post" action="{% url 'eventos:alternar_cadastro_equipe' 'equipe' equipe.pk %}">{% csrf_token %}<button class="eventos-btn" type="submit">{% if equipe.ativo %}Excluir{% else %}Ativar{% endif %}</button></form></div></div>{% empty %}<div class="eventos-empty">Nenhuma equipe cadastrada.</div>{% endfor %}
+</section>
+<aside class="eventos-card quick-card"><h2>Nova equipe</h2><form method="post">{% csrf_token %}<input type="hidden" name="acao" value="equipe">{{ equipe_form.as_p }}<button class="eventos-btn eventos-btn--primary">Cadastrar equipe</button></form></aside>
+</div>
+<script>document.addEventListener("DOMContentLoaded",function(){const tipo=document.getElementById("id_pessoa-tipo_contato"),contato=document.getElementById("id_pessoa-contato");if(!tipo||!contato)return;function atualizar(){if(tipo.value==="email"){contato.type="email";contato.removeAttribute("data-mask")}else{contato.type="tel";contato.dataset.mask="telefone";window.Helvi?.initMasks?.()}}tipo.addEventListener("change",atualizar);atualizar()});</script>
+{% endblock %}

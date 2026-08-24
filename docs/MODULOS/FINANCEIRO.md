@@ -4,6 +4,7 @@ Atualizado em 04/08/2026.
 
 ## Escopo
 
+- separação persistente por operação (Helvi Distribuidora e Use Helvi);
 - categorias financeiras;
 - contas financeiras;
 - Contas a Pagar e parcelas;
@@ -13,6 +14,7 @@ Atualizado em 04/08/2026.
 - movimentações e fluxo de caixa;
 - dashboard e históricos;
 - integrações com Compras e Vendas.
+- painel simplificado da Use Helvi para receitas, despesas e relatórios de eventos.
 
 ## Implementado
 
@@ -36,9 +38,14 @@ Atualizado em 04/08/2026.
 - análise de lucro e margem por período e por venda finalizada;
 - receita dos produtos, custo histórico das mercadorias, lucro bruto, margem,
   quantidade vendida e frete discriminado.
+- relatório da Use Helvi por evento, período ou mês, com PDF e compartilhamento.
 
 ## Regras críticas
 
+- contas financeiras, Contas a Pagar, Contas a Receber e movimentações são
+  filtradas pela operação ativa;
+- pagamentos e recebimentos só aceitam conta financeira da mesma operação;
+- registros anteriores à separação pertencem à Helvi Distribuidora;
 - valores principais são positivos;
 - juros, multa e desconto não são negativos;
 - valor pago/recebido não supera o original;

@@ -1,0 +1,18 @@
+{% extends "eventos/base.html" %}
+{% load moeda %}
+{% block eventos_title %}Despesas gerais{% endblock %}
+{% block eventos_content %}
+<header class="eventos-page-header"><div><span class="eventos-eyebrow">USE HELVI</span><h1>Despesas gerais</h1><p>Expositores, materiais, marketing e outros gastos que não pertencem a um evento específico.</p></div><a class="eventos-btn" href="{% url 'eventos:categorias_despesa' %}">Gerenciar categorias</a></header>
+<div class="ficha-layout">
+<section class="eventos-card lancamentos"><h2>Histórico de despesas</h2><div class="tabela-eventos"><div class="tabela-head"><span>Descrição</span><span>Categoria</span><span>Status</span><span>Valor</span></div>
+{% for item in despesas %}<a href="{% url 'financeiro:ficha_conta_pagar' item.conta_pagar.pk %}"><span>{{ item.conta_pagar.descricao }}</span><span>{{ item.conta_pagar.categoria.nome }}</span><span>{{ item.conta_pagar.get_status_display }}</span><strong>{{ item.conta_pagar.valor_total|moeda }}</strong></a>{% empty %}<div class="eventos-empty">Nenhuma despesa geral lançada.</div>{% endfor %}</div></section>
+<aside><section class="eventos-card quick-card"><h2>Lançar despesa</h2><p>Para despesas pagas, use uma <a href="{% url 'financeiro:nova_conta_financeira' %}">conta financeira da Use Helvi</a>.</p><form method="post">{% csrf_token %}{{ form.as_p }}<button class="eventos-btn eventos-btn--primary" type="submit">Salvar despesa</button></form></section></aside>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const pago=document.getElementById("id_ja_pago"); if(!pago)return;
+    const conta=document.getElementById("id_conta_financeira")?.closest("p"), forma=document.getElementById("id_forma_pagamento")?.closest("p"), vencimento=document.getElementById("id_vencimento")?.closest("p");
+    function atualizar(){if(conta)conta.hidden=!pago.checked;if(forma)forma.hidden=!pago.checked;if(vencimento)vencimento.hidden=pago.checked} pago.addEventListener("change",atualizar);atualizar();
+});
+</script>
+{% endblock %}

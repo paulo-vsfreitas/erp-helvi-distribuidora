@@ -63,7 +63,9 @@ def produtos(f, giro=False):
 
 
 def financeiro(f, fluxo=False):
-    qs = MovimentacaoFinanceira.objects.select_related("conta_financeira", "categoria")
+    qs = MovimentacaoFinanceira.objects.filter(
+        operacao=f.get("operacao", "distribuidora")
+    ).select_related("conta_financeira", "categoria")
     qs = _periodo(qs, f, "data_movimentacao")
     if f.get("busca"):
         qs = qs.filter(Q(descricao__icontains=f["busca"]) | Q(origem__icontains=f["busca"]))
@@ -75,7 +77,9 @@ def financeiro(f, fluxo=False):
 
 def contas(f, receber):
     model = ContaReceber if receber else ContaPagar
-    qs = model.objects.select_related("cliente" if receber else "fornecedor", "categoria")
+    qs = model.objects.filter(
+        operacao=f.get("operacao", "distribuidora")
+    ).select_related("cliente" if receber else "fornecedor", "categoria")
     qs = _periodo(qs, f, "data_emissao")
     if f.get("busca"):
         qs = qs.filter(Q(descricao__icontains=f["busca"]) | Q(numero__icontains=f["busca"]))

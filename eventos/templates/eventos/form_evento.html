@@ -1,0 +1,51 @@
+{% extends "eventos/base.html" %}
+
+{% block eventos_title %}{{ titulo }}{% endblock %}
+{% block eventos_content %}
+<header class="eventos-page-header"><div><span class="eventos-eyebrow">PLANEJAMENTO</span><h1>{{ titulo }}</h1><p>Preencha o essencial agora e complemente os detalhes quando precisar.</p></div></header>
+<form method="post" class="eventos-card eventos-form" novalidate>
+    {% csrf_token %}
+    {% if form.non_field_errors %}<div class="eventos-alert eventos-alert--error">{{ form.non_field_errors }}</div>{% endif %}
+    <section><h2>Informações principais</h2><div class="eventos-form-grid">
+        {% include "eventos/field.html" with field=form.nome wide=True %}{% include "eventos/field.html" with field=form.status %}
+        {% include "eventos/field.html" with field=form.inicio %}{% include "eventos/field.html" with field=form.fim %}
+        {% include "eventos/field.html" with field=form.local %}{% include "eventos/field.html" with field=form.cidade %}
+        {% include "eventos/field.html" with field=form.estado %}{% include "eventos/field.html" with field=form.endereco wide=True %}
+    </div></section>
+    <section><h2>Lembrete na agenda</h2><div class="eventos-form-grid">
+        {% include "eventos/field.html" with field=form.lembrete_ativo %}
+        {% include "eventos/field.html" with field=form.lembrete_dias_antes %}
+        {% include "eventos/field.html" with field=form.lembrete_mensagem wide=True %}
+    </div></section>
+    <section><h2>Equipe do stand</h2><div class="eventos-form-grid">
+        {% include "eventos/field.html" with field=form.equipe %}{% include "eventos/field.html" with field=form.pessoas_equipe wide=True %}
+        {% include "eventos/field.html" with field=form.responsavel %}{% include "eventos/field.html" with field=form.tipo_contato_responsavel %}
+        {% include "eventos/field.html" with field=form.contato_responsavel %}
+        {% include "eventos/field.html" with field=form.participantes wide=True %}{% include "eventos/field.html" with field=form.participantes_externos wide=True %}
+    </div></section>
+    <details><summary>Mais detalhes do evento</summary><div class="eventos-form-grid details-grid">
+        {% include "eventos/field.html" with field=form.publico_alvo %}{% include "eventos/field.html" with field=form.expectativa_publico %}
+        {% include "eventos/field.html" with field=form.organizador %}{% include "eventos/field.html" with field=form.tipo_contato_organizador %}
+        {% include "eventos/field.html" with field=form.contato_organizador %}{% include "eventos/field.html" with field=form.instagram %}
+        {% include "eventos/field.html" with field=form.observacoes wide=True %}
+    </div></details>
+    <footer><a class="eventos-btn" href="{% if evento %}{% url 'eventos:ficha' evento.pk %}{% else %}{% url 'eventos:agenda' %}{% endif %}">Cancelar</a><button class="eventos-btn eventos-btn--primary" type="submit">Salvar evento</button></footer>
+</form>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    function preparar(tipoId, contatoId) {
+        const tipo = document.getElementById(tipoId), contato = document.getElementById(contatoId);
+        if (!tipo || !contato) return;
+        function atualizar() {
+            contato.type = tipo.value === "email" ? "email" : "tel";
+            contato.placeholder = tipo.value === "email" ? "contato@empresa.com" : "(00) 00000-0000";
+            if (tipo.value === "email") contato.removeAttribute("data-mask");
+            else { contato.dataset.mask = "telefone"; window.Helvi?.initMasks?.(); }
+        }
+        tipo.addEventListener("change", atualizar); atualizar();
+    }
+    preparar("id_tipo_contato_responsavel", "id_contato_responsavel");
+    preparar("id_tipo_contato_organizador", "id_contato_organizador");
+});
+</script>
+{% endblock %}

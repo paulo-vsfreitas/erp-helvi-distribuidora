@@ -2,11 +2,44 @@
 
 Atualizado em **13/08/2026**.
 
+Em **24/08/2026**, a Use Helvi recebeu o primeiro módulo operacional: Eventos.
+Ele permite cadastrar stands, organizar responsável e participantes, consultar
+a agenda e registrar despesas e vendas rápidas. A ficha consolida valores
+vendidos e recebidos, custo dos produtos, despesas, lucro e margem por evento.
+Despesas pagas reutilizam o fluxo transacional de baixa do Financeiro; despesas
+futuras permanecem como Contas a Pagar pendentes.
+O Financeiro agora separa persistentemente Helvi Distribuidora e Use Helvi em
+contas financeiras, obrigações e movimentações. Eventos receberam contatos
+tipados, Instagram, cadastro de tipos de produto e quantidade vendida. A Use
+Helvi também possui Despesas gerais para expositores, equipamentos e outros
+gastos sem vínculo obrigatório com stand.
+Eventos podem ser cancelados somente com motivo, preservando responsável pelo
+cancelamento, data, vendas e despesas para auditoria.
+O cadastro de eventos agora reutiliza pessoas e equipes próprias da Use Helvi,
+com telefone/WhatsApp formatado automaticamente. Categorias de despesas podem
+ser criadas, editadas e retiradas das novas seleções sem apagar o histórico;
+“Outros” é padrão e “Compras Homologação” foi inativada.
+A Use Helvi possui painel Financeiro próprio sobre o mesmo motor transacional,
+com receitas recebidas ou pendentes, despesas, relatórios por evento, intervalo
+ou mês, PDF oficial e preparação de compartilhamento por WhatsApp/e-mail.
+O Financeiro foi consolidado em uma única tela compacta para receitas, despesas,
+categorias, contas e relatórios. A agenda bloqueia eventos duplicados e impede
+que responsáveis, participantes ou pessoas de equipe ocupem dois eventos no
+mesmo dia; eventos cancelados não geram conflito.
+A navegação agora combina perfil e operação: a Use Helvi exibe e aceita somente
+seu painel, Eventos e Financeiro, enquanto os módulos operacionais tradicionais
+ficam restritos à Distribuidora também em acessos diretos por URL.
+A Agenda da Use Helvi possui lembretes em pop-up, configuráveis por evento, e
+identificação visual por pessoa. Quando várias pessoas participam do mesmo
+evento, suas cores são combinadas no cartão do calendário.
+Eventos cancelados continuam visíveis para histórico, identificados por texto
+riscado e cor vermelha.
+
 ## Resumo executivo
 
 O ERP Helvi está em **release candidate 1.0**. Os fluxos essenciais funcionam de
 ponta a ponta, as telas principais compartilham o Helvi UI, as integrações
-críticas possuem auditoria e o pacote automatizado possui 181 testes aprovados.
+críticas possuem auditoria e o pacote automatizado possui 206 testes aprovados.
 
 A importação visual de catálogos processa Hero e variações uma única vez na
 análise/reanálise, mantém os recortes no storage privado e serve URLs assinadas
@@ -40,7 +73,8 @@ atual e a Use Helvi possui um dashboard inicial próprio para evolução modular
 Há também uma especificação de implantação gratuita no Render, ligada à branch
 de homologação e com segredos fornecidos apenas pelo painel da hospedagem.
 
-A Central de Configurações permite manter os dados institucionais, WhatsApp,
+A suíte automatizada passa a cobrir **206 testes** com a evolução de
+Eventos. A Central de Configurações permite manter os dados institucionais, WhatsApp,
 Instagram, Facebook, os canais exibidos nos PDFs e os modelos
 padrão de WhatsApp e e-mail usados no compartilhamento de orçamentos. O editor
 insere variáveis de forma guiada e mostra uma prévia com dados de exemplo.
@@ -49,7 +83,7 @@ itens/variações e peças.
 
 ## Validação registrada
 
-- `python manage.py test --keepdb`: **181 testes aprovados**;
+- `python manage.py test --keepdb`: **206 testes aprovados**;
 - `python manage.py check`: nenhum problema;
 - `python manage.py makemigrations --check --dry-run`: nenhuma mudança;
 - `python manage.py auditar_integracoes`: zero divergências;
@@ -75,6 +109,7 @@ itens/variações e peças.
 | Vendas | Concluído | venda direta, edição em aberto, orçamento, pagamento, estoque, financeiro e cancelamento |
 | Relatórios | Concluído no escopo 1.0 | 13 análises com filtros, KPIs, CSV e impressão; 6 PDFs oficiais |
 | Configurações | Funcional | dados institucionais e modelos de comunicação com variáveis validadas |
+| Eventos — Use Helvi | Funcional na primeira etapa | agenda, contatos, produtos, gastos gerais, vendas e lucro por evento |
 
 ## Regras críticas já implementadas
 

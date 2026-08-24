@@ -1,0 +1,62 @@
+{% extends "eventos/base.html" %}
+{% load moeda %}
+
+{% block eventos_title %}{{ evento.nome }}{% endblock %}
+{% block eventos_content %}
+<style>.eventos-btn--danger{background:#8a3535!important;color:#fff!important;border-color:#8a3535!important}.cancel-card{border-color:#e4caca}.cancel-card summary{color:#8a3535}</style>
+<header class="eventos-page-header ficha-header">
+    <div><span class="eventos-eyebrow">{{ evento.get_status_display }}</span><h1>{{ evento.nome }}</h1><p>{{ evento.inicio|date:"d/m/Y H:i" }} a {{ evento.fim|date:"d/m/Y H:i" }} · {{ evento.local|default:"Local a definir" }}</p></div>
+    <div><a class="eventos-btn" href="{% url 'eventos:relatorio_financeiro' %}?evento={{ evento.pk }}&inicio={{ evento.inicio|date:'Y-m-d' }}&fim={{ evento.fim|date:'Y-m-d' }}">Relatório do evento</a> <a class="eventos-btn" href="{% url 'eventos:editar' evento.pk %}">Editar evento</a></div>
+</header>
+
+<section class="resultado-grid">
+    <article><span>Vendas</span><strong>{{ totais.vendido|moeda }}</strong><small>{{ totais.a_receber|moeda }} a receber</small></article>
+    <article><span>Custo dos produtos</span><strong>{{ totais.custo|moeda }}</strong><small>mercadorias vendidas</small></article>
+    <article><span>Despesas</span><strong>{{ totais.gasto|moeda }}</strong><small>{{ totais.gasto_pendente|moeda }} pendentes</small></article>
+    <article class="resultado-lucro {% if totais.lucro < 0 %}resultado-negativo{% endif %}"><span>Lucro do evento</span><strong>{{ totais.lucro|moeda }}</strong><small>Margem {{ totais.margem|floatformat:1 }}%</small></article>
+</section>
+
+<div class="ficha-layout">
+    <div>
+        <section class="eventos-card ficha-info"><h2>Informações</h2><dl>
+            <div><dt>Responsável</dt><dd>{{ evento.responsavel }}</dd></div><div><dt>{{ evento.get_tipo_contato_responsavel_display|default:"Contato" }}</dt><dd>{{ evento.contato_responsavel|default:"—" }}</dd></div>
+            <div><dt>Local</dt><dd>{{ evento.local|default:"—" }}{% if evento.cidade %} · {{ evento.cidade }}/{{ evento.estado }}{% endif %}</dd></div><div><dt>Público-alvo</dt><dd>{{ evento.publico_alvo|default:"—" }}</dd></div>
+            <div><dt>Organizador/local</dt><dd>{{ evento.organizador|default:"—" }}{% if evento.contato_organizador %}<br>{{ evento.contato_organizador }}{% endif %}{% if evento.instagram %}<br>{{ evento.instagram }}{% endif %}</dd></div>
+            <div><dt>Equipe cadastrada</dt><dd>{{ evento.equipe|default:"—" }}</dd></div>
+            <div class="dl-wide"><dt>Participantes</dt><dd>{% for pessoa in evento.pessoas_equipe.all %}{{ pessoa }}{% if not forloop.last %}, {% endif %}{% empty %}{% for pessoa in evento.participantes.all %}{{ pessoa }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}{% endfor %}{% if evento.participantes_externos %}<br>{{ evento.participantes_externos|linebreaksbr }}{% endif %}</dd></div>
+        </dl></section>
+
+        <section class="eventos-card lancamentos"><header><div><h2>Despesas</h2><p>Obrigações integradas ao Financeiro.</p></div></header>
+            <div class="tabela-eventos"><div class="tabela-head"><span>Descrição</span><span>Categoria</span><span>Status</span><span>Valor</span></div>
+            {% for item in evento.despesas.all %}<a href="{% url 'financeiro:ficha_conta_pagar' item.conta_pagar.pk %}"><span>{{ item.conta_pagar.descricao }}</span><span>{{ item.conta_pagar.categoria.nome }}</span><span>{{ item.conta_pagar.get_status_display }}</span><strong>{{ item.conta_pagar.valor_total|moeda }}</strong></a>{% empty %}<div class="eventos-empty">Nenhuma despesa lançada.</div>{% endfor %}</div>
+        </section>
+
+        <section class="eventos-card lancamentos"><header><div><h2>Vendas</h2><p>Receita e custo usados no lucro do evento.</p></div></header>
+            <div class="tabela-eventos"><div class="tabela-head"><span>Descrição</span><span>Status</span><span>Custo</span><span>Venda</span></div>
+            {% for venda in evento.vendas.all %}<div><span>{{ venda.descricao }}<small>{{ venda.quantidade }} × {{ venda.tipo_produto }}</small></span><span>{{ venda.get_status_display }}</span><span>{{ venda.custo_produtos|moeda }}</span><strong>{{ venda.valor_venda|moeda }}</strong></div>{% empty %}<div class="eventos-empty">Nenhuma venda lançada.</div>{% endfor %}</div>
+        </section>
+    </div>
+
+    <aside>
+        <details class="eventos-card quick-card" open><summary>Lançar despesa</summary><form method="post" action="{% url 'eventos:lancar_despesa' evento.pk %}">{% csrf_token %}{{ despesa_form.as_p }}<button class="eventos-btn eventos-btn--primary" type="submit">Salvar despesa</button></form></details>
+        <details class="eventos-card quick-card"><summary>Registrar venda</summary><form method="post" action="{% url 'eventos:lancar_venda' evento.pk %}">{% csrf_token %}{{ venda_form.as_p }}<button class="eventos-btn eventos-btn--primary" type="submit">Salvar venda</button></form></details>
+        {% if evento.status != "cancelado" %}<details class="eventos-card quick-card cancel-card"><summary>Cancelar evento</summary><p>O evento será mantido para auditoria, junto com vendas e despesas.</p><form method="post" action="{% url 'eventos:cancelar' evento.pk %}">{% csrf_token %}{{ cancelar_form.as_p }}<button class="eventos-btn eventos-btn--danger" type="submit">Confirmar cancelamento</button></form></details>{% endif %}
+    </aside>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const pago = document.getElementById("id_ja_pago");
+    if (!pago) return;
+    const conta = document.getElementById("id_conta_financeira")?.closest("p");
+    const forma = document.getElementById("id_forma_pagamento")?.closest("p");
+    const vencimento = document.getElementById("id_vencimento")?.closest("p");
+    function atualizar() {
+        if (conta) conta.hidden = !pago.checked;
+        if (forma) forma.hidden = !pago.checked;
+        if (vencimento) vencimento.hidden = pago.checked;
+    }
+    pago.addEventListener("change", atualizar);
+    atualizar();
+});
+</script>
+{% endblock %}

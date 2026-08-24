@@ -1,0 +1,53 @@
+.cadastros-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
+    gap: 20px;
+}
+
+.cadastro-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 13px 0;
+    border-top: 1px solid #eee8ef;
+}
+
+.cadastro-row > div:first-child {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.cadastro-row span { color: #766c76; font-size: 12px; }
+.cadastro-row > div:last-child { display: flex; gap: 7px; }
+.cadastro-row form { margin: 0; }
+.cadastro-row button { width: auto; }
+.agenda-cor { display: inline-block; width: 13px; height: 13px; margin-right: 7px; border: 2px solid #fff; border-radius: 50%; background: var(--agenda-cor); box-shadow: 0 0 0 1px #d6ccd7; vertical-align: -2px; }
+.calendario-dia a.calendario-evento--cancelado {
+    --evento-cores: linear-gradient(90deg, #a92f2f, #d75b5b) !important;
+    background: var(--evento-cores) top / 100% 4px no-repeat, #f9e4e4;
+    color: #9c2929;
+    text-decoration: line-through;
+    opacity: .82;
+}
+.financeiro-resumo { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.financeiro-atalhos { display: flex; flex-wrap: wrap; gap: 8px; margin: -4px 0 20px; }
+.financeiro-lancamentos, .financeiro-historico { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; margin-bottom: 20px; }
+.financeiro-lancamentos details { align-self: start; }
+.financeiro-lancamentos summary { margin-bottom: 0; }
+.financeiro-lancamentos details[open] summary { margin-bottom: 16px; }
+.tabela-relatorio > div { display: grid; grid-template-columns: 1.5fr repeat(8, minmax(90px, 1fr)); gap: 8px; padding: 10px 4px; border-top: 1px solid #eee8ef; font-size: 12px; }
+.tabela-relatorio > div span:nth-child(n+3) { text-align: right; }
+
+@media (max-width: 900px) {
+    .cadastros-grid { grid-template-columns: 1fr; }
+    .financeiro-lancamentos, .financeiro-historico { grid-template-columns: 1fr; }
+    .tabela-relatorio { overflow-x: auto; }
+    .tabela-relatorio > div { min-width: 920px; }
+}
+
+@media (max-width: 640px) {
+    .cadastro-row { align-items: flex-start; flex-direction: column; }
+}

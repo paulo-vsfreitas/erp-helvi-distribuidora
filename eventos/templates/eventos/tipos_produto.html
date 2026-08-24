@@ -1,0 +1,7 @@
+{% extends "eventos/base.html" %}
+{% block eventos_title %}Tipos de produto{% endblock %}
+{% block eventos_content %}
+<header class="eventos-page-header"><div><span class="eventos-eyebrow">CADASTRO RÁPIDO</span><h1>Tipos de produto</h1><p>Classifique as vendas para descobrir o que funciona melhor em cada evento.</p></div></header>
+<div class="ficha-layout"><section class="eventos-card lancamentos"><h2>Tipos cadastrados</h2>{% for tipo in tipos %}<div class="cadastro-row"><div><strong>{{ tipo.nome }}</strong><span>{% if tipo.ativo %}Ativo{% else %}Excluído das novas vendas{% endif %}</span></div><div><a class="eventos-btn" href="{% url 'eventos:editar_tipo_produto' tipo.pk %}">Editar</a><form method="post" action="{% url 'eventos:alternar_tipo_produto' tipo.pk %}" onsubmit="return confirm('{% if tipo.ativo %}Excluir este tipo das novas vendas? O histórico será mantido.{% else %}Reativar este tipo de produto?{% endif %}');">{% csrf_token %}<button class="eventos-btn" type="submit">{% if tipo.ativo %}Excluir{% else %}Reativar{% endif %}</button></form></div></div>{% empty %}<div class="eventos-empty">Nenhum tipo cadastrado.</div>{% endfor %}</section>
+<aside><section class="eventos-card quick-card"><h2>Novo tipo</h2><form method="post">{% csrf_token %}{{ form.as_p }}<button class="eventos-btn eventos-btn--primary" type="submit">Cadastrar tipo</button></form></section></aside></div>
+{% endblock %}

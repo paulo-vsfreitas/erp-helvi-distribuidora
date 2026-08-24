@@ -4,10 +4,16 @@ from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect
 
+from core.services.operacao_service import (
+    USE_HELVI,
+    obter_operacao_ativa,
+)
+
 from usuarios.permissoes import (
     Acao,
     Modulo,
     usuario_pode_executar,
+    operacao_tem_modulo,
     usuario_tem_permissao,
 )
 
@@ -27,10 +33,16 @@ class PermissaoModuloMiddleware:
         "produtos": Modulo.PRODUTOS,
         "usuarios": Modulo.USUARIOS,
         "vendas": Modulo.VENDAS,
+        "eventos": Modulo.EVENTOS,
     }
 
     MODULOS_POR_URL = {
         "central_relatorios": Modulo.RELATORIOS,
+        "relatorio_analitico": Modulo.RELATORIOS,
+    }
+
+    ROTAS_EXCLUSIVAS_DISTRIBUIDORA = {
+        ("financeiro", "rentabilidade"),
     }
 
     ACOES_POR_ROTA = {
@@ -123,6 +135,30 @@ class PermissaoModuloMiddleware:
                 request.get_full_path(),
                 settings.LOGIN_URL,
             )
+
+        # Sessões anteriores à seleção de operação pertencem ao legado da
+        # Distribuidora. O login normal continua direcionando para a escolha.
+        operacao = obter_operacao_ativa(request) or "distribuidora"
+
+        if not operacao_tem_modulo(operacao, modulo):
+            messages.error(
+                request,
+                "Este módulo não pertence à operação selecionada.",
+            )
+            if operacao == USE_HELVI:
+                return redirect("dashboard_use_helvi")
+            return redirect("dashboard")
+
+        if (
+            operacao == USE_HELVI
+            and (resolver_match.namespace, resolver_match.url_name)
+            in self.ROTAS_EXCLUSIVAS_DISTRIBUIDORA
+        ):
+            messages.error(
+                request,
+                "Esta página financeira usa dados comerciais da Distribuidora.",
+            )
+            return redirect("eventos:financeiro")
 
         # O Financeiro pode consultar uma venda específica e corrigir seu
         # vendedor mediante senha, sem receber acesso ao restante do módulo.

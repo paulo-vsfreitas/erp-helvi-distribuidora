@@ -101,10 +101,11 @@ class RecebimentoContaForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         self.parcela = parcela
+        operacao = parcela.conta_receber.operacao if parcela else "distribuidora"
 
         self.fields["conta_financeira"].queryset = (
             ContaFinanceira.objects
-            .filter(ativo=True)
+            .filter(ativo=True, operacao=operacao)
             .order_by("nome")
         )
 

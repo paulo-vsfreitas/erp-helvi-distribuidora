@@ -481,8 +481,15 @@ def listar_contas_pagar(request):
         )
     )
 
+    operacao = getattr(getattr(request, "operacao_ativa", None), "codigo", None)
+    if not operacao:
+        from core.services.operacao_service import obter_operacao_ativa
+        ativa = obter_operacao_ativa(request)
+        operacao = ativa.codigo if ativa else "distribuidora"
+
     contas = (
         ContaPagar.objects
+        .filter(operacao=operacao)
         .select_related(
             "fornecedor",
             "categoria",

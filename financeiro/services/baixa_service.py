@@ -65,6 +65,11 @@ def _validar_baixa(
             "A conta financeira selecionada está inativa."
         )
 
+    if conta_financeira.operacao != conta_pagar.operacao:
+        raise ValidationError(
+            "A conta financeira deve pertencer à mesma empresa da despesa."
+        )
+
     if valor <= 0:
         raise ValidationError(
             "O valor principal da baixa deve ser maior que zero."
@@ -222,6 +227,7 @@ def registrar_baixa(
     )
 
     MovimentacaoFinanceira.objects.create(
+        operacao=conta_pagar.operacao,
         conta_financeira=conta_financeira,
         categoria=conta_pagar.categoria,
         baixa_pagar=baixa,

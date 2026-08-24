@@ -1,0 +1,7 @@
+{% extends "eventos/base.html" %}
+{% block eventos_title %}{{ titulo }}{% endblock %}
+{% block eventos_content %}
+<header class="eventos-page-header"><div><span class="eventos-eyebrow">CADASTRO</span><h1>{{ titulo }}</h1></div></header>
+<form method="post" class="eventos-card eventos-form">{% csrf_token %}{{ form.as_p }}<footer><a class="eventos-btn" href="{% url voltar %}">Cancelar</a><button class="eventos-btn eventos-btn--primary">Salvar</button></footer></form>
+<script>document.addEventListener("DOMContentLoaded",function(){const tipo=document.getElementById("id_tipo_contato"),contato=document.getElementById("id_contato");if(!tipo||!contato)return;function atualizar(){if(tipo.value==="email"){contato.type="email";contato.removeAttribute("data-mask")}else{contato.type="tel";contato.dataset.mask="telefone";window.Helvi?.initMasks?.()}}tipo.addEventListener("change",atualizar);atualizar()});</script>
+{% endblock %}

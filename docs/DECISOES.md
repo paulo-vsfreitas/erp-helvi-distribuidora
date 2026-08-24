@@ -76,12 +76,34 @@ Cliente ou interessado
 
 ## Financeiro
 
+- todo registro financeiro identifica persistentemente sua operação;
+- a troca de operação nunca mistura contas, obrigações ou fluxo de caixa;
+- despesas gerais da Use Helvi usam o motor transacional do Financeiro, com
+  evento opcional;
 - baixa e recebimento criam movimentos explícitos;
 - estorno nunca apaga a operação original;
 - estorno exige motivo, usuário e data;
 - o movimento inverso e o recálculo da parcela/conta são atômicos;
 - uma operação não pode ser estornada duas vezes;
 - ajustes manuais não substituem services operacionais existentes.
+- categorias com histórico financeiro são inativadas, nunca apagadas fisicamente.
+
+## Eventos — Use Helvi
+
+- pessoas de stands possuem cadastro próprio e não exigem acesso ao ERP;
+- equipes agrupam pessoas reutilizáveis e preenchem os integrantes do evento;
+- telefone e WhatsApp são normalizados também no backend;
+- o Financeiro da Use Helvi reutiliza Contas a Pagar, Contas a Receber e caixa;
+- relatórios distinguem vendas, recebimentos, custos, despesas e resultado.
+- o mesmo dia não aceita duplicidade de evento nem dupla alocação de pessoas;
+- a tela Financeiro concentra os lançamentos e acessos financeiros da Use Helvi.
+- a cor da agenda pertence ao cadastro da pessoa, não ao evento, para manter a
+  mesma identificação visual em toda a programação;
+- eventos com mais de uma pessoa apresentam todas as cores sem escolher uma
+  cor principal;
+- lembretes aparecem na Agenda conforme a antecedência definida no evento.
+- cancelamento não remove o evento da Agenda: preserva o histórico com estilo
+  riscado e cor neutra de alerta, sem confundir com eventos ativos.
 
 ## Usuários e permissões
 

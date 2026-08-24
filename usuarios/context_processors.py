@@ -1,58 +1,32 @@
-from usuarios.permissoes import Modulo, usuario_tem_permissao
+from core.services.operacao_service import obter_operacao_ativa
+from usuarios.permissoes import Modulo, usuario_tem_permissao_na_operacao
 
 
 def permissoes_usuario(request):
     usuario = getattr(request, "user", None)
+    operacao = obter_operacao_ativa(request) or "distribuidora"
+
+    def possui(modulo):
+        return usuario_tem_permissao_na_operacao(
+            usuario,
+            modulo,
+            operacao,
+        )
 
     return {
         "permissoes": {
-            "dashboard": usuario_tem_permissao(
-                usuario,
-                Modulo.DASHBOARD,
-            ),
-            "vendas": usuario_tem_permissao(
-                usuario,
-                Modulo.VENDAS,
-            ),
-            "clientes": usuario_tem_permissao(
-                usuario,
-                Modulo.CLIENTES,
-            ),
-            "fornecedores": usuario_tem_permissao(
-                usuario,
-                Modulo.FORNECEDORES,
-            ),
-            "produtos": usuario_tem_permissao(
-                usuario,
-                Modulo.PRODUTOS,
-            ),
-            "catalogo": usuario_tem_permissao(
-                usuario,
-                Modulo.CATALOGO,
-            ),
-            "estoque": usuario_tem_permissao(
-                usuario,
-                Modulo.ESTOQUE,
-            ),
-            "financeiro": usuario_tem_permissao(
-                usuario,
-                Modulo.FINANCEIRO,
-            ),
-            "relatorios": usuario_tem_permissao(
-                usuario,
-                Modulo.RELATORIOS,
-            ),
-            "configuracoes": usuario_tem_permissao(
-                usuario,
-                Modulo.CONFIGURACOES,
-            ),
-            "usuarios": usuario_tem_permissao(
-                usuario,
-                Modulo.USUARIOS,
-            ),
-            "compras": usuario_tem_permissao(
-                usuario,
-                Modulo.COMPRAS,
-            ),
+            "dashboard": possui(Modulo.DASHBOARD),
+            "vendas": possui(Modulo.VENDAS),
+            "clientes": possui(Modulo.CLIENTES),
+            "fornecedores": possui(Modulo.FORNECEDORES),
+            "produtos": possui(Modulo.PRODUTOS),
+            "catalogo": possui(Modulo.CATALOGO),
+            "estoque": possui(Modulo.ESTOQUE),
+            "financeiro": possui(Modulo.FINANCEIRO),
+            "relatorios": possui(Modulo.RELATORIOS),
+            "configuracoes": possui(Modulo.CONFIGURACOES),
+            "usuarios": possui(Modulo.USUARIOS),
+            "compras": possui(Modulo.COMPRAS),
+            "eventos": possui(Modulo.EVENTOS),
         }
     }

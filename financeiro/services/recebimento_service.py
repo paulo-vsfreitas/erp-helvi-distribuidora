@@ -60,6 +60,11 @@ def _validar_recebimento(
             "A conta financeira selecionada está inativa."
         )
 
+    if conta_financeira.operacao != conta.operacao:
+        raise ValidationError(
+            "A conta financeira deve pertencer à mesma empresa do recebimento."
+        )
+
     if valor <= 0:
         raise ValidationError(
             "O valor recebido deve ser maior que zero."
@@ -173,6 +178,7 @@ def registrar_recebimento(
     )
 
     MovimentacaoFinanceira.objects.create(
+        operacao=conta.operacao,
         conta_financeira=conta_financeira,
         categoria=conta.categoria,
         recebimento_conta=recebimento,

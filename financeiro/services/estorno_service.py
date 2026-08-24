@@ -103,6 +103,7 @@ def estornar_baixa(*, baixa, usuario, motivo):
     agora = timezone.now()
 
     MovimentacaoFinanceira.objects.create(
+        operacao=conta.operacao,
         conta_financeira=baixa.conta_financeira,
         categoria=conta.categoria,
         baixa_pagar=baixa,
@@ -206,6 +207,7 @@ def estornar_recebimento(*, recebimento, usuario, motivo):
     agora = timezone.now()
 
     MovimentacaoFinanceira.objects.create(
+        operacao=conta.operacao,
         conta_financeira=recebimento.conta_financeira,
         categoria=conta.categoria,
         recebimento_conta=recebimento,

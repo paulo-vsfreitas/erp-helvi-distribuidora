@@ -83,6 +83,7 @@ INSTALLED_APPS = [
     'configuracoes',
     'compras',
     "comercial.apps.ComercialConfig",
+    "eventos.apps.EventosConfig",
 ]
 
 MIDDLEWARE = [

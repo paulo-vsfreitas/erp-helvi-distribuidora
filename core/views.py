@@ -121,6 +121,8 @@ def relatorio_analitico(request, slug):
         status_choices=obter_status_relatorio(slug),
     )
     filtros = form.cleaned_data if form.is_valid() else {}
+    operacao = obter_operacao_ativa(request)
+    filtros["operacao"] = operacao.codigo if operacao else "distribuidora"
     relatorio = obter_relatorio_analitico(slug, filtros)
     periodo_texto = "Todo o período"
     if filtros.get("data_inicial") or filtros.get("data_final"):

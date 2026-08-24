@@ -32,6 +32,9 @@ Atualizado em 04/08/2026.
 
 ## Versão 1.1 — produtividade e análise
 
+- [x] primeira etapa de Eventos da Use Helvi com agenda e lucro por stand;
+- [ ] comprovantes, checklist e integração completa das vendas dos eventos;
+
 - [ ] pesquisa global entre módulos;
 - [ ] relatórios analíticos dedicados de clientes, produtos, financeiro e estoque;
 - [ ] exportação CSV/PDF dos relatórios;
