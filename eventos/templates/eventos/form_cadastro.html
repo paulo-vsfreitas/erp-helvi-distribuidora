@@ -1,7 +1,17 @@
 {% extends "eventos/base.html" %}
 {% block eventos_title %}{{ titulo }}{% endblock %}
 {% block eventos_content %}
-<header class="eventos-page-header"><div><span class="eventos-eyebrow">CADASTRO</span><h1>{{ titulo }}</h1></div></header>
-<form method="post" class="eventos-card eventos-form">{% csrf_token %}{{ form.as_p }}<footer><a class="eventos-btn" href="{% url voltar %}">Cancelar</a><button class="eventos-btn eventos-btn--primary">Salvar</button></footer></form>
+<div class="cadastro-editor-shell {% if tipo_cadastro %}cadastro-editor-shell--{{ tipo_cadastro }}{% endif %}">
+    <header class="cadastro-editor-hero">
+        <div class="cadastro-editor-icon" aria-hidden="true">{% if tipo_cadastro == 'categoria' %}↗{% else %}✦{% endif %}</div>
+        <div><span class="eventos-eyebrow">USE HELVI · CADASTRO</span><h1>{{ titulo }}</h1><p>{{ subtitulo|default:"Revise as informações e salve quando estiver tudo certo." }}</p></div>
+    </header>
+    <form method="post" class="eventos-card eventos-form cadastro-editor-card" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="eventos-alert eventos-alert--error">{{ form.non_field_errors }}</div>{% endif %}
+        <div class="cadastro-editor-fields">{{ form.as_p }}</div>
+        <footer><a class="eventos-btn" href="{% url voltar %}">Cancelar</a><button class="eventos-btn eventos-btn--primary">Salvar alterações</button></footer>
+    </form>
+</div>
 <script>document.addEventListener("DOMContentLoaded",function(){const tipo=document.getElementById("id_tipo_contato"),contato=document.getElementById("id_contato");if(!tipo||!contato)return;function atualizar(){if(tipo.value==="email"){contato.type="email";contato.removeAttribute("data-mask")}else{contato.type="tel";contato.dataset.mask="telefone";window.Helvi?.initMasks?.()}}tipo.addEventListener("change",atualizar);atualizar()});</script>
 {% endblock %}

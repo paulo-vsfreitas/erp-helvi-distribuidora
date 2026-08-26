@@ -116,16 +116,7 @@ def _preparar_cores_agenda(evento):
     for pessoa in evento.pessoas_equipe.all():
         if pessoa.cor_agenda not in cores:
             cores.append(pessoa.cor_agenda)
-    if not cores:
-        cores = ["#743f76"]
-    largura = 100 / len(cores)
-    faixas = []
-    for indice, cor in enumerate(cores):
-        faixas.extend((
-            f"{cor} {indice * largura:.2f}%",
-            f"{cor} {(indice + 1) * largura:.2f}%",
-        ))
-    evento.gradiente_agenda = f"linear-gradient(90deg, {', '.join(faixas)})"
+    evento.gradiente_agenda = cores[0] if cores else "#D84A8B"
 
 
 def obter_contexto_evento(pk):

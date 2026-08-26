@@ -66,6 +66,26 @@
 .use-modules p,.use-placeholder p { margin:0; color:#746a74; font-size:13px; line-height:1.5; }
 .use-placeholder { width:min(1120px,calc(100% - 40px)); display:flex; align-items:center; gap:16px; margin:24px auto 0; padding:22px; border:1px dashed #bba9bb; border-radius:18px; }
 .use-placeholder > i { font-size:24px; color:#7a427c; }
+
+/* Operação Use Helvi — identidade rose gold da marca. */
+.use-dashboard { background:#f6f1ef; color:#2f2b29; }
+.use-topbar { background:#242321; border-color:#3a3734; }
+.use-topbar .erp-brand, .use-topbar .erp-brand__wordmark small { color:#f4ecea; }
+.use-topbar .erp-brand__lens--gold, .use-topbar .erp-brand__lens--violet { border-color:#c9826b; }
+.use-topbar .erp-brand__bridge { background:#c9826b; }
+.use-topbar__actions > span { background:#c9826b; color:#fff; }
+.use-topbar__actions a, .use-topbar button { color:#f4ecea; }
+.use-hero { padding-top:68px; }
+.use-hero .access-eyebrow, .use-modules span { color:#8a4f3d; }
+.use-hero__shape { border-radius:28px; background:#c9826b; box-shadow:0 28px 65px rgba(86,52,48,.20); transform:none; }
+.use-hero__shape span { transform:none; }
+.use-modules article { border-color:#e1cfcc; border-top:4px solid #c9826b; background:#fffdfc; box-shadow:0 12px 30px rgba(55,42,38,.07); }
+.use-module-link:hover article { box-shadow:0 18px 38px rgba(55,42,38,.13); }
+.use-modules article > i, .use-placeholder > i { color:#c9826b; }
+.use-placeholder { border-color:#cfaaa8; background:#fffdfc; }
+.operation-card--use { border-top-color:#c9826b; }
+.operation-card--use .operation-monogram { background:#f5e7e1; color:#8a4f3d; }
+.operation-card--use button { background:#c9826b; }
 @media (max-width:767.98px) {
   .operation-grid,.use-hero,.use-modules { grid-template-columns:1fr; }
   .operation-header,.use-topbar { align-items:flex-start; gap:20px; }

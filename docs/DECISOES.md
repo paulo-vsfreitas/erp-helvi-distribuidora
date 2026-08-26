@@ -97,10 +97,12 @@ Cliente ou interessado
 - relatórios distinguem vendas, recebimentos, custos, despesas e resultado.
 - o mesmo dia não aceita duplicidade de evento nem dupla alocação de pessoas;
 - a tela Financeiro concentra os lançamentos e acessos financeiros da Use Helvi.
-- a cor da agenda pertence ao cadastro da pessoa, não ao evento, para manter a
-  mesma identificação visual em toda a programação;
-- eventos com mais de uma pessoa apresentam todas as cores sem escolher uma
-  cor principal;
+- a cor da agenda pertence ao cadastro da pessoa e vem de uma paleta RGB fixa,
+  formada por cores visualmente distantes para facilitar a identificação;
+- eventos com mais de uma pessoa usam a cor da primeira pessoa em ordem
+  alfabética, sem gradientes;
+- a identidade visual da operação Use Helvi é o rose gold cobre da logo,
+  grafite e off-white, sem roxo ou misturas em gradiente;
 - lembretes aparecem na Agenda conforme a antecedência definida no evento.
 - cancelamento não remove o evento da Agenda: preserva o histórico com estilo
   riscado e cor neutra de alerta, sem confundir com eventos ativos.

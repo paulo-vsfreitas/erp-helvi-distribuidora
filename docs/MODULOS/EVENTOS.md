@@ -27,10 +27,26 @@ Atualizado em 24/08/2026.
 - cancelamento com motivo obrigatório, usuário, data e preservação do histórico.
 - lembrete opcional por evento, com antecedência e mensagem configuráveis;
 - pop-up de lembretes na Agenda com acesso direto à ficha e à edição;
-- cor definida no cadastro de cada pessoa e reutilizada em todos os eventos;
-- eventos com várias pessoas combinam suas cores na faixa visual do calendário.
+- cor definida no cadastro de cada pessoa por uma paleta RGB fixa e contrastante
+  (verde, amarelo, azul, preto, marrom, laranja, vermelho, cinza, rosa e
+  dourado), reutilizada em todos os eventos sem gradientes;
+- eventos com várias pessoas usam como cor principal a primeira pessoa em ordem
+  alfabética, mantendo uma identificação sólida e previsível no calendário.
 - pessoas da equipe guardam somente nome, contato e cor; Instagram pertence às
   informações do organizador/local do evento.
+- mensagens de campos obrigatórios, dados inválidos e falhas ao salvar são
+  exibidas em vermelho, com destaque também no campo que precisa de correção.
+- a identidade da Use Helvi usa o rose gold cobre da logo, grafite e off-white
+  em superfícies sólidas, cards e estados de interação, sem tons lilás;
+- o Financeiro permite filtrar lançamentos por busca, evento, categoria,
+  situação e período; os totais acompanham o resultado filtrado;
+- o Centro Financeiro reúne entradas e saídas em um extrato único, mantendo o
+  vínculo com evento opcional e separando valor lançado, pago/recebido e
+  pendente;
+- indicadores distinguem receitas lançadas, valores recebidos, valores a
+  receber, despesas lançadas, valores pagos, valores a pagar, resultado dos
+  lançamentos e resultado de caixa;
+- categorias financeiras possuem listagem em cards e editor visual dedicado.
 
 ## Fluxo
 

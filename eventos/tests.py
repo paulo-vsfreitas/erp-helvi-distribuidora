@@ -184,7 +184,7 @@ class EventosUseHelviTests(TestCase):
         evento = Evento.objects.get(nome="Evento com equipe")
         self.assertEqual(list(evento.pessoas_equipe.all()), [pessoa])
 
-    def test_cor_e_cadastrada_com_pessoa_e_combinada_na_agenda(self):
+    def test_cor_fixa_da_primeira_pessoa_em_ordem_alfabetica_identifica_evento(self):
         paulo = PessoaEquipe.objects.create(nome="Paulo agenda", cor_agenda="#198754")
         helen = PessoaEquipe.objects.create(nome="Helen agenda", cor_agenda="#e78fba")
         evento = self.criar_evento()
@@ -192,9 +192,21 @@ class EventosUseHelviTests(TestCase):
 
         resposta = self.client.get(reverse("eventos:agenda"))
 
-        self.assertContains(resposta, "#198754")
         self.assertContains(resposta, "#e78fba")
-        self.assertContains(resposta, "linear-gradient")
+        self.assertNotContains(resposta, "--evento-cores:#198754")
+        self.assertNotContains(resposta, "linear-gradient(90deg, #198754")
+
+    def test_cadastro_de_pessoa_oferece_paleta_rgb_fixa_rose_gold(self):
+        form = PessoaEquipeForm(data={
+            "nome": "Pessoa Rose", "tipo_contato": "whatsapp",
+            "contato": "11999999999", "cor_agenda": "#2E7D32",
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.cleaned_data["cor_agenda"], "#2E7D32")
+        self.assertFalse(PessoaEquipeForm(data={
+            "nome": "Pessoa fora da paleta", "tipo_contato": "whatsapp",
+            "contato": "11988888888", "cor_agenda": "#123456",
+        }).is_valid())
 
     def test_lembrete_aparece_em_popup_e_oferece_edicao(self):
         evento = self.criar_evento()
@@ -305,6 +317,32 @@ class EventosUseHelviTests(TestCase):
         })
         self.assertRedirects(resposta, reverse("eventos:financeiro"))
         self.assertTrue(DespesaEvento.objects.filter(conta_pagar__descricao="Material do stand").exists())
+
+    def test_financeiro_filtra_por_busca_categoria_situacao_e_periodo(self):
+        self.client.post(reverse("eventos:financeiro"), {
+            "acao": "despesa", "despesa-descricao": "Material rose gold",
+            "despesa-categoria": self.categoria.pk, "despesa-valor": "90.00",
+            "despesa-data": "2026-08-24", "despesa-vencimento": "2026-08-30",
+        })
+        resposta = self.client.get(reverse("eventos:financeiro"), {
+            "busca": "rose gold", "categoria": self.categoria.pk,
+            "situacao": "pendente", "inicio": "2026-08-01", "fim": "2026-08-31",
+        })
+        self.assertContains(resposta, "Material rose gold")
+        self.assertContains(resposta, "Filtrar lançamentos")
+        self.assertContains(resposta, "Resultado dos lançamentos")
+        self.assertContains(resposta, "Resultado de caixa")
+        self.assertContains(resposta, "Entradas e saídas")
+
+        somente_entradas = self.client.get(reverse("eventos:financeiro"), {"tipo": "entrada"})
+        self.assertNotContains(somente_entradas, "Material rose gold")
+
+    def test_edicao_de_categoria_usa_editor_visual(self):
+        resposta = self.client.get(
+            reverse("eventos:editar_categoria_despesa", args=[self.categoria.pk])
+        )
+        self.assertContains(resposta, "cadastro-editor-hero")
+        self.assertContains(resposta, "Salvar alterações")
 
     def test_bloqueia_evento_duplicado_no_mesmo_dia(self):
         evento = self.criar_evento()

@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.utils import timezone
 from django.db import transaction
-from django.db.models import Sum
+from django.db.models import Q, Sum
 from datetime import date, timedelta
 import calendar
 from urllib.parse import urlencode
@@ -169,9 +169,100 @@ def financeiro_use(request):
         return redirect("eventos:financeiro")
     receitas = ReceitaEvento.objects.select_related("evento", "conta_receber", "conta_receber__categoria")
     despesas = DespesaEvento.objects.select_related("evento", "conta_pagar", "conta_pagar__categoria")
-    total_receitas = receitas.exclude(conta_receber__status="cancelada").aggregate(total=Sum("conta_receber__valor_total"))["total"] or 0
-    total_despesas = despesas.exclude(conta_pagar__status="cancelada").aggregate(total=Sum("conta_pagar__valor_total"))["total"] or 0
-    return render(request, "eventos/financeiro.html", {"receita_form": receita_form, "despesa_form": despesa_form, "receitas": receitas[:20], "despesas": despesas[:20], "total_receitas": total_receitas, "total_despesas": total_despesas, "resultado": total_receitas - total_despesas, "abrir": acao})
+    busca = request.GET.get("busca", "").strip()
+    evento_id = request.GET.get("evento", "")
+    categoria_id = request.GET.get("categoria", "")
+    situacao = request.GET.get("situacao", "")
+    tipo_movimento = request.GET.get("tipo", "")
+    inicio = request.GET.get("inicio", "")
+    fim = request.GET.get("fim", "")
+    if busca:
+        receitas = receitas.filter(
+            Q(conta_receber__descricao__icontains=busca)
+            | Q(conta_receber__categoria__nome__icontains=busca)
+            | Q(evento__nome__icontains=busca)
+        )
+        despesas = despesas.filter(
+            Q(conta_pagar__descricao__icontains=busca)
+            | Q(conta_pagar__categoria__nome__icontains=busca)
+            | Q(evento__nome__icontains=busca)
+        )
+    if evento_id.isdigit():
+        receitas = receitas.filter(evento_id=evento_id)
+        despesas = despesas.filter(evento_id=evento_id)
+    if categoria_id.isdigit():
+        receitas = receitas.filter(conta_receber__categoria_id=categoria_id)
+        despesas = despesas.filter(conta_pagar__categoria_id=categoria_id)
+    for valor, lookup_receita, lookup_despesa in (
+        (inicio, "conta_receber__data_emissao__gte", "conta_pagar__data_emissao__gte"),
+        (fim, "conta_receber__data_emissao__lte", "conta_pagar__data_emissao__lte"),
+    ):
+        try:
+            data_filtro = date.fromisoformat(valor) if valor else None
+        except ValueError:
+            data_filtro = None
+        if data_filtro:
+            receitas = receitas.filter(**{lookup_receita: data_filtro})
+            despesas = despesas.filter(**{lookup_despesa: data_filtro})
+    if situacao == "pendente":
+        receitas = receitas.filter(conta_receber__status__in=["pendente", "parcial"])
+        despesas = despesas.filter(conta_pagar__status__in=["pendente", "parcial"])
+    elif situacao == "realizado":
+        receitas = receitas.filter(conta_receber__status="recebida")
+        despesas = despesas.filter(conta_pagar__status="paga")
+    elif situacao == "cancelado":
+        receitas = receitas.filter(conta_receber__status="cancelada")
+        despesas = despesas.filter(conta_pagar__status="cancelada")
+    if tipo_movimento == "entrada":
+        despesas = despesas.none()
+    elif tipo_movimento == "saida":
+        receitas = receitas.none()
+    totais_receitas = receitas.exclude(conta_receber__status="cancelada").aggregate(
+        previsto=Sum("conta_receber__valor_total"), realizado=Sum("conta_receber__valor_recebido"),
+    )
+    totais_despesas = despesas.exclude(conta_pagar__status="cancelada").aggregate(
+        previsto=Sum("conta_pagar__valor_total"), realizado=Sum("conta_pagar__valor_pago"),
+    )
+    total_receitas = totais_receitas["previsto"] or 0
+    total_recebido = totais_receitas["realizado"] or 0
+    total_despesas = totais_despesas["previsto"] or 0
+    total_pago = totais_despesas["realizado"] or 0
+    lancamentos = [
+        {
+            "tipo": "entrada", "data": item.conta_receber.data_emissao,
+            "descricao": item.conta_receber.descricao, "categoria": item.conta_receber.categoria,
+            "evento": item.evento, "status": item.conta_receber.get_status_display(),
+            "status_codigo": item.conta_receber.status, "previsto": item.conta_receber.valor_total,
+            "realizado": item.conta_receber.valor_recebido,
+            "pendente": item.conta_receber.valor_total - item.conta_receber.valor_recebido,
+        }
+        for item in receitas[:100]
+    ] + [
+        {
+            "tipo": "saida", "data": item.conta_pagar.data_emissao,
+            "descricao": item.conta_pagar.descricao, "categoria": item.conta_pagar.categoria,
+            "evento": item.evento, "status": item.conta_pagar.get_status_display(),
+            "status_codigo": item.conta_pagar.status, "previsto": item.conta_pagar.valor_total,
+            "realizado": item.conta_pagar.valor_pago,
+            "pendente": item.conta_pagar.valor_total - item.conta_pagar.valor_pago,
+        }
+        for item in despesas[:100]
+    ]
+    lancamentos.sort(key=lambda item: (item["data"], item["descricao"]), reverse=True)
+    return render(request, "eventos/financeiro.html", {
+        "receita_form": receita_form, "despesa_form": despesa_form,
+        "receitas": receitas[:50], "despesas": despesas[:50],
+        "lancamentos": lancamentos[:100], "total_receitas": total_receitas,
+        "total_recebido": total_recebido, "total_a_receber": total_receitas - total_recebido,
+        "total_despesas": total_despesas, "total_pago": total_pago,
+        "total_a_pagar": total_despesas - total_pago,
+        "resultado": total_receitas - total_despesas,
+        "resultado_caixa": total_recebido - total_pago, "abrir": acao,
+        "eventos_filtro": Evento.objects.order_by("-inicio"),
+        "categorias_filtro": CategoriaFinanceira.objects.filter(ativo=True).order_by("tipo", "nome"),
+        "filtros": {"busca": busca, "evento": evento_id, "categoria": categoria_id, "tipo": tipo_movimento,
+                    "situacao": situacao, "inicio": inicio, "fim": fim},
+    })
 
 
 def _filtros_relatorio(request):
@@ -345,7 +436,7 @@ def categorias_despesa(request):
     form = CategoriaDespesaForm(request.POST or None)
     if request.method == "POST" and request.POST.get("acao") == "criar" and form.is_valid():
         form.save()
-        messages.success(request, "Categoria de despesa cadastrada.")
+        messages.success(request, "Categoria financeira cadastrada.")
         return redirect("eventos:categorias_despesa")
     categorias = CategoriaFinanceira.objects.order_by("tipo", "nome")
     return render(request, "eventos/categorias_despesa.html", {"form": form, "categorias": categorias})
@@ -361,7 +452,11 @@ def editar_categoria_despesa(request, pk):
         form.save()
         messages.success(request, "Categoria atualizada.")
         return redirect("eventos:categorias_despesa")
-    return render(request, "eventos/form_cadastro.html", {"form": form, "titulo": "Editar categoria", "voltar": "eventos:categorias_despesa"})
+    return render(request, "eventos/form_cadastro.html", {
+        "form": form, "titulo": "Editar categoria", "voltar": "eventos:categorias_despesa",
+        "tipo_cadastro": "categoria",
+        "subtitulo": "Atualize o nome, o tipo e a descrição usados nos lançamentos financeiros.",
+    })
 
 
 @login_required
@@ -373,7 +468,12 @@ def alternar_categoria_despesa(request, pk):
     categoria = get_object_or_404(CategoriaFinanceira, pk=pk)
     categoria.ativo = not categoria.ativo
     categoria.save(update_fields=["ativo"])
-    messages.success(request, "Categoria ativada." if categoria.ativo else "Categoria excluída das novas despesas; o histórico foi mantido.")
+    messages.success(
+        request,
+        "Categoria ativada."
+        if categoria.ativo
+        else "Categoria excluída dos novos lançamentos; o histórico foi mantido.",
+    )
     return redirect("eventos:categorias_despesa")
 
 

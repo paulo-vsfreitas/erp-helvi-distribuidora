@@ -1,8 +1,20 @@
 {% extends "eventos/base.html" %}
 {% block eventos_title %}Categorias financeiras{% endblock %}
 {% block eventos_content %}
-<header class="eventos-page-header"><div><span class="eventos-eyebrow">FINANCEIRO USE HELVI</span><h1>Categorias financeiras</h1><p>Organize categorias de receitas e despesas sem apagar o histórico.</p></div><a class="eventos-btn" href="{% url 'eventos:financeiro' %}">Voltar ao Financeiro</a></header>
-<div class="ficha-layout"><section class="eventos-card lancamentos"><h2>Categorias cadastradas</h2>
-{% for categoria in categorias %}<div class="cadastro-row"><div><strong>{{ categoria.nome }}</strong><span>{{ categoria.get_tipo_display }} · {{ categoria.descricao|default:"Sem descrição" }} · {% if categoria.ativo %}Ativa{% else %}Excluída{% endif %}</span></div><div><a class="eventos-btn" href="{% url 'eventos:editar_categoria_despesa' categoria.pk %}">Editar</a><form method="post" action="{% url 'eventos:alternar_categoria_despesa' categoria.pk %}">{% csrf_token %}<button class="eventos-btn" type="submit">{% if categoria.ativo %}Excluir{% else %}Ativar{% endif %}</button></form></div></div>{% empty %}<div class="eventos-empty">Nenhuma categoria cadastrada.</div>{% endfor %}
-</section><aside><section class="eventos-card quick-card"><h2>Nova categoria</h2><form method="post">{% csrf_token %}<input type="hidden" name="acao" value="criar">{{ form.as_p }}<button class="eventos-btn eventos-btn--primary">Cadastrar categoria</button></form></section></aside></div>
+<header class="eventos-page-header"><div><span class="eventos-eyebrow">FINANCEIRO USE HELVI</span><h1>Categorias financeiras</h1><p>Organize receitas e despesas sem apagar o histórico.</p></div><a class="eventos-btn" href="{% url 'eventos:financeiro' %}">Voltar ao Financeiro</a></header>
+<div class="categorias-layout">
+    <section class="eventos-card categorias-lista">
+        <header><div><span class="eventos-eyebrow">ORGANIZAÇÃO</span><h2>Categorias cadastradas</h2></div><span class="categorias-contador">{{ categorias|length }} categorias</span></header>
+        <div class="categorias-grid">
+        {% for categoria in categorias %}
+            <article class="categoria-card {% if not categoria.ativo %}categoria-card--inativa{% endif %}">
+                <div class="categoria-card__top"><span class="categoria-tipo categoria-tipo--{{ categoria.tipo }}">{{ categoria.get_tipo_display }}</span><span class="categoria-status">{% if categoria.ativo %}Ativa{% else %}Inativa{% endif %}</span></div>
+                <h3>{{ categoria.nome }}</h3><p>{{ categoria.descricao|default:"Sem descrição cadastrada." }}</p>
+                <footer><a class="eventos-btn" href="{% url 'eventos:editar_categoria_despesa' categoria.pk %}">Editar</a><form method="post" action="{% url 'eventos:alternar_categoria_despesa' categoria.pk %}">{% csrf_token %}<button class="eventos-btn" type="submit">{% if categoria.ativo %}Inativar{% else %}Ativar{% endif %}</button></form></footer>
+            </article>
+        {% empty %}<div class="eventos-empty">Nenhuma categoria cadastrada.</div>{% endfor %}
+        </div>
+    </section>
+    <aside class="eventos-card quick-card categoria-nova"><span class="eventos-eyebrow">NOVO CADASTRO</span><h2>Nova categoria</h2><p>Escolha se ela organiza entradas ou saídas do caixa.</p><form method="post" novalidate>{% csrf_token %}<input type="hidden" name="acao" value="criar">{{ form.as_p }}<button class="eventos-btn eventos-btn--primary">Cadastrar categoria</button></form></aside>
+</div>
 {% endblock %}

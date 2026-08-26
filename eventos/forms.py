@@ -192,6 +192,24 @@ class TipoProdutoEventoForm(forms.ModelForm):
 
 
 class PessoaEquipeForm(forms.ModelForm):
+    COR_AGENDA_CHOICES = [
+        ("#2E7D32", "Verde"),
+        ("#F4C430", "Amarelo"),
+        ("#1565C0", "Azul"),
+        ("#212121", "Preto"),
+        ("#795548", "Marrom"),
+        ("#EF6C00", "Laranja"),
+        ("#C62828", "Vermelho"),
+        ("#757575", "Cinza"),
+        ("#D84A8B", "Rosa"),
+        ("#B8860B", "Dourado"),
+    ]
+    cor_agenda = forms.ChoiceField(
+        label="Cor na agenda", choices=COR_AGENDA_CHOICES,
+        widget=forms.RadioSelect(attrs={"class": "cor-agenda-input"}), required=False,
+        help_text="Escolha uma cor RGB fixa para identificar a pessoa na agenda.",
+    )
+
     class Meta:
         model = PessoaEquipe
         fields = ["nome", "tipo_contato", "contato", "cor_agenda"]
@@ -199,16 +217,19 @@ class PessoaEquipeForm(forms.ModelForm):
             "nome": forms.TextInput(attrs={"class": "form-control"}),
             "tipo_contato": forms.Select(attrs={"class": "form-select"}),
             "contato": forms.TextInput(attrs={"class": "form-control", "placeholder": "(11) 01234-5678"}),
-            "cor_agenda": forms.TextInput(attrs={"class": "form-control", "type": "color"}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["cor_agenda"].required = False
-        self.fields["cor_agenda"].initial = self.instance.cor_agenda or "#743f76"
+        cor_atual = self.instance.cor_agenda if self.instance.pk else None
+        cores_disponiveis = {valor for valor, _ in self.COR_AGENDA_CHOICES}
+        if cor_atual and cor_atual not in cores_disponiveis:
+            self.fields["cor_agenda"].choices = [(cor_atual, "Cor atual"), *self.COR_AGENDA_CHOICES]
+        self.fields["cor_agenda"].initial = cor_atual or "#D84A8B"
 
     def clean_cor_agenda(self):
-        return self.cleaned_data.get("cor_agenda") or "#743f76"
+        return self.cleaned_data.get("cor_agenda") or "#D84A8B"
 
     def clean_contato(self):
         valor = self.cleaned_data.get("contato")

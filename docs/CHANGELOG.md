@@ -1,5 +1,25 @@
 # Changelog do ERP Helvi
 
+## 25/08/2026 — Validação visual da Use Helvi
+
+- mensagens de campos obrigatórios, preenchimento inválido e falhas ao salvar
+  aparecem em vermelho nos formulários de Eventos, Equipe, Financeiro e
+  Categorias, com destaque visual no campo que precisa de correção.
+- identidade visual da Use Helvi atualizada para rose gold, grafite e off-white,
+  com cards e superfícies sólidas, sem gradientes;
+- cadastro de pessoas passa a oferecer uma paleta RGB fixa para a Agenda;
+- paleta de participantes refinada com dez cores contrastantes e identidade da
+  interface ajustada para o rose gold cobre da logo, removendo a aparência lilás;
+- Financeiro recebe filtros por busca, evento, categoria, situação e período,
+  com indicadores recalculados para o conjunto filtrado;
+- categorias financeiras recebem listagem em cards e editor visual dedicado.
+- Centro Financeiro passa a consolidar entradas e saídas em um extrato único,
+  com evento opcional, filtro por tipo e indicadores de valor lançado,
+  pago/recebido, pendente, resultado dos lançamentos e resultado de caixa.
+- rótulos financeiros deixam de chamar valores já pagos ou recebidos de
+  “previstos”; compromissos futuros permanecem identificados em A pagar e A
+  receber.
+
 ## 24/08/2026 — Eventos e lucro por stand na Use Helvi
 
 - primeiro módulo operacional da Use Helvi com agenda mensal, próximos eventos,

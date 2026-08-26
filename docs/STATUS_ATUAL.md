@@ -26,12 +26,19 @@ O Financeiro foi consolidado em uma única tela compacta para receitas, despesas
 categorias, contas e relatórios. A agenda bloqueia eventos duplicados e impede
 que responsáveis, participantes ou pessoas de equipe ocupem dois eventos no
 mesmo dia; eventos cancelados não geram conflito.
+O Financeiro da Use Helvi filtra por texto, evento, categoria, situação e
+período, recalculando os indicadores conforme a consulta. Categorias usam cards
+e editor próprio na identidade rose gold da operação.
+Entradas e saídas aparecem também em um extrato único, com evento opcional e
+separação entre valor lançado, pago/recebido e pendente. O painel apresenta
+resultado dos lançamentos e resultado efetivo de caixa.
 A navegação agora combina perfil e operação: a Use Helvi exibe e aceita somente
 seu painel, Eventos e Financeiro, enquanto os módulos operacionais tradicionais
 ficam restritos à Distribuidora também em acessos diretos por URL.
 A Agenda da Use Helvi possui lembretes em pop-up, configuráveis por evento, e
-identificação visual por pessoa. Quando várias pessoas participam do mesmo
-evento, suas cores são combinadas no cartão do calendário.
+identificação visual por pessoa em uma paleta RGB fixa. Quando várias pessoas
+participam do mesmo evento, a primeira em ordem alfabética define a cor sólida
+do cartão no calendário.
 Eventos cancelados continuam visíveis para histórico, identificados por texto
 riscado e cor vermelha.
 

@@ -21,7 +21,7 @@ class PessoaEquipe(models.Model):
     tipo_contato = models.CharField(max_length=12, choices=CONTATO_CHOICES, default=CONTATO_WHATSAPP)
     contato = models.CharField(max_length=120, blank=True)
     cor_agenda = models.CharField(
-        "Cor na agenda", max_length=7, default="#743f76",
+        "Cor na agenda", max_length=7, default="#D84A8B",
         validators=[RegexValidator(r"^#[0-9A-Fa-f]{6}$", "Informe uma cor válida.")],
     )
     ativo = models.BooleanField(default=True)
