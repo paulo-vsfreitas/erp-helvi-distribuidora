@@ -99,6 +99,16 @@ class Evento(models.Model):
         EquipeEvento, on_delete=models.PROTECT, null=True, blank=True,
         related_name="eventos", verbose_name="Equipe cadastrada",
     )
+    participante_principal = models.ForeignKey(
+        PessoaEquipe, on_delete=models.PROTECT, null=True, blank=True,
+        related_name="eventos_como_principal", verbose_name="Participante principal",
+        help_text="A cor desta pessoa identifica o evento na agenda.",
+    )
+    participantes_destaque = models.ManyToManyField(
+        PessoaEquipe, blank=True, related_name="eventos_em_destaque",
+        verbose_name="Participantes em destaque na Agenda",
+        help_text="As cores selecionadas aparecem juntas no cartão do evento.",
+    )
     pessoas_equipe = models.ManyToManyField(
         PessoaEquipe, blank=True, related_name="eventos", verbose_name="Pessoas cadastradas",
     )

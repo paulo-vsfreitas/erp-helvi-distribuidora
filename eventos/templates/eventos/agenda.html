@@ -32,7 +32,7 @@
         <div class="calendario-grid">
             {% for semana in calendario %}{% for item in semana %}
             <div class="calendario-dia {% if not item.dia %}calendario-dia--vazio{% endif %}">
-                {% if item.dia %}<strong>{{ item.dia }}</strong>{% for evento in item.eventos %}<a class="{% if evento.status == 'cancelado' %}calendario-evento--cancelado{% endif %}" style="--evento-cores:{{ evento.gradiente_agenda }}" href="{% url 'eventos:ficha' evento.pk %}">{{ evento.nome }}</a>{% endfor %}{% endif %}
+                {% if item.dia %}<strong>{{ item.dia }}</strong>{% for evento in item.eventos %}<a class="{% if evento.status == 'cancelado' %}calendario-evento--cancelado{% endif %}" style="--evento-cor:{{ evento.cor_agenda }};--evento-texto:{{ evento.cor_texto_agenda }}" href="{% url 'eventos:ficha' evento.pk %}"><span class="evento-faixas" aria-label="Cores dos participantes em destaque">{% for item_cor in evento.cores_agenda %}<i style="--faixa-cor:{{ item_cor.cor }}" title="{{ item_cor.nome }}"></i>{% endfor %}</span><span class="evento-nome">{{ evento.nome }}</span></a>{% endfor %}{% endif %}
             </div>
             {% endfor %}{% endfor %}
         </div>
@@ -40,7 +40,8 @@
     <aside class="eventos-card proximos-card">
         <h2>Próximos eventos</h2>
         {% for evento in proximos_eventos %}
-        <a class="proximo-evento" style="--evento-cores:{{ evento.gradiente_agenda }}" href="{% url 'eventos:ficha' evento.pk %}">
+        <a class="proximo-evento" style="--evento-cor:{{ evento.cor_agenda }};--evento-texto:{{ evento.cor_texto_agenda }}" href="{% url 'eventos:ficha' evento.pk %}">
+            <span class="evento-faixas" aria-label="Cores dos participantes em destaque">{% for item_cor in evento.cores_agenda %}<i style="--faixa-cor:{{ item_cor.cor }}" title="{{ item_cor.nome }}"></i>{% endfor %}</span>
             <time><strong>{{ evento.inicio|date:"d" }}</strong><span>{{ evento.inicio|date:"M" }}</span></time>
             <div><strong>{{ evento.nome }}</strong><span>{{ evento.inicio|date:"H:i" }} · {{ evento.local|default:"Local a definir" }}</span><small>{{ evento.get_status_display }}</small></div>
         </a>

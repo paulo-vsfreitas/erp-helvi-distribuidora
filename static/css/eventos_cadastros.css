@@ -32,6 +32,23 @@
     text-decoration: line-through;
     opacity: .82;
 }
+.calendario-dia a:not(.calendario-evento--cancelado) {
+    position: relative;
+    padding-top: 10px;
+    background: var(--evento-cor, #d84a8b) !important;
+    color: var(--evento-texto, #fff) !important;
+}
+.proximo-evento {
+    position: relative;
+    padding-top: 20px;
+    background: var(--evento-cor, #d84a8b) !important;
+    color: var(--evento-texto, #fff) !important;
+}
+.proximo-evento div span, .proximo-evento small { color: inherit !important; opacity: .82; }
+.evento-faixas { position: absolute; inset: 0 0 auto; display: flex; height: 6px; overflow: hidden; border-radius: inherit; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.evento-faixas i { min-width: 0; flex: 1 1 0; background: var(--faixa-cor); }
+.calendario-evento--cancelado .evento-faixas { display: none; }
+.evento-nome { color: inherit; }
 .financeiro-resumo { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .financeiro-atalhos { display: flex; flex-wrap: wrap; gap: 8px; margin: -4px 0 20px; }
 .financeiro-lancamentos, .financeiro-historico { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; margin-bottom: 20px; }

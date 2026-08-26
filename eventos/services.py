@@ -37,6 +37,7 @@ def validar_agenda_evento(*, dados, evento_id=None):
         raise ValidationError(f"Já existe o evento ‘{duplicado.nome}’ nesse mesmo dia.")
 
     pessoas = set(dados.get("pessoas_equipe") or [])
+    pessoas.update(dados.get("participantes_destaque") or [])
     equipe = dados.get("equipe")
     if equipe:
         pessoas.update(equipe.pessoas.filter(ativo=True))
@@ -65,8 +66,8 @@ def obter_contexto_lista(*, ano=None, mes=None):
     ultimo = timezone.make_aware(datetime(ano, mes, ultimo_dia, 23, 59, 59))
     eventos_mes = list(
         Evento.objects.filter(inicio__lte=ultimo, fim__gte=primeiro)
-        .select_related("responsavel")
-        .prefetch_related("pessoas_equipe")
+        .select_related("responsavel", "participante_principal")
+        .prefetch_related("pessoas_equipe", "participantes_destaque")
     )
     for evento in eventos_mes:
         _preparar_cores_agenda(evento)
@@ -87,7 +88,9 @@ def obter_contexto_lista(*, ano=None, mes=None):
     proximos_eventos = list(
         Evento.objects.filter(fim__gte=timezone.now())
         .exclude(status=Evento.STATUS_CANCELADO)
-        .select_related("responsavel").prefetch_related("pessoas_equipe")[:8]
+        .select_related("responsavel", "participante_principal").prefetch_related(
+            "pessoas_equipe", "participantes_destaque",
+        )[:8]
     )
     for evento in proximos_eventos:
         _preparar_cores_agenda(evento)
@@ -112,11 +115,23 @@ def obter_contexto_lista(*, ano=None, mes=None):
 
 
 def _preparar_cores_agenda(evento):
+    pessoas = list(evento.participantes_destaque.all())
+    if not pessoas and evento.participante_principal:
+        pessoas = [evento.participante_principal]
+    if not pessoas:
+        pessoas = list(evento.pessoas_equipe.all())
     cores = []
-    for pessoa in evento.pessoas_equipe.all():
-        if pessoa.cor_agenda not in cores:
-            cores.append(pessoa.cor_agenda)
-    evento.gradiente_agenda = cores[0] if cores else "#D84A8B"
+    for pessoa in pessoas:
+        if not any(item["cor"] == pessoa.cor_agenda for item in cores):
+            cores.append({"cor": pessoa.cor_agenda, "nome": pessoa.nome})
+    if not cores:
+        cores = [{"cor": "#D84A8B", "nome": "Evento"}]
+    cor = cores[0]["cor"]
+    rgb = tuple(int(cor[indice:indice + 2], 16) for indice in (1, 3, 5))
+    luminancia = (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 1000
+    evento.cor_agenda = cor
+    evento.cor_texto_agenda = "#242321" if luminancia >= 155 else "#FFFFFF"
+    evento.cores_agenda = cores
 
 
 def obter_contexto_evento(pk):

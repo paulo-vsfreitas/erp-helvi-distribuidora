@@ -19,6 +19,13 @@
 - rótulos financeiros deixam de chamar valores já pagos ou recebidos de
   “previstos”; compromissos futuros permanecem identificados em A pagar e A
   receber.
+- eventos passam a ter participante principal explícito, cuja cor cadastrada
+  preenche o cartão na Agenda e na lista de próximos eventos; o texto ajusta o
+  contraste automaticamente.
+- seleção visual evolui para vários participantes em destaque, exibindo suas
+  cores em blocos sólidos lado a lado e migrando automaticamente a escolha
+  principal já existente.
+- campo de usuários internos é renomeado para “Participantes com acesso ao ERP”.
 
 ## 24/08/2026 — Eventos e lucro por stand na Use Helvi
 

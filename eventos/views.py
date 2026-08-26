@@ -59,6 +59,7 @@ def novo(request):
                 evento.criado_por = request.user
                 evento.save()
                 form.save_m2m()
+                evento.pessoas_equipe.add(*evento.participantes_destaque.all())
                 if evento.equipe_id:
                     evento.pessoas_equipe.add(*evento.equipe.pessoas.filter(ativo=True))
                 messages.success(request, "Evento cadastrado com sucesso.")

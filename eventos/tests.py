@@ -184,17 +184,34 @@ class EventosUseHelviTests(TestCase):
         evento = Evento.objects.get(nome="Evento com equipe")
         self.assertEqual(list(evento.pessoas_equipe.all()), [pessoa])
 
-    def test_cor_fixa_da_primeira_pessoa_em_ordem_alfabetica_identifica_evento(self):
+    def test_cores_dos_participantes_em_destaque_aparecem_no_calendario(self):
         paulo = PessoaEquipe.objects.create(nome="Paulo agenda", cor_agenda="#198754")
         helen = PessoaEquipe.objects.create(nome="Helen agenda", cor_agenda="#e78fba")
         evento = self.criar_evento()
         evento.pessoas_equipe.add(paulo, helen)
+        evento.participantes_destaque.add(paulo, helen)
 
         resposta = self.client.get(reverse("eventos:agenda"))
 
-        self.assertContains(resposta, "#e78fba")
-        self.assertNotContains(resposta, "--evento-cores:#198754")
-        self.assertNotContains(resposta, "linear-gradient(90deg, #198754")
+        self.assertContains(resposta, "--faixa-cor:#198754")
+        self.assertContains(resposta, "--faixa-cor:#e78fba")
+        self.assertContains(resposta, 'title="Paulo agenda"')
+        self.assertContains(resposta, 'title="Helen agenda"')
+
+    def test_participantes_em_destaque_sao_incluidos_nas_pessoas_do_evento(self):
+        principal = PessoaEquipe.objects.create(nome="Principal", cor_agenda="#F4C430")
+        agora = timezone.localtime(timezone.now() + timedelta(days=4))
+        resposta = self.client.post(reverse("eventos:novo"), {
+            "nome": "Evento com principal", "status": "planejado",
+            "inicio": agora.strftime("%Y-%m-%dT%H:%M"),
+            "fim": (agora + timedelta(hours=2)).strftime("%Y-%m-%dT%H:%M"),
+            "responsavel": self.usuario.pk, "participantes_destaque": [principal.pk],
+        })
+        self.assertEqual(resposta.status_code, 302)
+        evento = Evento.objects.get(nome="Evento com principal")
+        self.assertEqual(list(evento.participantes_destaque.all()), [principal])
+        self.assertTrue(evento.pessoas_equipe.filter(pk=principal.pk).exists())
+        self.assertEqual(EventoForm().fields["participantes"].label, "Participantes com acesso ao ERP")
 
     def test_cadastro_de_pessoa_oferece_paleta_rgb_fixa_rose_gold(self):
         form = PessoaEquipeForm(data={

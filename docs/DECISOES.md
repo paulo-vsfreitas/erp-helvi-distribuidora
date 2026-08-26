@@ -99,8 +99,9 @@ Cliente ou interessado
 - a tela Financeiro concentra os lançamentos e acessos financeiros da Use Helvi.
 - a cor da agenda pertence ao cadastro da pessoa e vem de uma paleta RGB fixa,
   formada por cores visualmente distantes para facilitar a identificação;
-- eventos com mais de uma pessoa usam a cor da primeira pessoa em ordem
-  alfabética, sem gradientes;
+- participantes em destaque definem as cores do cartão na Agenda; quando há
+  mais de uma pessoa, as cores aparecem em blocos sólidos lado a lado, sem
+  gradiente;
 - a identidade visual da operação Use Helvi é o rose gold cobre da logo,
   grafite e off-white, sem roxo ou misturas em gradiente;
 - lembretes aparecem na Agenda conforme a antecedência definida no evento.

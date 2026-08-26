@@ -30,8 +30,11 @@ Atualizado em 24/08/2026.
 - cor definida no cadastro de cada pessoa por uma paleta RGB fixa e contrastante
   (verde, amarelo, azul, preto, marrom, laranja, vermelho, cinza, rosa e
   dourado), reutilizada em todos os eventos sem gradientes;
-- eventos com várias pessoas usam como cor principal a primeira pessoa em ordem
-  alfabética, mantendo uma identificação sólida e previsível no calendário.
+- cada evento pode definir vários participantes em destaque; o cartão usa uma
+  cor sólida como base e mostra todas as cores selecionadas em blocos lado a
+  lado no calendário e na lista de próximos eventos, sem gradiente;
+- eventos antigos com participante principal têm essa pessoa copiada
+  automaticamente para a nova seleção múltipla.
 - pessoas da equipe guardam somente nome, contato e cor; Instagram pertence às
   informações do organizador/local do evento.
 - mensagens de campos obrigatórios, dados inválidos e falhas ao salvar são
@@ -92,6 +95,8 @@ o PDF segue anexado pelo backend configurado.
   mistura com os dados da Helvi Distribuidora;
 - participantes internos são usuários ativos do ERP; nomes externos podem ser
   informados sem criar acesso ao sistema.
+- o formulário identifica esses usuários como “Participantes com acesso ao
+  ERP”, distinguindo-os das pessoas cadastradas para equipes e stands;
 - pessoas da equipe não precisam receber usuário ou acesso ao ERP;
 - exclusão de pessoa, equipe ou categoria é lógica, preservando vínculos e
   histórico; itens inativos deixam de aparecer em novas seleções.

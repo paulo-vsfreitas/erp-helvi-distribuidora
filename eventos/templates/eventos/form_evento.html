@@ -18,7 +18,8 @@
         {% include "eventos/field.html" with field=form.lembrete_mensagem wide=True %}
     </div></section>
     <section><h2>Equipe do stand</h2><div class="eventos-form-grid">
-        {% include "eventos/field.html" with field=form.equipe %}{% include "eventos/field.html" with field=form.pessoas_equipe wide=True %}
+        {% include "eventos/field.html" with field=form.participantes_destaque wide=True %}{% include "eventos/field.html" with field=form.equipe %}
+        {% include "eventos/field.html" with field=form.pessoas_equipe wide=True %}
         {% include "eventos/field.html" with field=form.responsavel %}{% include "eventos/field.html" with field=form.tipo_contato_responsavel %}
         {% include "eventos/field.html" with field=form.contato_responsavel %}
         {% include "eventos/field.html" with field=form.participantes wide=True %}{% include "eventos/field.html" with field=form.participantes_externos wide=True %}

@@ -25,11 +25,12 @@ def _normalizar_telefone(valor):
 class EventoForm(forms.ModelForm):
     class Meta:
         model = Evento
-        exclude = ["criado_por"]
+        exclude = ["criado_por", "participante_principal"]
         widgets = {
             "inicio": forms.DateTimeInput(attrs={"type": "datetime-local"}, format="%Y-%m-%dT%H:%M"),
             "fim": forms.DateTimeInput(attrs={"type": "datetime-local"}, format="%Y-%m-%dT%H:%M"),
             "participantes": forms.CheckboxSelectMultiple(),
+            "participantes_destaque": forms.CheckboxSelectMultiple(),
             "pessoas_equipe": forms.CheckboxSelectMultiple(),
             "participantes_externos": forms.Textarea(attrs={"rows": 3}),
             "observacoes": forms.Textarea(attrs={"rows": 3}),
@@ -43,8 +44,13 @@ class EventoForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["responsavel"].queryset = Usuario.objects.filter(is_active=True).order_by("first_name", "username")
         self.fields["participantes"].queryset = Usuario.objects.filter(is_active=True).order_by("first_name", "username")
+        self.fields["participantes"].label = "Participantes com acesso ao ERP"
         self.fields["equipe"].queryset = EquipeEvento.objects.filter(ativo=True).order_by("nome")
         self.fields["pessoas_equipe"].queryset = PessoaEquipe.objects.filter(ativo=True).order_by("nome")
+        destaques = PessoaEquipe.objects.filter(ativo=True)
+        if self.instance.pk:
+            destaques = destaques | self.instance.participantes_destaque.all()
+        self.fields["participantes_destaque"].queryset = destaques.distinct().order_by("nome")
         self.fields["lembrete_dias_antes"].required = False
         for field in self.fields.values():
             if not isinstance(field.widget, forms.CheckboxSelectMultiple):
@@ -76,6 +82,8 @@ class EventoForm(forms.ModelForm):
         evento = super().save(commit=commit)
         if commit and evento.equipe_id:
             evento.pessoas_equipe.add(*evento.equipe.pessoas.filter(ativo=True))
+        if commit:
+            evento.pessoas_equipe.add(*evento.participantes_destaque.all())
         return evento
 
 

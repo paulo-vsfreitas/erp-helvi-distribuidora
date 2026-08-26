@@ -36,9 +36,9 @@ A navegação agora combina perfil e operação: a Use Helvi exibe e aceita some
 seu painel, Eventos e Financeiro, enquanto os módulos operacionais tradicionais
 ficam restritos à Distribuidora também em acessos diretos por URL.
 A Agenda da Use Helvi possui lembretes em pop-up, configuráveis por evento, e
-identificação visual por pessoa em uma paleta RGB fixa. Quando várias pessoas
-participam do mesmo evento, a primeira em ordem alfabética define a cor sólida
-do cartão no calendário.
+identificação visual por pessoa em uma paleta RGB fixa. Um evento pode destacar
+vários participantes e mostrar suas cores em blocos sólidos lado a lado no
+cartão do calendário, com contraste automático do texto.
 Eventos cancelados continuam visíveis para histórico, identificados por texto
 riscado e cor vermelha.
 
